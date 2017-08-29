@@ -11,14 +11,23 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.sayHello"
+    "onCommand:azure-iot-edge.editTemplate",
+    "onCommand:azure-iot-edge.deployTemplate",
+    "onCommand:azure-iot-edge.updateInterval"
   ],
   "main": "./out/src/extension",
   "contributes": {
-    "commands": [
+    "commands": [{
+        "command": "azure-iot-edge.editTemplate",
+        "title": "Edge: Edit input template"
+      },
       {
-        "command": "extension.sayHello",
-        "title": "Hello World"
+        "command": "azure-iot-edge.deployTemplate",
+        "title": "Edge: Deploy input template"
+      },
+      {
+        "command": "azure-iot-edge.updateInterval",
+        "title": "Edge: Update interval"
       }
     ]
   },

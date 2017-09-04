@@ -1,0 +1,6 @@
+{
+    "routes": [
+        "FROM /messages/modules/input-simulator/outputs/MessageGeneratorOutput INTO BrokeredEndpoint(\"/modules/<Module Name>/inputs/<Input Name>\")",
+        "FROM /messages/modules/<Module Name>/outputs/<Output Name> INTO BrokeredEndpoint(\"/modules/output-simulator/inputs/input1\")"
+    ]
+}

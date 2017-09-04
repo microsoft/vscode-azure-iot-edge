@@ -5,7 +5,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { Executor } from "../common/executor";
 
-const InputModuleName = "message-generator";
+const InputModuleName = "input-simulator";
 const InputTemplateFileName = "iot-edge-input-template.hbs";
 const InputTemplateFilePath = path.join(os.tmpdir(), InputTemplateFileName);
 const InputTemplate = `{

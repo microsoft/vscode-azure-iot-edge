@@ -1,10 +1,12 @@
 "use strict";
 import * as vscode from "vscode";
 import { Executor } from "./common/executor";
-import { InputModuleManager } from "./inputModule/inputModuleManager";
+import { EdgeManager } from "./edge/edgeManager";
+import { InputModuleManager } from "./module/inputModuleManager";
 
 export function activate(context: vscode.ExtensionContext) {
     const inputModuleManager = new InputModuleManager();
+    const edgeManager = new EdgeManager(context);
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.editTemplate", () => {
         inputModuleManager.editTemplate();
@@ -16,6 +18,18 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.updateInterval", () => {
         inputModuleManager.updateInterval();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.generateDeploymentJsonForVerification", () => {
+        edgeManager.generateDeploymentJsonForVerification();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.generateRoutesJsonForVerification", () => {
+        edgeManager.generateRoutesJsonForVerification();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.verifyModule", () => {
+        edgeManager.verifyModule();
     }));
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

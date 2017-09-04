@@ -13,11 +13,15 @@
   "activationEvents": [
     "onCommand:azure-iot-edge.editTemplate",
     "onCommand:azure-iot-edge.deployTemplate",
-    "onCommand:azure-iot-edge.updateInterval"
+    "onCommand:azure-iot-edge.updateInterval",
+    "onCommand:azure-iot-edge.generateDeploymentJsonForVerification",
+    "onCommand:azure-iot-edge.generateRoutesJsonForVerification",
+    "onCommand:azure-iot-edge.verifyModule"
   ],
   "main": "./out/src/extension",
   "contributes": {
-    "commands": [{
+    "commands": [
+      {
         "command": "azure-iot-edge.editTemplate",
         "title": "Edge: Edit input template"
       },
@@ -28,6 +32,18 @@
       {
         "command": "azure-iot-edge.updateInterval",
         "title": "Edge: Update interval"
+      },
+      {
+        "command": "azure-iot-edge.generateDeploymentJsonForVerification",
+        "title": "Edge: Generate deployment.json for module verification"
+      },
+      {
+        "command": "azure-iot-edge.generateRoutesJsonForVerification",
+        "title": "Edge: Generate routes.json for module verification"
+      },
+      {
+        "command": "azure-iot-edge.verifyModule",
+        "title": "Edge: Verify Module"
       }
     ]
   },
@@ -45,5 +61,8 @@
     "tslint": "^5.7.0",
     "typescript": "^2.0.3",
     "vscode": "^1.0.0"
+  },
+  "dependencies": {
+    "fs-extra": "^4.0.1"
   }
 }

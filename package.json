@@ -16,7 +16,9 @@
     "onCommand:azure-iot-edge.updateInterval",
     "onCommand:azure-iot-edge.generateDeploymentJsonForVerification",
     "onCommand:azure-iot-edge.generateRoutesJsonForVerification",
-    "onCommand:azure-iot-edge.verifyModule"
+    "onCommand:azure-iot-edge.verifyModule",
+    "onCommand:azure-iot-edge.viewModuleInput",
+    "onCommand:azure-iot-edge.viewModuleOutput"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -44,6 +46,14 @@
       {
         "command": "azure-iot-edge.verifyModule",
         "title": "Edge: Verify Module"
+      },
+      {
+        "command": "azure-iot-edge.viewModuleInput",
+        "title": "Edge: View Module Input"
+      },
+      {
+        "command": "azure-iot-edge.viewModuleOutput",
+        "title": "Edge: View Module Output"
       }
     ]
   },

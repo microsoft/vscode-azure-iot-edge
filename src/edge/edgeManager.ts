@@ -39,6 +39,14 @@ export class EdgeManager {
         });
     }
 
+    public viewModuleInput() {
+        Executor.runInTerminal(`docker logs input-simulator --tail 50 -f`, "Module Input");
+    }
+
+    public viewModuleOutput() {
+        Executor.runInTerminal(`docker logs output-simulator --tail 50 -f`, "Module Output");
+    }
+
     private generateFile(fileName: string) {
         if (vscode.workspace.rootPath) {
             const fullFileName = path.join(vscode.workspace.rootPath, ".vscode", fileName);

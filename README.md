@@ -1,65 +1,73 @@
-# azure-iot-edge README
+# Azure IoT Edge
 
-This is the README for your extension "azure-iot-edge". After writing up a brief description, we recommend including the following sections.
+## Prerequisites
 
-## Features
+* [Docker](https://www.docker.com/)
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+* [.NET Core](https://www.microsoft.com/net/core)
 
-For example if there is an image subfolder under your extension project workspace:
+* [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
 
-\!\[feature X\]\(images/feature-x.png\)
+## Commnads
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see all the commands:
 
-## Requirements
+![commands](images/commands.png)
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
 
-## Extension Settings
+## Message template authoring
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Go to [Dummy JSON](https://github.com/webroo/dummy-json) for reference.
 
-For example:
+## Sample of deployment.json
 
-This extension contributes the following settings:
+```json
+{
+    "modules": {
+        "filter2": {
+            "name": "filter2",
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "config": {
+                "image": "127.0.0.1:5000/filtermodule2",
+                "tag": "latest",
+                "env": {}
+            }
+        },
+        "input-simulator": {
+            "name": "input-simulator",
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "config": {
+                "image": "formulahendry/iot-edge-input-simulator",
+                "tag": "latest",
+                "env": {}
+            }
+        },
+        "output-simulator": {
+            "name": "output-simulator",
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "config": {
+                "image": "formulahendry/iot-edge-output-simulator",
+                "tag": "latest",
+                "env": {}
+            }
+        }
+    }
+}
+```
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+## Sample of routes.json
 
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on OSX or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on OSX or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (OSX) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+```json
+{
+    "routes": [
+        "FROM /messages/modules/input-simulator/outputs/MessageGeneratorOutput INTO BrokeredEndpoint(\"/modules/filter2/inputs/input1\")",
+        "FROM /messages/modules/filter2/outputs/alertOutput INTO BrokeredEndpoint(\"/modules/output-simulator/inputs/input1\")"
+    ]
+}
+```

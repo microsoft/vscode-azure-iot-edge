@@ -22,8 +22,7 @@
   ],
   "main": "./out/src/extension",
   "contributes": {
-    "commands": [
-      {
+    "commands": [{
         "command": "azure-iot-edge.editTemplate",
         "title": "Edge: Edit input template"
       },
@@ -55,7 +54,35 @@
         "command": "azure-iot-edge.viewModuleOutput",
         "title": "Edge: View Module Output"
       }
-    ]
+    ],
+    "debuggers": [{
+      "type": "edge-coreclr",
+      "label": "Edge Debug (.NET Core)",
+      "variables": {
+        "pickRemoteProcess": "csharp.listRemoteProcess2"
+      },
+      "initialConfigurations": [{
+        "name": "Debug Edge Moddule (.NET Core)",
+        "type": "coreclr",
+        "request": "attach",
+        "processId": "${command:pickRemoteProcess}",
+        "pipeTransport": {
+          "pipeProgram": "bash",
+          "pipeArgs": ["-c", "docker exec -i <contianer_name> ${debuggerCommand}"],
+          "debuggerPath": "/root/vsdbg/vsdbg",
+          "pipeCwd": "${workspaceRoot}",
+          "quoteArgs": true,
+          "windows": {
+            "pipeProgram": "cmd",
+            "pipeArgs": ["/c", "docker exec -i <contianer_name> ${debuggerCommand}"]
+          }
+        },
+        "sourceFileMap": {
+          "/app": "${workspaceRoot}"
+        },
+        "justMyCode": true
+      }]
+    }]
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",

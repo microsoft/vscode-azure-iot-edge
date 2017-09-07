@@ -18,6 +18,12 @@ export class Utility {
         return result ? result[1] : "";
     }
 
+    public static showfile(fileName: string) {
+        vscode.workspace.openTextDocument(fileName).then((document: vscode.TextDocument) => {
+            vscode.window.showTextDocument(document);
+        });
+    }
+
     public static getDevices(): Promise<iothub.Device[]> {
         const config = Utility.getConfiguration();
         const iotHubConnectionString = config.get<string>(Constants.IotHubConnectionStringKey);

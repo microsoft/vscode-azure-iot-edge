@@ -4,6 +4,7 @@ import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import { Executor } from "../common/executor";
+import { Utility } from "../common/utility";
 
 const InputModuleName = "input-simulator";
 const InputTemplateFileName = "iot-edge-input-template.hbs";
@@ -21,9 +22,7 @@ export class InputModuleManager {
         if (!fs.existsSync(InputTemplateFilePath)) {
             fs.writeFileSync(InputTemplateFilePath, InputTemplate);
         }
-        vscode.workspace.openTextDocument(InputTemplateFilePath).then((document: vscode.TextDocument) => {
-            vscode.window.showTextDocument(document);
-        });
+        Utility.showfile(InputTemplateFilePath);
     }
 
     public deployTemplate() {

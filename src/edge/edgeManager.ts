@@ -92,7 +92,7 @@ export class EdgeManager {
                     fs.mkdirSync(folder);
                 }
                 fse.copySync(this.context.asAbsolutePath(path.join("assets", fileName)), fullFileName);
-                vscode.window.showInformationMessage(`${fileName} is generated in '.vscode' folder.`);
+                Utility.showfile(fullFileName);
             }
         } else {
             vscode.window.showWarningMessage("No folder is opened.");

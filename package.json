@@ -18,7 +18,10 @@
     "onCommand:azure-iot-edge.generateRoutesJsonForVerification",
     "onCommand:azure-iot-edge.verifyModule",
     "onCommand:azure-iot-edge.viewModuleInput",
-    "onCommand:azure-iot-edge.viewModuleOutput"
+    "onCommand:azure-iot-edge.viewModuleOutput",
+    "onCommand:azure-iot-edge.login",
+    "onCommand:azure-iot-edge.deploy",
+    "onCommand:azure-iot-edge.launch"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -53,8 +56,31 @@
       {
         "command": "azure-iot-edge.viewModuleOutput",
         "title": "Edge: View Module Output"
+      },
+      {
+        "command": "azure-iot-edge.login",
+        "title": "Edge: Login"
+      },
+      {
+        "command": "azure-iot-edge.deploy",
+        "title": "Edge: Deploy"
+      },
+      {
+        "command": "azure-iot-edge.launch",
+        "title": "Edge: Launch"
       }
     ],
+    "configuration": {
+      "type": "object",
+      "title": "Azure IoT Edge configuration",
+      "properties": {
+        "azure-iot-edge.iotHubConnectionString": {
+          "type": "string",
+          "default": "",
+          "description": "IoT Hub Connection String"
+        }
+      }
+    },
     "debuggers": [{
       "type": "edge-coreclr",
       "label": "Edge Debug (.NET Core)",
@@ -68,13 +94,19 @@
         "processId": "${command:pickRemoteProcess}",
         "pipeTransport": {
           "pipeProgram": "bash",
-          "pipeArgs": ["-c", "docker exec -i <contianer_name> ${debuggerCommand}"],
+          "pipeArgs": [
+            "-c",
+            "docker exec -i <contianer_name> ${debuggerCommand}"
+          ],
           "debuggerPath": "/root/vsdbg/vsdbg",
           "pipeCwd": "${workspaceRoot}",
           "quoteArgs": true,
           "windows": {
             "pipeProgram": "cmd",
-            "pipeArgs": ["/c", "docker exec -i <contianer_name> ${debuggerCommand}"]
+            "pipeArgs": [
+              "/c",
+              "docker exec -i <contianer_name> ${debuggerCommand}"
+            ]
           }
         },
         "sourceFileMap": {
@@ -100,6 +132,7 @@
     "vscode": "^1.0.0"
   },
   "dependencies": {
+    "azure-iothub": "^1.1.15",
     "fs-extra": "^4.0.1"
   }
 }

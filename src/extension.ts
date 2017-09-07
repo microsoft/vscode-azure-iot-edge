@@ -40,6 +40,18 @@ export function activate(context: vscode.ExtensionContext) {
         edgeManager.viewModuleOutput();
     }));
 
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.login", () => {
+        edgeManager.login();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.deploy", () => {
+        edgeManager.deploy();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.launch", () => {
+        edgeManager.launch();
+    }));
+
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {
         Executor.onDidCloseTerminal(closedTerminal);
     }));

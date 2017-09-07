@@ -83,4 +83,8 @@ Go to [Dummy JSON](https://github.com/webroo/dummy-json) for reference.
 
     ![select-process](images/select-process.png)
 
+## Repo for simulator Modules
+
+See https://github.com/azure/edge-module-debug
+
 

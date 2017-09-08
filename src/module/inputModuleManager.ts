@@ -10,8 +10,8 @@ const InputModuleName = "input-simulator";
 const InputTemplateFileName = "iot-edge-input-template.hbs";
 const InputTemplateFilePath = path.join(os.tmpdir(), InputTemplateFileName);
 const InputTemplate = `{
-    Temperature: {{int 10 35}},
-    Humidity: {{int 50 80}}
+    "Temperature": {{int 10 35}},
+    "Humidity": {{int 50 80}}
 }`;
 const InputConfigFileName = "config.json";
 const InputConfigFilePath = path.join(os.tmpdir(), "iot-edge-input-config.json");

@@ -96,7 +96,7 @@
           "pipeProgram": "bash",
           "pipeArgs": [
             "-c",
-            "docker exec -i <contianer_name> ${debuggerCommand}"
+            "docker exec -i <container_name> ${debuggerCommand}"
           ],
           "debuggerPath": "/root/vsdbg/vsdbg",
           "pipeCwd": "${workspaceRoot}",
@@ -105,7 +105,7 @@
             "pipeProgram": "cmd",
             "pipeArgs": [
               "/c",
-              "docker exec -i <contianer_name> ${debuggerCommand}"
+              "docker exec -i <container_name> ${debuggerCommand}"
             ]
           }
         },

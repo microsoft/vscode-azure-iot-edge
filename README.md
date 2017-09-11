@@ -78,7 +78,7 @@ Go to [Dummy JSON](https://github.com/webroo/dummy-json) for reference.
 2. Press `F5` and select `Edge Debug (.NET Core)`, then a `launch.json` file will be created in `.vscode` folder
 
     ![debug-config](images/debug-config.png)
-3. In `launch.json`, replace `<contianer_name>` with your real contianer name
+3. In `launch.json`, replace `<container_name>` with your real container name
 4. Press `F5` again and select the right process (dotnet ***.dll) to attach
 
     ![select-process](images/select-process.png)

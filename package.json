@@ -21,7 +21,8 @@
     "onCommand:azure-iot-edge.viewModuleOutput",
     "onCommand:azure-iot-edge.login",
     "onCommand:azure-iot-edge.deploy",
-    "onCommand:azure-iot-edge.launch"
+    "onCommand:azure-iot-edge.launch",
+    "onCommand:azure-iot-edge.buildDockerImage"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -69,6 +70,10 @@
       {
         "command": "azure-iot-edge.launch",
         "title": "Edge: Launch"
+      },
+      {
+        "command": "azure-iot-edge.buildDockerImage",
+        "title": "Edge: Build Docker image"
       }
     ],
     "configuration": {

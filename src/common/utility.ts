@@ -43,4 +43,13 @@ export class Utility {
             });
         });
     }
+
+    public static checkWorkspace(): boolean {
+        if (!vscode.workspace.rootPath) {
+            vscode.window.showErrorMessage("This extension only works on a workspace folder.");
+            return false;
+        }
+
+        return true;
+    }
 }

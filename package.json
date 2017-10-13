@@ -88,7 +88,7 @@
         "pickRemoteProcess": "csharp.listRemoteProcess2"
       },
       "initialConfigurations": [{
-        "name": "Debug Edge Moddule (.NET Core)",
+        "name": "Debug Edge Module (.NET Core)",
         "type": "coreclr",
         "request": "attach",
         "processId": "${command:pickRemoteProcess}",

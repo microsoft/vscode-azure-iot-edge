@@ -93,21 +93,17 @@
         "request": "attach",
         "processId": "${command:pickRemoteProcess}",
         "pipeTransport": {
-          "pipeProgram": "bash",
+          "pipeProgram": "docker",
           "pipeArgs": [
-            "-c",
-            "docker exec -i <container_name> ${debuggerCommand}"
+            "exec",
+            "-i",
+            "<container_name>",
+            "sh",
+            "-c"
           ],
           "debuggerPath": "/root/vsdbg/vsdbg",
           "pipeCwd": "${workspaceRoot}",
-          "quoteArgs": true,
-          "windows": {
-            "pipeProgram": "cmd",
-            "pipeArgs": [
-              "/c",
-              "docker exec -i <container_name> ${debuggerCommand}"
-            ]
-          }
+          "quoteArgs": true
         },
         "sourceFileMap": {
           "/app": "${workspaceRoot}"

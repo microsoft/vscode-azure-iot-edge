@@ -96,31 +96,56 @@
         },
         "initialConfigurations": [
           {
-            "name": "Debug Edge Moddule (.NET Core)",
+            "name": "Debug Edge Module (.NET Core)",
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickRemoteProcess}",
             "pipeTransport": {
-              "pipeProgram": "bash",
+              "pipeProgram": "docker",
               "pipeArgs": [
-                "-c",
-                "docker exec -i <container_name> ${debuggerCommand}"
+                "exec",
+                "-i",
+                "<container_name>",
+                "sh",
+                "-c"
               ],
               "debuggerPath": "/root/vsdbg/vsdbg",
               "pipeCwd": "${workspaceRoot}",
-              "quoteArgs": true,
-              "windows": {
-                "pipeProgram": "cmd",
-                "pipeArgs": [
-                  "/c",
-                  "docker exec -i <container_name> ${debuggerCommand}"
-                ]
-              }
+              "quoteArgs": true
             },
             "sourceFileMap": {
               "/app": "${workspaceRoot}"
             },
             "justMyCode": true
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "Edge: Debug Edge Module (.NET Core)",
+            "description": "Debug .NET Core Edge Module",
+            "body": {
+              "name": "Debug Edge Module (.NET Core)",
+              "type": "coreclr",
+              "request": "attach",
+              "processId": "^\"\\${command:pickRemoteProcess}\"",
+              "pipeTransport": {
+                "pipeProgram": "docker",
+                "pipeArgs": [
+                  "exec",
+                  "-i",
+                  "<container_name>",
+                  "sh",
+                  "-c"
+                ],
+                "debuggerPath": "/root/vsdbg/vsdbg",
+                "pipeCwd": "^\"\\${workspaceRoot}\"",
+                "quoteArgs": true
+              },
+              "sourceFileMap": {
+                "/app": "^\"\\${workspaceRoot}\""
+              },
+              "justMyCode": true
+            }
           }
         ]
       }

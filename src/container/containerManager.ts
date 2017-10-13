@@ -6,26 +6,31 @@ import { Executor } from "../common/executor";
 import { Utility } from "../common/utility";
 
 export class ContainerManager {
-    public async buildAndPushDockerImage() {
-        const imageName: string = await this.buildDockerImage();
+    public async buildAndPushDockerImage(dockerfileFromContext?: vscode.Uri) {
+        const imageName: string = await this.buildDockerImage(dockerfileFromContext);
         if (imageName) {
             this.pushDockerImage(imageName);
         }
     }
 
-    public async buildDockerImage(): Promise<string> {
-        const dockerfileList: vscode.Uri[] = await this.getDockerfileList();
-        if (!dockerfileList || dockerfileList.length === 0) {
-            vscode.window.showErrorMessage("No Dockerfile can be found under this workspace.");
-            return;
-        }
+    public async buildDockerImage(dockerfileFromContext?: vscode.Uri): Promise<string> {
+        let dockerfileItem: vscode.QuickPickItem;
+        if (dockerfileFromContext) {
+            dockerfileItem = this.getDockerfileItem(dockerfileFromContext);
+        } else {
+            const dockerfileList: vscode.Uri[] = await this.getDockerfileList();
+            if (!dockerfileList || dockerfileList.length === 0) {
+                vscode.window.showErrorMessage("No Dockerfile can be found under this workspace.");
+                return;
+            }
 
-        const dockerfileItemList: vscode.QuickPickItem[] = this.getDockerfileItemList(dockerfileList);
-        const dockerfileItem: vscode.QuickPickItem = await vscode.window.showQuickPick(dockerfileItemList, {placeHolder: "Select Dockerfile"});
+            const dockerfileItemList: vscode.QuickPickItem[] = this.getDockerfileItemList(dockerfileList);
+            dockerfileItem = await vscode.window.showQuickPick(dockerfileItemList, { placeHolder: "Select Dockerfile" });
+        }
         if (dockerfileItem) {
-            const buildArguments: string = await vscode.window.showInputBox({placeHolder: "Add build arguments", ignoreFocusOut: true});
+            const buildArguments: string = await vscode.window.showInputBox({ placeHolder: "Add build arguments", ignoreFocusOut: true });
             if (buildArguments !== undefined) { // continue if users don't press esc, but accept empty strings
-                const imageName: string = await vscode.window.showInputBox({placeHolder: "Enter image name", ignoreFocusOut: true});
+                const imageName: string = await vscode.window.showInputBox({ placeHolder: "Enter image name", ignoreFocusOut: true });
                 if (imageName !== undefined) {  // continue if users don't press esc, but accept empty strings
                     // TODO: handle the ending `.`
                     Executor.runInTerminal(`docker build -f ${dockerfileItem.detail} --build-arg ${buildArguments} -t ${imageName} .`);

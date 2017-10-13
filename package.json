@@ -26,6 +26,22 @@
   ],
   "main": "./out/src/extension",
   "contributes": {
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorLangId == dockerfile",
+          "command": "azure-iot-edge.buildAndPushDockerImage",
+          "group": "azure-iot-edge"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "resourceLangId == dockerfile",
+          "command": "azure-iot-edge.buildAndPushDockerImage",
+          "group": "azure-iot-edge"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "azure-iot-edge.editTemplate",

@@ -24,11 +24,18 @@ export class ContainerManager {
         const dockerfileItem: vscode.QuickPickItem = await vscode.window.showQuickPick(dockerfileItemList, {placeHolder: "Select Dockerfile"});
         if (dockerfileItem) {
             const buildArguments: string = await vscode.window.showInputBox({placeHolder: "Add build arguments", ignoreFocusOut: true});
-            const imageName: string = await vscode.window.showInputBox({placeHolder: "Enter image name", ignoreFocusOut: true});
+            if (buildArguments !== undefined) { // continue if users don't press esc, but accept empty strings
+                const imageName: string = await vscode.window.showInputBox({placeHolder: "Enter image name", ignoreFocusOut: true});
+                if (imageName !== undefined) {  // continue if users don't press esc, but accept empty strings
+                    // TODO: handle the ending `.`
+                    Executor.runInTerminal(`docker build -f ${dockerfileItem.detail} --build-arg ${buildArguments} -t ${imageName} .`);
 
-            Executor.runInTerminal(`docker build -f ${dockerfileItem.detail} --build-arg ${buildArguments} -t ${imageName}`);
+                    // debug only
+                    // Executor.runInTerminal("docker build -f ./Docker/linux-x64/Dockerfile --build-arg EXE_DIR=./bin/Debug/netcoreapp2.0/publish -t localhost:5000/filtermodule:latest .");
 
-            return imageName;
+                    return imageName;
+                }
+            }
         }
 
         return null;
@@ -51,7 +58,7 @@ export class ContainerManager {
     private getDockerfileItem(dockerfile: vscode.Uri): vscode.QuickPickItem {
         const dockerfileItem: vscode.QuickPickItem = {
             label: path.join(".", dockerfile.fsPath.substr(vscode.workspace.rootPath.length)),
-            description: dockerfile.fsPath,
+            description: null,
             detail: dockerfile.fsPath,  // use the `detail` property to save dockerfile's full path, which will be used during docker build
         };
 

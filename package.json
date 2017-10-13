@@ -109,6 +109,33 @@
           "/app": "${workspaceRoot}"
         },
         "justMyCode": true
+      }],
+      "configurationSnippets": [{
+        "label": "Edge: Debug Edge Module (.NET Core)",
+        "description": "Debug .NET Core Edge Module",
+        "body": {
+          "name": "Debug Edge Module (.NET Core)",
+          "type": "coreclr",
+          "request": "attach",
+          "processId": "^\"\\${command:pickRemoteProcess}\"",
+          "pipeTransport": {
+            "pipeProgram": "docker",
+            "pipeArgs": [
+              "exec",
+              "-i",
+              "<container_name>",
+              "sh",
+              "-c"
+            ],
+            "debuggerPath": "/root/vsdbg/vsdbg",
+            "pipeCwd": "^\"\\${workspaceRoot}\"",
+            "quoteArgs": true
+          },
+          "sourceFileMap": {
+            "/app": "^\"\\${workspaceRoot}\""
+          },
+          "justMyCode": true
+        }
       }]
     }]
   },

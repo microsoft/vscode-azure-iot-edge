@@ -7,6 +7,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
+import { TelemetryClient } from "../common/telemetryClient";
 import { Utility } from "../common/utility";
 
 export class EdgeManager {
@@ -36,6 +37,7 @@ export class EdgeManager {
     }
 
     public viewModuleInput() {
+        TelemetryClient.sendEvent("viewModuleInput");
         Executor.runInTerminal(`docker logs input-simulator --tail 50 -f`, "Module Input");
     }
 

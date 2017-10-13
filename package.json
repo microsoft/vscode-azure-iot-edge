@@ -104,7 +104,7 @@
               "pipeProgram": "bash",
               "pipeArgs": [
                 "-c",
-                "docker exec -i <contianer_name> ${debuggerCommand}"
+                "docker exec -i <container_name> ${debuggerCommand}"
               ],
               "debuggerPath": "/root/vsdbg/vsdbg",
               "pipeCwd": "${workspaceRoot}",
@@ -113,7 +113,7 @@
                 "pipeProgram": "cmd",
                 "pipeArgs": [
                   "/c",
-                  "docker exec -i <contianer_name> ${debuggerCommand}"
+                  "docker exec -i <container_name> ${debuggerCommand}"
                 ]
               }
             },
@@ -143,6 +143,7 @@
   },
   "dependencies": {
     "azure-iothub": "^1.1.15",
-    "fs-extra": "^4.0.1"
+    "fs-extra": "^4.0.1",
+    "vscode-extension-telemetry": "0.0.8"
   }
 }

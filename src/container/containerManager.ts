@@ -7,9 +7,11 @@ import { Utility } from "../common/utility";
 
 export class ContainerManager {
     public async buildAndPushDockerImage(dockerfileFromContext?: vscode.Uri) {
-        const imageName: string = await this.buildDockerImage(dockerfileFromContext);
-        if (imageName) {
-            this.pushDockerImage(imageName);
+        if (Utility.checkWorkspace()) {
+            const imageName: string = await this.buildDockerImage(dockerfileFromContext);
+            if (imageName) {
+                this.pushDockerImage(imageName);
+            }
         }
     }
 
@@ -28,12 +30,11 @@ export class ContainerManager {
             dockerfileItem = await vscode.window.showQuickPick(dockerfileItemList, { placeHolder: "Select Dockerfile" });
         }
         if (dockerfileItem) {
-            const buildArguments: string = await vscode.window.showInputBox({ placeHolder: "Add build arguments", ignoreFocusOut: true });
+            const buildArguments: string = await vscode.window.showInputBox({ prompt: "Add build arguments", placeHolder: "e.g., EXE_DIR=./bin/Release/netcoreapp2.0/publish", ignoreFocusOut: true });
             if (buildArguments !== undefined) { // continue if users don't press esc, but accept empty strings
-                const imageName: string = await vscode.window.showInputBox({ placeHolder: "Enter image name", ignoreFocusOut: true });
+                const imageName: string = await vscode.window.showInputBox({ prompt: "Enter image name", placeHolder: "e.g., myregistry.azurecr.io/myedgemodule:latest", ignoreFocusOut: true });
                 if (imageName !== undefined) {  // continue if users don't press esc, but accept empty strings
-                    // TODO: handle the ending `.`
-                    Executor.runInTerminal(`docker build -f ${dockerfileItem.detail} --build-arg ${buildArguments} -t ${imageName} .`);
+                    Executor.runInTerminal(`docker build -f ${dockerfileItem.detail} --build-arg ${buildArguments} -t ${imageName} ${vscode.workspace.rootPath}`);
 
                     // debug only
                     // Executor.runInTerminal("docker build -f ./Docker/linux-x64/Dockerfile --build-arg EXE_DIR=./bin/Debug/netcoreapp2.0/publish -t localhost:5000/filtermodule:latest .");
@@ -51,9 +52,7 @@ export class ContainerManager {
     }
 
     private async getDockerfileList(): Promise<vscode.Uri[]> {
-        if (Utility.checkWorkspace()) {
-            return await vscode.workspace.findFiles(Constants.dockerfileNamePattern, null, 1000, null);
-        }
+        return await vscode.workspace.findFiles(Constants.dockerfileNamePattern, null, 1000, null);
     }
 
     private getDockerfileItemList(dockerfileList: vscode.Uri[]): vscode.QuickPickItem[] {

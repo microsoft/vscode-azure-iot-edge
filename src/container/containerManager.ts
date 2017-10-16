@@ -3,10 +3,12 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
+import { TelemetryClient } from "../common/telemetryClient";
 import { Utility } from "../common/utility";
 
 export class ContainerManager {
     public async buildAndPushDockerImage(dockerfileFromContext?: vscode.Uri) {
+        TelemetryClient.sendEvent("start-build-and-push-docker-image");
         if (Utility.checkWorkspace()) {
             const imageName: string = await this.buildDockerImage(dockerfileFromContext);
             if (imageName) {
@@ -35,6 +37,7 @@ export class ContainerManager {
                 const imageName: string = await vscode.window.showInputBox({ prompt: "Enter image name", placeHolder: "e.g., myregistry.azurecr.io/myedgemodule:latest", ignoreFocusOut: true });
                 if (imageName !== undefined) {  // continue if users don't press esc, but accept empty strings
                     Executor.runInTerminal(`docker build -f ${dockerfileItem.detail} --build-arg ${buildArguments} -t ${imageName} ${vscode.workspace.rootPath}`);
+                    TelemetryClient.sendEvent("end-build-docker-image");
 
                     // debug only
                     // Executor.runInTerminal("docker build -f ./Docker/linux-x64/Dockerfile --build-arg EXE_DIR=./bin/Debug/netcoreapp2.0/publish -t localhost:5000/filtermodule:latest .");
@@ -49,6 +52,7 @@ export class ContainerManager {
 
     public async pushDockerImage(imageName: string) {
         Executor.runInTerminal(`docker push ${imageName}`);
+        TelemetryClient.sendEvent("end-push-docker-image");
     }
 
     private async getDockerfileList(): Promise<vscode.Uri[]> {

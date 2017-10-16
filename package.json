@@ -68,8 +68,21 @@
       {
         "command": "azure-iot-edge.launch",
         "title": "Edge: Launch"
+      },
+      {
+        "command": "azure-iot-edge.dotnetPublish",
+        "title": "Publish .NET project",
+        "category": "Edge"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceLangId == xml",
+          "command": "azure-iot-edge.dotnetPublish"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Azure IoT Edge configuration",

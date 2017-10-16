@@ -2,6 +2,7 @@
 import * as vscode from "vscode";
 import { Executor } from "./common/executor";
 import { EdgeManager } from "./edge/edgeManager";
+import { DotnetUtility } from "./languages/dotnet/dotnetUtility";
 import { InputModuleManager } from "./module/inputModuleManager";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -50,6 +51,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.launch", () => {
         edgeManager.launch();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.dotnetPublish", (fileUri: vscode.Uri) => {
+        DotnetUtility.dotnetPublish(fileUri);
     }));
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

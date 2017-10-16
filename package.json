@@ -31,11 +31,43 @@
         {
           "when": "editorLangId == dockerfile",
           "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == Dockerfile.debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == dockerfile.debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == Dockerfile.Debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == dockerfile.Debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
         }
       ],
       "explorer/context": [
         {
-          "when": "editorLangId == dockerfile",
+          "when": "resourceLangId == dockerfile",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == Dockerfile.debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == dockerfile.debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == Dockerfile.Debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == dockerfile.Debug",
           "command": "azure-iot-edge.buildAndPushDockerImage"
         },
         {

@@ -21,7 +21,8 @@
     "onCommand:azure-iot-edge.viewModuleOutput",
     "onCommand:azure-iot-edge.login",
     "onCommand:azure-iot-edge.deploy",
-    "onCommand:azure-iot-edge.launch"
+    "onCommand:azure-iot-edge.launch",
+    "onCommand:azure-iot-edge.dotnetPublish"
   ],
   "main": "./out/src/extension",
   "contributes": {

@@ -21,10 +21,12 @@ export class ContainerManager {
         const dockerfilePath: string = await this.getDockerfilePath(dockerfileFromContext);
 
         if (dockerfilePath) {
-            const buildArguments: string = await vscode.window.showInputBox({ prompt: "Add build arguments", placeHolder: "e.g., EXE_DIR=./bin/Release/netcoreapp2.0/publish", ignoreFocusOut: true });
+            const buildArguments: string = await vscode.window.showInputBox({ prompt: "Add build arguments", placeHolder: "E.g., EXE_DIR=./bin/Release/netcoreapp2.0/publish", ignoreFocusOut: true });
             if (buildArguments !== undefined) { // continue if users don't press esc, but accept empty strings
-                const imageName: string = await vscode.window.showInputBox({ prompt: "Enter image name", placeHolder: "e.g., myregistry.azurecr.io/myedgemodule:latest", ignoreFocusOut: true });
-                if (imageName !== undefined) {  // continue if users don't press esc, but accept empty strings
+                const imageName: string = await vscode.window.showInputBox({ prompt: "Enter image name", placeHolder: "E.g., myregistry.azurecr.io/myedgemodule:latest", ignoreFocusOut: true });
+                if (imageName === "") {
+                    vscode.window.showErrorMessage("Image name cannot be empty");
+                } else if (imageName) {
                     Executor.runInTerminal(`docker build -f ${dockerfilePath} --build-arg ${buildArguments} -t ${imageName} ${vscode.workspace.rootPath}`);
                     TelemetryClient.sendEvent("end-build-docker-image");
 

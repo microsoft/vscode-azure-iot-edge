@@ -30,15 +30,17 @@
       "editor/context": [
         {
           "when": "editorLangId == dockerfile",
-          "command": "azure-iot-edge.buildAndPushDockerImage",
-          "group": "azure-iot-edge"
+          "command": "azure-iot-edge.buildAndPushDockerImage"
         }
       ],
       "explorer/context": [
         {
-          "when": "resourceLangId == dockerfile",
-          "command": "azure-iot-edge.buildAndPushDockerImage",
-          "group": "azure-iot-edge"
+          "when": "editorLangId == dockerfile",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceLangId == xml",
+          "command": "azure-iot-edge.dotnetPublish"
         }
       ]
     },
@@ -101,6 +103,11 @@
       {
         "command": "azure-iot-edge.buildAndPushDockerImage",
         "title": "Build and push the module as a Docker image",
+        "category": "Edge"
+      },
+      {
+        "command": "azure-iot-edge.dotnetPublish",
+        "title": "Publish .NET project",
         "category": "Edge"
       }
     ],

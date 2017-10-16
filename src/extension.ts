@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { Executor } from "./common/executor";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
+import { DotnetUtility } from "./languages/dotnet/dotnetUtility";
 import { InputModuleManager } from "./module/inputModuleManager";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -54,8 +55,12 @@ export function activate(context: vscode.ExtensionContext) {
         edgeManager.launch();
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildAndPushDockerImage", (dockerfileFromContext) => {
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildAndPushDockerImage", (dockerfileFromContext: vscode.Uri) => {
         containerManager.buildAndPushDockerImage(dockerfileFromContext);
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.dotnetPublish", (fileUri: vscode.Uri) => {
+        DotnetUtility.dotnetPublish(fileUri);
     }));
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

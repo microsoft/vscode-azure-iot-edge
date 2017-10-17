@@ -45,8 +45,8 @@ export class Utility {
     }
 
     public static checkWorkspace(): boolean {
-        if (!vscode.workspace.rootPath) {
-            vscode.window.showErrorMessage("This extension only works on a workspace folder.");
+        if (!vscode.workspace.workspaceFolders) {
+            vscode.window.showErrorMessage("This extension only works when folders are opened.");
             return false;
         }
 

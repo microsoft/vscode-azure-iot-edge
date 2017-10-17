@@ -1,6 +1,7 @@
 "use strict";
 import * as vscode from "vscode";
 import { Executor } from "./common/executor";
+import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
 import { DotnetUtility } from "./languages/dotnet/dotnetUtility";
 import { InputModuleManager } from "./module/inputModuleManager";
@@ -8,6 +9,7 @@ import { InputModuleManager } from "./module/inputModuleManager";
 export function activate(context: vscode.ExtensionContext) {
     const inputModuleManager = new InputModuleManager();
     const edgeManager = new EdgeManager(context);
+    const containerManager = new ContainerManager();
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.editTemplate", () => {
         inputModuleManager.editTemplate();
@@ -51,6 +53,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.launch", () => {
         edgeManager.launch();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildAndPushDockerImage", (dockerfileFromContext: vscode.Uri) => {
+        containerManager.buildAndPushDockerImage(dockerfileFromContext);
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.dotnetPublish", (fileUri: vscode.Uri) => {

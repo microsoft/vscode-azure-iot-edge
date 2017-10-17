@@ -22,53 +22,121 @@
     "onCommand:azure-iot-edge.login",
     "onCommand:azure-iot-edge.deploy",
     "onCommand:azure-iot-edge.launch",
+    "onCommand:azure-iot-edge.buildAndPushDockerImage",
     "onCommand:azure-iot-edge.dotnetPublish"
   ],
   "main": "./out/src/extension",
   "contributes": {
-    "commands": [{
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorLangId == dockerfile",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == Dockerfile.debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == dockerfile.debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == Dockerfile.Debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == dockerfile.Debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "resourceLangId == dockerfile",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == Dockerfile.debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == dockerfile.debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == Dockerfile.Debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceFilename == dockerfile.Debug",
+          "command": "azure-iot-edge.buildAndPushDockerImage"
+        },
+        {
+          "when": "resourceLangId == xml",
+          "command": "azure-iot-edge.dotnetPublish"
+        }
+      ]
+    },
+    "commands": [
+      {
         "command": "azure-iot-edge.editTemplate",
-        "title": "Edge: Edit input template"
+        "title": "Edit input template",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.deployTemplate",
-        "title": "Edge: Deploy input template"
+        "title": "Deploy input template",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.updateInterval",
-        "title": "Edge: Update interval"
+        "title": "Update interval",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.generateDeploymentJsonForVerification",
-        "title": "Edge: Generate deployment.json for module verification"
+        "title": "Generate deployment.json for module verification",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.generateRoutesJsonForVerification",
-        "title": "Edge: Generate routes.json for module verification"
+        "title": "Generate routes.json for module verification",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.verifyModule",
-        "title": "Edge: Verify Module"
+        "title": "Verify Module",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.viewModuleInput",
-        "title": "Edge: View Module Input"
+        "title": "View Module Input",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.viewModuleOutput",
-        "title": "Edge: View Module Output"
+        "title": "View Module Output",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.login",
-        "title": "Edge: Login"
+        "title": "Login",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.deploy",
-        "title": "Edge: Deploy"
+        "title": "Deploy",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.launch",
-        "title": "Edge: Launch"
+        "title": "Launch",
+        "category": "Edge"
+      },
+      {
+        "command": "azure-iot-edge.buildAndPushDockerImage",
+        "title": "Build and push the module as a Docker image",
+        "category": "Edge"
       },
       {
         "command": "azure-iot-edge.dotnetPublish",
@@ -76,14 +144,6 @@
         "category": "Edge"
       }
     ],
-    "menus": {
-      "explorer/context": [
-        {
-          "when": "resourceLangId == xml",
-          "command": "azure-iot-edge.dotnetPublish"
-        }
-      ]
-    },
     "configuration": {
       "type": "object",
       "title": "Azure IoT Edge configuration",
@@ -95,63 +155,69 @@
         }
       }
     },
-    "debuggers": [{
-      "type": "edge-coreclr",
-      "label": "Edge Debug (.NET Core)",
-      "variables": {
-        "pickRemoteProcess": "csharp.listRemoteProcess2"
-      },
-      "initialConfigurations": [{
-        "name": "Debug Edge Module (.NET Core)",
-        "type": "coreclr",
-        "request": "attach",
-        "processId": "${command:pickRemoteProcess}",
-        "pipeTransport": {
-          "pipeProgram": "docker",
-          "pipeArgs": [
-            "exec",
-            "-i",
-            "<container_name>",
-            "sh",
-            "-c"
-          ],
-          "debuggerPath": "/root/vsdbg/vsdbg",
-          "pipeCwd": "${workspaceRoot}",
-          "quoteArgs": true
+    "debuggers": [
+      {
+        "type": "edge-coreclr",
+        "label": "Edge Debug (.NET Core)",
+        "variables": {
+          "pickRemoteProcess": "csharp.listRemoteProcess2"
         },
-        "sourceFileMap": {
-          "/app": "${workspaceRoot}"
-        },
-        "justMyCode": true
-      }],
-      "configurationSnippets": [{
-        "label": "Edge: Debug Edge Module (.NET Core)",
-        "description": "Debug .NET Core Edge Module",
-        "body": {
-          "name": "Debug Edge Module (.NET Core)",
-          "type": "coreclr",
-          "request": "attach",
-          "processId": "^\"\\${command:pickRemoteProcess}\"",
-          "pipeTransport": {
-            "pipeProgram": "docker",
-            "pipeArgs": [
-              "exec",
-              "-i",
-              "<container_name>",
-              "sh",
-              "-c"
-            ],
-            "debuggerPath": "/root/vsdbg/vsdbg",
-            "pipeCwd": "^\"\\${workspaceRoot}\"",
-            "quoteArgs": true
-          },
-          "sourceFileMap": {
-            "/app": "^\"\\${workspaceRoot}\""
-          },
-          "justMyCode": true
-        }
-      }]
-    }]
+        "initialConfigurations": [
+          {
+            "name": "Debug Edge Module (.NET Core)",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickRemoteProcess}",
+            "pipeTransport": {
+              "pipeProgram": "docker",
+              "pipeArgs": [
+                "exec",
+                "-i",
+                "<container_name>",
+                "sh",
+                "-c"
+              ],
+              "debuggerPath": "/root/vsdbg/vsdbg",
+              "pipeCwd": "${workspaceRoot}",
+              "quoteArgs": true
+            },
+            "sourceFileMap": {
+              "/app": "${workspaceRoot}"
+            },
+            "justMyCode": true
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "Edge: Debug Edge Module (.NET Core)",
+            "description": "Debug .NET Core Edge Module",
+            "body": {
+              "name": "Debug Edge Module (.NET Core)",
+              "type": "coreclr",
+              "request": "attach",
+              "processId": "^\"\\${command:pickRemoteProcess}\"",
+              "pipeTransport": {
+                "pipeProgram": "docker",
+                "pipeArgs": [
+                  "exec",
+                  "-i",
+                  "<container_name>",
+                  "sh",
+                  "-c"
+                ],
+                "debuggerPath": "/root/vsdbg/vsdbg",
+                "pipeCwd": "^\"\\${workspaceRoot}\"",
+                "quoteArgs": true
+              },
+              "sourceFileMap": {
+                "/app": "^\"\\${workspaceRoot}\""
+              },
+              "justMyCode": true
+            }
+          }
+        ]
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",

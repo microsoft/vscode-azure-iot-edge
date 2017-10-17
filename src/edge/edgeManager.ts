@@ -84,7 +84,7 @@ export class EdgeManager {
     }
 
     private generateFile(fileName: string) {
-        if (vscode.workspace.rootPath) {
+        if (Utility.checkWorkspace()) {
             const fullFileName = path.join(vscode.workspace.rootPath, ".vscode", fileName);
             if (fs.existsSync(fullFileName)) {
                 vscode.window.showWarningMessage(`${fileName} already exists in '.vscode' folder.`);
@@ -96,8 +96,6 @@ export class EdgeManager {
                 fse.copySync(this.context.asAbsolutePath(path.join("assets", fileName)), fullFileName);
             }
             Utility.showfile(fullFileName);
-        } else {
-            vscode.window.showWarningMessage("No folder is opened.");
         }
     }
 

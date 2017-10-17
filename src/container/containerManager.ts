@@ -27,7 +27,8 @@ export class ContainerManager {
                 if (imageName === "") {
                     vscode.window.showErrorMessage("Image name cannot be empty");
                 } else if (imageName) {
-                    Executor.runInTerminal(`docker build -f ${dockerfilePath} ${buildArguments === "" ? "" : "--build-arg " + buildArguments} -t ${imageName} ${vscode.workspace.rootPath}`);
+                    Executor.runInTerminal(`docker build -f ${dockerfilePath} ${buildArguments === "" ? "" : "--build-arg " + buildArguments} -t ${imageName} ` +
+                        `${vscode.workspace.getWorkspaceFolder(vscode.Uri.file(dockerfilePath)).uri.fsPath}`);
                     TelemetryClient.sendEvent("end-build-docker-image");
 
                     // debug only
@@ -75,7 +76,7 @@ export class ContainerManager {
 
     private getDockerfileItem(dockerfile: vscode.Uri): vscode.QuickPickItem {
         const dockerfileItem: vscode.QuickPickItem = {
-            label: path.join(".", dockerfile.fsPath.substr(vscode.workspace.rootPath.length)),
+            label: path.join(".", dockerfile.fsPath.substr(vscode.workspace.getWorkspaceFolder(dockerfile).uri.fsPath.length)),
             description: null,
             detail: dockerfile.fsPath,  // use the `detail` property to save dockerfile's full path, which will be used during docker build
         };

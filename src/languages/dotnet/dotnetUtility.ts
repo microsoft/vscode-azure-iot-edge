@@ -8,8 +8,6 @@ export class DotnetUtility {
         if (!fileUri) {
             return;
         }
-        const dirname = path.dirname(fileUri.fsPath);
-        Executor.runInTerminal(`cd ${dirname}`);
-        Executor.runInTerminal("dotnet publish");
+        Executor.runInTerminal(`dotnet publish ${fileUri.fsPath}`);
     }
 }

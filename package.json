@@ -4,8 +4,9 @@
   "description": "Azure IoT Edge",
   "version": "0.0.1",
   "publisher": "vsciot-vscode",
+  "preview": true,
   "engines": {
-    "vscode": "^1.15.0"
+    "vscode": "^1.17.0"
   },
   "categories": [
     "Other"
@@ -140,7 +141,7 @@
       },
       {
         "command": "azure-iot-edge.dotnetPublish",
-        "title": "Build and publish .NET project",
+        "title": "Build IoT Edge module",
         "category": "Edge"
       }
     ],

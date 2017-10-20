@@ -11,8 +11,10 @@ export class ContainerManager {
         const dockerfilePath: string = await this.getDockerfilePath(dockerfileFromContext);
 
         if (dockerfilePath) {
+            const workspaceFolder: vscode.Uri = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(dockerfilePath)).uri;
+
             const exeDirArguments: vscode.Uri[] = await vscode.window.showOpenDialog({
-                defaultUri: vscode.workspace.getWorkspaceFolder(vscode.Uri.file(dockerfilePath)).uri,
+                defaultUri: workspaceFolder,
                 openLabel: "Select folder as EXE_DIR",
                 canSelectFiles: false,
                 canSelectFolders: true,
@@ -20,14 +22,14 @@ export class ContainerManager {
             });
             const exeDirArgument: vscode.Uri = exeDirArguments[0];
             if (exeDirArgument) {
-                const relativePath: string = this.getRelativePath(exeDirArgument, vscode.workspace.getWorkspaceFolder(vscode.Uri.file(dockerfilePath)).uri);
+                const relativePath: string = this.getRelativePath(exeDirArgument, workspaceFolder);
                 if (relativePath) {
                     const imageName: string = await vscode.window.showInputBox({ prompt: "Enter image name", placeHolder: "E.g., myregistry.azurecr.io/myedgemodule:latest", ignoreFocusOut: true });
                     if (imageName === "") {
                         vscode.window.showErrorMessage("Image name cannot be empty");
                     } else if (imageName) {
                         Executor.runInTerminal(`docker build -f \"${dockerfilePath}\" --build-arg EXE_DIR=\"${relativePath}\" -t \"${imageName}\" ` +
-                            `\"${vscode.workspace.getWorkspaceFolder(vscode.Uri.file(dockerfilePath)).uri.fsPath}\"`);
+                            `\"${workspaceFolder.fsPath}\"`);
                         // TelemetryClient.sendEvent("end-build-docker-image");
 
                         // debug only

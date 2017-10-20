@@ -55,8 +55,12 @@ export function activate(context: vscode.ExtensionContext) {
         edgeManager.launch();
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildAndPushDockerImage", (dockerfileFromContext: vscode.Uri) => {
-        containerManager.buildAndPushDockerImage(dockerfileFromContext);
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildDockerImage", (dockerfileFromContext: vscode.Uri) => {
+        containerManager.buildDockerImage(dockerfileFromContext);
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.pushDockerImage", () => {
+        containerManager.pushDockerImage();
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.dotnetPublish", (fileUri: vscode.Uri) => {

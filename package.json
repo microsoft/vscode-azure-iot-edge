@@ -4,6 +4,7 @@
   "description": "Azure IoT Edge",
   "version": "0.0.1",
   "publisher": "vsciot-vscode",
+  "icon": "logo.png",
   "preview": true,
   "engines": {
     "vscode": "^1.17.0"

@@ -37,7 +37,7 @@ export class EdgeManager {
     }
 
     public viewModuleInput() {
-        TelemetryClient.sendEvent("viewModuleInput");
+        // TelemetryClient.sendEvent("viewModuleInput");
         Executor.runInTerminal(`docker logs input-simulator --tail 50 -f`, "Module Input");
     }
 

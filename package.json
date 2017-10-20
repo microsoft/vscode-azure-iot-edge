@@ -23,7 +23,8 @@
     "onCommand:azure-iot-edge.login",
     "onCommand:azure-iot-edge.deploy",
     "onCommand:azure-iot-edge.launch",
-    "onCommand:azure-iot-edge.buildAndPushDockerImage",
+    "onCommand:azure-iot-edge.buildDockerImage",
+    "onCommand:azure-iot-edge.pushDockerImage",
     "onCommand:azure-iot-edge.dotnetPublish"
   ],
   "main": "./out/src/extension",
@@ -32,45 +33,45 @@
       "editor/context": [
         {
           "when": "editorLangId == dockerfile",
-          "command": "azure-iot-edge.buildAndPushDockerImage"
+          "command": "azure-iot-edge.buildDockerImage"
         },
         {
           "when": "resourceFilename == Dockerfile.debug",
-          "command": "azure-iot-edge.buildAndPushDockerImage"
+          "command": "azure-iot-edge.buildDockerImage"
         },
         {
           "when": "resourceFilename == dockerfile.debug",
-          "command": "azure-iot-edge.buildAndPushDockerImage"
+          "command": "azure-iot-edge.buildDockerImage"
         },
         {
           "when": "resourceFilename == Dockerfile.Debug",
-          "command": "azure-iot-edge.buildAndPushDockerImage"
+          "command": "azure-iot-edge.buildDockerImage"
         },
         {
           "when": "resourceFilename == dockerfile.Debug",
-          "command": "azure-iot-edge.buildAndPushDockerImage"
+          "command": "azure-iot-edge.buildDockerImage"
         }
       ],
       "explorer/context": [
         {
           "when": "resourceLangId == dockerfile",
-          "command": "azure-iot-edge.buildAndPushDockerImage"
+          "command": "azure-iot-edge.buildDockerImage"
         },
         {
           "when": "resourceFilename == Dockerfile.debug",
-          "command": "azure-iot-edge.buildAndPushDockerImage"
+          "command": "azure-iot-edge.buildDockerImage"
         },
         {
           "when": "resourceFilename == dockerfile.debug",
-          "command": "azure-iot-edge.buildAndPushDockerImage"
+          "command": "azure-iot-edge.buildDockerImage"
         },
         {
           "when": "resourceFilename == Dockerfile.Debug",
-          "command": "azure-iot-edge.buildAndPushDockerImage"
+          "command": "azure-iot-edge.buildDockerImage"
         },
         {
           "when": "resourceFilename == dockerfile.Debug",
-          "command": "azure-iot-edge.buildAndPushDockerImage"
+          "command": "azure-iot-edge.buildDockerImage"
         },
         {
           "when": "resourceLangId == xml",
@@ -135,8 +136,13 @@
         "category": "Edge"
       },
       {
-        "command": "azure-iot-edge.buildAndPushDockerImage",
-        "title": "Build and push the module as a Docker image",
+        "command": "azure-iot-edge.buildDockerImage",
+        "title": "Build the module as a Docker image",
+        "category": "Edge"
+      },
+      {
+        "command": "azure-iot-edge.pushDockerImage",
+        "title": "Push Docker image",
         "category": "Edge"
       },
       {

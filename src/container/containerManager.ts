@@ -95,7 +95,7 @@ export class ContainerManager {
         if (folder.fsPath.startsWith(rootFolder.fsPath)) {
             const relativePath: string = "." + folder.fsPath.substr(rootFolder.fsPath.length);
 
-            return relativePath;
+            return relativePath.replace("\\", "/");
         }
 
         return null;

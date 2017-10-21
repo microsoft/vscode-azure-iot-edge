@@ -12,7 +12,6 @@ export class ContainerManager {
 
         if (dockerfilePath) {
             const workspaceFolder: vscode.Uri = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(dockerfilePath)).uri;
-
             const exeDirArguments: vscode.Uri[] = await vscode.window.showOpenDialog({
                 defaultUri: workspaceFolder,
                 openLabel: "Select folder as EXE_DIR",
@@ -40,8 +39,6 @@ export class ContainerManager {
                 }
             }
         }
-
-        return null;
     }
 
     public async pushDockerImage() {
@@ -95,7 +92,7 @@ export class ContainerManager {
         if (folder.fsPath.startsWith(rootFolder.fsPath)) {
             const relativePath: string = "." + folder.fsPath.substr(rootFolder.fsPath.length);
 
-            return relativePath.replace("\\", "/");
+            return relativePath.replace(/\\/g, "/");
         }
 
         return null;

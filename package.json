@@ -82,68 +82,13 @@
     },
     "commands": [
       {
-        "command": "azure-iot-edge.editTemplate",
-        "title": "Edit input template",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.deployTemplate",
-        "title": "Deploy input template",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.updateInterval",
-        "title": "Update interval",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.generateDeploymentJsonForVerification",
-        "title": "Generate deployment.json for module verification",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.generateRoutesJsonForVerification",
-        "title": "Generate routes.json for module verification",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.verifyModule",
-        "title": "Verify Module",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.viewModuleInput",
-        "title": "View Module Input",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.viewModuleOutput",
-        "title": "View Module Output",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.login",
-        "title": "Login",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.deploy",
-        "title": "Deploy",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.launch",
-        "title": "Launch",
-        "category": "Edge"
-      },
-      {
         "command": "azure-iot-edge.buildDockerImage",
-        "title": "Build the module as a Docker image",
+        "title": "Build module Docker image",
         "category": "Edge"
       },
       {
         "command": "azure-iot-edge.pushDockerImage",
-        "title": "Push Docker image",
+        "title": "Push module Docker image",
         "category": "Edge"
       },
       {

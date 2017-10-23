@@ -83,12 +83,12 @@
     "commands": [
       {
         "command": "azure-iot-edge.buildDockerImage",
-        "title": "Build module Docker image",
+        "title": "Build IoT Edge module Docker image",
         "category": "Edge"
       },
       {
         "command": "azure-iot-edge.pushDockerImage",
-        "title": "Push module Docker image",
+        "title": "Push IoT Edge module Docker image",
         "category": "Edge"
       },
       {

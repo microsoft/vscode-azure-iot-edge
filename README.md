@@ -1,6 +1,6 @@
 # Azure IoT Edge for Visual Studio Code
-[![Gitter]()
-[![Travis CI]()
+[![Gitter](https://img.shields.io/badge/chat-on%20gitter-blue.svg)]()
+[![Travis CI](https://travis-ci.org/Microsoft/vscode-arduino.svg?branch=master)]()
 
 ## Overview
 Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy and debug your [IoT Edge]() solutions in Visual Studio Code, with a rich set of functionalities:

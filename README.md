@@ -1,5 +1,5 @@
 # Azure IoT Edge for Visual Studio Code
-[!Gitter]()
+[![Gitter]()
 [![Travis CI]()
 
 ## Overview

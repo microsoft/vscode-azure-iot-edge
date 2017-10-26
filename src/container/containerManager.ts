@@ -27,8 +27,8 @@ export class ContainerManager {
                     if (imageName === "") {
                         vscode.window.showErrorMessage("Image name cannot be empty");
                     } else if (imageName) {
-                        Executor.runInTerminal(`docker build -f \"${dockerfilePath}\" --build-arg EXE_DIR=\"${relativePath}\" -t \"${imageName}\" ` +
-                            `\"${workspaceFolder.fsPath}\"`);
+                        Executor.runInTerminal(`docker build -f \"${Utility.adjustFilePath(dockerfilePath)}\" --build-arg EXE_DIR=\"${relativePath}\" -t \"${imageName}\" ` +
+                            `\"${Utility.adjustFilePath(workspaceFolder.fsPath)}\"`);
                         // TelemetryClient.sendEvent("end-build-docker-image");
 
                         // debug only

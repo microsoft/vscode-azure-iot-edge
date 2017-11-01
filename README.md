@@ -77,7 +77,7 @@ Currently this extension supports the following operatings systems:
 The extension might work on other Linux distros as some users have reported, but be aware that Microsoft provides no guarantee or support for such installations
 
 ## Support
-You can find the full list of issues at [Issue Tracker](https://github.com/Microsoft/vscode-arduino/issues). You can submit a [bug or feature suggestion](https://github.com/Microsoft/vscode-arduino/issues/new), and participate community driven [discussions](https://gitter.im/Microsoft/vscode-arduino).
+You can find the full list of issues at [Issue Tracker](https://github.com/Microsoft/vscode-azure-iot-edge/issues). You can submit a [bug or feature suggestion](https://github.com/Microsoft/vscode-azure-iot-edge/issues/new), and participate community driven [discussions]().
 
 ## Development
 You are welcome to contribute to this extension!
@@ -88,8 +88,8 @@ Installing Prerequisites:
 - [Npm](https://www.npmjs.com/) (>= 3.10.3)
 
 To *run and develop*, do the following:
-- `git clone https://github.com/microsoft/vscode-arduino`
-- `cd vscode-arduino`
+- `git clone https://github.com/microsoft/vscode-azure-iot-edge`
+- `cd vscode-azure-iot-edge`
 - Run `npm i`
 - Run `npm i -g gulp`
 - Open in Visual Studio Code (`code .`)

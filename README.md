@@ -56,7 +56,7 @@ You can also install directly from [VS Code Marketplace](https://marketplace.vis
 
 Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see all the commands:
 
-- **Edge: Build IoT Edge module**: Build Edge module from source code. To trigger this command, right click the project file(e.g. `*.csproj` for .Net Core module project) and select this command in the context menu.
+- **Edge: Build IoT Edge module**: Build Edge module from source code. To trigger this command, right click the project file (e.g. `*.csproj` for .Net Core module project) and select this command in the context menu.
 - **Edge: Build IoT Edge module Docker image**: Containerize your Edge module to Docker image. To trigger this command, right click the `Dockerfile` and select this command in the context menu. 
 - **Edge: Push IoT Edge module Docker image**: Push an image a registiry.
 

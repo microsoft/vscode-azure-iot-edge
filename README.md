@@ -1,6 +1,5 @@
 # Azure IoT Edge for Visual Studio Code
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-blue.svg)]()
-[![Travis CI](https://travis-ci.org/Microsoft/vscode-arduino.svg?branch=master)]()
 
 ## Overview
 Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy, and debug your [IoT Edge]() solutions in Visual Studio Code, by providing a rich set of functionalities:
@@ -12,7 +11,6 @@ Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy
 - Manage IoT Edge devices in IoT Hub
 - Deploy IoT solutions to IoT Edge devices
 - Stop and clean IoT Edge solutions
-- JSON intellisense for `edge-config.json`
 
 ## Prerequisites
 
@@ -79,23 +77,6 @@ The extension might work on other Linux distros as some users have reported, but
 ## Support
 You can find the full list of issues at [Issue Tracker](https://github.com/Microsoft/vscode-azure-iot-edge/issues). You can submit a [bug or feature suggestion](https://github.com/Microsoft/vscode-azure-iot-edge/issues/new), and participate community driven [discussions]().
 
-## Development
-You are welcome to contribute to this extension!
-Installing Prerequisites:
-
-- [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/) (>= 6.5.0)
-- [Npm](https://www.npmjs.com/) (>= 3.10.3)
-
-To *run and develop*, do the following:
-- `git clone https://github.com/microsoft/vscode-azure-iot-edge`
-- `cd vscode-azure-iot-edge`
-- Run `npm i`
-- Run `npm i -g gulp`
-- Open in Visual Studio Code (`code .`)
-- Press `F5` to debug
-
-To *test do the following*: `F5` in VS Code with the "Launch Tests" debug configuration.
 
 ## Code of Conduct
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct). For more information please see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/#howadopt) or contact opencode@microsoft.com with any additional questions or comments.

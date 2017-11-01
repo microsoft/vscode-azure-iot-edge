@@ -3,14 +3,14 @@
 [![Travis CI](https://travis-ci.org/Microsoft/vscode-arduino.svg?branch=master)]()
 
 ## Overview
-Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy and debug your [IoT Edge]() solutions in Visual Studio Code, with a rich set of functionalities:
+Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy, and debug your [IoT Edge]() solutions in Visual Studio Code, by providing a rich set of functionalities:
 
-- Create new IoT Edge project
+- Create new IoT Edge projects
 - Build and publish IoT Edge modules
 - Debug IoT Edge modules locally
-- Verify IoT Edge modules with input output simulator and message template
+- Verify IoT Edge modules with an input/output simulator and message templates
 - Manage IoT Edge devices in IoT Hub
-- Deploy IoT solution to IoT Edge device
+- Deploy IoT solutions to IoT Edge devices
 - Stop and clean IoT Edge solutions
 - JSON intellisense for `edge-config.json`
 
@@ -18,7 +18,7 @@ Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy
 
 - [Docker](https://www.docker.com/)
 
-For C# developers, you can write [custom module]() and [C# Functions on IoT Edge]()
+For C# developers, you can write [custom modules]() and [C# Functions on IoT Edge]()
 - [IoT Edge .Net Core module template]()
 - [IoT Edge C# function template]()
 - [.Net Core 2.0 SDK](https://www.microsoft.com/net/download/core)
@@ -36,15 +36,15 @@ For C developers, you can write custom module, please refer to [IoT Edge C sampl
 See the [Change log]() for the details of changes for each version.
 
 ## Installation
-Open VSCode and press `F1` or `Ctrl + Shift + P` to open command palette, select **Install Extensions** and type `vscode-azure-iot-edge`.
+Open VS Code and press `F1` or `Ctrl + Shift + P` to open command palette, select **Install Extensions** and type `vscode-azure-iot-edge`.
 
-Or lanuch VSCode Quick Open (Ctrl + P), paste the following command, and press enter,
+Or lanuch VS Code Quick Open (Ctrl + P), paste the following command, and press enter.
 
 ```bash
 ext install vscode-azure-iot-edge
 ```
 
-You can also install directly from Marketplace with VSCode by searching `Azure IoT Edge`.
+You can also install directly from [VS Code Marketplace](https://marketplace.visualstudio.com/VSCode) by searching `Azure IoT Edge`.
 
 ## Get Started with IoT Edge in VS Code
 
@@ -55,14 +55,13 @@ You can also install directly from Marketplace with VSCode by searching `Azure I
 ## Commnads
 
 Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see all the commands:
-![commands](images/commands.png)
 
-- Commands0: Description TBD.
-- Commands1: Description TBD.
-- Commands2: Description TBD.
+- Edge: Build IoT Edge module. Build Edge module from source code. To trigger this command, right click the project file(e.g. `*.csproj` for .Net Core module project) and select this command in the context menu.
+- Edge: Build IoT Edge module Docker image. Containerize your Edge module to Docker image. To trigger this command, right click the `Dockerfile` and select this command in the context menu. 
+- Edge: Push IoT Edge module Docker image. Push an image a registiry.
 
 ## Options
-The following Visual Studio Code settings are available for the Azure IoT Edge extension. These can be set in global user preferences `Ctrl + ,` or workspace settings (.vscode/settings.json). The later overrides the former.
+The following Visual Studio Code settings are available for the Azure IoT Edge extension. These can be set in global user preferences `Ctrl + ,` or workspace settings (.vscode/settings.json). The latter overrides the former.
 
 ```json
 {
@@ -75,13 +74,13 @@ Currently this extension supports the following operatings systems:
 - Windows 7 and later (32-bit and 64-bit)
 - macOS 10.10 and later
 - Ubuntu 16.04
-  - The extension might work on other Linux distro as some user reported but without gurantee.
+The extension might work on other Linux distros as some users have reported, but be aware that Microsoft provides no guarantee or support for such installations
 
 ## Support
 You can find the full list of issues at [Issue Tracker](https://github.com/Microsoft/vscode-arduino/issues). You can submit a [bug or feature suggestion](https://github.com/Microsoft/vscode-arduino/issues/new), and participate community driven [discussions](https://gitter.im/Microsoft/vscode-arduino).
 
 ## Development
-Welcome to contribute to this extension!
+You are welcome to contribute to this extension!
 Installing Prerequisites:
 
 - [Git](https://git-scm.com/)

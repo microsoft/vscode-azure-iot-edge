@@ -35,43 +35,11 @@
         {
           "when": "editorLangId == dockerfile",
           "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == Dockerfile.debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == dockerfile.debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == Dockerfile.Debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == dockerfile.Debug",
-          "command": "azure-iot-edge.buildDockerImage"
         }
       ],
       "explorer/context": [
         {
           "when": "resourceLangId == dockerfile",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == Dockerfile.debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == dockerfile.debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == Dockerfile.Debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == dockerfile.Debug",
           "command": "azure-iot-edge.buildDockerImage"
         },
         {
@@ -113,6 +81,18 @@
         }
       }
     },
+    "languages": [
+      {
+        "id": "dockerfile",
+        "aliases": [
+          "Dockerfile"
+        ],
+        "filenamePatterns": [
+          "dockerfile*",
+          "Dockerfile*"
+        ]
+      }
+    ],
     "debuggers": [
       {
         "type": "edge-coreclr",

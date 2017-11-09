@@ -96,10 +96,7 @@
     "debuggers": [
       {
         "type": "edge-coreclr",
-        "label": "Edge Debug (.NET Core)",
-        "variables": {
-          "pickRemoteProcess": "csharp.listRemoteProcess2"
-        },
+        "label": "IoT Edge (.NET Core)",
         "initialConfigurations": [
           {
             "name": "Debug IoT Edge Custom Module (.NET Core)",

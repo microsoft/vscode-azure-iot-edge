@@ -13,6 +13,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onDebug",
     "onCommand:azure-iot-edge.editTemplate",
     "onCommand:azure-iot-edge.deployTemplate",
     "onCommand:azure-iot-edge.updateInterval",

@@ -3,6 +3,7 @@ import * as iothub from "azure-iothub";
 import * as os from "os";
 import * as vscode from "vscode";
 import { Constants } from "./constants";
+import { TelemetryClient } from "./telemetryClient";
 
 export class Utility {
     public static getConfiguration(): vscode.WorkspaceConfiguration {
@@ -75,5 +76,13 @@ export class Utility {
             }
         }
         return filePath;
+    }
+
+    public static recordDebugTelemetryEvent() {
+        vscode.debug.onDidStartDebugSession((session) => {
+            if (Constants.EdgeDebugSessions.indexOf(session.name) > -1) {
+                TelemetryClient.sendEvent("startDebugSession", { sessionName: session.name });
+            }
+        });
     }
 }

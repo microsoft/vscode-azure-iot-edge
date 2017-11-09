@@ -1,15 +1,20 @@
 "use strict";
 import * as vscode from "vscode";
 import { Executor } from "./common/executor";
+import { TelemetryClient } from "./common/telemetryClient";
+import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
 import { DotnetUtility } from "./languages/dotnet/dotnetUtility";
 import { InputModuleManager } from "./module/inputModuleManager";
 
 export function activate(context: vscode.ExtensionContext) {
+    TelemetryClient.sendEvent("extensionActivated");
+
     const inputModuleManager = new InputModuleManager();
     const edgeManager = new EdgeManager(context);
     const containerManager = new ContainerManager();
+    Utility.recordDebugTelemetryEvent();
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.editTemplate", () => {
         inputModuleManager.editTemplate();

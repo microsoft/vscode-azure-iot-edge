@@ -8,6 +8,7 @@ import { Utility } from "../common/utility";
 
 export class ContainerManager {
     public async buildDockerImage(dockerfileFromContext?: vscode.Uri) {
+        TelemetryClient.sendEvent("buildDockerImage.start");
         const dockerfilePath: string = await this.getDockerfilePath(dockerfileFromContext);
 
         if (dockerfilePath) {
@@ -29,10 +30,7 @@ export class ContainerManager {
                     } else if (imageName) {
                         Executor.runInTerminal(`docker build -f \"${Utility.adjustFilePath(dockerfilePath)}\" --build-arg EXE_DIR=\"${relativePath}\" -t \"${imageName}\" ` +
                             `\"${Utility.adjustFilePath(workspaceFolder.fsPath)}\"`);
-                        // TelemetryClient.sendEvent("end-build-docker-image");
-
-                        // debug only
-                        // Executor.runInTerminal("docker build -f ./Docker/linux-x64/Dockerfile --build-arg EXE_DIR=./bin/Debug/netcoreapp2.0/publish -t localhost:5000/filtermodule:latest .");
+                        TelemetryClient.sendEvent("buildDockerImage.end");
                     }
                 } else {
                     vscode.window.showErrorMessage("The folder must be contained within the Dockerfile's root workspace folder");
@@ -42,12 +40,13 @@ export class ContainerManager {
     }
 
     public async pushDockerImage() {
+        TelemetryClient.sendEvent("pushDockerImage.start");
         const imageName: string = await vscode.window.showInputBox({ prompt: "Enter image name", placeHolder: "E.g., myregistry.azurecr.io/myedgemodule:latest", ignoreFocusOut: true });
         if (imageName === "") {
             vscode.window.showErrorMessage("Image name cannot be empty");
         } else if (imageName) {
             Executor.runInTerminal(`docker push ${imageName}`);
-            // TelemetryClient.sendEvent("end-push-docker-image");
+            TelemetryClient.sendEvent("pushDockerImage.end");
         }
     }
 

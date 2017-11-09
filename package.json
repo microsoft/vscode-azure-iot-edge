@@ -96,13 +96,10 @@
     "debuggers": [
       {
         "type": "edge-coreclr",
-        "label": "Edge Debug (.NET Core)",
-        "variables": {
-          "pickRemoteProcess": "csharp.listRemoteProcess2"
-        },
+        "label": "IoT Edge (.NET Core)",
         "initialConfigurations": [
           {
-            "name": "Debug Edge Module (.NET Core)",
+            "name": "Debug IoT Edge Custom Module (.NET Core)",
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickRemoteProcess}",
@@ -115,22 +112,44 @@
                 "sh",
                 "-c"
               ],
-              "debuggerPath": "/root/vsdbg/vsdbg",
-              "pipeCwd": "${workspaceRoot}",
+              "debuggerPath": "~/vsdbg/vsdbg",
+              "pipeCwd": "${workspaceFolder}",
               "quoteArgs": true
             },
             "sourceFileMap": {
-              "/app": "${workspaceRoot}"
+              "/app": "${workspaceFolder}"
+            },
+            "justMyCode": true
+          },
+          {
+            "name": "Debug IoT Edge Function Module (.NET Core)",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickRemoteProcess}",
+            "pipeTransport": {
+              "pipeProgram": "docker",
+              "pipeArgs": [
+                "exec",
+                "-i",
+                "<container_name>",
+                "sh",
+                "-c"
+              ],
+              "debuggerPath": "~/vsdbg/vsdbg",
+              "pipeCwd": "${workspaceFolder}",
+              "quoteArgs": true
+            },
+            "sourceFileMap": {
+              "/home/site/wwwroot": "${workspaceFolder}"
             },
             "justMyCode": true
           }
         ],
         "configurationSnippets": [
           {
-            "label": "Edge: Debug Edge Module (.NET Core)",
-            "description": "Debug .NET Core Edge Module",
+            "label": "Edge: Debug IoT Edge Custom Module (.NET Core)",
             "body": {
-              "name": "Debug Edge Module (.NET Core)",
+              "name": "Debug IoT Edge Custom Module (.NET Core)",
               "type": "coreclr",
               "request": "attach",
               "processId": "^\"\\${command:pickRemoteProcess}\"",
@@ -143,12 +162,38 @@
                   "sh",
                   "-c"
                 ],
-                "debuggerPath": "/root/vsdbg/vsdbg",
-                "pipeCwd": "^\"\\${workspaceRoot}\"",
+                "debuggerPath": "~/vsdbg/vsdbg",
+                "pipeCwd": "^\"\\${workspaceFolder}\"",
                 "quoteArgs": true
               },
               "sourceFileMap": {
-                "/app": "^\"\\${workspaceRoot}\""
+                "/app": "^\"\\${workspaceFolder}\""
+              },
+              "justMyCode": true
+            }
+          },
+          {
+            "label": "Edge: Debug IoT Edge Function Module (.NET Core)",
+            "body": {
+              "name": "Debug IoT Edge Function Module (.NET Core)",
+              "type": "coreclr",
+              "request": "attach",
+              "processId": "^\"\\${command:pickRemoteProcess}\"",
+              "pipeTransport": {
+                "pipeProgram": "docker",
+                "pipeArgs": [
+                  "exec",
+                  "-i",
+                  "<container_name>",
+                  "sh",
+                  "-c"
+                ],
+                "debuggerPath": "~/vsdbg/vsdbg",
+                "pipeCwd": "^\"\\${workspaceFolder}\"",
+                "quoteArgs": true
+              },
+              "sourceFileMap": {
+                "/home/site/wwwroot": "^\"\\${workspaceFolder}\""
               },
               "justMyCode": true
             }

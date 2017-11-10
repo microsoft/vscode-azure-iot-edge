@@ -78,7 +78,7 @@ export class Utility {
         return filePath;
     }
 
-    public static recordDebugTelemetryEvent() {
+    public static registerDebugTelemetryListener() {
         vscode.debug.onDidStartDebugSession((session) => {
             if (Constants.EdgeDebugSessions.indexOf(session.name) > -1) {
                 TelemetryClient.sendEvent("startDebugSession", { sessionName: session.name });

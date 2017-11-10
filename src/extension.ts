@@ -14,7 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
     const inputModuleManager = new InputModuleManager();
     const edgeManager = new EdgeManager(context);
     const containerManager = new ContainerManager();
-    Utility.recordDebugTelemetryEvent();
+    Utility.registerDebugTelemetryListener();
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.editTemplate", () => {
         inputModuleManager.editTemplate();

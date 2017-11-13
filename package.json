@@ -2,7 +2,7 @@
   "name": "azure-iot-edge",
   "displayName": "Azure IoT Edge",
   "description": "Develop, deploy, debug, and manage your IoT Edge solution",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "vsciot-vscode",
   "icon": "logo.png",
   "preview": true,
@@ -10,9 +10,20 @@
     "vscode": "^1.17.0"
   },
   "categories": [
-    "Other"
+    "Azure",
+    "Debuggers",
+    "Languages"
+  ],
+  "keywords": [
+    "azure",
+    "iot",
+    "debug",
+    "IoT Edge",
+    "cloud",
+    "multi-root ready"
   ],
   "activationEvents": [
+    "onDebug",
     "onCommand:azure-iot-edge.editTemplate",
     "onCommand:azure-iot-edge.deployTemplate",
     "onCommand:azure-iot-edge.updateInterval",
@@ -35,43 +46,11 @@
         {
           "when": "editorLangId == dockerfile",
           "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == Dockerfile.debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == dockerfile.debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == Dockerfile.Debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == dockerfile.Debug",
-          "command": "azure-iot-edge.buildDockerImage"
         }
       ],
       "explorer/context": [
         {
           "when": "resourceLangId == dockerfile",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == Dockerfile.debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == dockerfile.debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == Dockerfile.Debug",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceFilename == dockerfile.Debug",
           "command": "azure-iot-edge.buildDockerImage"
         },
         {
@@ -113,16 +92,25 @@
         }
       }
     },
+    "languages": [
+      {
+        "id": "dockerfile",
+        "aliases": [
+          "Dockerfile"
+        ],
+        "filenamePatterns": [
+          "dockerfile*",
+          "Dockerfile*"
+        ]
+      }
+    ],
     "debuggers": [
       {
         "type": "edge-coreclr",
-        "label": "Edge Debug (.NET Core)",
-        "variables": {
-          "pickRemoteProcess": "csharp.listRemoteProcess2"
-        },
+        "label": "IoT Edge (.NET Core)",
         "initialConfigurations": [
           {
-            "name": "Debug Edge Module (.NET Core)",
+            "name": "Debug IoT Edge Module (.NET Core)",
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickRemoteProcess}",
@@ -135,22 +123,44 @@
                 "sh",
                 "-c"
               ],
-              "debuggerPath": "/root/vsdbg/vsdbg",
-              "pipeCwd": "${workspaceRoot}",
+              "debuggerPath": "~/vsdbg/vsdbg",
+              "pipeCwd": "${workspaceFolder}",
               "quoteArgs": true
             },
             "sourceFileMap": {
-              "/app": "${workspaceRoot}"
+              "/app": "${workspaceFolder}"
+            },
+            "justMyCode": true
+          },
+          {
+            "name": "Debug IoT Edge Function (.NET Core)",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickRemoteProcess}",
+            "pipeTransport": {
+              "pipeProgram": "docker",
+              "pipeArgs": [
+                "exec",
+                "-i",
+                "<container_name>",
+                "sh",
+                "-c"
+              ],
+              "debuggerPath": "~/vsdbg/vsdbg",
+              "pipeCwd": "${workspaceFolder}",
+              "quoteArgs": true
+            },
+            "sourceFileMap": {
+              "/home/site/wwwroot": "${workspaceFolder}"
             },
             "justMyCode": true
           }
         ],
         "configurationSnippets": [
           {
-            "label": "Edge: Debug Edge Module (.NET Core)",
-            "description": "Debug .NET Core Edge Module",
+            "label": "Edge: Debug IoT Edge Module (.NET Core)",
             "body": {
-              "name": "Debug Edge Module (.NET Core)",
+              "name": "Debug IoT Edge Module (.NET Core)",
               "type": "coreclr",
               "request": "attach",
               "processId": "^\"\\${command:pickRemoteProcess}\"",
@@ -163,12 +173,38 @@
                   "sh",
                   "-c"
                 ],
-                "debuggerPath": "/root/vsdbg/vsdbg",
-                "pipeCwd": "^\"\\${workspaceRoot}\"",
+                "debuggerPath": "~/vsdbg/vsdbg",
+                "pipeCwd": "^\"\\${workspaceFolder}\"",
                 "quoteArgs": true
               },
               "sourceFileMap": {
-                "/app": "^\"\\${workspaceRoot}\""
+                "/app": "^\"\\${workspaceFolder}\""
+              },
+              "justMyCode": true
+            }
+          },
+          {
+            "label": "Edge: Debug IoT Edge Function (.NET Core)",
+            "body": {
+              "name": "Debug IoT Edge Function (.NET Core)",
+              "type": "coreclr",
+              "request": "attach",
+              "processId": "^\"\\${command:pickRemoteProcess}\"",
+              "pipeTransport": {
+                "pipeProgram": "docker",
+                "pipeArgs": [
+                  "exec",
+                  "-i",
+                  "<container_name>",
+                  "sh",
+                  "-c"
+                ],
+                "debuggerPath": "~/vsdbg/vsdbg",
+                "pipeCwd": "^\"\\${workspaceFolder}\"",
+                "quoteArgs": true
+              },
+              "sourceFileMap": {
+                "/home/site/wwwroot": "^\"\\${workspaceFolder}\""
               },
               "justMyCode": true
             }

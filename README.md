@@ -20,7 +20,7 @@ Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy
   ```
 - It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manager your IoT Edge Docker images, containers and registries. 
 
-For C# developers, you can develop, debug and deploy [C# modules](https://review.docs.microsoft.com/azure/iot-edge/tutorial-create-custom-module) and [C# Functions on IoT Edge](https://review.docs.microsoft.com/azure/iot-edge/tutorial-deploy-function)
+For C# developers, you can develop, debug and deploy [C# modules](https://docs.microsoft.com/azure/iot-edge/tutorial-create-custom-module) and [C# Functions on IoT Edge](https://docs.microsoft.com/azure/iot-edge/tutorial-deploy-function)
 - [IoT Edge C# module template](https://www.nuget.org/packages/Microsoft.Azure.IoT.Edge.Module)
 - [IoT Edge C# function template](https://www.nuget.org/packages/Microsoft.Azure.IoT.Edge.Function)
 - [.Net Core 2.0 SDK](https://www.microsoft.com/net/download/core)

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 0.1.0 - 2017-11-13
 ### Added
 * Support for developing and debugging C# module and C# Function.
-* Context menu for `*.csproj` and `DockerFile` for C# module and Function development.
+* Context menu for `*.csproj` and `Dockerfile` for C# module and Function development.
 * Support for creating Edge deployment with Azure IoT Hub for single Edge device.
 * Integration of the basic functionalities of `azure-iot-edge-runtime-ctl`.
 * Context menu in Device List to manage IoT Edge runtime and IoT Edge devices.

@@ -72,7 +72,7 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see al
 5. Navigate to `Program.cs`. Add breakpoints and press F5 again. Then select the dotnet process to attach to.
 6. In Debug window, you can see the variables in left panel.
 
-### Develop debug and deploy your Azure Function for IoT Edge
+### Develop, debug, and deploy your Azure Function for IoT Edge
 The steps should be almost the same as the C# module above. Differeces are listed below.
 - Use `dotnet new aziotedgefunction -n <your_function_name>` to generate function project. 
 - Specify the project root folder (should be `<your_function_name>`) as the `EXE_DIR` during Docker image building.

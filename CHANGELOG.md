@@ -1,9 +1,15 @@
-## 0.1.0 - 13 November 2017
+# Change Log
+All notable changes to the "vscode-java-debugger" extension will be documented in this file.
 
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## 0.1.0 - 2017-11-13
+### Added
 * Support for developing and debugging C# module and C# Function.
-* Added context menu for `*.csproj` and `DockerFile` for C# module and Function development.
+* Context menu for `*.csproj` and `DockerFile` for C# module and Function development.
 * Support for creating Edge deployment with Azure IoT Hub for single Edge device.
-* Added the integration of the basic functionalities of `azure-iot-edge-runtime-ctl`.
-* Added context menu in Device List to manage IoT Edge runtime and IoT Edge devices.
-* Added telemetry to understand which commands developers find useful. This will help us refine which commands we add in the future.
+* Integration of the basic functionalities of `azure-iot-edge-runtime-ctl`.
+* Context menu in Device List to manage IoT Edge runtime and IoT Edge devices.
+* Telemetry to understand which commands developers find useful. This will help us refine which commands we add in the future.
 > Please note, you can turn off telemetry reporting for VS Code and all extensions through the ["telemetry.enableTelemetry": false setting](https://code.visualstudio.com/docs/supporting/faq#_how-to-disable-telemetry-reporting).

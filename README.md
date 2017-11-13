@@ -32,13 +32,14 @@ We will soon support other languages.
 
 Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see all the commands:
 
-- **Edge: Setup Edge**: Setup the Edge runtime. To trigger this, right click the Edge DeviceID in the device list.
+- **Edge: Setup Edge**: Setup the Edge runtime. To trigger this, right-click the Edge DeviceID in the device list.
 - **Edge: Start Edge**: Start Edge runtime in your local machine.
-- **Edge: Build IoT Edge module**: Build Edge module from source code. To trigger this command, right click the project file (e.g. `*.csproj` for .Net Core module project) and select this command in the context menu.
-- **Edge: Build IoT Edge module Docker image**: Containerize your Edge module to Docker image. To trigger this command, right click the `Dockerfile` and select this command in the context menu. 
+- **Edge: Build IoT Edge module**: Build Edge module from source code. To trigger this command, right-click the project file (e.g. `*.csproj` for .Net Core module project) and select this command in the context menu.
+- **Edge: Build IoT Edge module Docker image**: Containerize your Edge module to Docker image. To trigger this command, right-click the `Dockerfile` and select this command in the context menu. 
 - **Edge: Push IoT Edge module Docker image**: Push an image to a Docker registry.
+- **Edge: Create deployment for Edge device**: Create and submit the deployment to your Edge device with specified deployment json file. To trigger this command, right-click the Edge DeviceID and find it in context menu in Device List.
 - **Edge: Setup Edge using configuration file**: Take a configuration file for Edge setup.
-- **Edge: Generate Edge setup configuration file**: Generate the json file for Edge: setup Edge using configuration file. Open the json file to see further description. 
+- **Edge: Generate Edge setup configuration file**: Generate the json file for Edge: setup Edge using configuration file. Open the json file to see further description. To trigger this, right-click the Edge DeviceID and find it in context menu in the device list.
 - **Edge: Generate Edge deployment configuration file**: Generate the json file for Edge deployment.
 - **Edge: Stop Edge**: Stop Edge runtime.
 - **Edge: Restart Edge**: Restart the Edge runtime.

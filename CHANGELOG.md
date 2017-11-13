@@ -1,7 +1,10 @@
 # Change Log
-All notable changes to the "azure-iot-edge" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-- Initial release
+## 0.1.0 - 2017-11-13
+### Added
+* Support for developing and debugging C# module and C# Function.
+* Context menu for `*.csproj` and `Dockerfile` for C# module and Function development.
+* Support for creating Edge deployment with Azure IoT Hub for single Edge device.
+* Integration of the basic functionalities of `azure-iot-edge-runtime-ctl`.
+* Context menu in Device List to manage IoT Edge runtime and IoT Edge devices.
+* Telemetry to understand which commands developers find useful. This will help us refine which commands we add in the future.
+> Please note, you can turn off telemetry reporting for VS Code and all extensions through the ["telemetry.enableTelemetry": false setting](https://code.visualstudio.com/docs/supporting/faq#_how-to-disable-telemetry-reporting).

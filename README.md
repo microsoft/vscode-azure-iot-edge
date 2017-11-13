@@ -36,8 +36,8 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see al
 - **Edge: Start Edge**: Start Edge runtime in your local machine.
 - **Edge: Build IoT Edge module**: Build Edge module from source code. To trigger this command, right click the project file (e.g. `*.csproj` for .Net Core module project) and select this command in the context menu.
 - **Edge: Build IoT Edge module Docker image**: Containerize your Edge module to Docker image. To trigger this command, right click the `Dockerfile` and select this command in the context menu. 
-- **Edge: Push IoT Edge module Docker image**: Push an image a registry.
-- **Edge: setup Edge using configuration file**: Take a configuration file for Edge setup.
+- **Edge: Push IoT Edge module Docker image**: Push an image to a Docker registry.
+- **Edge: Setup Edge using configuration file**: Take a configuration file for Edge setup.
 - **Edge: Generate Edge setup configuration file**: Generate the json file for Edge: setup Edge using configuration file. Open the json file to see further description. 
 - **Edge: Generate Edge deployment configuration file**: Generate the json file for Edge deployment.
 - **Edge: Stop Edge**: Stop Edge runtime.
@@ -47,7 +47,7 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see al
 
 ## Get Started with IoT Edge in VS Code
 ### Develop and deploy your IoT Edge C# module
-1. Run below commands to create a module or a function project.
+1. Run below command to create a module or a function project.
   ```
   dotnet new aziotedgemodule -n <your_module_name>
   ```
@@ -73,9 +73,10 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see al
 
 ### Develop debug and deploy your Azure Function for IoT Edge
 The steps should be almost the same as the C# module above. Differeces are listed below.
-- Use `dotnet new aziotedgefunction -n <your_module_name>` to generate function project. 
-- Specify the project root folder as the `EXE_DIR` during Docker image building.
-- Use the section `Debug IoT Edge Function (.NET Core)` in lanuch.json
+- Use `dotnet new aziotedgefunction -n <your_function_name>` to generate function project. 
+- Specify the project root folder (should be `<your_function_name>`) as the `EXE_DIR` during Docker image building.
+- Use the section `Debug IoT Edge Function (.NET Core)` in launch.json
+- Add breakpoints in `run.csx` file.
 
 ## Supported Operating Systems
 Currently this extension supports the following operating systems:

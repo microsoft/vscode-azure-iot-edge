@@ -2,7 +2,7 @@
   "name": "azure-iot-edge",
   "displayName": "Azure IoT Edge",
   "description": "Azure IoT Edge",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "vsciot-vscode",
   "icon": "logo.png",
   "preview": true,
@@ -10,7 +10,17 @@
     "vscode": "^1.17.0"
   },
   "categories": [
-    "Other"
+    "Azure",
+    "Debuggers",
+    "Languages"
+  ],
+  "keywords": [
+    "azure",
+    "iot",
+    "debug",
+    "IoT Edge",
+    "cloud",
+    "multi-root ready"
   ],
   "activationEvents": [
     "onDebug",
@@ -100,7 +110,7 @@
         "label": "IoT Edge (.NET Core)",
         "initialConfigurations": [
           {
-            "name": "Debug IoT Edge Custom Module (.NET Core)",
+            "name": "Debug IoT Edge Module (.NET Core)",
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickRemoteProcess}",
@@ -123,7 +133,7 @@
             "justMyCode": true
           },
           {
-            "name": "Debug IoT Edge Function Module (.NET Core)",
+            "name": "Debug IoT Edge Function (.NET Core)",
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickRemoteProcess}",
@@ -148,9 +158,9 @@
         ],
         "configurationSnippets": [
           {
-            "label": "Edge: Debug IoT Edge Custom Module (.NET Core)",
+            "label": "Edge: Debug IoT Edge Module (.NET Core)",
             "body": {
-              "name": "Debug IoT Edge Custom Module (.NET Core)",
+              "name": "Debug IoT Edge Module (.NET Core)",
               "type": "coreclr",
               "request": "attach",
               "processId": "^\"\\${command:pickRemoteProcess}\"",
@@ -174,9 +184,9 @@
             }
           },
           {
-            "label": "Edge: Debug IoT Edge Function Module (.NET Core)",
+            "label": "Edge: Debug IoT Edge Function (.NET Core)",
             "body": {
-              "name": "Debug IoT Edge Function Module (.NET Core)",
+              "name": "Debug IoT Edge Function (.NET Core)",
               "type": "coreclr",
               "request": "attach",
               "processId": "^\"\\${command:pickRemoteProcess}\"",

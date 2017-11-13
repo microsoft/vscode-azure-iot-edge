@@ -7,5 +7,5 @@ export class Constants {
     public static deploymentFile = "deployment.json";
     public static routesFile = "routes.json";
     public static dockerfileNamePattern = "**/[dD]ocker[fF]ile*";
-    public static EdgeDebugSessions = ["Debug IoT Edge Custom Module (.NET Core)", "Debug IoT Edge Function Module (.NET Core)"];
+    public static EdgeDebugSessions = ["Debug IoT Edge Module (.NET Core)", "Debug IoT Edge Function (.NET Core)"];
 }

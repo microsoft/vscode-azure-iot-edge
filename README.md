@@ -18,11 +18,17 @@ Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy
   ```
   pip install -U azure-iot-edge-runtime-ctl
   ```
-- It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manager your IoT Edge Docker images, containers and registries. 
+- It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manage your IoT Edge Docker images, containers and registries. 
 
 For C# developers, you can develop, debug and deploy [C# modules](https://docs.microsoft.com/azure/iot-edge/tutorial-create-custom-module) and [C# Functions on IoT Edge](https://docs.microsoft.com/azure/iot-edge/tutorial-deploy-function)
 - [IoT Edge C# module template](https://www.nuget.org/packages/Microsoft.Azure.IoT.Edge.Module)
+  ```
+  dotnet new -i Microsoft.Azure.IoT.Edge.Module
+  ```
 - [IoT Edge C# function template](https://www.nuget.org/packages/Microsoft.Azure.IoT.Edge.Function)
+  ```
+  dotnet new -i Microsoft.Azure.IoT.Edge.Function
+  ```
 - [.Net Core 2.0 SDK](https://www.microsoft.com/net/download/core)
 - [C# for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
 
@@ -84,6 +90,7 @@ Currently this extension supports the following operating systems:
 - Windows 7 and later (32-bit and 64-bit)
 - macOS 10.10 and later
 - Ubuntu 16.04
+
 The extension might work on other Linux distros as some users have reported, but be aware that Microsoft provides no guarantee or support for such installations
 
 ## Support and Contact Us

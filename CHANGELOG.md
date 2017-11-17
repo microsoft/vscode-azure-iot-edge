@@ -1,4 +1,8 @@
 # Change Log
+## 0.1.1 - 2017-11-17
+### Changed
+* Show 'Build IoT Edge module' command only on csproj file
+
 ## 0.1.0 - 2017-11-13
 ### Added
 * Support for developing and debugging C# module and C# Function.

@@ -28,7 +28,7 @@ export class ContainerManager {
                     if (imageName === "") {
                         vscode.window.showErrorMessage("Image name cannot be empty");
                     } else if (imageName) {
-                        Executor.runInTerminal(`docker build -f \"${Utility.adjustFilePath(dockerfilePath)}\" --build-arg EXE_DIR=\"${relativePath}\" -t \"${imageName}\" ` +
+                        Executor.runInTerminal(`docker build -f \"${Utility.adjustFilePath(dockerfilePath)}\" --build-arg EXE_DIR=\"${relativePath}\" -t \"${imageName.trim()}\" ` +
                             `\"${Utility.adjustFilePath(workspaceFolder.fsPath)}\"`);
                         TelemetryClient.sendEvent("buildDockerImage.end");
                     }
@@ -45,7 +45,7 @@ export class ContainerManager {
         if (imageName === "") {
             vscode.window.showErrorMessage("Image name cannot be empty");
         } else if (imageName) {
-            Executor.runInTerminal(`docker push ${imageName}`);
+            Executor.runInTerminal(`docker push ${imageName.trim()}`);
             TelemetryClient.sendEvent("pushDockerImage.end");
         }
     }

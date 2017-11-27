@@ -105,13 +105,14 @@ export class ContainerManager {
     private async promptForImageName(): Promise<string> {
         const imageNameCache: string = this.workspaceState.get<string>(Constants.lastUsedImageNameCacheKey);
 
-        const imageName: string = await vscode.window.showInputBox({
+        let imageName: string = await vscode.window.showInputBox({
             prompt: "Enter image name",
             value: imageNameCache,
             placeHolder: "E.g., myregistry.azurecr.io/myedgemodule:latest",
             ignoreFocusOut: true,
         });
 
+        imageName = imageName.trim();
         if (imageName === "") {
             vscode.window.showErrorMessage("Image name cannot be empty");
         } else if (imageName) {

@@ -7,8 +7,8 @@ import { TelemetryClient } from "../common/telemetryClient";
 import { Utility } from "../common/utility";
 
 export class ContainerManager {
-    public async buildDockerImage(context: vscode.ExtensionContext, dockerfileFromContext?: vscode.Uri) {
-        const dockerfilePath: string = await this.getDockerfilePath(dockerfileFromContext);
+    public async buildDockerImage(context: vscode.ExtensionContext, dockerfileFromContextMenu?: vscode.Uri) {
+        const dockerfilePath: string = await this.getDockerfilePath(dockerfileFromContextMenu);
 
         if (dockerfilePath) {
             const workspaceFolder: vscode.Uri = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(dockerfilePath)).uri;
@@ -49,10 +49,10 @@ export class ContainerManager {
         }
     }
 
-    private async getDockerfilePath(dockerfileFromContext?: vscode.Uri): Promise<string> {
-        if (dockerfileFromContext) {
+    private async getDockerfilePath(dockerfileFromContextMenu?: vscode.Uri): Promise<string> {
+        if (dockerfileFromContextMenu) {
             TelemetryClient.sendEvent("buildDockerImage.start", {entry: "contextMenu"});
-            return dockerfileFromContext.fsPath;
+            return dockerfileFromContextMenu.fsPath;
         } else {
             TelemetryClient.sendEvent("buildDockerImage.start", {entry: "commandPalette"});
             const dockerfileList: vscode.Uri[] = await this.getDockerfileList();

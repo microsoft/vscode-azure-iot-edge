@@ -66,6 +66,8 @@ export class ContainerManager {
 
             if (dockerfileItem) {
                 return dockerfileItem.detail;
+            } else {
+                return null;
             }
         }
     }

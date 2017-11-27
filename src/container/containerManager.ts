@@ -7,7 +7,13 @@ import { TelemetryClient } from "../common/telemetryClient";
 import { Utility } from "../common/utility";
 
 export class ContainerManager {
-    public async buildDockerImage(context: vscode.ExtensionContext, dockerfileFromContextMenu?: vscode.Uri) {
+    private workspaceState: vscode.Memento;
+
+    constructor(private context: vscode.ExtensionContext) {
+        this.workspaceState = context.workspaceState;
+    }
+
+    public async buildDockerImage(dockerfileFromContextMenu?: vscode.Uri) {
         const dockerfilePath: string = await this.getDockerfilePath(dockerfileFromContextMenu);
 
         if (dockerfilePath) {
@@ -23,10 +29,8 @@ export class ContainerManager {
             if (exeDirArgument) {
                 const relativePath: string = this.getRelativePath(exeDirArgument, workspaceFolder);
                 if (relativePath) {
-                    const imageName: string = await vscode.window.showInputBox({ prompt: "Enter image name", placeHolder: "E.g., myregistry.azurecr.io/myedgemodule:latest", ignoreFocusOut: true });
-                    if (imageName === "") {
-                        vscode.window.showErrorMessage("Image name cannot be empty");
-                    } else if (imageName) {
+                    const imageName: string = await this.promptForImageName();
+                    if (imageName) {
                         Executor.runInTerminal(`docker build -f \"${Utility.adjustFilePath(dockerfilePath)}\" --build-arg EXE_DIR=\"${relativePath}\" -t \"${imageName}\" ` +
                             `\"${Utility.adjustFilePath(workspaceFolder.fsPath)}\"`);
                         TelemetryClient.sendEvent("buildDockerImage.end");
@@ -40,10 +44,8 @@ export class ContainerManager {
 
     public async pushDockerImage() {
         TelemetryClient.sendEvent("pushDockerImage.start");
-        const imageName: string = await vscode.window.showInputBox({ prompt: "Enter image name", placeHolder: "E.g., myregistry.azurecr.io/myedgemodule:latest", ignoreFocusOut: true });
-        if (imageName === "") {
-            vscode.window.showErrorMessage("Image name cannot be empty");
-        } else if (imageName) {
+        const imageName: string = await this.promptForImageName();
+        if (imageName) {
             Executor.runInTerminal(`docker push ${imageName}`);
             TelemetryClient.sendEvent("pushDockerImage.end");
         }
@@ -51,10 +53,10 @@ export class ContainerManager {
 
     private async getDockerfilePath(dockerfileFromContextMenu?: vscode.Uri): Promise<string> {
         if (dockerfileFromContextMenu) {
-            TelemetryClient.sendEvent("buildDockerImage.start", {entry: "contextMenu"});
+            TelemetryClient.sendEvent("buildDockerImage.start", { entry: "contextMenu" });
             return dockerfileFromContextMenu.fsPath;
         } else {
-            TelemetryClient.sendEvent("buildDockerImage.start", {entry: "commandPalette"});
+            TelemetryClient.sendEvent("buildDockerImage.start", { entry: "commandPalette" });
             const dockerfileList: vscode.Uri[] = await this.getDockerfileList();
             if (!dockerfileList || dockerfileList.length === 0) {
                 vscode.window.showErrorMessage("No Dockerfile can be found under this workspace.");
@@ -98,5 +100,24 @@ export class ContainerManager {
         }
 
         return null;
+    }
+
+    private async promptForImageName(): Promise<string> {
+        const imageNameCache: string = this.workspaceState.get<string>(Constants.lastUsedImageNameCacheKey);
+
+        const imageName: string = await vscode.window.showInputBox({
+            prompt: "Enter image name",
+            value: imageNameCache,
+            placeHolder: "E.g., myregistry.azurecr.io/myedgemodule:latest",
+            ignoreFocusOut: true,
+        });
+
+        if (imageName === "") {
+            vscode.window.showErrorMessage("Image name cannot be empty");
+        } else if (imageName) {
+            this.workspaceState.update(Constants.lastUsedImageNameCacheKey, imageName);
+        }
+
+        return imageName;
     }
 }

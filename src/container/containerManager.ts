@@ -7,7 +7,7 @@ import { TelemetryClient } from "../common/telemetryClient";
 import { Utility } from "../common/utility";
 
 export class ContainerManager {
-    public async buildDockerImage(dockerfileFromContext?: vscode.Uri) {
+    public async buildDockerImage(context: vscode.ExtensionContext, dockerfileFromContext?: vscode.Uri) {
         TelemetryClient.sendEvent("buildDockerImage.start");
         const dockerfilePath: string = await this.getDockerfilePath(dockerfileFromContext);
 

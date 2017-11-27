@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const inputModuleManager = new InputModuleManager();
     const edgeManager = new EdgeManager(context);
-    const containerManager = new ContainerManager();
+    const containerManager = new ContainerManager(context);
     Utility.registerDebugTelemetryListener();
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.editTemplate", () => {
@@ -60,8 +60,8 @@ export function activate(context: vscode.ExtensionContext) {
         edgeManager.launch();
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildDockerImage", (dockerfileFromContext: vscode.Uri) => {
-        containerManager.buildDockerImage(dockerfileFromContext);
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildDockerImage", (dockerfileFromContextMenu: vscode.Uri) => {
+        containerManager.buildDockerImage(dockerfileFromContextMenu);
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.pushDockerImage", () => {

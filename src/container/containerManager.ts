@@ -9,7 +9,7 @@ import { Utility } from "../common/utility";
 export class ContainerManager {
     private workspaceState: vscode.Memento;
 
-    constructor(private context: vscode.ExtensionContext) {
+    constructor(context: vscode.ExtensionContext) {
         this.workspaceState = context.workspaceState;
     }
 
@@ -112,11 +112,13 @@ export class ContainerManager {
             ignoreFocusOut: true,
         });
 
-        imageName = imageName.trim();
-        if (imageName === "") {
-            vscode.window.showErrorMessage("Image name cannot be empty");
-        } else if (imageName) {
-            this.workspaceState.update(Constants.lastUsedImageNameCacheKey, imageName);
+        if (imageName !== undefined) {
+            imageName = imageName.trim();
+            if (imageName === "") {
+                vscode.window.showErrorMessage("Image name cannot be empty");
+            } else if (imageName) {
+                this.workspaceState.update(Constants.lastUsedImageNameCacheKey, imageName);
+            }
         }
 
         return imageName;

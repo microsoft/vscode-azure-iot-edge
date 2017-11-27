@@ -8,7 +8,6 @@ import { Utility } from "../common/utility";
 
 export class ContainerManager {
     public async buildDockerImage(dockerfileFromContext?: vscode.Uri) {
-        TelemetryClient.sendEvent("buildDockerImage.start");
         const dockerfilePath: string = await this.getDockerfilePath(dockerfileFromContext);
 
         if (dockerfilePath) {
@@ -52,8 +51,10 @@ export class ContainerManager {
 
     private async getDockerfilePath(dockerfileFromContext?: vscode.Uri): Promise<string> {
         if (dockerfileFromContext) {
+            TelemetryClient.sendEvent("buildDockerImage.start", {entry: "contextMenu"});
             return dockerfileFromContext.fsPath;
         } else {
+            TelemetryClient.sendEvent("buildDockerImage.start", {entry: "commandPalette"});
             const dockerfileList: vscode.Uri[] = await this.getDockerfileList();
             if (!dockerfileList || dockerfileList.length === 0) {
                 vscode.window.showErrorMessage("No Dockerfile can be found under this workspace.");
@@ -65,6 +66,8 @@ export class ContainerManager {
 
             if (dockerfileItem) {
                 return dockerfileItem.detail;
+            } else {
+                return null;
             }
         }
     }

@@ -51,10 +51,10 @@ export class ContainerManager {
 
     private async getDockerfilePath(dockerfileFromContext?: vscode.Uri): Promise<string> {
         if (dockerfileFromContext) {
-            TelemetryClient.sendEvent("buildDockerImage.start.fromContextMenu");
+            TelemetryClient.sendEvent("buildDockerImage.start", {entry: "contextMenu"});
             return dockerfileFromContext.fsPath;
         } else {
-            TelemetryClient.sendEvent("buildDockerImage.start.fromCommandPalette");
+            TelemetryClient.sendEvent("buildDockerImage.start", {entry: "commandPalette"});
             const dockerfileList: vscode.Uri[] = await this.getDockerfileList();
             if (!dockerfileList || dockerfileList.length === 0) {
                 vscode.window.showErrorMessage("No Dockerfile can be found under this workspace.");

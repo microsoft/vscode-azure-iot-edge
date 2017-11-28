@@ -87,6 +87,32 @@ export class Utility {
         });
     }
 
+    public static async getInputFilePath(inputFileFromContextMenu: vscode.Uri, filePattern: string, fileDescription: string, eventName: string): Promise<string> {
+        if (!Utility.checkWorkspace()) {
+            return null;
+        }
+
+        if (inputFileFromContextMenu) {
+            TelemetryClient.sendEvent(eventName, { entry: "contextMenu" });
+            return inputFileFromContextMenu.fsPath;
+        } else {
+            TelemetryClient.sendEvent(eventName, { entry: "commandPalette" });
+            const fileList: vscode.Uri[] = await vscode.workspace.findFiles(filePattern);
+            if (!fileList || fileList.length === 0) {
+                vscode.window.showErrorMessage(`No ${fileDescription} can be found under this workspace.`);
+                return null;
+            }
+
+            const fileItemList: vscode.QuickPickItem[] = Utility.getQuickPickItemsFromUris(fileList);
+            const fileItem: vscode.QuickPickItem = await vscode.window.showQuickPick(fileItemList, { placeHolder: `Select ${fileDescription}`});
+            if (fileItem) {
+                return fileItem.detail;
+            } else {
+                return null;
+            }
+        }
+    }
+
     public static getQuickPickItemsFromUris(uriList: vscode.Uri[]): vscode.QuickPickItem[] {
         return uriList.map((u) => Utility.getQuickPickItem(u));
     }
@@ -99,5 +125,15 @@ export class Utility {
         };
 
         return quickPickItem;
+    }
+
+    public static getRelativePath(folder: vscode.Uri, rootFolder: vscode.Uri): string {
+        if (folder.fsPath.startsWith(rootFolder.fsPath)) {
+            const relativePath: string = "." + folder.fsPath.substr(rootFolder.fsPath.length);
+
+            return relativePath.replace(/\\/g, "/");
+        }
+
+        return null;
     }
 }

@@ -40,6 +40,6 @@ export class DotnetUtility {
     }
 
     private async getProjectFileList(): Promise<vscode.Uri[]> {
-        return await vscode.workspace.findFiles(Constants.csprojectFileNamePattern, null, 1000, null);
+        return await vscode.workspace.findFiles(Constants.dotNetProjectFileNamePattern, null, 1000, null);
     }
 }

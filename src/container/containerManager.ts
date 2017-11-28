@@ -1,5 +1,4 @@
 "use strict";
-import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
@@ -60,10 +59,10 @@ export class ContainerManager {
             const dockerfileList: vscode.Uri[] = await this.getDockerfileList();
             if (!dockerfileList || dockerfileList.length === 0) {
                 vscode.window.showErrorMessage("No Dockerfile can be found under this workspace.");
-                return;
+                return null;
             }
 
-            const dockerfileItemList: vscode.QuickPickItem[] = this.getDockerfileItemList(dockerfileList);
+            const dockerfileItemList: vscode.QuickPickItem[] = Utility.getQuickPickItemsFromUris(dockerfileList);
             const dockerfileItem: vscode.QuickPickItem = await vscode.window.showQuickPick(dockerfileItemList, { placeHolder: "Select Dockerfile" });
 
             if (dockerfileItem) {
@@ -76,20 +75,6 @@ export class ContainerManager {
 
     private async getDockerfileList(): Promise<vscode.Uri[]> {
         return await vscode.workspace.findFiles(Constants.dockerfileNamePattern, null, 1000, null);
-    }
-
-    private getDockerfileItemList(dockerfileList: vscode.Uri[]): vscode.QuickPickItem[] {
-        return dockerfileList.map((d) => this.getDockerfileItem(d));
-    }
-
-    private getDockerfileItem(dockerfile: vscode.Uri): vscode.QuickPickItem {
-        const dockerfileItem: vscode.QuickPickItem = {
-            label: path.join(".", dockerfile.fsPath.substr(vscode.workspace.getWorkspaceFolder(dockerfile).uri.fsPath.length)),
-            description: null,
-            detail: dockerfile.fsPath,  // use the `detail` property to save dockerfile's full path, which will be used during docker build
-        };
-
-        return dockerfileItem;
     }
 
     private getRelativePath(folder: vscode.Uri, rootFolder: vscode.Uri): string {

@@ -1,6 +1,7 @@
 "use strict";
 import * as iothub from "azure-iothub";
 import * as os from "os";
+import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "./constants";
 import { TelemetryClient } from "./telemetryClient";
@@ -84,5 +85,19 @@ export class Utility {
                 TelemetryClient.sendEvent("startDebugSession", { sessionName: session.name });
             }
         });
+    }
+
+    public static getQuickPickItemsFromUris(uriList: vscode.Uri[]): vscode.QuickPickItem[] {
+        return uriList.map((u) => Utility.getQuickPickItem(u));
+    }
+
+    public static getQuickPickItem(uri: vscode.Uri): vscode.QuickPickItem {
+        const quickPickItem: vscode.QuickPickItem = {
+            label: path.join(".", uri.fsPath.substr(vscode.workspace.getWorkspaceFolder(uri).uri.fsPath.length)),
+            description: null,
+            detail: uri.fsPath,  // use the `detail` property to save URI's full path, which will be used later
+        };
+
+        return quickPickItem;
     }
 }

@@ -1,22 +1,37 @@
 sudo: false
 language: node_js
 node_js:
-  - "node"
+- node
 os:
-  - osx
-  - linux
-
+- osx
+- linux
 before_install:
-  - if [ $TRAVIS_OS_NAME == "linux" ]; then
-      export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
-      sh -e /etc/init.d/xvfb start;
-      sleep 3;
-    fi
-
+- if [ $TRAVIS_OS_NAME == "linux" ]; then export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
+  sh -e /etc/init.d/xvfb start; sleep 3; fi
 install:
-  - npm install
-  - npm run vscode:prepublish
-
+- npm install
+- npm install -g vsce
 script:
-  - npm run tslint
-  - npm test --silent
+- npm run tslint
+- vsce package
+- npm test --silent
+deploy:
+- provider: releases
+  skip_cleanup: true
+  api_key: "$GIT_TOKEN"
+  file_glob: true
+  file: "*.vsix"
+  on:
+    tags: true
+    condition: "$TRAVIS_OS_NAME == linux"
+- provider: script
+  skip_cleanup: true
+  script: vsce publish -p $VSCE_TOKEN --packagePath *.vsix
+  on:
+    tags: true
+    condition: "$TRAVIS_OS_NAME == linux && $TRAVIS_TAG =~ $ISPRODTAG"
+env:
+  global:
+  - ISPRODTAG=^v?[0-9]+\.[0-9]+\.[0-9]+$
+  - secure: naq0cSeZte9cjXrvz8zbpTLSa3FFJH1nUtEhgEt/6SPjMRFdwCH2uHIwg9CvPd/kUlpBc0HpqX+f3Zj/xRldnBXYSB/6yvFJcajjYPaRzFobqIpFzSchQHEFRVZLXbKfi6GqeAezieLadmuFP8Mae3/JcNBhxyVTjiMQQOoyCAOwZMK+GufwutcFC1F7h/ibJsk5N1IqVk+MtkmvezA9Ni4Z1gNptOVhZox5d1T4fj60KzDUWMaeV+21LDs39glcBD28nfCGvV2ZEhqktiG+i0ConndkfMcxDy0T5hqDaKrRCFIY9rmutY2jFF+wD7+g63J1XgAiks+rKpTyKjv/mePsuw62anHWDa6wIR/ovWHE2HHtRtvzCWEpF1RulSpkTorxEIZsytALjRkUMgJ0zMig9uDomFL6VcHlztIpW3+sSer1gQ0+IuTJfLcAhbmyO+PDCur6mkp0CE8Z5O2sW/pLtb9ZdmEhtwfEVcuOCZp5gypJmarG4IFcFpkqvRr705niROo0KXqJfQe35xFV/QK54yeFCVuRuXlASDZF5Rw+uTuav0DtppDHdAQoa8qo3Jm5WRNbCOJ0BXW+U5lzjVY6M1FbkfVuqeoTZrGRa6LOCIXJnb3npcNVOzcNFZOXvA7MH2hvzaXYPpwRYXQ3lp/9OC5dH5QRDFiHAaNCphE=
+  - secure: c64BfahONUAscZULh1hcc64QSGEM6YeBYhiEn0bpEL8u0NinTV6nooyhRAjBKvU11ze8Da3rtBzpIHk3iaXg4qU0HPot8txBUXPNhEFpPhcOdE6BSKZFDMqyij+tZN5gpUDwTqWwFo4UM99h2I/zFwZUvBTqlmyB0Y6T3XMMzkv+6ccbnb8j1/EmWJt+pxZzdOnmaGzUEK+P1Mq0/zrvU7gfb/1dnQVaazx+y9Ubft4DLj9WDssj2Evn/R2zOuTBjdjHKintfUXwzMoozdKVOWM5WBdvvH3No9u1xYOjcFwx/mHMcSzXHPvuLawScM4LZIoFXp8jiJThJ1YOd9Eo1xnTT3INSNoEDOYaUvrCbCtO8ncVVTv4cGFNfZnhdXQfxJ/hzlaoy7AcE2gLB8WjTp2uKOnHxg0PhDaESd0f4mfBS2igp1OSrYktkkHNVoTEFbVosFD9LbDKIdHSgyhHO+CAsT3MQfn8clBW4slcLZeHKQNHWxIbqisK6xJHFWY4uyiG/TelnCptgK/7pdOrRNKG3MN7+FMdw9FBotkLNO2lbqXZoc+Fwu1wYFZLIAubgVAU8cOhbVWmEmcCdEUk/aQqGPm3l20WBAyT8oBZokRcuFopC6XiRSyV4yZbDGjaNJOl33O9d/D8HCsHTjPde/a74h3YIG6QRcGqpO9Mlrs=

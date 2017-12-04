@@ -1,7 +1,7 @@
 # Change Log
 ## 0.1.2 - 2017-12-05
 ### Added
-* Add F1 integration for build module command
+* Add Command Palette integration for build module command
 * Cache last used image name
 
 ## 0.1.1 - 2017-11-17

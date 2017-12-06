@@ -14,6 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
     const inputModuleManager = new InputModuleManager();
     const edgeManager = new EdgeManager(context);
     const containerManager = new ContainerManager(context);
+    const dotnetUtility = new DotnetUtility();
     Utility.registerDebugTelemetryListener();
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.editTemplate", () => {
@@ -69,7 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.dotnetPublish", (fileUri: vscode.Uri) => {
-        DotnetUtility.dotnetPublish(fileUri);
+        dotnetUtility.dotnetPublish(fileUri);
     }));
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

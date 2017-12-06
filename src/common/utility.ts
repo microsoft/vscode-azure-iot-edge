@@ -1,6 +1,7 @@
 "use strict";
 import * as iothub from "azure-iothub";
 import * as os from "os";
+import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "./constants";
 import { TelemetryClient } from "./telemetryClient";
@@ -84,5 +85,55 @@ export class Utility {
                 TelemetryClient.sendEvent("startDebugSession", { sessionName: session.name });
             }
         });
+    }
+
+    public static async getInputFilePath(inputFileFromContextMenu: vscode.Uri, filePattern: string, fileDescription: string, eventName: string): Promise<string> {
+        if (!Utility.checkWorkspace()) {
+            return null;
+        }
+
+        if (inputFileFromContextMenu) {
+            TelemetryClient.sendEvent(eventName, { entry: "contextMenu" });
+            return inputFileFromContextMenu.fsPath;
+        } else {
+            TelemetryClient.sendEvent(eventName, { entry: "commandPalette" });
+            const fileList: vscode.Uri[] = await vscode.workspace.findFiles(filePattern);
+            if (!fileList || fileList.length === 0) {
+                vscode.window.showErrorMessage(`No ${fileDescription} can be found under this workspace.`);
+                return null;
+            }
+
+            const fileItemList: vscode.QuickPickItem[] = Utility.getQuickPickItemsFromUris(fileList);
+            const fileItem: vscode.QuickPickItem = await vscode.window.showQuickPick(fileItemList, { placeHolder: `Select ${fileDescription}`});
+            if (fileItem) {
+                return fileItem.detail;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public static getQuickPickItemsFromUris(uriList: vscode.Uri[]): vscode.QuickPickItem[] {
+        return uriList.map((u) => Utility.getQuickPickItem(u));
+    }
+
+    public static getQuickPickItem(uri: vscode.Uri): vscode.QuickPickItem {
+        const quickPickItem: vscode.QuickPickItem = {
+            label: path.join(".", uri.fsPath.substr(vscode.workspace.getWorkspaceFolder(uri).uri.fsPath.length)),
+            description: null,
+            detail: uri.fsPath,  // use the `detail` property to save URI's full path, which will be used later
+        };
+
+        return quickPickItem;
+    }
+
+    public static getRelativePath(folder: vscode.Uri, rootFolder: vscode.Uri): string {
+        if (folder.fsPath.startsWith(rootFolder.fsPath)) {
+            const relativePath: string = "." + folder.fsPath.substr(rootFolder.fsPath.length);
+
+            return relativePath.replace(/\\/g, "/");
+        }
+
+        return null;
     }
 }

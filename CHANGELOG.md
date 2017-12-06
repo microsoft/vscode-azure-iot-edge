@@ -1,4 +1,9 @@
 # Change Log
+## 0.1.2 - 2017-12-06
+### Added
+* Add Command Palette integration for build module command
+* Cache last used image name
+
 ## 0.1.1 - 2017-11-17
 ### Changed
 * Show 'Build IoT Edge module' command only on csproj file

@@ -30,7 +30,7 @@ export class ContainerManager {
                 if (relativePath) {
                     const imageName: string = await this.promptForImageName();
                     if (imageName) {
-                        Executor.runInTerminal(`docker build -f \"${Utility.adjustFilePath(dockerfilePath)}\" --build-arg EXE_DIR=\"${relativePath}\" -t \"${imageName.trim()}\" ` +
+                        Executor.runInTerminal(`docker build -f \"${Utility.adjustFilePath(dockerfilePath)}\" --build-arg EXE_DIR=\"${relativePath}\" -t \"${imageName}\" ` +
                             `\"${Utility.adjustFilePath(workspaceFolder.fsPath)}\"`);
                         TelemetryClient.sendEvent("buildDockerImage.end");
                     }
@@ -45,7 +45,7 @@ export class ContainerManager {
         TelemetryClient.sendEvent("pushDockerImage.start");
         const imageName: string = await this.promptForImageName();
         if (imageName) {
-            Executor.runInTerminal(`docker push ${imageName.trim()}`);
+            Executor.runInTerminal(`docker push ${imageName}`);
             TelemetryClient.sendEvent("pushDockerImage.end");
         }
     }

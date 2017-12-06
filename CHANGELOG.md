@@ -1,5 +1,5 @@
 # Change Log
-## 0.1.2 - 2017-12-05
+## 0.1.2 - 2017-12-06
 ### Added
 * Add Command Palette integration for build module command
 * Cache last used image name

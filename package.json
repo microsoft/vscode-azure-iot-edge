@@ -56,6 +56,10 @@
         {
           "when": "resourceExtname == .csproj",
           "command": "azure-iot-edge.dotnetPublish"
+        },
+        {
+          "when": "resourceExtname == .fsproj",
+          "command": "azure-iot-edge.dotnetPublish"
         }
       ]
     },

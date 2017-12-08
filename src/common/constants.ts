@@ -7,7 +7,7 @@ export class Constants {
     public static deploymentFile = "deployment.json";
     public static routesFile = "routes.json";
     public static dockerfileNamePattern = "**/[dD]ocker[fF]ile*";
-    public static dotNetProjectFileNamePattern = "{**/*.csproj}";
+    public static dotNetProjectFileNamePattern = "**/*.{csproj,fsproj}";
     public static EdgeDebugSessions = ["Debug IoT Edge Module (.NET Core)", "Debug IoT Edge Function (.NET Core)"];
     public static lastUsedImageNameCacheKey = "azureIotEdge.lastUsedImageName";
 }

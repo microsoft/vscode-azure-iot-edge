@@ -1,4 +1,4 @@
-"user strict";
+"use strict";
 
 export class Constants {
     public static ExtensionId = "vsciot-vscode.azure-iot-edge";

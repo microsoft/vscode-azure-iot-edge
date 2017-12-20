@@ -86,8 +86,8 @@ The steps should be almost the same as the C# module above. Differeces are liste
 - Add breakpoints in `run.csx` file.
 
 ## Resources
-- [Develop and deploy C# module](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-vscode-develop-csharp-module)
-- [Debug C# module](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-vscode-debug-csharp-module)
+- [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-csharp-module)
+- [Debug C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-csharp-module)
 - [Easily Create IoT Edge custom modules with Visual Studio Code](https://blogs.msdn.microsoft.com/visualstudio/2017/12/12/easily-create-iot-edge-custom-modules-with-visual-studio-code/)
 
 ## Supported Operating Systems

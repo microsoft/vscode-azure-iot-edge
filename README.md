@@ -7,7 +7,7 @@ Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy
 - Create new IoT Edge projects
 - Build and publish IoT Edge modules
 - Debug IoT Edge modules locally
-- Manage IoT Edge devices in IoT Hub (with [Azure IoT Toolkit](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-toolkit))
+- Manage IoT Edge devices and modules in IoT Hub (with [Azure IoT Toolkit](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-toolkit))
 - Deploy IoT solutions to IoT Edge devices
 - Stop and restart IoT Edge
 
@@ -38,19 +38,27 @@ We will soon support other languages.
 
 Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see all the commands:
 
-- **Edge: Setup Edge**: Setup the Edge runtime. To trigger this, right-click the Edge DeviceID in the device list.
+- **Edge: Setup Edge**: Setup the Edge runtime.
 - **Edge: Start Edge**: Start Edge runtime in your local machine.
-- **Edge: Build IoT Edge module**: Build Edge module from source code. To trigger this command, right-click the project file (e.g. `*.csproj` for .Net Core module project) and select this command in the context menu.
-- **Edge: Build IoT Edge module Docker image**: Containerize your Edge module to Docker image. To trigger this command, right-click the `Dockerfile` and select this command in the context menu. 
+- **Edge: Build IoT Edge module**: Build Edge module from source code. 
+- **Edge: Build IoT Edge module Docker image**: Containerize your Edge module to Docker image. 
 - **Edge: Push IoT Edge module Docker image**: Push an image to a Docker registry.
-- **Edge: Create deployment for Edge device**: Create and submit the deployment to your Edge device with specified deployment json file. To trigger this command, right-click the Edge DeviceID and find it in context menu in Device List.
+- **Edge: Create deployment for Edge device**: Create and submit the deployment to your Edge device with specified deployment json file. 
 - **Edge: Setup Edge using configuration file**: Take a configuration file for Edge setup.
-- **Edge: Generate Edge setup configuration file**: Generate the json file for Edge: setup Edge using configuration file. Open the json file to see further description. To trigger this, right-click the Edge DeviceID and find it in context menu in the device list.
-- **Edge: Generate Edge deployment configuration file**: Generate the json file for Edge deployment.
+- **Edge: Generate Edge setup configuration file**: Generate the json file for Edge: setup Edge using configuration file. Open the json file to see further description.
+- **Edge: Generate Edge deployment manifest**: Generate the json file for Edge deployment.
 - **Edge: Stop Edge**: Stop Edge runtime.
 - **Edge: Restart Edge**: Restart the Edge runtime.
 - **Edge: Uninstall**: Remove all modules and generated files.
+- **Edge: Log in to container registry**: Add registry credentials to Edge runtime.
 
+You can also trigger following frequently-used commands in context menu.
+- **Edge: Build IoT Edge module**: The context menu of \*.csproj file in VS Code file explorer. Directly build the target \*.csproj IoT Edge C# module project.
+- **Edge: Build IoT Edge module Docker image**: The context menu of Dockerfile or Dockerfile.debug. Use target Dockerfile to build a Docker image.
+- **Edge: Create deployment for Edge device**: The context menu of an Edge device ID in device list. Create a deployment for target IoT Edge device with deployment.json file you select.
+- **Edge: Setup Edge**: The context menu of an Edge device ID in device list. Setup Edge runtime with target device connection string.
+- **Edge: Generate Edge setup configuration file**: The context menu of an Edge device ID in device list. Device connection string will be passed to the Edge runtime configuration file.
+- **Edge: Get module twin**: The context menu of deployed modules. Fectch target module twin. 
 
 ## Get Started with IoT Edge in VS Code
 ### Develop and deploy your IoT Edge C# module

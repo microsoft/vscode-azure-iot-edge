@@ -1,4 +1,8 @@
 # Change Log
+## 0.1.3 - 2017-12-25
+### Added
+* Add support for F#
+
 ## 0.1.2 - 2017-12-06
 ### Added
 * Add Command Palette integration for build module command

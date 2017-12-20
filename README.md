@@ -85,6 +85,11 @@ The steps should be almost the same as the C# module above. Differeces are liste
 - Use the section `Debug IoT Edge Function (.NET Core)` in launch.json
 - Add breakpoints in `run.csx` file.
 
+## Resources
+- [Develop and deploy C# module](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-vscode-develop-csharp-module)
+- [Debug C# module](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-vscode-debug-csharp-module)
+- [Easily Create IoT Edge custom modules with Visual Studio Code](https://blogs.msdn.microsoft.com/visualstudio/2017/12/12/easily-create-iot-edge-custom-modules-with-visual-studio-code/)
+
 ## Supported Operating Systems
 Currently this extension supports the following operating systems:
 - Windows 7 and later (32-bit and 64-bit)

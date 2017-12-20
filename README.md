@@ -53,12 +53,12 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see al
 - **Edge: Log in to container registry**: Add registry credentials to Edge runtime.
 
 You can also trigger following frequently-used commands in context menu.
-- **Edge: Build IoT Edge module**: The context menu of \*.csproj file in VS Code file explorer. Directly build the target \*.csproj IoT Edge C# module project.
-- **Edge: Build IoT Edge module Docker image**: The context menu of Dockerfile or Dockerfile.debug. Use target Dockerfile to build a Docker image.
+- **Edge: Build IoT Edge module**: The context menu of the \*.csproj file in VS Code file explorer. Directly build the target \*.csproj IoT Edge C# module project.
+- **Edge: Build IoT Edge module Docker image**: The context menu of the Dockerfile or Dockerfile.debug. Use target Dockerfile to build a Docker image.
 - **Edge: Create deployment for Edge device**: The context menu of an Edge device ID in device list. Create a deployment for target IoT Edge device with deployment.json file you select.
 - **Edge: Setup Edge**: The context menu of an Edge device ID in device list. Setup Edge runtime with target device connection string.
 - **Edge: Generate Edge setup configuration file**: The context menu of an Edge device ID in device list. Device connection string will be passed to the Edge runtime configuration file.
-- **Edge: Get module twin**: The context menu of deployed modules. Fectch target module twin. 
+- **Edge: Get module twin**: The context menu of a deployed module. Fectch target module twin. 
 
 ## Get Started with IoT Edge in VS Code
 ### Develop and deploy your IoT Edge C# module

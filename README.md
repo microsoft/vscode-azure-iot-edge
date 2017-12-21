@@ -7,9 +7,10 @@ Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy
 - Create new IoT Edge projects
 - Build and publish IoT Edge modules
 - Debug IoT Edge modules locally
+- Intellisense and code snippets for the deployment manifest
 - Manage IoT Edge devices and modules in IoT Hub (with [Azure IoT Toolkit](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-toolkit))
 - Deploy IoT solutions to IoT Edge devices
-- Stop and restart IoT Edge
+- Manage IoT Edge runtime.
 
 ## Prerequisites
 
@@ -32,12 +33,11 @@ For C# developers, you can develop, debug and deploy [C# modules](https://docs.m
 - [.Net Core 2.0 SDK](https://www.microsoft.com/net/download/core)
 - [C# for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
 
-We will soon support other languages.
+We will soon support other languages and more services on IoT Edge.
 
 ## Commnads
 
 Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see all the commands:
-
 - **Edge: Setup Edge**: Setup the Edge runtime.
 - **Edge: Start Edge**: Start Edge runtime in your local machine.
 - **Edge: Build IoT Edge module**: Build Edge module from source code. 
@@ -60,42 +60,12 @@ You can also trigger following frequently-used commands in context menu.
 - **Edge: Generate Edge setup configuration file**: The context menu of an Edge device ID in device list. Device connection string will be passed to the Edge runtime configuration file.
 - **Edge: Get module twin**: The context menu of a deployed module. Fectch target module twin. 
 
-## Get Started with IoT Edge in VS Code
-### Develop and deploy your IoT Edge C# module
-1. Run below command to create a module or a function project.
-  ```
-  dotnet new aziotedgemodule -n <your_module_name>
-  ```
-2. Open this project in VS Code.
-3. Set your IoT Hub connection string or login to Azure within Azure IoT Toolkit.
-4. Develop your Edge module code, or you can use the default code as a simplest sample.
-5. Right-click the `<your_module_name>.csproj` file and click **Build IoT Edge module**.
-6. Right-click one of the DockerFiles under Docker folder, and click **Build IoT Edge module Docker image**. In the Select Folder box, either browse to or enter `./bin/Debug/netcoreapp2.0/publish`. Click **Select Folder as EXE_DIR**. Then specify your module image URL.
-7. Type and select **Edge: Push IoT Edge module Docker image** in Command Palette with your module image URL.
-8. Open and update the `deployment.json` file. Make sure you have correct modules and routes for your IoT Edge.
-7. Find your Edge device ID, right-click it and click **Setup Edge**.
-8. Type and select **Edge: Start Edge** in Command Palette.
-9. Right-click the Edge DeviceID in the device list and select **Create deployment for Edge device**, select the `deployment.json` file you just updated.
-10. Start your Edge runtime in Command Palette: **Edge: Start Edge**.
-
-### Debug your IoT Edge C# module 
-1. To start debugging, you need to use the `dockerfile.debug` to rebuild your docker image and deploy your Edge solution again. In VS Code explorer, select `Dockerfile.debug` and Right-click to choose **Build IoT Edge module Docker image**. Then containerize and publish your module image as usual. It's recommended to use a local registry to host your images for debugging purpose.
-2. You can reuse the `deployment.json` file if you have correct modules and routes for your IoT Edge. In command Palette, type and select **Edge: Restart Edge** to get your module started in debug version.
-3. Go to VS Code debug window. Press F5 and select **IoT Edge (.Net Core)**.
-4. In `launch.json`, navigate to **Debug IoT Edge Module (.NET Core)** section and specify the <container_name>.
-5. Navigate to `Program.cs`. Add breakpoints and press F5 again. Then select the dotnet process to attach to.
-6. In Debug window, you can see the variables in left panel.
-
-### Develop, debug, and deploy your Azure Function for IoT Edge
-The steps should be almost the same as the C# module above. Differeces are listed below.
-- Use `dotnet new aziotedgefunction -n <your_function_name>` to generate function project. 
-- Specify the project root folder (should be `<your_function_name>`) as the `EXE_DIR` during Docker image building.
-- Use the section `Debug IoT Edge Function (.NET Core)` in launch.json
-- Add breakpoints in `run.csx` file.
 
 ## Resources
 - [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-csharp-module)
 - [Debug C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-csharp-module)
+- [Develop and deploy Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-azure-function)
+- [Debug Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-azure-function)
 - [Easily Create IoT Edge custom modules with Visual Studio Code](https://blogs.msdn.microsoft.com/visualstudio/2017/12/12/easily-create-iot-edge-custom-modules-with-visual-studio-code/)
 
 ## Supported Operating Systems
@@ -105,6 +75,10 @@ Currently this extension supports the following operating systems:
 - Ubuntu 16.04
 
 The extension might work on other Linux distros as some users have reported, but be aware that Microsoft provides no guarantee or support for such installations
+
+
+## Telemetry
+VS Code collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://go.microsoft.com/fwlink/?LinkID=528096&clcid=0x409) to learn more. If you don’t wish to send usage data to Microsoft, you can set the `telemetry.enableTelemetry` setting to `false`. Learn more in our [FAQ](https://code.visualstudio.com/docs/supporting/faq#_how-to-disable-telemetry-reporting).
 
 ## Support and Contact Us
 You can join in our [Gitter](https://gitter.im/Microsoft/vscode-azure-iot-edge) to ask for help, report issues and talk to the product team directly.

@@ -43,7 +43,7 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see al
 - **Edge: Build IoT Edge module**: Build Edge module from source code. 
 - **Edge: Build IoT Edge module Docker image**: Containerize your Edge module to Docker image. 
 - **Edge: Push IoT Edge module Docker image**: Push an image to a Docker registry.
-- **Edge: Create deployment for Edge device**: Create and submit the deployment to your Edge device with specified deployment json file. 
+- **Edge: Create deployment for Edge device**: Create and submit the deployment to your Edge device with specified deployment manifest. 
 - **Edge: Setup Edge using configuration file**: Take a configuration file for Edge setup.
 - **Edge: Generate Edge setup configuration file**: Generate the json file for Edge: setup Edge using configuration file. Open the json file to see further description.
 - **Edge: Generate Edge deployment manifest**: Generate the json file for Edge deployment.
@@ -55,10 +55,10 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see al
 You can also trigger following frequently-used commands in context menu.
 - **Edge: Build IoT Edge module**: The context menu of the \*.csproj file in VS Code file explorer. Directly build the target \*.csproj IoT Edge C# module project.
 - **Edge: Build IoT Edge module Docker image**: The context menu of the Dockerfile or Dockerfile.debug. Use target Dockerfile to build a Docker image.
-- **Edge: Create deployment for Edge device**: The context menu of an Edge device ID in device list. Create a deployment for target IoT Edge device with deployment.json file you select.
-- **Edge: Setup Edge**: The context menu of an Edge device ID in device list. Setup Edge runtime with target device connection string.
-- **Edge: Generate Edge setup configuration file**: The context menu of an Edge device ID in device list. Device connection string will be passed to the Edge runtime configuration file.
-- **Edge: Get module twin**: The context menu of a deployed module. Fectch target module twin. 
+- **Edge: Create deployment for Edge device**: The context menu of an Edge device in device list. Create a deployment for target IoT Edge device with deployment manifest file you select.
+- **Edge: Setup Edge**: The context menu of an Edge device in device list. Setup Edge runtime with target device connection string.
+- **Edge: Generate Edge setup configuration file**: The context menu of an Edge device in device list. Device connection string will be passed to the Edge setup configuration file.
+- **Edge: Get module twin**: The context menu of a deployed module. Fetch target module twin. 
 
 
 ## Resources

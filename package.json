@@ -2,7 +2,7 @@
   "name": "azure-iot-edge",
   "displayName": "Azure IoT Edge",
   "description": "Develop, deploy, debug, and manage your IoT Edge solution",
-  "version": "0.1.3-rc",
+  "version": "0.1.3",
   "publisher": "vsciot-vscode",
   "icon": "logo.png",
   "preview": true,

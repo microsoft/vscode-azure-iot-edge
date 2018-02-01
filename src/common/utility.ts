@@ -136,4 +136,38 @@ export class Utility {
 
         return null;
     }
+
+    public static replaceAll(str: string, mapObj: Map<string, string>, caseInSensitive: boolean = false): string {
+        let modifier = "g";
+        if (caseInSensitive) {
+            modifier = "ig";
+        }
+
+        const keys = Array.from(mapObj.keys());
+        const pattern: RegExp = new RegExp(keys.join("|"), modifier);
+        return str.replace(pattern, (matched) => {
+            return mapObj.get(matched);
+        });
+    }
+
+    public static async showInputBox(plcHolder: string,
+                                     prmpt: string,
+                                     validate?: (s: string) => Promise<string> | undefined | null,
+                                     defaultValue?: string,
+                                     ignFocusOut: boolean = true): Promise<string> {
+        const options: vscode.InputBoxOptions = {
+            placeHolder: plcHolder,
+            prompt: prmpt,
+            validateInput: validate,
+            ignoreFocusOut: ignFocusOut,
+            value: defaultValue,
+        };
+
+        const result: string | undefined = await vscode.window.showInputBox(options);
+        if (!result) {
+            throw Constants.userCancelled;
+        } else {
+            return result;
+        }
+    }
 }

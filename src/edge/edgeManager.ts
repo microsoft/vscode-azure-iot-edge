@@ -103,18 +103,18 @@ export class EdgeManager {
 
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const sourceModulesPath = path.join(sourceSolutionPath, Constants.moduleFolder);
-        const sourceDeploymentTempalte = path.join(sourceSolutionPath, Constants.deploymentTemplate);
+        const sourceDeploymentTemplate = path.join(sourceSolutionPath, Constants.deploymentTemplate);
         const sourceGitIgnore = path.join(sourceSolutionPath, Constants.gitIgnore);
-        const targetModuelPath = path.join(slnPath, Constants.moduleFolder);
+        const targetModulePath = path.join(slnPath, Constants.moduleFolder);
         const targetGitIgnore = path.join(slnPath, Constants.gitIgnore);
         const targetDeployment = path.join(slnPath, Constants.deploymentTemplate);
 
-        await fse.copy(sourceModulesPath, targetModuelPath);
+        await fse.copy(sourceModulesPath, targetModulePath);
         await fse.copy(sourceGitIgnore, targetGitIgnore);
 
-        await this.addModule(targetModuelPath, moduleName, repositoryName, language, outputChannel);
+        await this.addModule(targetModulePath, moduleName, repositoryName, language, outputChannel);
 
-        const data: string = await fse.readFile(sourceDeploymentTempalte, "utf8");
+        const data: string = await fse.readFile(sourceDeploymentTemplate, "utf8");
         const mapObj: Map<string, string> = new Map<string, string>();
         mapObj.set(Constants.moduleNamePlaceholder, moduleName.toLowerCase());
         mapObj.set(Constants.moduleImagePlaceholder, `\${MODULES.${moduleName}.amd64}`);
@@ -149,7 +149,8 @@ export class EdgeManager {
     }
 
     private async getSolutionParentFolder(): Promise<string | undefined> {
-        const defaultFolder: vscode.Uri | undefined = vscode.workspace.rootPath ? vscode.Uri.file(vscode.workspace.rootPath) : undefined;
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        const defaultFolder: vscode.Uri | undefined = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri : undefined;
         const selectedUri: vscode.Uri[] | undefined = await vscode.window.showOpenDialog({
             defaultUri: defaultFolder,
             openLabel: Constants.parentFolderLabel,

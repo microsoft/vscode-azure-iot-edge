@@ -29,7 +29,7 @@
           }
         },
         "modules": {
-          "temp-sensor-module": {
+          "tempSensor": {
             "version": "1.0",
             "type": "docker",
             "status": "running",
@@ -56,7 +56,7 @@
       "properties.desired": {
         "schemaVersion": "1.0",
         "routes": {
-          "sensorToFilter": "FROM /messages/modules/temp-sensor-module/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/%MODULE%/inputs/input1\")",
+          "sensorToFilter": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/%MODULE%/inputs/input1\")",
           "filterToIoTHub": "FROM /messages/modules/%MODULE%/outputs/output1 INTO $upstream"
         },
         "storeAndForwardConfiguration": {

@@ -1,5 +1,6 @@
 "use strict";
 import * as vscode from "vscode";
+import { Constants } from "./common/constants";
 import { Executor } from "./common/executor";
 import { TelemetryClient } from "./common/telemetryClient";
 import { Utility } from "./common/utility";
@@ -16,7 +17,8 @@ export function activate(context: vscode.ExtensionContext) {
     const containerManager = new ContainerManager(context);
     const dotnetUtility = new DotnetUtility();
     Utility.registerDebugTelemetryListener();
-
+    const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeChannel);
+    context.subscriptions.push(outputChannel);
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.editTemplate", () => {
         inputModuleManager.editTemplate();
     }));
@@ -71,6 +73,19 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.dotnetPublish", (fileUri: vscode.Uri) => {
         dotnetUtility.dotnetPublish(fileUri);
+    }));
+
+    // tslint:disable-next-line:array-type
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.newSolution", async (...args: {}[]) => {
+        try {
+            if (args.length === 0) {
+                await edgeManager.createEdgeSolution(outputChannel);
+            } else {
+                await edgeManager.createEdgeSolution(outputChannel, args[0] as vscode.Uri);
+            }
+        } catch (error) {
+            outputChannel.appendLine(error.toString());
+        }
     }));
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

@@ -1,5 +1,5 @@
 "use strict";
-import { exec, execSync } from "child_process";
+import { ChildProcess, exec, execSync, spawn, SpawnOptions } from "child_process";
 import * as vscode from "vscode";
 
 export class Executor {
@@ -21,6 +21,31 @@ export class Executor {
 
     public static onDidCloseTerminal(closedTerminal: vscode.Terminal): void {
         delete this.terminals[closedTerminal.name];
+    }
+
+    public static async executeCMD(outputPane: vscode.OutputChannel, command: string,
+                                   options: SpawnOptions, ...args: string[]): Promise<void> {
+        await new Promise((resolve: () => void, reject: (e: Error) => void): void => {
+            outputPane.show();
+            let stderr: string = "";
+            const p: ChildProcess = spawn(command, args, options);
+            p.stdout.on("data", (data: string | Buffer): void =>
+                outputPane.append(data.toString()));
+            p.stderr.on("data", (data: string | Buffer) => {
+                stderr = stderr.concat(data.toString());
+                outputPane.append(data.toString());
+            });
+            p.on("error", (err: Error) => {
+                reject(new Error(err.toString()));
+            });
+            p.on("exit", (code: number, signal: string) => {
+                if (code !== 0) {
+                    reject (new Error((`Command failed with exit code ${code}`)));
+                } else {
+                    resolve();
+                }
+            });
+        });
     }
 
     private static terminals: { [id: string]: vscode.Terminal } = {};

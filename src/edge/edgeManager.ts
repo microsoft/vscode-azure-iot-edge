@@ -83,6 +83,122 @@ export class EdgeManager {
         });
     }
 
+    public async createEdgeSolution(outputChannel: vscode.OutputChannel,
+                                    parentUri?: vscode.Uri): Promise<void> {
+        // get the target path
+        const parentPath: string = parentUri ? parentUri.fsPath : await this.getSolutionParentFolder();
+        if (parentPath === undefined) {
+            vscode.window.showInformationMessage(Constants.userCancelled);
+            return;
+        }
+
+        await fse.ensureDir(parentPath);
+        const slnName: string = await this.inputSolutionName(parentPath);
+        const language = await this.selectModuleTemplate();
+
+        const moduleName: string = await this.inputModuleName();
+        const repositoryName: string = await this.inputRepository(moduleName);
+        const slnPath: string = path.join(parentPath, slnName);
+        await fse.mkdirs(slnPath);
+
+        const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
+        const sourceModulesPath = path.join(sourceSolutionPath, Constants.moduleFolder);
+        const sourceDeploymentTemplate = path.join(sourceSolutionPath, Constants.deploymentTemplate);
+        const sourceGitIgnore = path.join(sourceSolutionPath, Constants.gitIgnore);
+        const targetModulePath = path.join(slnPath, Constants.moduleFolder);
+        const targetGitIgnore = path.join(slnPath, Constants.gitIgnore);
+        const targetDeployment = path.join(slnPath, Constants.deploymentTemplate);
+
+        await fse.copy(sourceModulesPath, targetModulePath);
+        await fse.copy(sourceGitIgnore, targetGitIgnore);
+
+        await this.addModule(targetModulePath, moduleName, repositoryName, language, outputChannel);
+
+        const data: string = await fse.readFile(sourceDeploymentTemplate, "utf8");
+        const mapObj: Map<string, string> = new Map<string, string>();
+        mapObj.set(Constants.moduleNamePlaceholder, moduleName.toLowerCase());
+        mapObj.set(Constants.moduleImagePlaceholder, `\${MODULES.${moduleName}.amd64}`);
+        const deploymentGenerated: string = Utility.replaceAll(data, mapObj);
+        await fse.writeFile(targetDeployment, deploymentGenerated, {encoding: "utf8"});
+
+        // open new created solution. Will also investigate how to open the module in the same workspace
+        await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
+    }
+
+    public async addModule(parent: string, name: string,
+                           repositoryName: string, template: string,
+                           outputChannel: vscode.OutputChannel): Promise<void> {
+        // TODO command to create module;
+        switch (template) {
+            case Constants.LANGUAGE_CSHARP:
+                await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Module");
+                await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgemodule -n ${name}`);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private async validateProjectPath(parentPath: string, projectName: string): Promise<string | undefined> {
+        const projectPath = path.join(parentPath, projectName);
+        if (projectName && await fse.pathExists(projectPath)) {
+            return `${projectName} already exists under ${parentPath}`;
+        } else {
+            return undefined;
+        }
+    }
+
+    private async getSolutionParentFolder(): Promise<string | undefined> {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        const defaultFolder: vscode.Uri | undefined = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri : undefined;
+        const selectedUri: vscode.Uri[] | undefined = await vscode.window.showOpenDialog({
+            defaultUri: defaultFolder,
+            openLabel: Constants.parentFolderLabel,
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+        });
+
+        if (!selectedUri || selectedUri.length === 0) {
+            return undefined;
+        }
+
+        return selectedUri[0].fsPath;
+    }
+
+    private async inputSolutionName(parentPath: string): Promise<string> {
+        const validateFunc = async (name: string): Promise<string> => {
+            return await this.validateProjectPath(parentPath, name);
+        };
+        return await Utility.showInputBox(Constants.solutionName,
+                                          Constants.solutionNamePrompt,
+                                          validateFunc, Constants.solutionNameDft);
+    }
+
+    private async inputModuleName(): Promise<string> {
+        return await Utility.showInputBox(Constants.moduleName,
+                                          Constants.moduleNamePrompt,
+                                          null, Constants.moduleNameDft);
+    }
+
+    private async inputRepository(module: string): Promise<string> {
+        const dftValue: string = `localhost:5000/${module.toLowerCase()}`;
+        return await Utility.showInputBox(Constants.repositoryPattern,
+                                          Constants.repositoryPrompt,
+                                          null, dftValue);
+    }
+
+    private async selectModuleTemplate(label?: string): Promise<string> {
+        const languagePicks: string[] = [
+            Constants.LANGUAGE_CSHARP,
+            Constants.LANGUAGE_PYTHON,
+        ];
+        if (label === undefined) {
+            label = Constants.selectTemplate;
+        }
+        return await vscode.window.showQuickPick(languagePicks, {placeHolder: label});
+    }
+
     private generateFile(fileName: string) {
         if (Utility.checkWorkspace()) {
             const fullFileName = path.join(vscode.workspace.rootPath, ".vscode", fileName);

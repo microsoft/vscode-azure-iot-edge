@@ -102,15 +102,14 @@ export class EdgeManager {
         await fse.mkdirs(slnPath);
 
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
-        const sourceModulesPath = path.join(sourceSolutionPath, Constants.moduleFolder);
         const sourceDeploymentTemplate = path.join(sourceSolutionPath, Constants.deploymentTemplate);
         const sourceGitIgnore = path.join(sourceSolutionPath, Constants.gitIgnore);
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
         const targetGitIgnore = path.join(slnPath, Constants.gitIgnore);
         const targetDeployment = path.join(slnPath, Constants.deploymentTemplate);
 
-        await fse.copy(sourceModulesPath, targetModulePath);
         await fse.copy(sourceGitIgnore, targetGitIgnore);
+        await fse.mkdirs(targetModulePath);
 
         await this.addModule(targetModulePath, moduleName, repositoryName, language, outputChannel);
 
@@ -125,14 +124,15 @@ export class EdgeManager {
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
     }
 
-    public async addModule(parent: string, name: string,
-                           repositoryName: string, template: string,
-                           outputChannel: vscode.OutputChannel): Promise<void> {
+    private async addModule(parent: string, name: string,
+                            repositoryName: string, template: string,
+                            outputChannel: vscode.OutputChannel): Promise<void> {
         // TODO command to create module;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
-                await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Module");
-                await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgemodule -n ${name}`);
+                // TODO: Add following install command back when the template is released
+                // await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Module");
+                await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgemodule -n ${name} -r ${repositoryName}`);
                 break;
             default:
                 break;

@@ -27,7 +27,7 @@ export class Constants {
     public static moduleName = "Module Name";
     public static moduleNamePrompt = "Provide a Module Name";
     public static moduleNameDft = "SampleModule";
-    public static repositoryPattern = "<registry>/<image>";
+    public static repositoryPattern = "<registry>/<repo-name>";
     public static repositoryPrompt = "Provide Module Repository";
     public static selectTemplate = "Select module template";
     public static parentFolderLabel = "Create Under";

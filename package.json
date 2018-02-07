@@ -38,6 +38,7 @@
     "onCommand:azure-iot-edge.buildDockerImage",
     "onCommand:azure-iot-edge.pushDockerImage",
     "onCommand:azure-iot-edge.dotnetPublish",
+    "onCommand:azure-iot-edge.buildModuleImage",
     "onCommand:azure-iot-edge.newSolution"
   ],
   "main": "./out/src/extension",
@@ -63,6 +64,10 @@
           "command": "azure-iot-edge.dotnetPublish"
         },
         {
+          "when": "resourceFilename == module.json",
+          "command": "azure-iot-edge.buildModuleImage"
+        },
+        {
           "when": "explorerResourceIsFolder == true",
           "command": "azure-iot-edge.newSolution"
         }
@@ -82,6 +87,11 @@
       {
         "command": "azure-iot-edge.dotnetPublish",
         "title": "Build IoT Edge module",
+        "category": "Edge"
+      },
+      {
+        "command": "azure-iot-edge.buildModuleImage",
+        "title": "Build module image",
         "category": "Edge"
       },
       {

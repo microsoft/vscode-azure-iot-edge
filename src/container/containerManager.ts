@@ -20,7 +20,7 @@ export class ContainerManager {
         if (moduleConfigFilePath) {
             const moduleConfig = JSON.parse(fs.readFileSync(moduleConfigFilePath, "utf8"));
             const platforms = moduleConfig.image.tag.platforms;
-            const platform = await vscode.window.showQuickPick(Object.keys(platforms));
+            const platform = await vscode.window.showQuickPick(Object.keys(platforms), { ignoreFocusOut: true });
             if (platform) {
                 const directory = path.dirname(moduleConfigFilePath);
                 const dockerfilePath = path.join(directory, platforms[platform]);

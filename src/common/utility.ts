@@ -182,10 +182,10 @@ export class Utility {
     }
 
     public static async showInputBox(plcHolder: string,
-        prmpt: string,
-        validate?: (s: string) => Promise<string> | undefined | null,
-        defaultValue?: string,
-        ignFocusOut: boolean = true): Promise<string> {
+                                     prmpt: string,
+                                     validate?: (s: string) => Promise<string> | undefined | null,
+                                     defaultValue?: string,
+                                     ignFocusOut: boolean = true): Promise<string> {
         const options: vscode.InputBoxOptions = {
             placeHolder: plcHolder,
             prompt: prmpt,

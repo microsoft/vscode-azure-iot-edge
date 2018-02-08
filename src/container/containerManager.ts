@@ -1,4 +1,6 @@
 "use strict";
+import * as fse from "fs-extra";
+import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
@@ -10,6 +12,30 @@ export class ContainerManager {
 
     constructor(context: vscode.ExtensionContext) {
         this.workspaceState = context.workspaceState;
+    }
+
+    public async buildModuleImage(fileUri?: vscode.Uri, pushImage: boolean = false) {
+        const event = pushImage ? Constants.buildAndPushModuleImageEvent : Constants.buildModuleImageEvent;
+        const moduleConfigFilePath: string = await Utility.getInputFilePath(fileUri, Constants.moduleConfigFileNamePattern, Constants.moduleConfigFile, `${event}.start`);
+
+        if (moduleConfigFilePath) {
+            const moduleConfig = await fse.readJson(moduleConfigFilePath);
+            const platforms = moduleConfig.image.tag.platforms;
+            const platform = await vscode.window.showQuickPick(Object.keys(platforms), { ignoreFocusOut: true });
+            if (platform) {
+                const directory = path.dirname(moduleConfigFilePath);
+                const dockerfilePath = path.join(directory, platforms[platform]);
+                const imageName = `${moduleConfig.image.repository}:${moduleConfig.image.tag.version}-${platform}`;
+                const buildCommand = `docker build --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(directory)}\"`;
+                if (pushImage) {
+                    const pushCommand = `docker push ${imageName}`;
+                    Executor.runInTerminal(Utility.combineCommands([buildCommand, pushCommand]));
+                } else {
+                    Executor.runInTerminal(buildCommand);
+                }
+                TelemetryClient.sendEvent(`${event}.end`);
+            }
+        }
     }
 
     public async buildDockerImage(dockerfileFromContextMenu?: vscode.Uri) {

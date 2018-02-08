@@ -8,6 +8,7 @@ export class Constants {
     public static routesFile = "routes.json";
     public static dockerfileNamePattern = "**/[dD]ocker[fF]ile*";
     public static dotNetProjectFileNamePattern = "**/*.{csproj,fsproj}";
+    public static moduleConfigFileNamePattern = "**/module.json";
     public static EdgeDebugSessions = ["Debug IoT Edge Module (.NET Core)", "Debug IoT Edge Function (.NET Core)"];
     public static lastUsedImageNameCacheKey = "azureIotEdge.lastUsedImageName";
     public static moduleNamePlaceholder = "%MODULE%";
@@ -31,4 +32,7 @@ export class Constants {
     public static repositoryPrompt = "Provide Module Repository";
     public static selectTemplate = "Select module template";
     public static parentFolderLabel = "Create Under";
+    public static moduleConfigFile = "Module Config file";
+    public static buildModuleImageEvent = "buildModuleImage";
+    public static buildAndPushModuleImageEvent = "buildAndPushModuleImage";
 }

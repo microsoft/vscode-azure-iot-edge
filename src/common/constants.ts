@@ -32,4 +32,7 @@ export class Constants {
     public static repositoryPrompt = "Provide Module Repository";
     public static selectTemplate = "Select module template";
     public static parentFolderLabel = "Create Under";
+    public static moduleConfigFile = "Module Config file";
+    public static buildModuleImageEvent = "buildModuleImage";
+    public static buildAndPushModuleImageEvent = "buildAndPushModuleImage";
 }

@@ -1,5 +1,5 @@
 "use strict";
-import * as fs from "fs";
+import * as fse from "fs-extra";
 import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
@@ -14,19 +14,26 @@ export class ContainerManager {
         this.workspaceState = context.workspaceState;
     }
 
-    public async buildModuleImage(fileUri?: vscode.Uri) {
-        const moduleConfigFilePath: string = await Utility.getInputFilePath(fileUri, Constants.moduleConfigFileNamePattern, "Module Config file", "buildModuleImage.start");
+    public async buildModuleImage(fileUri?: vscode.Uri, pushImage: boolean = false) {
+        const event = pushImage ? Constants.buildAndPushModuleImageEvent : Constants.buildModuleImageEvent;
+        const moduleConfigFilePath: string = await Utility.getInputFilePath(fileUri, Constants.moduleConfigFileNamePattern, Constants.moduleConfigFile, `${event}.start`);
 
         if (moduleConfigFilePath) {
-            const moduleConfig = JSON.parse(fs.readFileSync(moduleConfigFilePath, "utf8"));
+            const moduleConfig = await fse.readJson(moduleConfigFilePath);
             const platforms = moduleConfig.image.tag.platforms;
             const platform = await vscode.window.showQuickPick(Object.keys(platforms), { ignoreFocusOut: true });
             if (platform) {
                 const directory = path.dirname(moduleConfigFilePath);
                 const dockerfilePath = path.join(directory, platforms[platform]);
                 const imageName = `${moduleConfig.image.repository}:${moduleConfig.image.tag.version}-${platform}`;
-                Executor.runInTerminal(`docker build --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(directory)}\"`);
-                TelemetryClient.sendEvent("buildModuleImage.end");
+                const buildCommand = `docker build --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(directory)}\"`;
+                if (pushImage) {
+                    const pushCommand = `docker push ${imageName}`;
+                    Executor.runInTerminal(Utility.combineCommands([buildCommand, pushCommand]));
+                } else {
+                    Executor.runInTerminal(buildCommand);
+                }
+                TelemetryClient.sendEvent(`${event}.end`);
             }
         }
     }

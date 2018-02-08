@@ -81,6 +81,37 @@ export class Utility {
         return filePath;
     }
 
+    public static combineCommands(commands: string[]): string {
+        let isPowerShell = false;
+        if (os.platform() === "win32") {
+            const windowsShell = vscode.workspace.getConfiguration("terminal").get<string>("integrated.shell.windows");
+            if (windowsShell && windowsShell.toLowerCase().indexOf("powershell") > -1) {
+                isPowerShell = true;
+            }
+        }
+        if (isPowerShell) {
+            let command: string = "";
+            for (let i = 0; i < commands.length; i++) {
+                switch (i) {
+                    case 0:
+                        command = commands[0];
+                        break;
+                    case 1:
+                        command = `${command} ; if ($?) { ${commands[1]}`;
+                        break;
+                    default:
+                        command = `${command} } if ($?) { ${commands[i]}`;
+                }
+            }
+            if (commands.length > 1) {
+                command += " }";
+            }
+            return command;
+        } else {
+            return commands.join(" && ");
+        }
+    }
+
     public static registerDebugTelemetryListener() {
         vscode.debug.onDidStartDebugSession((session) => {
             if (Constants.EdgeDebugSessions.indexOf(session.name) > -1) {
@@ -106,7 +137,7 @@ export class Utility {
             }
 
             const fileItemList: vscode.QuickPickItem[] = Utility.getQuickPickItemsFromUris(fileList);
-            const fileItem: vscode.QuickPickItem = await vscode.window.showQuickPick(fileItemList, { placeHolder: `Select ${fileDescription}`});
+            const fileItem: vscode.QuickPickItem = await vscode.window.showQuickPick(fileItemList, { placeHolder: `Select ${fileDescription}` });
             if (fileItem) {
                 return fileItem.detail;
             } else {

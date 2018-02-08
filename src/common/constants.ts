@@ -9,6 +9,7 @@ export class Constants {
     public static launchFile = "launch.json";
     public static dockerfileNamePattern = "**/[dD]ocker[fF]ile*";
     public static dotNetProjectFileNamePattern = "**/*.{csproj,fsproj}";
+    public static moduleConfigFileNamePattern = "**/module.json";
     public static EdgeDebugSessions = ["Debug IoT Edge Module (.NET Core)", "Debug IoT Edge Function (.NET Core)"];
     public static lastUsedImageNameCacheKey = "azureIotEdge.lastUsedImageName";
     public static moduleNamePlaceholder = "%MODULE%";
@@ -36,4 +37,7 @@ export class Constants {
     public static moduleManifest = "module.json";
     public static outputConfig = ".config";
     public static vscodeFolder = ".vscode";
+    public static moduleConfigFile = "Module Config file";
+    public static buildModuleImageEvent = "buildModuleImage";
+    public static buildAndPushModuleImageEvent = "buildAndPushModuleImage";
 }

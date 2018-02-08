@@ -75,6 +75,14 @@ export function activate(context: vscode.ExtensionContext) {
         dotnetUtility.dotnetPublish(fileUri);
     }));
 
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildModuleImage", (fileUri: vscode.Uri) => {
+        containerManager.buildModuleImage(fileUri, false);
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildAndPushModuleImage", (fileUri: vscode.Uri) => {
+        containerManager.buildModuleImage(fileUri, true);
+    }));
+
     // tslint:disable-next-line:array-type
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.newSolution", async (...args: {}[]) => {
         try {

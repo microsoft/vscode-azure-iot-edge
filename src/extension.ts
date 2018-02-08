@@ -88,6 +88,19 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }));
 
+    // tslint:disable-next-line:array-type
+    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildSolution", async (...args: {}[]) => {
+        try {
+            if (args.length === 0) {
+
+            } else {
+                await edgeManager.buildSolution(outputChannel, args[0] as vscode.Uri);
+            }
+        } catch (error) {
+            outputChannel.appendLine(error.toString());
+        }
+    }));
+
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {
         Executor.onDidCloseTerminal(closedTerminal);
     }));

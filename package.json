@@ -38,7 +38,8 @@
     "onCommand:azure-iot-edge.buildDockerImage",
     "onCommand:azure-iot-edge.pushDockerImage",
     "onCommand:azure-iot-edge.dotnetPublish",
-    "onCommand:azure-iot-edge.newSolution"
+    "onCommand:azure-iot-edge.newSolution",
+    "onCommand:azure-iot-edge.buildSolution"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -65,7 +66,17 @@
         {
           "when": "explorerResourceIsFolder == true",
           "command": "azure-iot-edge.newSolution"
+        },
+        {
+          "when": "resourceFilename == deployment.template.json",
+          "command": "azure-iot-edge.buildSolution"
         }
+      ],
+      "commandPalette": [
+        {
+          "command": "azure-iot-edge.buildSolution",
+          "when": "false == true"
+        }        
       ]
     },
     "commands": [
@@ -87,6 +98,11 @@
       {
         "command": "azure-iot-edge.newSolution",
         "title": "New IoT Edge Solution",
+        "category": "Edge"
+      },
+      {
+        "command": "azure-iot-edge.buildSolution",
+        "title": "Build IoT Edge Solution",
         "category": "Edge"
       }
     ],

@@ -25,10 +25,10 @@ export class ContainerManager {
             if (platform) {
                 const directory = path.dirname(moduleConfigFilePath);
                 const dockerfilePath = path.join(directory, platforms[platform]);
-                const imageName = `${moduleConfig.image.repository}:${moduleConfig.image.tag.version}-${platform}`;
-                const buildCommand = `docker build --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(directory)}\"`;
+                const imageName = Utility.getImage(moduleConfig.image.repository, moduleConfig.image.tag.version, platform);
+                const buildCommand = this.constructBuildCmd(dockerfilePath, imageName, directory);
                 if (pushImage) {
-                    const pushCommand = `docker push ${imageName}`;
+                    const pushCommand = this.constructPushCmd(imageName);
                     Executor.runInTerminal(Utility.combineCommands([buildCommand, pushCommand]));
                 } else {
                     Executor.runInTerminal(buildCommand);
@@ -67,12 +67,95 @@ export class ContainerManager {
         }
     }
 
+    public async buildSolution(templateUri?: vscode.Uri): Promise<void> {
+        if (!templateUri || !templateUri.fsPath) {
+            vscode.window.showInformationMessage("no solution file");
+            return;
+        }
+
+        const templateFile: string = templateUri.fsPath;
+        const moduleToImageMap: Map<string, string> = new Map();
+        const imageToDockerfileMap: Map<string, string> = new Map();
+        const slnPath: string = path.dirname(templateFile);
+
+        const configPath = path.join(slnPath, Constants.outputConfig);
+        const deployFile = path.join(configPath, Constants.deploymentFile);
+        await fse.remove(deployFile);
+
+        await this.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap);
+        const data: string = await fse.readFile(templateFile, "utf8");
+        const buildSet: Set<string> = new Set();
+        const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap, buildSet);
+        const exceptStr: Set<string> = new Set<string>();
+        exceptStr.add("$edgeHub");
+        exceptStr.add("$edgeAgent");
+        exceptStr.add("$upstream");
+        const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, exceptStr);
+        // generate config file
+        await fse.ensureDir(configPath);
+        await fse.writeFile(deployFile, generatedDeployFile, "utf8");
+
+        // build docker images
+        const commands: string[] = [];
+        for (const image of buildSet) {
+            const dockerFile: string = imageToDockerfileMap.get(image);
+            const context = path.dirname(dockerFile);
+            commands.push(this.constructBuildCmd(dockerFile, image, context));
+            commands.push(this.constructPushCmd(image));
+        }
+        Executor.runInTerminal(Utility.combineCommands(commands));
+    }
+
     public async pushDockerImage() {
         TelemetryClient.sendEvent("pushDockerImage.start");
         const imageName: string = await this.promptForImageName();
         if (imageName) {
             Executor.runInTerminal(`docker push ${imageName}`);
             TelemetryClient.sendEvent("pushDockerImage.end");
+        }
+    }
+
+    private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string): string {
+        return `docker build --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(contextDir)}\"`;
+    }
+
+    private constructPushCmd(imageName: string) {
+        return `docker push ${imageName}`;
+    }
+
+    private async setSlnModulesMap(slnPath: string,
+                                   moduleToImageMap: Map<string, string>,
+                                   imageToDockerfileMap: Map<string, string>): Promise<void> {
+        const modulesPath: string  = path.join(slnPath, Constants.moduleFolder);
+        const stat: fse.Stats = await fse.lstat(modulesPath);
+        if (!stat.isDirectory()) {
+            throw new Error("no modules folder");
+        }
+
+        const moduleDirs: string[] = await Utility.getSubDirectories(modulesPath);
+        await Promise.all(
+            moduleDirs.map(async (module) => {
+                await this.setModuleMap(module, moduleToImageMap, imageToDockerfileMap);
+            }),
+        );
+    }
+
+    private async setModuleMap(modulePath: string,
+                               moduleToImageMap: Map<string, string>,
+                               imageToDockerfileMap: Map<string, string>): Promise<void> {
+        const moduleFile = path.join(modulePath, Constants.moduleManifest);
+        const name: string = path.basename(modulePath);
+        if (await fse.exists(moduleFile)) {
+            const module = await fse.readJson(moduleFile);
+            const platformKeys: string[] = Object.keys(module.image.tag.platforms);
+            const repo: string = module.image.repository;
+            const version: string = module.image.tag.version;
+            platformKeys.map((platform) => {
+                const moduleKey: string  = Utility.getModuleKey(name, platform);
+                const image: string = Utility.getImage(repo, version, platform);
+                moduleToImageMap.set(moduleKey, image);
+                imageToDockerfileMap.set(image, path.join(modulePath, module.image.tag.platforms[platform]));
+            });
         }
     }
 

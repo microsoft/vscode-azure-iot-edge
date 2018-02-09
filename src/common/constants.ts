@@ -6,6 +6,7 @@ export class Constants {
     public static IotHubConnectionStringKey = "iotHubConnectionString";
     public static deploymentFile = "deployment.json";
     public static routesFile = "routes.json";
+    public static launchFile = "launch.json";
     public static dockerfileNamePattern = "**/[dD]ocker[fF]ile*";
     public static dotNetProjectFileNamePattern = "**/*.{csproj,fsproj}";
     public static moduleConfigFileNamePattern = "**/module.json";
@@ -13,9 +14,12 @@ export class Constants {
     public static lastUsedImageNameCacheKey = "azureIotEdge.lastUsedImageName";
     public static moduleNamePlaceholder = "%MODULE%";
     public static moduleImagePlaceholder = "%MODULE_IMAGE%";
+    public static moduleFolderPlaceholder = "%MODULE_FOLDER%";
+    public static appFolder = "%APP_FOLDER%";
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
     public static LANGUAGE_CSHARP = "csharp";
+    public static CSHARP_FUNCTION = "csharp function";
     public static LANGUAGE_PYTHON = "python";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
@@ -32,7 +36,11 @@ export class Constants {
     public static repositoryPrompt = "Provide Module Repository";
     public static selectTemplate = "Select module template";
     public static parentFolderLabel = "Create Under";
+    public static moduleManifest = "module.json";
+    public static outputConfig = ".config";
+    public static vscodeFolder = ".vscode";
     public static moduleConfigFile = "Module Config file";
     public static buildModuleImageEvent = "buildModuleImage";
     public static buildAndPushModuleImageEvent = "buildAndPushModuleImage";
+    public static launchCSharp = "launch_csharp.json";
 }

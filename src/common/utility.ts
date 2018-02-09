@@ -1,9 +1,11 @@
 "use strict";
 import * as iothub from "azure-iothub";
+import * as fse from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "./constants";
+import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
 
 export class Utility {
@@ -179,6 +181,59 @@ export class Utility {
         return str.replace(pattern, (matched) => {
             return mapObj.get(matched);
         });
+    }
+
+    public static expandEnv(input: string, exceptKeys?: Set<string>): string {
+        const pattern: RegExp = new RegExp(/\$([a-zA-Z0-9_]+)|\${([a-zA-Z0-9_]+)}/g);
+        return input.replace(pattern, (matched) => {
+            if (exceptKeys && exceptKeys.has(matched)) {
+                return matched;
+            }
+            const key: string = matched.replace(/\$|{|}/g, "");
+            return process.env[key] || matched;
+        });
+    }
+
+    public static expandModules(input: string, moduleMap: Map<string, string>, buildSet: Set<string>): string {
+        const pattern: RegExp = new RegExp(/\${MODULES\..+}/g);
+        return input.replace(pattern, (matched) => {
+            const key: string = matched.replace(/\$|{|}/g, "");
+            if (moduleMap.has(key)) {
+                const value: string = moduleMap.get(key);
+                buildSet.add(value);
+                return value;
+            } else {
+                return matched;
+            }
+        });
+    }
+
+    public static async getSubDirectories(parentPath: string): Promise<string[]> {
+        const filesAndDirs = await fse.readdir(parentPath);
+        const directories = [];
+        await Promise.all(
+            filesAndDirs.map(async (name) => {
+                const subPath = path.join(parentPath, name);
+                const stat: fse.Stats = await fse.stat(subPath);
+                if (stat.isDirectory()) {
+                    directories.push(subPath);
+                }
+            }),
+        );
+        return directories;
+    }
+
+    public static getValidModuleName(moduleFolderName: string): string {
+        const pattern: RegExp = new RegExp(/( +|-)/g);
+        return moduleFolderName.replace(pattern, "_");
+    }
+
+    public static getModuleKey(name: string, platform: string): string {
+        return `MODULES.${name}.${platform}`;
+    }
+
+    public static getImage(repo: string, version: string, platform: string): string {
+        return `${repo}:${version}-${platform}`;
     }
 
     public static async showInputBox(plcHolder: string,

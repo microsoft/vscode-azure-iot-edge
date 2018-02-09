@@ -38,7 +38,6 @@
     "onCommand:azure-iot-edge.buildDockerImage",
     "onCommand:azure-iot-edge.pushDockerImage",
     "onCommand:azure-iot-edge.dotnetPublish",
-    "onCommand:azure-iot-edge.newSolution",
     "onCommand:azure-iot-edge.buildSolution",
     "onCommand:azure-iot-edge.buildModuleImage",
     "onCommand:azure-iot-edge.buildAndPushModuleImage",

@@ -195,7 +195,7 @@ export class Utility {
     }
 
     public static expandModules(input: string, moduleMap: Map<string, string>, buildSet: Set<string>): string {
-        const pattern: RegExp = new RegExp(/\${MODULES..+}/g);
+        const pattern: RegExp = new RegExp(/\${MODULES\..+}/g);
         return input.replace(pattern, (matched) => {
             const key: string = matched.replace(/\$|{|}/g, "");
             if (moduleMap.has(key)) {

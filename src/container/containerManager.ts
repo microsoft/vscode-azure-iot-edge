@@ -74,31 +74,31 @@ export class ContainerManager {
         }
 
         const templateFile: string = templateUri.fsPath;
-        const imageNameMap: Map<string, string> = new Map();
-        const dockerFileMap: Map<string, string> = new Map();
+        const moduleToimageMap: Map<string, string> = new Map();
+        const imageTodockerFileMap: Map<string, string> = new Map();
         const slnPath: string = path.dirname(templateFile);
 
         const configPath = path.join(slnPath, Constants.outputConfig);
         const deployFile = path.join(configPath, Constants.deploymentFile);
         await fse.remove(deployFile);
 
-        await this.setSlnModulesMap(slnPath, imageNameMap, dockerFileMap);
+        await this.setSlnModulesMap(slnPath, moduleToimageMap, imageTodockerFileMap);
         const data: string = await fse.readFile(templateFile, "utf8");
         const buildSet: Set<string> = new Set();
-        const moduleExpanded: string = Utility.expandModules(data, imageNameMap, buildSet);
+        const moduleExpanded: string = Utility.expandModules(data, moduleToimageMap, buildSet);
         const exceptStr: Set<string> = new Set<string>();
         exceptStr.add("$edgeHub");
         exceptStr.add("$edgeAgent");
         exceptStr.add("$upstream");
-        const generated: string = Utility.expandEnv(moduleExpanded, exceptStr);
+        const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, exceptStr);
         // generate config file
         await fse.ensureDir(configPath);
-        await fse.writeFile(deployFile, generated, "utf8");
+        await fse.writeFile(deployFile, generatedDeployFile, "utf8");
 
         // build docker images
         const commands: string[] = [];
         for (const image of buildSet) {
-            const dockerFile: string = dockerFileMap.get(image);
+            const dockerFile: string = imageTodockerFileMap.get(image);
             const context = path.dirname(dockerFile);
             commands.push(this.constructBuildCmd(dockerFile, image, context));
             commands.push(this.constructPushCmd(image));
@@ -124,8 +124,8 @@ export class ContainerManager {
     }
 
     private async setSlnModulesMap(slnPath: string,
-                                   imageNameMap: Map<string, string>,
-                                   dockerFileMap: Map<string, string>): Promise<void> {
+                                   moduleToimageMap: Map<string, string>,
+                                   imageTodockerFileMap: Map<string, string>): Promise<void> {
         const modulesPath: string  = path.join(slnPath, Constants.moduleFolder);
         const stat: fse.Stats = await fse.lstat(modulesPath);
         if (!stat.isDirectory()) {
@@ -135,14 +135,14 @@ export class ContainerManager {
         const moduleDirs: string[] = await Utility.getSubDirectories(modulesPath);
         await Promise.all(
             moduleDirs.map(async (module) => {
-                await this.setModuleMap(module, imageNameMap, dockerFileMap);
+                await this.setModuleMap(module, moduleToimageMap, imageTodockerFileMap);
             }),
         );
     }
 
     private async setModuleMap(modulePath: string,
-                               imageNameMap: Map<string, string>,
-                               dockerFileMap: Map<string, string>): Promise<void> {
+                               moduleToimageMap: Map<string, string>,
+                               imageTodockerFileMap: Map<string, string>): Promise<void> {
         const moduleFile = path.join(modulePath, Constants.moduleManifest);
         const name: string = path.basename(modulePath);
         if (await fse.exists(moduleFile)) {
@@ -153,8 +153,8 @@ export class ContainerManager {
             platformKeys.map((platform) => {
                 const moduleKey: string  = Utility.getModuleKey(name, platform);
                 const image: string = Utility.getImage(repo, version, platform);
-                imageNameMap.set(moduleKey, image);
-                dockerFileMap.set(image, path.join(modulePath, module.image.tag.platforms[platform]));
+                moduleToimageMap.set(moduleKey, image);
+                imageTodockerFileMap.set(image, path.join(modulePath, module.image.tag.platforms[platform]));
             });
         }
     }

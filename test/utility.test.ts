@@ -22,6 +22,7 @@ suite("utility tests", () => {
                   .$edgeAgent["properties.desired"]
                   .modules.tempSensor.settings.image, imageString);
   }).timeout(60 * 1000);
+
   test("expandModules", async () => {
     const input: string = await fse.readFile(path.resolve(__dirname, "../../testResources/deployment.template.json"), "utf8");
     const mapObj: Map<string, string> = new Map<string, string>();
@@ -34,6 +35,7 @@ suite("utility tests", () => {
                   .$edgeAgent["properties.desired"]
                   .modules.samplemodule.settings.image, "test.az.io/filter:0.0.1-amd64");
   }).timeout(60 * 1000);
+
   test("getValidModuleName", () => {
     let valid: string = Utility.getValidModuleName("test Space");
     assert.equal(valid, "test_Space");
@@ -41,6 +43,7 @@ suite("utility tests", () => {
     valid = Utility.getValidModuleName("test    Multiple-space");
     assert.equal(valid, "test_Multiple_space");
   });
+
   test("replaceAll", async () => {
     // tslint:disable-next-line:quotemark
     const input: string = '"%MODULE%": {\

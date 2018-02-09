@@ -102,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (args.length === 0) {
 
             } else {
-                await edgeManager.buildSolution(outputChannel, args[0] as vscode.Uri);
+                await containerManager.buildSolution(args[0] as vscode.Uri);
             }
         } catch (error) {
             outputChannel.appendLine(error.toString());

@@ -15,9 +15,11 @@ export class Constants {
     public static moduleNamePlaceholder = "%MODULE%";
     public static moduleImagePlaceholder = "%MODULE_IMAGE%";
     public static moduleFolderPlaceholder = "%MODULE_FOLDER%";
+    public static appFolder = "%APP_FOLDER%";
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
     public static LANGUAGE_CSHARP = "csharp";
+    public static CSHARP_FUNCTION = "csharp function";
     public static LANGUAGE_PYTHON = "python";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
@@ -40,4 +42,5 @@ export class Constants {
     public static moduleConfigFile = "Module Config file";
     public static buildModuleImageEvent = "buildModuleImage";
     public static buildAndPushModuleImageEvent = "buildAndPushModuleImage";
+    public static launchCSharp = "launch_csharp.json";
 }

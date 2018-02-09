@@ -89,7 +89,7 @@
         {
           "command": "azure-iot-edge.buildSolution",
           "when": "false == true"
-        }        
+        }
       ]
     },
     "commands": [

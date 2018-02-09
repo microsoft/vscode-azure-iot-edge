@@ -223,13 +223,17 @@ export class Utility {
         return directories;
     }
 
-    public static async dockerBuildImage(dockerFile: string, context: string, image: string,
-                                         outputChannel: vscode.OutputChannel) {
-        await Executor.executeCMD(outputChannel, "docker", {shell: true}, `build -f ${dockerFile} -t ${image} ${context}`);
+    public static getValidModuleName(moduleFolderName: string): string {
+        const pattern: RegExp = new RegExp(/( +|-)/g);
+        return moduleFolderName.replace(pattern, "_");
     }
 
-    public static async dockerPushImage(image: string, outputChannel: vscode.OutputChannel) {
-        await Executor.executeCMD(outputChannel, "docker", {shell: true}, `push ${image}`);
+    public static getModuleKey(name: string, platform: string): string {
+        return `MODULES.${name}.${platform}`;
+    }
+
+    public static getImage(repo: string, version: string, platform: string): string {
+        return `${repo}:${version}-${platform}`;
     }
 
     public static async showInputBox(plcHolder: string,

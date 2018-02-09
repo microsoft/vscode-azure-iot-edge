@@ -96,7 +96,7 @@ export class EdgeManager {
         const slnName: string = await this.inputSolutionName(parentPath);
         const language = await this.selectModuleTemplate();
 
-        const moduleName: string = await this.inputModuleName();
+        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName());
         const repositoryName: string = await this.inputRepository(moduleName);
         const slnPath: string = path.join(parentPath, slnName);
         await fse.mkdirs(slnPath);
@@ -116,15 +116,12 @@ export class EdgeManager {
         const data: string = await fse.readFile(sourceDeploymentTemplate, "utf8");
         const mapObj: Map<string, string> = new Map<string, string>();
         mapObj.set(Constants.moduleNamePlaceholder, moduleName.toLowerCase());
-        mapObj.set(Constants.moduleImagePlaceholder, `\${MODULES.${moduleName}.amd64}`);
+        mapObj.set(Constants.moduleImagePlaceholder, `\${${Utility.getModuleKey(moduleName, "amd64")}}`);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
         const deploymentGenerated: string = Utility.replaceAll(data, mapObj);
         await fse.writeFile(targetDeployment, deploymentGenerated, {encoding: "utf8"});
 
-        // copy launch.json
-        const srcLaunchJson = path.join(sourceSolutionPath, Constants.launchFile);
-        const debugData: string = await fse.readFile(srcLaunchJson, "utf8");
-        const debugGenerated: string = Utility.replaceAll(debugData, mapObj);
+        const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, language, mapObj);
         const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
         await fse.ensureDir(targetVscodeFolder);
         const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
@@ -134,85 +131,25 @@ export class EdgeManager {
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
     }
 
-    public async buildSolution(outputChannel: vscode.OutputChannel,
-                               templateUri?: vscode.Uri): Promise<void> {
-        if (!templateUri || !templateUri.fsPath) {
-            vscode.window.showInformationMessage("no solution file");
-            return;
-        }
-        const templateFile: string = templateUri.fsPath;
-        const imageNameMap: Map<string, string> = new Map();
-        const dockerFileMap: Map<string, string> = new Map();
-        const slnPath: string = path.dirname(templateFile);
+    private async generateDebugSetting(srcSlnPath: string,
+                                       language: string,
+                                       mapObj: Map<string, string>): Promise<string> {
+            // copy launch.json
+            let launchFile: string;
+            switch (language) {
+                case Constants.LANGUAGE_CSHARP:
+                    launchFile = Constants.launchCSharp;
+                    mapObj.set(Constants.appFolder, "/app");
+                    break;
+                case Constants.CSHARP_FUNCTION:
+                    launchFile = Constants.launchCSharp;
+                    mapObj.set(Constants.appFolder, "/home/site/wwwroot");
+                    break;
+            }
 
-        const configPath = path.join(slnPath, Constants.outputConfig);
-        const deployFile = path.join(configPath, Constants.deploymentFile);
-        await fse.remove(deployFile);
-
-        await this.setSlnModulesMap(slnPath, imageNameMap, dockerFileMap);
-        const data: string = await fse.readFile(templateFile, "utf8");
-        const buildSet: Set<string> = new Set();
-        const moduleExpanded: string = Utility.expandModules(data, imageNameMap, buildSet);
-        const exceptStr: Set<string> = new Set<string>();
-        exceptStr.add("$edgeHub");
-        exceptStr.add("$edgeAgent");
-        exceptStr.add("$upstream");
-        const generated: string = Utility.expandEnv(moduleExpanded, exceptStr);
-        // build docker images
-        for (const image of buildSet) {
-            const dockerFile: string = dockerFileMap.get(image);
-            const context = path.dirname(dockerFile);
-            await Utility.dockerBuildImage(dockerFile, context, image, outputChannel);
-            await Utility.dockerPushImage(image, outputChannel);
-        }
-
-        // generate config file
-        await fse.ensureDir(configPath);
-        await fse.writeFile(deployFile, generated, "utf8");
-    }
-
-    private async setSlnModulesMap(slnPath: string,
-                                   imageNameMap: Map<string, string>,
-                                   dockerFileMap: Map<string, string>): Promise<void> {
-        const modulesPath: string  = path.join(slnPath, Constants.moduleFolder);
-        const stat: fs.Stats = await fse.lstat(modulesPath);
-        if (!stat.isDirectory()) {
-            throw new Error("no modules folder");
-        }
-
-        const moduleDirs: string[] = await Utility.getSubDirectories(modulesPath);
-        await Promise.all(
-            moduleDirs.map(async (module) => {
-                await this.setModuleMap(module, imageNameMap, dockerFileMap);
-            }),
-        );
-    }
-
-    private async setModuleMap(modulePath: string,
-                               imageNameMap: Map<string, string>,
-                               dockerFileMap: Map<string, string>): Promise<void> {
-        const moduleFile = path.join(modulePath, Constants.moduleManifest);
-        const name: string = path.basename(modulePath);
-        if (await fse.exists(moduleFile)) {
-            const module = await fse.readJson(moduleFile);
-            const platformKeys: string[] = Object.keys(module.image.tag.platforms);
-            const repo: string = module.image.repository;
-            const version: string = module.image.tag.version;
-            platformKeys.map((platform) => {
-                const moduleKey: string  = this.getModuleKey(name, platform);
-                const image: string = this.getImage(repo, version, platform);
-                imageNameMap.set(moduleKey, image);
-                dockerFileMap.set(image, path.join(modulePath, module.image.tag.platforms[platform]));
-            });
-        }
-    }
-
-    private getModuleKey(name: string, platform: string): string {
-        return `MODULES.${name}.${platform}`;
-    }
-
-    private getImage(repo: string, version: string, platform: string): string {
-        return `${repo}:${version}-${platform}`;
+            const srcLaunchJson = path.join(srcSlnPath, launchFile);
+            const debugData: string = await fse.readFile(srcLaunchJson, "utf8");
+            return Utility.replaceAll(debugData, mapObj);
     }
 
     private async addModule(parent: string, name: string,
@@ -223,7 +160,7 @@ export class EdgeManager {
             case Constants.LANGUAGE_CSHARP:
                 // TODO: Add following install command back when the template is released
                 // await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Module");
-                await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgemodule -n ${name} -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
                 break;
             default:
                 break;
@@ -282,7 +219,7 @@ export class EdgeManager {
     private async selectModuleTemplate(label?: string): Promise<string> {
         const languagePicks: string[] = [
             Constants.LANGUAGE_CSHARP,
-            Constants.LANGUAGE_PYTHON,
+            Constants.CSHARP_FUNCTION,
         ];
         if (label === undefined) {
             label = Constants.selectTemplate;

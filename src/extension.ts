@@ -100,7 +100,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildSolution", async (...args: {}[]) => {
         try {
             if (args.length === 0) {
-
+                // TODO: handle zero input later
+                outputChannel.appendLine("Error: No solution template");
             } else {
                 await containerManager.buildSolution(args[0] as vscode.Uri);
             }

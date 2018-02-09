@@ -115,7 +115,7 @@ export class EdgeManager {
 
         const data: string = await fse.readFile(sourceDeploymentTemplate, "utf8");
         const mapObj: Map<string, string> = new Map<string, string>();
-        mapObj.set(Constants.moduleNamePlaceholder, moduleName.toLowerCase());
+        mapObj.set(Constants.moduleNamePlaceholder, moduleName);
         mapObj.set(Constants.moduleImagePlaceholder, `\${${Utility.getModuleKey(moduleName, "amd64")}}`);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
         const deploymentGenerated: string = Utility.replaceAll(data, mapObj);

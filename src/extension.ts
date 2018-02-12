@@ -1,8 +1,10 @@
 "use strict";
 import * as vscode from "vscode";
 import { Constants } from "./common/constants";
+import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
 import { TelemetryClient } from "./common/telemetryClient";
+import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
@@ -83,35 +85,62 @@ export function activate(context: vscode.ExtensionContext) {
         containerManager.buildModuleImage(fileUri, true);
     }));
 
-    // tslint:disable-next-line:array-type
-    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.newSolution", async (...args: {}[]) => {
-        try {
-            if (args.length === 0) {
-                await edgeManager.createEdgeSolution(outputChannel);
-            } else {
-                await edgeManager.createEdgeSolution(outputChannel, args[0] as vscode.Uri);
-            }
-        } catch (error) {
-            outputChannel.appendLine(error.toString());
-        }
-    }));
+    initCommmandAsync(context, outputChannel,
+                      "azure-iot-edge.newSolution",
+                      (parentUri?: vscode.Uri): Promise<void> => {
+                          return edgeManager.createEdgeSolution(outputChannel, parentUri);
+                      });
 
-    // tslint:disable-next-line:array-type
-    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildSolution", async (...args: {}[]) => {
-        try {
-            if (args.length === 0) {
-                // TODO: handle zero input later
-                outputChannel.appendLine("Error: No solution template");
-            } else {
-                await containerManager.buildSolution(args[0] as vscode.Uri);
-            }
-        } catch (error) {
-            outputChannel.appendLine(error.toString());
-        }
-    }));
+    initCommmandAsync(context, outputChannel,
+                      "azure-iot-edge.buildSolution",
+                      (templateUri?: vscode.Uri): Promise<void> => {
+                          return containerManager.buildSolution(templateUri);
+                      });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {
         Executor.onDidCloseTerminal(closedTerminal);
+    }));
+}
+
+function initCommand<T>(context: vscode.ExtensionContext,
+                        outputChannel: vscode.OutputChannel,
+                        commandId: string, callback: (input?: T) => void): void {
+    initCommmandAsync(context, outputChannel, commandId, async (input?: T) => callback(input));
+}
+
+function initCommmandAsync<T>(context: vscode.ExtensionContext,
+                              outputChannel: vscode.OutputChannel,
+                              commandId: string, callback: (input?: T) => Promise<void>): void {
+    context.subscriptions.push(vscode.commands.registerCommand(commandId, async (...args: Array<{}>) => {
+        const start: number = Date.now();
+        let errorData: ErrorData | undefined;
+        const properties: { [key: string]: string; } = {};
+        properties.result = "Succeeded";
+        TelemetryClient.sendEvent(`${commandId}.start`);
+        try {
+            if (args.length === 0) {
+                await callback();
+            } else {
+                await callback(args[0] as T);
+            }
+        } catch (error) {
+            if (error instanceof UserCancelledError) {
+                properties.result = "Cancelled";
+            } else {
+                properties.result = "Failed";
+                errorData = new ErrorData(error);
+                outputChannel.appendLine(`Error: ${errorData.message}`);
+                vscode.window.showErrorMessage(errorData.message);
+            }
+        } finally {
+            const end: number = Date.now();
+            properties.duration = ((end - start) / 1000).toString();
+            if (errorData) {
+                properties.error = errorData.errorType;
+                properties.errorMessage = errorData.message;
+            }
+            TelemetryClient.sendEvent(`${commandId}.end`, properties);
+        }
     }));
 }
 

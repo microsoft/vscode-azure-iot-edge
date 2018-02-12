@@ -83,12 +83,6 @@
           "when": "resourceFilename == deployment.template.json",
           "command": "azure-iot-edge.buildSolution"
         }
-      ],
-      "commandPalette": [
-        {
-          "command": "azure-iot-edge.buildSolution",
-          "when": "false == true"
-        }
       ]
     },
     "commands": [

@@ -7,6 +7,7 @@ import * as vscode from "vscode";
 import { Constants } from "./constants";
 import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
+import { UserCancelledError } from "./UserCancelledError";
 
 export class Utility {
     public static getConfiguration(): vscode.WorkspaceConfiguration {
@@ -251,7 +252,7 @@ export class Utility {
 
         const result: string | undefined = await vscode.window.showInputBox(options);
         if (!result) {
-            throw Constants.userCancelled;
+            throw new UserCancelledError();
         } else {
             return result;
         }

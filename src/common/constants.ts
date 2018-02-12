@@ -11,7 +11,7 @@ export class Constants {
     public static dotNetProjectFileNamePattern = "**/*.{csproj,fsproj}";
     public static moduleConfigFileNamePattern = "**/module.json";
     public static deploymentTemplatePattern = "**/deployment.template.json";
-    public static EdgeDebugSessions = ["Debug IoT Edge Module (.NET Core)", "Debug IoT Edge Function (.NET Core)"];
+    public static EdgeDebugSessionPrefix = "Debug IoT Edge";
     public static lastUsedImageNameCacheKey = "azureIotEdge.lastUsedImageName";
     public static moduleNamePlaceholder = "%MODULE%";
     public static moduleImagePlaceholder = "%MODULE_IMAGE%";

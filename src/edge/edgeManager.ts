@@ -131,6 +131,55 @@ export class EdgeManager {
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
     }
 
+    public async addModulde(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
+        if (!templateUri || !templateUri.fsPath) {
+            vscode.window.showInformationMessage("no solution file");
+            return;
+        }
+
+        const templateFile: string = templateUri.fsPath;
+        const templateJson = await fse.readJson(templateFile);
+        const slnPath: string = path.dirname(templateFile);
+        const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
+        const targetModulePath = path.join(slnPath, Constants.moduleFolder);
+
+        const language = await this.selectModuleTemplate();
+        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(Object.keys(templateJson.moduleContent.$edgeAgent["properties.desired"].modules)));
+        const repositoryName: string = await this.inputRepository(moduleName);
+
+        const newModuleSection = `{
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "\${${Utility.getModuleKey(moduleName, "amd64")}}",
+              "createOptions": ""
+            }
+          }`;
+        templateJson.moduleContent.$edgeAgent["properties.desired"].modules[moduleName] = JSON.parse(newModuleSection);
+        await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
+
+        const mapObj: Map<string, string> = new Map<string, string>();
+        mapObj.set(Constants.moduleNamePlaceholder, moduleName);
+        mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
+        const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, language, mapObj);
+        const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
+        await fse.ensureDir(targetVscodeFolder);
+        const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
+        if (await fse.exists(targetLaunchJson)) {
+            const launchJson = await fse.readJson(targetLaunchJson);
+            launchJson.configurations.push(...JSON.parse(debugGenerated).configurations);
+            await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
+        } else {
+            await fse.writeFile(targetLaunchJson, debugGenerated, { encoding: "utf8" });
+        }
+
+        await this.addModule(targetModulePath, moduleName, repositoryName, language, outputChannel);
+
+        vscode.window.showInformationMessage(`Module '${moduleName}' is created. 'deployment.template.json' and 'launch.json' are updated.`);
+    }
+
     private async generateDebugSetting(srcSlnPath: string,
                                        language: string,
                                        mapObj: Map<string, string>): Promise<string> {
@@ -176,6 +225,14 @@ export class EdgeManager {
         }
     }
 
+    private async validateModuleName(existingModules: string[], moduleName: string): Promise<string | undefined> {
+        if (existingModules.indexOf(moduleName) > -1) {
+            return `Module '${moduleName}' already exists`;
+        } else {
+            return undefined;
+        }
+    }
+
     private async getSolutionParentFolder(): Promise<string | undefined> {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         const defaultFolder: vscode.Uri | undefined = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri : undefined;
@@ -203,10 +260,13 @@ export class EdgeManager {
                                           validateFunc, Constants.solutionNameDft);
     }
 
-    private async inputModuleName(): Promise<string> {
+    private async inputModuleName(existingModules: string[] = []): Promise<string> {
+        const validateFunc = async (name: string): Promise<string> => {
+            return await this.validateModuleName(existingModules, name);
+        };
         return await Utility.showInputBox(Constants.moduleName,
                                           Constants.moduleNamePrompt,
-                                          null, Constants.moduleNameDft);
+                                          validateFunc, Constants.moduleNameDft);
     }
 
     private async inputRepository(module: string): Promise<string> {
@@ -224,7 +284,7 @@ export class EdgeManager {
         if (label === undefined) {
             label = Constants.selectTemplate;
         }
-        return await vscode.window.showQuickPick(languagePicks, {placeHolder: label});
+        return await vscode.window.showQuickPick(languagePicks, {placeHolder: label, ignoreFocusOut: true});
     }
 
     private generateFile(fileName: string) {

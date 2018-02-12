@@ -103,6 +103,12 @@ export function activate(context: vscode.ExtensionContext) {
                           return containerManager.generateDeployment(templateUri);
                       });
 
+    initCommmandAsync(context, outputChannel,
+        "azure-iot-edge.addModulde",
+        (templateUri?: vscode.Uri): Promise<void> => {
+            return edgeManager.addModulde(outputChannel, templateUri);
+        });
+
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {
         Executor.onDidCloseTerminal(closedTerminal);
     }));

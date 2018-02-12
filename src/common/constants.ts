@@ -10,6 +10,7 @@ export class Constants {
     public static dockerfileNamePattern = "**/[dD]ocker[fF]ile*";
     public static dotNetProjectFileNamePattern = "**/*.{csproj,fsproj}";
     public static moduleConfigFileNamePattern = "**/module.json";
+    public static deploymentTemplatePattern = "**/deployment.template.json";
     public static EdgeDebugSessions = ["Debug IoT Edge Module (.NET Core)", "Debug IoT Edge Function (.NET Core)"];
     public static lastUsedImageNameCacheKey = "azureIotEdge.lastUsedImageName";
     public static moduleNamePlaceholder = "%MODULE%";
@@ -40,7 +41,9 @@ export class Constants {
     public static outputConfig = ".config";
     public static vscodeFolder = ".vscode";
     public static moduleConfigFile = "Module Config file";
+    public static deploymentTemplateDesc = "Deployment Template file";
     public static buildModuleImageEvent = "buildModuleImage";
     public static buildAndPushModuleImageEvent = "buildAndPushModuleImage";
+    public static buildSolutionEvent = "buildSolution";
     public static launchCSharp = "launch_csharp.json";
 }

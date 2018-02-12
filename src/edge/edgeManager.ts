@@ -8,6 +8,7 @@ import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { TelemetryClient } from "../common/telemetryClient";
+import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 
 export class EdgeManager {
@@ -88,8 +89,7 @@ export class EdgeManager {
         // get the target path
         const parentPath: string = parentUri ? parentUri.fsPath : await this.getSolutionParentFolder();
         if (parentPath === undefined) {
-            vscode.window.showInformationMessage(Constants.userCancelled);
-            return;
+            throw new UserCancelledError();
         }
 
         await fse.ensureDir(parentPath);

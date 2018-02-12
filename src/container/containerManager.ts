@@ -68,12 +68,14 @@ export class ContainerManager {
     }
 
     public async buildSolution(templateUri?: vscode.Uri): Promise<void> {
-        if (!templateUri || !templateUri.fsPath) {
+        const templateFile: string = await Utility.getInputFilePath(templateUri,
+                                                                    Constants.deploymentTemplatePattern,
+                                                                    Constants.deploymentTemplateDesc,
+                                                                    `${Constants.buildSolutionEvent}.selectTemplate`);
+        if (!templateFile) {
             vscode.window.showInformationMessage("no solution file");
             return;
         }
-
-        const templateFile: string = templateUri.fsPath;
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
         const slnPath: string = path.dirname(templateFile);

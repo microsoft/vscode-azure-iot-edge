@@ -102,27 +102,23 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 }
 
-function initCommand<T>(context: vscode.ExtensionContext,
-                        outputChannel: vscode.OutputChannel,
-                        commandId: string, callback: (input?: T) => void): void {
-    initCommmandAsync(context, outputChannel, commandId, async (input?: T) => callback(input));
+function initCommand(context: vscode.ExtensionContext,
+                     outputChannel: vscode.OutputChannel,
+                     commandId: string, callback: (...args: any[]) => any): void {
+    initCommmandAsync(context, outputChannel, commandId, async (...args) => callback(...args));
 }
 
-function initCommmandAsync<T>(context: vscode.ExtensionContext,
-                              outputChannel: vscode.OutputChannel,
-                              commandId: string, callback: (input?: T) => Promise<void>): void {
-    context.subscriptions.push(vscode.commands.registerCommand(commandId, async (...args: Array<{}>) => {
+function initCommmandAsync(context: vscode.ExtensionContext,
+                           outputChannel: vscode.OutputChannel,
+                           commandId: string, callback: (...args: any[]) => Promise<any>): void {
+    context.subscriptions.push(vscode.commands.registerCommand(commandId, async (...args: any[]) => {
         const start: number = Date.now();
         let errorData: ErrorData | undefined;
         const properties: { [key: string]: string; } = {};
         properties.result = "Succeeded";
         TelemetryClient.sendEvent(`${commandId}.start`);
         try {
-            if (args.length === 0) {
-                await callback();
-            } else {
-                await callback(args[0] as T);
-            }
+            return await callback(...args);
         } catch (error) {
             if (error instanceof UserCancelledError) {
                 properties.result = "Cancelled";

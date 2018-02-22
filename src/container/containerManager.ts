@@ -78,8 +78,48 @@ export class ContainerManager {
         }
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
-        const slnPath: string = path.dirname(templateFile);
+        const buildSet: Set<string> = await this.generateDeploymentAndBuildSet(templateFile,
+                                                                               moduleToImageMap,
+                                                                               imageToDockerfileMap);
 
+        // build docker images
+        const commands: string[] = [];
+        for (const image of buildSet) {
+            const dockerFile: string = imageToDockerfileMap.get(image);
+            const context = path.dirname(dockerFile);
+            commands.push(this.constructBuildCmd(dockerFile, image, context));
+            commands.push(this.constructPushCmd(image));
+        }
+        Executor.runInTerminal(Utility.combineCommands(commands));
+    }
+
+    public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {
+        const templateFile: string = await Utility.getInputFilePath(templateUri,
+            Constants.deploymentTemplatePattern,
+            Constants.deploymentTemplateDesc,
+            `${Constants.buildSolutionEvent}.selectTemplate`);
+        if (!templateFile) {
+            vscode.window.showInformationMessage("no solution file");
+            return;
+        }
+        const moduleToImageMap: Map<string, string> = new Map();
+        const imageToDockerfileMap: Map<string, string> = new Map();
+        await this.generateDeploymentAndBuildSet(templateFile, moduleToImageMap, imageToDockerfileMap);
+    }
+
+    public async pushDockerImage() {
+        TelemetryClient.sendEvent("pushDockerImage.start");
+        const imageName: string = await this.promptForImageName();
+        if (imageName) {
+            Executor.runInTerminal(`docker push ${imageName}`);
+            TelemetryClient.sendEvent("pushDockerImage.end");
+        }
+    }
+
+    private async generateDeploymentAndBuildSet(templateFile: string,
+                                                moduleToImageMap: Map<string, string>,
+                                                imageToDockerfileMap: Map<string, string>): Promise<Set<string>> {
+        const slnPath: string = path.dirname(templateFile);
         const configPath = path.join(slnPath, Constants.outputConfig);
         const deployFile = path.join(configPath, Constants.deploymentFile);
         await fse.remove(deployFile);
@@ -96,25 +136,7 @@ export class ContainerManager {
         // generate config file
         await fse.ensureDir(configPath);
         await fse.writeFile(deployFile, generatedDeployFile, "utf8");
-
-        // build docker images
-        const commands: string[] = [];
-        for (const image of buildSet) {
-            const dockerFile: string = imageToDockerfileMap.get(image);
-            const context = path.dirname(dockerFile);
-            commands.push(this.constructBuildCmd(dockerFile, image, context));
-            commands.push(this.constructPushCmd(image));
-        }
-        Executor.runInTerminal(Utility.combineCommands(commands));
-    }
-
-    public async pushDockerImage() {
-        TelemetryClient.sendEvent("pushDockerImage.start");
-        const imageName: string = await this.promptForImageName();
-        if (imageName) {
-            Executor.runInTerminal(`docker push ${imageName}`);
-            TelemetryClient.sendEvent("pushDockerImage.end");
-        }
+        return buildSet;
     }
 
     private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string): string {

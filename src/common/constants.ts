@@ -48,4 +48,5 @@ export class Constants {
     public static generateDeploymentEvent = "generateDeployment";
     public static addModuleEvent = "addModule";
     public static launchCSharp = "launch_csharp.json";
+    public static noSolutionFileMessage = "no solution file";
 }

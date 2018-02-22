@@ -137,7 +137,7 @@ export class EdgeManager {
             Constants.deploymentTemplateDesc,
             `${Constants.addModuleEvent}.selectTemplate`);
         if (!templateFile) {
-            vscode.window.showInformationMessage("no solution file");
+            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
 
@@ -147,8 +147,7 @@ export class EdgeManager {
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
 
         const language = await this.selectModuleTemplate();
-        const existingModules = (await fse.readdir(targetModulePath)).filter((fileOrDir) => fse.statSync(path.join(targetModulePath, fileOrDir)).isDirectory());
-        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(existingModules));
+        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath));
         const repositoryName: string = await this.inputRepository(moduleName);
 
         const newModuleSection = `{
@@ -220,10 +219,10 @@ export class EdgeManager {
         }
     }
 
-    private async validateProjectPath(parentPath: string, projectName: string): Promise<string | undefined> {
-        const projectPath = path.join(parentPath, projectName);
-        if (projectName && await fse.pathExists(projectPath)) {
-            return `${projectName} already exists under ${parentPath}`;
+    private async validateFolderPath(parentPath: string, folderName: string): Promise<string | undefined> {
+        const folderPath = path.join(parentPath, folderName);
+        if (folderName && await fse.pathExists(folderPath)) {
+            return `${folderName} already exists under ${parentPath}`;
         } else {
             return undefined;
         }
@@ -257,17 +256,17 @@ export class EdgeManager {
 
     private async inputSolutionName(parentPath: string): Promise<string> {
         const validateFunc = async (name: string): Promise<string> => {
-            return await this.validateProjectPath(parentPath, name);
+            return await this.validateFolderPath(parentPath, name);
         };
         return await Utility.showInputBox(Constants.solutionName,
                                           Constants.solutionNamePrompt,
                                           validateFunc, Constants.solutionNameDft);
     }
 
-    private async inputModuleName(existingModules: string[] = []): Promise<string> {
-        const validateFunc = async (name: string): Promise<string> => {
-            return await this.validateModuleName(existingModules, name);
-        };
+    private async inputModuleName(parentPath?: string): Promise<string> {
+        const validateFunc = parentPath ? async (name: string): Promise<string> => {
+            return await this.validateFolderPath(parentPath, name);
+        } : null;
         return await Utility.showInputBox(Constants.moduleName,
                                           Constants.moduleNamePrompt,
                                           validateFunc, Constants.moduleNameDft);

@@ -73,7 +73,7 @@ export class ContainerManager {
                                                                     Constants.deploymentTemplateDesc,
                                                                     `${Constants.buildSolutionEvent}.selectTemplate`);
         if (!templateFile) {
-            vscode.window.showInformationMessage("no solution file");
+            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
         const moduleToImageMap: Map<string, string> = new Map();
@@ -99,7 +99,7 @@ export class ContainerManager {
             Constants.deploymentTemplateDesc,
             `${Constants.generateDeploymentEvent}.selectTemplate`);
         if (!templateFile) {
-            vscode.window.showInformationMessage("no solution file");
+            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
         const moduleToImageMap: Map<string, string> = new Map();

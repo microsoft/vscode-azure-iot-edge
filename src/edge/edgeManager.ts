@@ -138,12 +138,11 @@ export class EdgeManager {
             let launchFile: string;
             switch (language) {
                 case Constants.LANGUAGE_CSHARP:
+                case Constants.CSHARP_FUNCTION:
                     launchFile = Constants.launchCSharp;
                     mapObj.set(Constants.appFolder, "/app");
                     break;
-                case Constants.CSHARP_FUNCTION:
-                    launchFile = Constants.launchCSharp;
-                    mapObj.set(Constants.appFolder, "/home/site/wwwroot");
+                default:
                     break;
             }
 
@@ -161,6 +160,11 @@ export class EdgeManager {
                 // TODO: Add following install command back when the template is released
                 // await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Module");
                 await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
+                break;
+            case Constants.CSHARP_FUNCTION:
+                // TODO: Add following install command back when the template is released
+                // await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Function");
+                await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
                 break;
             default:
                 break;

@@ -131,20 +131,24 @@ export class EdgeManager {
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
     }
 
-    public async addModulde(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
-        if (!templateUri || !templateUri.fsPath) {
+    public async addModuleForSolution(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
+        const templateFile: string = await Utility.getInputFilePath(templateUri,
+            Constants.deploymentTemplatePattern,
+            Constants.deploymentTemplateDesc,
+            `${Constants.addModuleEvent}.selectTemplate`);
+        if (!templateFile) {
             vscode.window.showInformationMessage("no solution file");
             return;
         }
 
-        const templateFile: string = templateUri.fsPath;
         const templateJson = await fse.readJson(templateFile);
         const slnPath: string = path.dirname(templateFile);
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
 
         const language = await this.selectModuleTemplate();
-        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(Object.keys(templateJson.moduleContent.$edgeAgent["properties.desired"].modules)));
+        const existingModules = (await fse.readdir(targetModulePath)).filter((fileOrDir) => fse.statSync(path.join(targetModulePath, fileOrDir)).isDirectory());
+        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(existingModules));
         const repositoryName: string = await this.inputRepository(moduleName);
 
         const newModuleSection = `{

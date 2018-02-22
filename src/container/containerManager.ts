@@ -97,7 +97,7 @@ export class ContainerManager {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
             Constants.deploymentTemplatePattern,
             Constants.deploymentTemplateDesc,
-            `${Constants.buildSolutionEvent}.selectTemplate`);
+            `${Constants.generateDeploymentEvent}.selectTemplate`);
         if (!templateFile) {
             vscode.window.showInformationMessage("no solution file");
             return;

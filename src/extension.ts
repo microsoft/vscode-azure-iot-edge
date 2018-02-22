@@ -106,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
     initCommmandAsync(context, outputChannel,
         "azure-iot-edge.addModulde",
         (templateUri?: vscode.Uri): Promise<void> => {
-            return edgeManager.addModulde(outputChannel, templateUri);
+            return edgeManager.addModuleForSolution(outputChannel, templateUri);
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

@@ -24,17 +24,6 @@
   ],
   "activationEvents": [
     "onDebug",
-    "onCommand:azure-iot-edge.editTemplate",
-    "onCommand:azure-iot-edge.deployTemplate",
-    "onCommand:azure-iot-edge.updateInterval",
-    "onCommand:azure-iot-edge.generateDeploymentJsonForVerification",
-    "onCommand:azure-iot-edge.generateRoutesJsonForVerification",
-    "onCommand:azure-iot-edge.verifyModule",
-    "onCommand:azure-iot-edge.viewModuleInput",
-    "onCommand:azure-iot-edge.viewModuleOutput",
-    "onCommand:azure-iot-edge.login",
-    "onCommand:azure-iot-edge.deploy",
-    "onCommand:azure-iot-edge.launch",
     "onCommand:azure-iot-edge.buildDockerImage",
     "onCommand:azure-iot-edge.pushDockerImage",
     "onCommand:azure-iot-edge.dotnetPublish",
@@ -146,11 +135,6 @@
       "type": "object",
       "title": "Azure IoT Edge configuration",
       "properties": {
-        "azure-iot-edge.iotHubConnectionString": {
-          "type": "string",
-          "default": "",
-          "description": "IoT Hub Connection String"
-        },
         "azure-iot-edge.terminalRoot": {
           "type": "string",
           "default": "",
@@ -296,7 +280,6 @@
     "vscode": "^1.0.0"
   },
   "dependencies": {
-    "azure-iothub": "^1.1.15",
     "fs-extra": "^4.0.2",
     "vscode-extension-telemetry": "0.0.8"
   },

@@ -114,6 +114,67 @@ export class EdgeManager {
         vscode.window.showInformationMessage(`Module '${moduleName}' is created. 'deployment.template.json' and 'launch.json' are updated.`);
     }
 
+    // TODO: The command is temperory for migration stage, will be removed later.
+    public async convertModule(fileUri?: vscode.Uri): Promise<void> {
+        const filePath = fileUri ? fileUri.fsPath : undefined;
+        if (filePath) {
+            const dockerFile = "Dockerfile";
+            const dockerDebugFile = "Dockerfile.amd64.debug";
+            const csharpFolder = "csharp";
+            const csharpFunction = "csharpfunction";
+
+            const fileName = path.basename(filePath);
+            const extName = path.extname(filePath);
+            const isFunction = fileName === "host.json";
+            const isCSharp = extName === ".csproj";
+
+            const targetPath = path.dirname(filePath);
+            const moduleExist = await fse.exists(path.join(targetPath, Constants.moduleManifest));
+            if (moduleExist) {
+                throw new Error("module.json exists already");
+            }
+            if (isFunction || isCSharp) {
+                const moduleName: string = isCSharp ? path.basename(fileName, extName)
+                    : Utility.getValidModuleName(path.basename(targetPath));
+                const repositoryName: string = await this.inputRepository(moduleName);
+                const srcPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.moduleFolder));
+                const srcModuleFile = path.join(srcPath, Constants.moduleManifest);
+                const srcDockerFolder = path.join(srcPath, isFunction ? csharpFunction : csharpFolder);
+                const srcDockerFile = path.join(srcDockerFolder, dockerFile);
+                const srcDockerDebugFile = path.join(srcDockerFolder, dockerDebugFile);
+
+                const moduleData: string = await fse.readFile(srcModuleFile, "utf8");
+                const mapObj: Map<string, string> = new Map<string, string>();
+                mapObj.set(Constants.repositoryPlaceholder, repositoryName);
+                const moduleGenerated: string = Utility.replaceAll(moduleData, mapObj);
+                const targetModule: string = path.join(targetPath, Constants.moduleManifest);
+                await fse.writeFile(targetModule, moduleGenerated, {encoding: "utf8"});
+
+                const targetDockerFile = path.join(targetPath, dockerFile);
+                const targetDockerDebugFile = path.join(targetPath, dockerDebugFile);
+                if (isFunction) {
+                    await fse.copy(srcDockerFile, targetDockerFile);
+                    await fse.copy(srcDockerDebugFile, targetDockerDebugFile);
+                } else {
+                    const dockerMapObj: Map<string, string> = new Map<string, string>();
+                    dockerMapObj.set(Constants.dllPlaceholder, moduleName);
+                    const dockerFileData: string = await fse.readFile(srcDockerFile, "utf8");
+                    const dockerFileGenerated: string = Utility.replaceAll(dockerFileData, dockerMapObj);
+                    await fse.writeFile(targetDockerFile, dockerFileGenerated, {encoding: "utf8"});
+
+                    const dockerDebugFileData: string = await fse.readFile(srcDockerDebugFile, "utf8");
+                    const dockerDebugFileGenerated: string = Utility.replaceAll(dockerDebugFileData, dockerMapObj);
+                    await fse.writeFile(targetDockerDebugFile, dockerDebugFileGenerated, {encoding: "utf8"});
+                }
+                vscode.window.showInformationMessage("Converted successfully. module.json and docker files have been added.");
+            } else {
+                throw new Error("File type is wrong");
+            }
+        } else {
+            throw new Error("No file is selected");
+        }
+    }
+
     private async generateDebugSetting(srcSlnPath: string,
                                        language: string,
                                        mapObj: Map<string, string>): Promise<string> {

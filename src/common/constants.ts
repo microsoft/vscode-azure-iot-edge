@@ -15,6 +15,8 @@ export class Constants {
     public static moduleImagePlaceholder = "%MODULE_IMAGE%";
     public static moduleFolderPlaceholder = "%MODULE_FOLDER%";
     public static appFolder = "%APP_FOLDER%";
+    public static repositoryPlaceholder = "%REPOSITORY%";
+    public static dllPlaceholder = "%DLLNAME%";
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
     public static LANGUAGE_CSHARP = "csharp";

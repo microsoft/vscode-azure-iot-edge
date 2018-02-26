@@ -24,9 +24,6 @@
   ],
   "activationEvents": [
     "onDebug",
-    "onCommand:azure-iot-edge.buildDockerImage",
-    "onCommand:azure-iot-edge.pushDockerImage",
-    "onCommand:azure-iot-edge.dotnetPublish",
     "onCommand:azure-iot-edge.buildSolution",
     "onCommand:azure-iot-edge.buildModuleImage",
     "onCommand:azure-iot-edge.buildAndPushModuleImage",
@@ -37,25 +34,7 @@
   "main": "./out/src/extension",
   "contributes": {
     "menus": {
-      "editor/context": [
-        {
-          "when": "editorLangId == dockerfile",
-          "command": "azure-iot-edge.buildDockerImage"
-        }
-      ],
       "explorer/context": [
-        {
-          "when": "resourceLangId == dockerfile",
-          "command": "azure-iot-edge.buildDockerImage"
-        },
-        {
-          "when": "resourceExtname == .csproj",
-          "command": "azure-iot-edge.dotnetPublish"
-        },
-        {
-          "when": "resourceExtname == .fsproj",
-          "command": "azure-iot-edge.dotnetPublish"
-        },
         {
           "when": "resourceFilename == module.json",
           "command": "azure-iot-edge.buildModuleImage",
@@ -85,21 +64,6 @@
       ]
     },
     "commands": [
-      {
-        "command": "azure-iot-edge.buildDockerImage",
-        "title": "Build IoT Edge module Docker image",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.pushDockerImage",
-        "title": "Push IoT Edge module Docker image",
-        "category": "Edge"
-      },
-      {
-        "command": "azure-iot-edge.dotnetPublish",
-        "title": "Build IoT Edge module",
-        "category": "Edge"
-      },
       {
         "command": "azure-iot-edge.buildModuleImage",
         "title": "Build module image",
@@ -142,18 +106,6 @@
         }
       }
     },
-    "languages": [
-      {
-        "id": "dockerfile",
-        "aliases": [
-          "Dockerfile"
-        ],
-        "filenamePatterns": [
-          "dockerfile*",
-          "Dockerfile*"
-        ]
-      }
-    ],
     "debuggers": [
       {
         "type": "edge-coreclr",
@@ -181,29 +133,6 @@
               "/app": "${workspaceFolder}"
             },
             "justMyCode": true
-          },
-          {
-            "name": "Debug IoT Edge Function (.NET Core)",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickRemoteProcess}",
-            "pipeTransport": {
-              "pipeProgram": "docker",
-              "pipeArgs": [
-                "exec",
-                "-i",
-                "<container_name>",
-                "sh",
-                "-c"
-              ],
-              "debuggerPath": "~/vsdbg/vsdbg",
-              "pipeCwd": "${workspaceFolder}",
-              "quoteArgs": true
-            },
-            "sourceFileMap": {
-              "/home/site/wwwroot": "${workspaceFolder}"
-            },
-            "justMyCode": true
           }
         ],
         "configurationSnippets": [
@@ -229,32 +158,6 @@
               },
               "sourceFileMap": {
                 "/app": "^\"\\${workspaceFolder}\""
-              },
-              "justMyCode": true
-            }
-          },
-          {
-            "label": "Edge: Debug IoT Edge Function (.NET Core)",
-            "body": {
-              "name": "Debug IoT Edge Function (.NET Core)",
-              "type": "coreclr",
-              "request": "attach",
-              "processId": "^\"\\${command:pickRemoteProcess}\"",
-              "pipeTransport": {
-                "pipeProgram": "docker",
-                "pipeArgs": [
-                  "exec",
-                  "-i",
-                  "<container_name>",
-                  "sh",
-                  "-c"
-                ],
-                "debuggerPath": "~/vsdbg/vsdbg",
-                "pipeCwd": "^\"\\${workspaceFolder}\"",
-                "quoteArgs": true
-              },
-              "sourceFileMap": {
-                "/home/site/wwwroot": "^\"\\${workspaceFolder}\""
               },
               "justMyCode": true
             }

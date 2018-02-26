@@ -38,35 +38,6 @@ export class ContainerManager {
         }
     }
 
-    public async buildDockerImage(dockerfileFromContextMenu?: vscode.Uri) {
-        const dockerfilePath: string = await Utility.getInputFilePath(dockerfileFromContextMenu, Constants.dockerfileNamePattern, "Dockerfile", "buildDockerImage.start");
-
-        if (dockerfilePath) {
-            const workspaceFolder: vscode.Uri = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(dockerfilePath)).uri;
-            const exeDirArguments: vscode.Uri[] = await vscode.window.showOpenDialog({
-                defaultUri: workspaceFolder,
-                openLabel: "Select folder as EXE_DIR",
-                canSelectFiles: false,
-                canSelectFolders: true,
-                canSelectMany: false,
-            });
-            const exeDirArgument: vscode.Uri = exeDirArguments[0];
-            if (exeDirArgument) {
-                const relativePath: string = Utility.getRelativePath(exeDirArgument, workspaceFolder);
-                if (relativePath) {
-                    const imageName: string = await this.promptForImageName();
-                    if (imageName) {
-                        Executor.runInTerminal(`docker build -f \"${Utility.adjustFilePath(dockerfilePath)}\" --build-arg EXE_DIR=\"${relativePath}\" -t \"${imageName}\" ` +
-                            `\"${Utility.adjustFilePath(workspaceFolder.fsPath)}\"`);
-                        TelemetryClient.sendEvent("buildDockerImage.end");
-                    }
-                } else {
-                    vscode.window.showErrorMessage("The folder must be contained within the Dockerfile's root workspace folder");
-                }
-            }
-        }
-    }
-
     public async buildSolution(templateUri?: vscode.Uri): Promise<void> {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
                                                                     Constants.deploymentTemplatePattern,
@@ -105,15 +76,6 @@ export class ContainerManager {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
         await this.generateDeploymentAndBuildSet(templateFile, moduleToImageMap, imageToDockerfileMap);
-    }
-
-    public async pushDockerImage() {
-        TelemetryClient.sendEvent("pushDockerImage.start");
-        const imageName: string = await this.promptForImageName();
-        if (imageName) {
-            Executor.runInTerminal(`docker push ${imageName}`);
-            TelemetryClient.sendEvent("pushDockerImage.end");
-        }
     }
 
     private async generateDeploymentAndBuildSet(templateFile: string,

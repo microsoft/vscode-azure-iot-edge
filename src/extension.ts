@@ -8,29 +8,15 @@ import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
-import { DotnetUtility } from "./languages/dotnet/dotnetUtility";
 
 export function activate(context: vscode.ExtensionContext) {
     TelemetryClient.sendEvent("extensionActivated");
 
     const edgeManager = new EdgeManager(context);
     const containerManager = new ContainerManager(context);
-    const dotnetUtility = new DotnetUtility();
     Utility.registerDebugTelemetryListener();
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeChannel);
     context.subscriptions.push(outputChannel);
-
-    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildDockerImage", (dockerfileFromContextMenu: vscode.Uri) => {
-        containerManager.buildDockerImage(dockerfileFromContextMenu);
-    }));
-
-    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.pushDockerImage", () => {
-        containerManager.pushDockerImage();
-    }));
-
-    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.dotnetPublish", (fileUri: vscode.Uri) => {
-        dotnetUtility.dotnetPublish(fileUri);
-    }));
 
     context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildModuleImage", (fileUri: vscode.Uri) => {
         containerManager.buildModuleImage(fileUri, false);

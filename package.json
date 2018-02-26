@@ -105,7 +105,66 @@
           "description": "(Windows Only) Replace the Windows style drive letter in the command with a Unix style root when using a custom shell as the terminal, like Bash on Windows, Git Bash or Cgywin. Example: For Bash on Windows, setting this to '/mnt/' will replace 'C:\\foo\\bar' with '/mnt/c/foo/bar'"
         }
       }
-    }
+    },
+    "debuggers": [
+      {
+        "type": "edge-coreclr",
+        "label": "IoT Edge (.NET Core)",
+        "initialConfigurations": [
+          {
+            "name": "Debug IoT Edge Module (.NET Core)",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickRemoteProcess}",
+            "pipeTransport": {
+              "pipeProgram": "docker",
+              "pipeArgs": [
+                "exec",
+                "-i",
+                "<container_name>",
+                "sh",
+                "-c"
+              ],
+              "debuggerPath": "~/vsdbg/vsdbg",
+              "pipeCwd": "${workspaceFolder}",
+              "quoteArgs": true
+            },
+            "sourceFileMap": {
+              "/app": "${workspaceFolder}"
+            },
+            "justMyCode": true
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "Edge: Debug IoT Edge Module (.NET Core)",
+            "body": {
+              "name": "Debug IoT Edge Module (.NET Core)",
+              "type": "coreclr",
+              "request": "attach",
+              "processId": "^\"\\${command:pickRemoteProcess}\"",
+              "pipeTransport": {
+                "pipeProgram": "docker",
+                "pipeArgs": [
+                  "exec",
+                  "-i",
+                  "<container_name>",
+                  "sh",
+                  "-c"
+                ],
+                "debuggerPath": "~/vsdbg/vsdbg",
+                "pipeCwd": "^\"\\${workspaceFolder}\"",
+                "quoteArgs": true
+              },
+              "sourceFileMap": {
+                "/app": "^\"\\${workspaceFolder}\""
+              },
+              "justMyCode": true
+            }
+          }
+        ]
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",

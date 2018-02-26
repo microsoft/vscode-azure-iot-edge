@@ -27,27 +27,33 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 
     initCommmandAsync(context, outputChannel,
-                      "azure-iot-edge.newSolution",
-                      (parentUri?: vscode.Uri): Promise<void> => {
-                          return edgeManager.createEdgeSolution(outputChannel, parentUri);
-                      });
+        "azure-iot-edge.newSolution",
+        (parentUri?: vscode.Uri): Promise<void> => {
+            return edgeManager.createEdgeSolution(outputChannel, parentUri);
+        });
 
     initCommmandAsync(context, outputChannel,
-                      "azure-iot-edge.buildSolution",
-                      (templateUri?: vscode.Uri): Promise<void> => {
-                          return containerManager.buildSolution(templateUri);
-                      });
+        "azure-iot-edge.buildSolution",
+        (templateUri?: vscode.Uri): Promise<void> => {
+            return containerManager.buildSolution(templateUri);
+        });
 
     initCommmandAsync(context, outputChannel,
-                      "azure-iot-edge.generateDeployment",
-                      (templateUri?: vscode.Uri): Promise<void> => {
-                          return containerManager.generateDeployment(templateUri);
-                      });
+        "azure-iot-edge.generateDeployment",
+        (templateUri?: vscode.Uri): Promise<void> => {
+            return containerManager.generateDeployment(templateUri);
+        });
 
     initCommmandAsync(context, outputChannel,
         "azure-iot-edge.addModulde",
         (templateUri?: vscode.Uri): Promise<void> => {
             return edgeManager.addModuleForSolution(outputChannel, templateUri);
+        });
+
+    initCommmandAsync(context, outputChannel,
+        "azure-iot-edge.convertModule",
+        (fileUri?: vscode.Uri): Promise<void> => {
+            return edgeManager.convertModule(fileUri);
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

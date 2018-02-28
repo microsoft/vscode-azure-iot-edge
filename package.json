@@ -35,6 +35,12 @@
   "main": "./out/src/extension",
   "contributes": {
     "menus": {
+      "commandPalette": [
+        {
+          "when": "never",
+          "command": "azure-iot-edge.convertModule"
+        }
+      ],
       "explorer/context": [
         {
           "when": "resourceFilename == module.json",
@@ -75,12 +81,12 @@
     "commands": [
       {
         "command": "azure-iot-edge.buildModuleImage",
-        "title": "Build module image",
+        "title": "Build IoT Edge Module Image",
         "category": "Edge"
       },
       {
         "command": "azure-iot-edge.buildAndPushModuleImage",
-        "title": "Build and push module image",
+        "title": "Build and Push IoT Edge Module Image",
         "category": "Edge"
       },
       {
@@ -95,7 +101,7 @@
       },
       {
         "command": "azure-iot-edge.generateDeployment",
-        "title": "Generate Deployment File",
+        "title": "Generate IoT Edge Deployment Manifest",
         "category": "Edge"
       },
       {
@@ -105,7 +111,7 @@
       },
       {
         "command": "azure-iot-edge.convertModule",
-        "title": "Convert to Edge Module",
+        "title": "Convert to IoT Edge Module",
         "category": "Edge"
       }
     ],

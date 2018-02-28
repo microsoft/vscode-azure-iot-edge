@@ -166,7 +166,7 @@ export class EdgeManager {
                     const dockerDebugFileGenerated: string = Utility.replaceAll(dockerDebugFileData, dockerMapObj);
                     await fse.writeFile(targetDockerDebugFile, dockerDebugFileGenerated, {encoding: "utf8"});
                 }
-                vscode.window.showInformationMessage("Converted successfully. module.json and docker files have been added.");
+                vscode.window.showInformationMessage("Converted successfully. module.json and Dockerfiles have been added.");
             } else {
                 throw new Error("File type is wrong");
             }

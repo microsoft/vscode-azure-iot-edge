@@ -40,9 +40,9 @@ export class ContainerManager {
 
     public async buildSolution(templateUri?: vscode.Uri): Promise<void> {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
-                                                                    Constants.deploymentTemplatePattern,
-                                                                    Constants.deploymentTemplateDesc,
-                                                                    `${Constants.buildSolutionEvent}.selectTemplate`);
+            Constants.deploymentTemplatePattern,
+            Constants.deploymentTemplateDesc,
+            `${Constants.buildSolutionEvent}.selectTemplate`);
         if (!templateFile) {
             vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
@@ -50,8 +50,8 @@ export class ContainerManager {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
         const buildSet: Set<string> = await this.generateDeploymentAndBuildSet(templateFile,
-                                                                               moduleToImageMap,
-                                                                               imageToDockerfileMap);
+            moduleToImageMap,
+            imageToDockerfileMap);
 
         // build docker images
         const commands: string[] = [];
@@ -76,6 +76,32 @@ export class ContainerManager {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
         await this.generateDeploymentAndBuildSet(templateFile, moduleToImageMap, imageToDockerfileMap);
+    }
+
+    public async listImages(templateUri: vscode.Uri): Promise<string[]> {
+        const moduleDirs: string[] = await Utility.getSubDirectories(path.join(path.dirname(templateUri.fsPath), Constants.moduleFolder));
+
+        if (!moduleDirs) {
+            return;
+        }
+
+        const images: string[] = [];
+
+        await Promise.all(
+            moduleDirs.map(async (module) => {
+                const moduleFile: string = path.join(module, Constants.moduleManifest);
+                const moduleName: string = path.basename(module);
+                if (await fse.exists(moduleFile)) {
+                    const moduleInfo: any = await fse.readJson(moduleFile);
+
+                    Object.keys(moduleInfo.image.tag.platforms).map((platform) => {
+                        images.push("\"${MODULES." + moduleName + "." + platform + "}\"");
+                    });
+                }
+            }),
+        );
+
+        return images;
     }
 
     private async generateDeploymentAndBuildSet(templateFile: string,
@@ -112,7 +138,7 @@ export class ContainerManager {
     private async setSlnModulesMap(slnPath: string,
                                    moduleToImageMap: Map<string, string>,
                                    imageToDockerfileMap: Map<string, string>): Promise<void> {
-        const modulesPath: string  = path.join(slnPath, Constants.moduleFolder);
+        const modulesPath: string = path.join(slnPath, Constants.moduleFolder);
         const stat: fse.Stats = await fse.lstat(modulesPath);
         if (!stat.isDirectory()) {
             throw new Error("no modules folder");
@@ -137,7 +163,7 @@ export class ContainerManager {
             const repo: string = module.image.repository;
             const version: string = module.image.tag.version;
             platformKeys.map((platform) => {
-                const moduleKey: string  = Utility.getModuleKey(name, platform);
+                const moduleKey: string = Utility.getModuleKey(name, platform);
                 const image: string = Utility.getImage(repo, version, platform);
                 moduleToImageMap.set(moduleKey, image);
                 imageToDockerfileMap.set(image, path.join(modulePath, module.image.tag.platforms[platform]));

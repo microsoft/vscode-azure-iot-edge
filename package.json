@@ -29,7 +29,8 @@
     "onCommand:azure-iot-edge.buildAndPushModuleImage",
     "onCommand:azure-iot-edge.newSolution",
     "onCommand:azure-iot-edge.generateDeployment",
-    "onCommand:azure-iot-edge.addModulde"
+    "onCommand:azure-iot-edge.addModulde",
+    "workspaceContains:**/deployment.template.json"
   ],
   "main": "./out/src/extension",
   "contributes": {

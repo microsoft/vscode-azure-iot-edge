@@ -1,6 +1,6 @@
 "use strict";
 import * as fse from "fs-extra";
-import { getLocation, Location, parse } from "jsonc-parser";
+import { getLocation, Location, Node, parse } from "jsonc-parser";
 import * as path from "path";
 import * as vscode from "vscode";
 import { ContainerManager } from "../container/containerManager";
@@ -12,9 +12,10 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
     }
     public async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.CompletionItem[]> {
         const location: Location = getLocation(document.getText(), document.offsetAt(position));
-        const range: vscode.Range = document.getWordRangeAtPosition(position) || new vscode.Range(position, position);
 
-        if (location.path.length === 4 && location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent" && location.path[2] === "properties.desired" && location.path[3] === "modules") {
+        if (location.path.length === 4 && location.path[0] === "moduleContent"
+            && location.path[1] === "$edgeAgent" && location.path[2] === "properties.desired"
+            && location.path[3] === "modules") {
             const moduleCompletionItem = new vscode.CompletionItem("edgeModule");
             moduleCompletionItem.filterText = "\"edgeModule\"";
             moduleCompletionItem.kind = vscode.CompletionItemKind.Snippet;
@@ -38,18 +39,27 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
             && location.path[2] === "properties.desired" && location.path[3] === "modules"
             && location.path[5] === "settings" && location.path[6] === "image") {
             const completionItems: vscode.CompletionItem[] = [];
-            const images: string[] = await this.containerManager.listImages(document.uri);
+            const node: Node = location.previousNode;
+            const offset: number = document.offsetAt(position);
+            // Include the trailing comma (if exists) to the overwrite range
+            const overwriteRange: vscode.Range = new vscode.Range(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
 
+            const images: string[] = await this.containerManager.listImages(document.uri);
             images.forEach((image) => {
                 const completionItem: vscode.CompletionItem = new vscode.CompletionItem(image);
+                // Replace the overwriteRange with the image plus the trailing comma
+                completionItem.insertText = image + ",";
                 completionItem.kind = vscode.CompletionItemKind.Value;
+                completionItem.range = overwriteRange;
                 completionItems.push(completionItem);
             });
 
             return completionItems;
         }
 
-        if (location.path.length === 4 && location.path[0] === "moduleContent" && location.path[1] === "$edgeHub" && location.path[2] === "properties.desired" && location.path[3] === "routes") {
+        if (location.path.length === 4 && location.path[0] === "moduleContent"
+            && location.path[1] === "$edgeHub" && location.path[2] === "properties.desired"
+            && location.path[3] === "routes") {
             const json = parse(document.getText());
             const modules: any = ((json.moduleContent.$edgeAgent || {})["properties.desired"] || {}).modules || {};
             const moduleIds: string[] = Object.keys(modules);

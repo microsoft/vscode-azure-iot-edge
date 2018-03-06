@@ -40,9 +40,9 @@ export class ContainerManager {
 
     public async buildSolution(templateUri?: vscode.Uri): Promise<void> {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
-            Constants.deploymentTemplatePattern,
-            Constants.deploymentTemplateDesc,
-            `${Constants.buildSolutionEvent}.selectTemplate`);
+                                                                    Constants.deploymentTemplatePattern,
+                                                                    Constants.deploymentTemplateDesc,
+                                                                    `${Constants.buildSolutionEvent}.selectTemplate`);
         if (!templateFile) {
             vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
@@ -50,8 +50,8 @@ export class ContainerManager {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
         const buildSet: Set<string> = await this.generateDeploymentAndBuildSet(templateFile,
-            moduleToImageMap,
-            imageToDockerfileMap);
+                                                                               moduleToImageMap,
+                                                                               imageToDockerfileMap);
 
         // build docker images
         const commands: string[] = [];
@@ -66,9 +66,9 @@ export class ContainerManager {
 
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
-            Constants.deploymentTemplatePattern,
-            Constants.deploymentTemplateDesc,
-            `${Constants.generateDeploymentEvent}.selectTemplate`);
+                                                                    Constants.deploymentTemplatePattern,
+                                                                    Constants.deploymentTemplateDesc,
+                                                                    `${Constants.generateDeploymentEvent}.selectTemplate`);
         if (!templateFile) {
             vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;

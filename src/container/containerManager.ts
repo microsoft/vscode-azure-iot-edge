@@ -21,7 +21,7 @@ export class ContainerManager {
         if (moduleConfigFilePath) {
             const moduleConfig = await fse.readJson(moduleConfigFilePath);
             const platforms = moduleConfig.image.tag.platforms;
-            const platform = await vscode.window.showQuickPick(Object.keys(platforms), { ignoreFocusOut: true });
+            const platform = await vscode.window.showQuickPick(Object.keys(platforms), { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
             if (platform) {
                 const directory = path.dirname(moduleConfigFilePath);
                 const dockerfilePath = path.join(directory, platforms[platform]);
@@ -62,6 +62,7 @@ export class ContainerManager {
             commands.push(this.constructPushCmd(image));
         }
         Executor.runInTerminal(Utility.combineCommands(commands));
+        vscode.window.showInformationMessage(Constants.manifestGeneratedWithBuild);
     }
 
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {
@@ -76,6 +77,7 @@ export class ContainerManager {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
         await this.generateDeploymentAndBuildSet(templateFile, moduleToImageMap, imageToDockerfileMap);
+        vscode.window.showInformationMessage(Constants.manifestGenerated);
     }
 
     public async listImages(templateUri: vscode.Uri): Promise<string[]> {
@@ -169,27 +171,5 @@ export class ContainerManager {
                 imageToDockerfileMap.set(image, path.join(modulePath, module.image.tag.platforms[platform]));
             });
         }
-    }
-
-    private async promptForImageName(): Promise<string> {
-        const imageNameCache: string = this.workspaceState.get<string>(Constants.lastUsedImageNameCacheKey);
-
-        let imageName: string = await vscode.window.showInputBox({
-            prompt: "Enter image name",
-            value: imageNameCache,
-            placeHolder: "E.g., myregistry.azurecr.io/myedgemodule:latest",
-            ignoreFocusOut: true,
-        });
-
-        if (imageName !== undefined) {
-            imageName = imageName.trim();
-            if (imageName === "") {
-                vscode.window.showErrorMessage("Image name cannot be empty");
-            } else if (imageName) {
-                this.workspaceState.update(Constants.lastUsedImageNameCacheKey, imageName);
-            }
-        }
-
-        return imageName;
     }
 }

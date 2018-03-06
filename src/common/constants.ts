@@ -15,10 +15,12 @@ export class Constants {
     public static moduleImagePlaceholder = "%MODULE_IMAGE%";
     public static moduleFolderPlaceholder = "%MODULE_FOLDER%";
     public static appFolder = "%APP_FOLDER%";
+    public static repositoryPlaceholder = "%REPOSITORY%";
+    public static dllPlaceholder = "%DLLNAME%";
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
-    public static LANGUAGE_CSHARP = "csharp";
-    public static CSHARP_FUNCTION = "csharp function";
+    public static LANGUAGE_CSHARP = "C# Module";
+    public static CSHARP_FUNCTION = "Azure Functions - C#";
     public static LANGUAGE_PYTHON = "python";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
@@ -32,9 +34,9 @@ export class Constants {
     public static moduleNamePrompt = "Provide a Module Name";
     public static moduleNameDft = "SampleModule";
     public static repositoryPattern = "<registry>/<repo-name>";
-    public static repositoryPrompt = "Provide Module Repository";
-    public static selectTemplate = "Select module template";
-    public static parentFolderLabel = "Create Under";
+    public static repositoryPrompt = "Provide Docker Image Repository for the Module";
+    public static selectTemplate = "Select Module Template";
+    public static parentFolderLabel = "Select Folder";
     public static moduleManifest = "module.json";
     public static outputConfig = ".config";
     public static vscodeFolder = ".vscode";
@@ -47,4 +49,7 @@ export class Constants {
     public static addModuleEvent = "addModule";
     public static launchCSharp = "launch_csharp.json";
     public static noSolutionFileMessage = "no solution file";
+    public static manifestGenerated = "Deployment manifest has been generated at .config/deployment.json.";
+    public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;
+    public static selectPlatform = "Select Platform";
 }

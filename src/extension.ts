@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     Utility.registerDebugTelemetryListener();
 
-    vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new JsonCompletionItemProvider(containerManager), "\"", ".");
+    vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new JsonCompletionItemProvider(), "\"", ".");
 
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeChannel);
     context.subscriptions.push(outputChannel);

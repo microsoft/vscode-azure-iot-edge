@@ -80,32 +80,6 @@ export class ContainerManager {
         vscode.window.showInformationMessage(Constants.manifestGenerated);
     }
 
-    public async listImages(templateUri: vscode.Uri): Promise<string[]> {
-        const moduleDirs: string[] = await Utility.getSubDirectories(path.join(path.dirname(templateUri.fsPath), Constants.moduleFolder));
-
-        if (!moduleDirs) {
-            return;
-        }
-
-        const images: string[] = [];
-
-        await Promise.all(
-            moduleDirs.map(async (module) => {
-                const moduleFile: string = path.join(module, Constants.moduleManifest);
-                const moduleName: string = path.basename(module);
-                if (await fse.exists(moduleFile)) {
-                    const moduleInfo: any = await fse.readJson(moduleFile);
-
-                    Object.keys(moduleInfo.image.tag.platforms).map((platform) => {
-                        images.push("\"${MODULES." + moduleName + "." + platform + "}\"");
-                    });
-                }
-            }),
-        );
-
-        return images;
-    }
-
     private async generateDeploymentAndBuildSet(templateFile: string,
                                                 moduleToImageMap: Map<string, string>,
                                                 imageToDockerfileMap: Map<string, string>): Promise<Set<string>> {

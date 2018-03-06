@@ -52,4 +52,6 @@ export class Constants {
     public static manifestGenerated = "Deployment manifest has been generated at .config/deployment.json.";
     public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;
     public static selectPlatform = "Select Platform";
+    public static moduleStatuses = ["running", "stopped"];
+    public static moduleRestartPolicies = ["always", "never", "on-failed", "on-unhealthy"];
 }

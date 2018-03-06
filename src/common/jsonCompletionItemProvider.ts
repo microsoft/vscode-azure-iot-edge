@@ -101,10 +101,10 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
             // Wrapped the value with quotation marks since the triggering text is also used to filter
             value = "\"" + value + "\"";
             const completionItem: vscode.CompletionItem = new vscode.CompletionItem(value);
+            completionItem.range = this.getOverwriteRange(document, position);
             // Replace the overwriteRange with the image plus the trailing comma
             completionItem.insertText = value + ",";
             completionItem.kind = vscode.CompletionItemKind.Value;
-            completionItem.range = this.getOverwriteRange(document, position);
             completionItems.push(completionItem);
         }
 

@@ -38,7 +38,7 @@ export class Constants {
     public static selectTemplate = "Select Module Template";
     public static parentFolderLabel = "Select Folder";
     public static moduleManifest = "module.json";
-    public static outputConfig = ".config";
+    public static outputConfig = "config";
     public static vscodeFolder = ".vscode";
     public static moduleConfigFile = "Module Config file";
     public static deploymentTemplateDesc = "Deployment Template file";

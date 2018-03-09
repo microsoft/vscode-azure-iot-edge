@@ -33,17 +33,19 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
             return [moduleCompletionItem];
         }
 
-        if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
-            && location.path[2] === "properties.desired" && location.path[3] === "modules"
-            && location.path[5] === "status") {
-            return this.getCompletionItems(Constants.moduleStatuses, document, position);
-        }
+        // Disable these completion items temporarily because they will be duplicate with built-in JSON completion items
+        // if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
+        //     && location.path[2] === "properties.desired" && location.path[3] === "modules"
+        //     && location.path[5] === "status") {
+        //     return this.getCompletionItems(Constants.moduleStatuses, document, position);
+        // }
 
-        if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
-            && location.path[2] === "properties.desired" && location.path[3] === "modules"
-            && location.path[5] === "restartPolicy") {
-            return this.getCompletionItems(Constants.moduleRestartPolicies, document, position);
-        }
+        // Disable these completion items temporarily because they will be duplicate with built-in JSON completion items
+        // if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
+        //     && location.path[2] === "properties.desired" && location.path[3] === "modules"
+        //     && location.path[5] === "restartPolicy") {
+        //     return this.getCompletionItems(Constants.moduleRestartPolicies, document, position);
+        // }
 
         if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
             && location.path[2] === "properties.desired" && location.path[3] === "modules"

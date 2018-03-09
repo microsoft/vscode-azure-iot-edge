@@ -40,29 +40,14 @@ export class ContainerManager {
 
     public async buildSolution(templateUri?: vscode.Uri): Promise<void> {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
-                                                                    Constants.deploymentTemplatePattern,
-                                                                    Constants.deploymentTemplateDesc,
-                                                                    `${Constants.buildSolutionEvent}.selectTemplate`);
+            Constants.deploymentTemplatePattern,
+            Constants.deploymentTemplateDesc,
+            `${Constants.buildSolutionEvent}.selectTemplate`);
         if (!templateFile) {
             vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
-        const moduleToImageMap: Map<string, string> = new Map();
-        const imageToDockerfileMap: Map<string, string> = new Map();
-        const generatedDeployment: string = await this.generateDeploymentString(
-            templateFile,
-            moduleToImageMap,
-            imageToDockerfileMap);
-
-        // build docker images
-        const buildMap: Map<string, string> = this.getBuildMapFromDeployment(generatedDeployment, imageToDockerfileMap);
-        const commands: string[] = [];
-        buildMap.forEach((dockerFile, image) => {
-            const context = path.dirname(dockerFile);
-            commands.push(this.constructBuildCmd(dockerFile, image, context));
-            commands.push(this.constructPushCmd(image));
-        });
-        Executor.runInTerminal(Utility.combineCommands(commands));
+        await this.createDeploymentFile(templateFile, true);
         vscode.window.showInformationMessage(Constants.manifestGeneratedWithBuild);
     }
 
@@ -75,21 +60,39 @@ export class ContainerManager {
             vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
-        const moduleToImageMap: Map<string, string> = new Map();
-        const imageToDockerfileMap: Map<string, string> = new Map();
-        await this.generateDeploymentString(templateFile, moduleToImageMap, imageToDockerfileMap);
+        await this.createDeploymentFile(templateFile, false);
         vscode.window.showInformationMessage(Constants.manifestGenerated);
     }
 
-    private async generateDeploymentString(templateFile: string,
-                                           moduleToImageMap: Map<string, string>,
-                                           imageToDockerfileMap: Map<string, string>): Promise<string> {
+    private async createDeploymentFile(templateFile: string, build: boolean = true) {
+        const moduleToImageMap: Map<string, string> = new Map();
+        const imageToDockerfileMap: Map<string, string> = new Map();
         const slnPath: string = path.dirname(templateFile);
-        const configPath = path.join(slnPath, Constants.outputConfig);
-        const deployFile = path.join(configPath, Constants.deploymentFile);
+        await this.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap);
+        const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
+        const generatedDeployment: string = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
+
+        if (!build) {
+            return;
+        }
+
+        // build docker images
+        const buildMap: Map<string, string> = this.getBuildMapFromDeployment(generatedDeployment, imageToDockerfileMap);
+        const commands: string[] = [];
+        buildMap.forEach((dockerFile, image) => {
+            const context = path.dirname(dockerFile);
+            commands.push(this.constructBuildCmd(dockerFile, image, context));
+            commands.push(this.constructPushCmd(image));
+        });
+        Executor.runInTerminal(Utility.combineCommands(commands));
+    }
+
+    private async generateDeploymentString(templateFile: string,
+                                           deployFile: string,
+                                           moduleToImageMap: Map<string, string>): Promise<string> {
+        const configPath = path.dirname(deployFile);
         await fse.remove(deployFile);
 
-        await this.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap);
         const data: string = await fse.readFile(templateFile, "utf8");
         const buildSet: Set<string> = new Set();
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);

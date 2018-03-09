@@ -10,22 +10,20 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
     public async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.CompletionItem[]> {
         const location: Location = getLocation(document.getText(), document.offsetAt(position));
 
-        if (location.path.length === 5 && location.path[0] === "moduleContent"
-            && location.path[1] === "$edgeAgent" && location.path[2] === "properties.desired"
-            && location.path[3] === "modules") {
-            const moduleCompletionItem = new vscode.CompletionItem("edgeModule");
-            moduleCompletionItem.filterText = "\"edgeModule\"";
+        if (Utility.compareArray(location.path, Constants.moduleDpManifestJsonPath, Constants.moduleDpManifestJsonPath.length)) {
+            const moduleCompletionItem = new vscode.CompletionItem(Constants.moduleSnippetLabel);
+            moduleCompletionItem.filterText = `\"${Constants.moduleSnippetLabel}\"`;
             moduleCompletionItem.kind = vscode.CompletionItemKind.Snippet;
-            moduleCompletionItem.detail = "Module for edgeAgent to start";
+            moduleCompletionItem.detail = Constants.moduleSnippetDetail;
             moduleCompletionItem.range = document.getWordRangeAtPosition(position);
             moduleCompletionItem.insertText = new vscode.SnippetString([
-                "\"${1:SampleModule}\": {",
+                "\"${1:" + Constants.moduleNameDft + "}\": {",
                 "\t\"version\": \"${2:1.0}\",",
-                "\t\"type\": \"docker\",",
+                "\t\"type\": \"" + Constants.moduleTypes.join(",") + "\",",
                 "\t\"status\": \"${3|" + Constants.moduleStatuses.join(",") + "|}\",",
                 "\t\"restartPolicy\": \"${4|" + Constants.moduleRestartPolicies.join(",") + "|}\",",
                 "\t\"settings\": {",
-                "\t\t\"image\": \"${5:<registry>}/${6:<repo-name>}:${7:<tag>}\",",
+                "\t\t\"image\": \"${5:" + Constants.registryPlaceholder + "}/${6:" + Constants.repoNamePlaceholder + "}:${7:" + Constants.tagPlaceholder + "}\",",
                 "\t\t\"createOptions\": \"${8:{}}\"",
                 "\t}",
                 "}",
@@ -47,24 +45,20 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
         //     return this.getCompletionItems(Constants.moduleRestartPolicies, document, position);
         // }
 
-        if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
-            && location.path[2] === "properties.desired" && location.path[3] === "modules"
-            && location.path[5] === "settings" && location.path[6] === "image") {
+        if (Utility.compareArray(location.path, Constants.imgDpManifestJsonPath, Constants.moduleNameDpManifestJsonPathIndex)) {
             const images: string[] = await this.getSlnImgPlaceholders(document.uri);
             return this.getCompletionItems(images, document, position);
         }
 
-        if (location.path.length === 5 && location.path[0] === "moduleContent"
-            && location.path[1] === "$edgeHub" && location.path[2] === "properties.desired"
-            && location.path[3] === "routes") {
+        if (Utility.compareArray(location.path, Constants.routeDpManifestJsonPath, Constants.routeDpManifestJsonPath.length)) {
             const json = parse(document.getText());
             const modules: any = ((json.moduleContent.$edgeAgent || {})["properties.desired"] || {}).modules || {};
             const moduleIds: string[] = Object.keys(modules);
 
-            const routeCompletionItem: vscode.CompletionItem = new vscode.CompletionItem("edgeRoute");
-            routeCompletionItem.filterText = "\"edgeRoute\"";
+            const routeCompletionItem: vscode.CompletionItem = new vscode.CompletionItem(Constants.routeSnippetLabel);
+            routeCompletionItem.filterText = `\"${Constants.routeSnippetLabel}\"`;
             routeCompletionItem.kind = vscode.CompletionItemKind.Snippet;
-            routeCompletionItem.detail = "Route for the Edge Hub. Route name is used as the key for the route. To delete a route, set the route name as null";
+            routeCompletionItem.detail = Constants.routeSnippetDetail;
             routeCompletionItem.range = document.getWordRangeAtPosition(position);
             routeCompletionItem.insertText = new vscode.SnippetString(this.getRouteSnippetString(moduleIds));
             return [routeCompletionItem];

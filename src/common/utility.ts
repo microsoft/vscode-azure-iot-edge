@@ -262,4 +262,9 @@ export class Utility {
             });
         }
     }
+
+    public static compareArray(array1: any[], array2: any[], ...exceptIndexes: number[]): boolean {
+        return array1.length === array2.length
+            && array1.every((value, index) => array2[index] === value || exceptIndexes.indexOf(index) !== -1);
+    }
 }

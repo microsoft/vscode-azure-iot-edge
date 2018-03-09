@@ -67,9 +67,9 @@ export class ContainerManager {
 
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
-                                                                    Constants.deploymentTemplatePattern,
-                                                                    Constants.deploymentTemplateDesc,
-                                                                    `${Constants.generateDeploymentEvent}.selectTemplate`);
+            Constants.deploymentTemplatePattern,
+            Constants.deploymentTemplateDesc,
+            `${Constants.generateDeploymentEvent}.selectTemplate`);
         if (!templateFile) {
             vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;

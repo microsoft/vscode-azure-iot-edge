@@ -67,7 +67,7 @@ export class ContainerManager {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
         const slnPath: string = path.dirname(templateFile);
-        await this.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap);
+        await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap);
         const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
         const generatedDeployment: string = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
 
@@ -131,41 +131,5 @@ export class ContainerManager {
 
     private constructPushCmd(imageName: string) {
         return `docker push ${imageName}`;
-    }
-
-    private async setSlnModulesMap(slnPath: string,
-                                   moduleToImageMap: Map<string, string>,
-                                   imageToDockerfileMap: Map<string, string>): Promise<void> {
-        const modulesPath: string = path.join(slnPath, Constants.moduleFolder);
-        const stat: fse.Stats = await fse.lstat(modulesPath);
-        if (!stat.isDirectory()) {
-            throw new Error("no modules folder");
-        }
-
-        const moduleDirs: string[] = await Utility.getSubDirectories(modulesPath);
-        await Promise.all(
-            moduleDirs.map(async (module) => {
-                await this.setModuleMap(module, moduleToImageMap, imageToDockerfileMap);
-            }),
-        );
-    }
-
-    private async setModuleMap(modulePath: string,
-                               moduleToImageMap: Map<string, string>,
-                               imageToDockerfileMap: Map<string, string>): Promise<void> {
-        const moduleFile = path.join(modulePath, Constants.moduleManifest);
-        const name: string = path.basename(modulePath);
-        if (await fse.exists(moduleFile)) {
-            const module = await Utility.readJsonAndExpandEnv(moduleFile);
-            const platformKeys: string[] = Object.keys(module.image.tag.platforms);
-            const repo: string = module.image.repository;
-            const version: string = module.image.tag.version;
-            platformKeys.map((platform) => {
-                const moduleKey: string = Utility.getModuleKey(name, platform);
-                const image: string = Utility.getImage(repo, version, platform);
-                moduleToImageMap.set(moduleKey, image);
-                imageToDockerfileMap.set(image, path.join(modulePath, module.image.tag.platforms[platform]));
-            });
-        }
     }
 }

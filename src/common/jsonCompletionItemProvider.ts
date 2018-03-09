@@ -72,28 +72,21 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
     }
 
     private async getSlnImgPlaceholders(templateUri: vscode.Uri): Promise<string[]> {
-        const moduleDirs: string[] = await Utility.getSubDirectories(path.join(path.dirname(templateUri.fsPath), Constants.moduleFolder));
+        const moduleToImageMap: Map<string, string> = new Map();
+        const imageToDockerfileMap: Map<string, string> = new Map();
 
-        if (!moduleDirs) {
+        try {
+            await Utility.setSlnModulesMap(path.dirname(templateUri.fsPath), moduleToImageMap, imageToDockerfileMap);
+
+            const placeholders: string[] = [];
+            for (const module of moduleToImageMap.keys()) {
+                placeholders.push("${" + module + "}");
+            }
+
+            return placeholders;
+        } catch {
             return;
         }
-
-        const images: string[] = [];
-        await Promise.all(
-            moduleDirs.map(async (module) => {
-                const moduleFile: string = path.join(module, Constants.moduleManifest);
-                const moduleName: string = path.basename(module);
-                if (await fse.exists(moduleFile)) {
-                    const moduleInfo: any = await fse.readJson(moduleFile);
-
-                    Object.keys(moduleInfo.image.tag.platforms).map((platform) => {
-                        images.push("${MODULES." + moduleName + "." + platform + "}");
-                    });
-                }
-            }),
-        );
-
-        return images;
     }
 
     private getCompletionItems(values: string[], document: vscode.TextDocument, position: vscode.Position): vscode.CompletionItem[] {

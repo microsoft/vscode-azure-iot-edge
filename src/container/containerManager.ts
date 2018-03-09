@@ -16,7 +16,7 @@ export class ContainerManager {
 
     public async buildModuleImage(fileUri?: vscode.Uri, pushImage: boolean = false) {
         const event = pushImage ? Constants.buildAndPushModuleImageEvent : Constants.buildModuleImageEvent;
-        const moduleConfigFilePath: string = await Utility.getInputFilePath(fileUri, Constants.moduleConfigFileNamePattern, Constants.moduleConfigFile, `${event}.start`);
+        const moduleConfigFilePath: string = await Utility.getInputFilePath(fileUri, Constants.moduleConfigFileNamePattern, Constants.moduleConfigFile, `${event}.selectModuleConfigFile`);
 
         if (moduleConfigFilePath) {
             const moduleConfig = await Utility.readJsonAndExpandEnv(moduleConfigFilePath, "$schema");
@@ -33,7 +33,6 @@ export class ContainerManager {
                 } else {
                     Executor.runInTerminal(buildCommand);
                 }
-                TelemetryClient.sendEvent(`${event}.end`);
             }
         }
     }

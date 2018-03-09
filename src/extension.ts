@@ -23,13 +23,17 @@ export function activate(context: vscode.ExtensionContext) {
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeChannel);
     context.subscriptions.push(outputChannel);
 
-    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildModuleImage", (fileUri: vscode.Uri) => {
-        containerManager.buildModuleImage(fileUri, false);
-    }));
+    initCommmandAsync(context, outputChannel,
+        "azure-iot-edge.buildModuleImage",
+        (fileUri?: vscode.Uri): Promise<void> => {
+            return containerManager.buildModuleImage(fileUri, false);
+        });
 
-    context.subscriptions.push(vscode.commands.registerCommand("azure-iot-edge.buildAndPushModuleImage", (fileUri: vscode.Uri) => {
-        containerManager.buildModuleImage(fileUri, true);
-    }));
+    initCommmandAsync(context, outputChannel,
+        "azure-iot-edge.buildAndPushModuleImage",
+        (fileUri?: vscode.Uri): Promise<void> => {
+            return containerManager.buildModuleImage(fileUri, true);
+        });
 
     initCommmandAsync(context, outputChannel,
         "azure-iot-edge.newSolution",

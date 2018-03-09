@@ -147,10 +147,11 @@ export class Utility {
         });
     }
 
-    public static expandEnv(input: string, exceptKeys?: Set<string>): string {
+    public static expandEnv(input: string, ...exceptKeys: string[]): string {
         const pattern: RegExp = new RegExp(/\$([a-zA-Z0-9_]+)|\${([a-zA-Z0-9_]+)}/g);
+        const exceptSet: Set<string> = new Set(exceptKeys);
         return input.replace(pattern, (matched) => {
-            if (exceptKeys && exceptKeys.has(matched)) {
+            if (exceptKeys && exceptSet.has(matched)) {
                 return matched;
             }
             const key: string = matched.replace(/\$|{|}/g, "");
@@ -158,13 +159,18 @@ export class Utility {
         });
     }
 
-    public static expandModules(input: string, moduleMap: Map<string, string>, buildSet: Set<string>): string {
+    public static async readJsonAndExpandEnv(filePath: string, ...exceptKeys: string[]): Promise<any> {
+        const content: string = await fse.readFile(filePath,  "utf8");
+        const expandedContent = Utility.expandEnv(content, ...exceptKeys);
+        return JSON.parse(expandedContent);
+    }
+
+    public static expandModules(input: string, moduleMap: Map<string, string>): string {
         const pattern: RegExp = new RegExp(/\${MODULES\..+}/g);
         return input.replace(pattern, (matched) => {
             const key: string = matched.replace(/\$|{|}/g, "");
             if (moduleMap.has(key)) {
                 const value: string = moduleMap.get(key);
-                buildSet.add(value);
                 return value;
             } else {
                 return matched;

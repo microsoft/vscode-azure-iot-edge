@@ -67,7 +67,6 @@ You can also trigger following frequently-used commands in context menu.
 | edgeModule | Add Edge module in Edge deployment manifest |
 | edgeRoute | Add Edge route in Edge deployment manifest |
 
-
 ## Resources
 - [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-csharp-module)
 - [Debug C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-csharp-module)

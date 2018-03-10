@@ -1,6 +1,6 @@
 "use strict";
 import * as fse from "fs-extra";
-import { getLocation, Location, parse } from "jsonc-parser";
+import { createScanner, getLocation, JSONScanner, Location, Node, parse, SyntaxKind } from "jsonc-parser";
 import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "./constants";
@@ -84,15 +84,19 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
     }
 
     private getCompletionItems(values: string[], document: vscode.TextDocument, position: vscode.Position): vscode.CompletionItem[] {
-        const completionItems: vscode.CompletionItem[] = [];
+        const offset: number = document.offsetAt(position);
+        const location: Location = getLocation(document.getText(), offset);
+        const node: Node = location.previousNode;
 
+        const overwriteRange: vscode.Range = this.getOverwriteRange(document, position, offset, node);
+        const separator: string = this.evaluateSeparaterAfter(document, position, offset, node);
+
+        const completionItems: vscode.CompletionItem[] = [];
         for (let value of values) {
-            // Wrapped the value with quotation marks since the triggering text is also used to filter
             value = "\"" + value + "\"";
             const completionItem: vscode.CompletionItem = new vscode.CompletionItem(value);
-            completionItem.range = this.getOverwriteRange(document, position);
-            // Replace the overwriteRange with the image plus the trailing comma
-            completionItem.insertText = value + ",";
+            completionItem.range = overwriteRange;
+            completionItem.insertText = value + separator;
             completionItem.kind = vscode.CompletionItemKind.Value;
             completionItems.push(completionItem);
         }
@@ -100,14 +104,45 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
         return completionItems;
     }
 
-    private getOverwriteRange(document: vscode.TextDocument, position: vscode.Position): vscode.Range {
-        // Include the trailing comma (if exists) to the overwrite range
-        const wordRange: vscode.Range = document.getWordRangeAtPosition(position);
-        const nextCharRange: vscode.Range = new vscode.Range(wordRange.end.line, wordRange.end.character, wordRange.end.line, wordRange.end.character + 1);
-        const nextChar: string = document.getText(nextCharRange);
-        const overwriteRange: vscode.Range = nextChar === "," ? wordRange.with(undefined, nextCharRange.end) : wordRange;
+    private getOverwriteRange(document: vscode.TextDocument, position: vscode.Position, offset: number, node: Node): vscode.Range {
+        let overwriteRange: vscode.Range;
+        if (node && node.offset <= offset && offset <= node.offset + node.length
+            && (node.type === "property" || node.type === "string" || node.type === "number" || node.type === "boolean" || node.type === "null")) {
+            overwriteRange = new vscode.Range(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
+        } else {
+            const currentWord: string = this.getCurrentWord(document, position);
+            overwriteRange = new vscode.Range(document.positionAt(offset - currentWord.length), position);
+        }
 
         return overwriteRange;
+    }
+
+    private getCurrentWord(document: vscode.TextDocument, position: vscode.Position): string {
+        let i: number = position.character - 1;
+        const text: string = document.lineAt(position.line).text;
+        while (i >= 0 && ' \t\n\r\v":{[,'.indexOf(text.charAt(i)) === -1) {
+            i--;
+        }
+        return text.substring(i + 1, position.character);
+    }
+
+    private evaluateSeparaterAfter(document: vscode.TextDocument, position: vscode.Position, offset: number, node: Node) {
+        if (node && (node.type === "string" || node.type === "number" || node.type === "boolean" || node.type === "null")) {
+            offset = node.offset + node.length;
+        }
+
+        const scanner: JSONScanner = createScanner(document.getText(), true);
+        scanner.setPosition(offset);
+        const token: SyntaxKind = scanner.scan();
+        switch (token) {
+            case SyntaxKind.CommaToken:
+            case SyntaxKind.CloseBraceToken:
+            case SyntaxKind.CloseBracketToken:
+            case SyntaxKind.EOF:
+                return "";
+            default:
+                return ",";
+        }
     }
 
     private getRouteSnippetString(moduleIds: string[]): string {

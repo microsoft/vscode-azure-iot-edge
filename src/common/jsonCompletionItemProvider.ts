@@ -47,7 +47,7 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
 
         if (Utility.compareArray(location.path, Constants.imgDpManifestJsonPath, Constants.moduleNameDpManifestJsonPathIndex)) {
             const images: string[] = await this.getSlnImgPlaceholders(document.uri);
-            return this.getCompletionItems(images, document, position);
+            return this.getCompletionItems(images, document, position, location);
         }
 
         if (Utility.compareArray(location.path, Constants.routeDpManifestJsonPath, Constants.routeDpManifestJsonPath.length)) {
@@ -83,9 +83,8 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
         }
     }
 
-    private getCompletionItems(values: string[], document: vscode.TextDocument, position: vscode.Position): vscode.CompletionItem[] {
+    private getCompletionItems(values: string[], document: vscode.TextDocument, position: vscode.Position, location: Location): vscode.CompletionItem[] {
         const offset: number = document.offsetAt(position);
-        const location: Location = getLocation(document.getText(), offset);
         const node: Node = location.previousNode;
 
         const overwriteRange: vscode.Range = this.getOverwriteRange(document, position, offset, node);
@@ -104,12 +103,15 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
         return completionItems;
     }
 
+    // this method calculates the range to overwrite with the completion text
     private getOverwriteRange(document: vscode.TextDocument, position: vscode.Position, offset: number, node: Node): vscode.Range {
         let overwriteRange: vscode.Range;
         if (node && node.offset <= offset && offset <= node.offset + node.length
             && (node.type === "property" || node.type === "string" || node.type === "number" || node.type === "boolean" || node.type === "null")) {
+            // when the cursor is placed in a node, overwrite the entire content of the node with the completion text
             overwriteRange = new vscode.Range(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
         } else {
+            // when the cursor is not placed in a node, overwrite the word to the postion with the completion text
             const currentWord: string = this.getCurrentWord(document, position);
             overwriteRange = new vscode.Range(document.positionAt(offset - currentWord.length), position);
         }
@@ -126,7 +128,9 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
         return text.substring(i + 1, position.character);
     }
 
+    // this method evaluates whether to append a comma at the end of the completion text
     private evaluateSeparaterAfter(document: vscode.TextDocument, position: vscode.Position, offset: number, node: Node) {
+        // when the cursor is placed in a node, set the scanner location to the end of the node
         if (node && (node.type === "string" || node.type === "number" || node.type === "boolean" || node.type === "null")) {
             offset = node.offset + node.length;
         }
@@ -135,6 +139,7 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
         scanner.setPosition(offset);
         const token: SyntaxKind = scanner.scan();
         switch (token) {
+            // do not append a comman when next token is comma or other close tokens
             case SyntaxKind.CommaToken:
             case SyntaxKind.CloseBraceToken:
             case SyntaxKind.CloseBracketToken:

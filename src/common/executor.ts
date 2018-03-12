@@ -1,4 +1,6 @@
-"use strict";
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
 import { ChildProcess, exec, execSync, spawn, SpawnOptions } from "child_process";
 import * as vscode from "vscode";
 

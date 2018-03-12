@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
 export class ErrorData {
     public readonly message: string;
     public readonly errorType: string;

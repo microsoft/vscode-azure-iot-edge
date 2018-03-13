@@ -30,7 +30,8 @@
     "onCommand:azure-iot-edge.newSolution",
     "onCommand:azure-iot-edge.generateDeployment",
     "onCommand:azure-iot-edge.addModulde",
-    "onCommand:azure-iot-edge.convertModule"
+    "onCommand:azure-iot-edge.convertModule",
+    "workspaceContains:**/deployment.template.json"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -194,13 +195,13 @@
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
+    "@types/fs-extra": "^4.0.3",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
-    "@types/fs-extra": "^4.0.3",
     "mocha": "^2.3.3",
     "tslint": "^5.7.0",
     "typescript": "^2.0.3",
-    "vscode": "^1.0.0"
+    "vscode": "^1.1.13"
   },
   "dependencies": {
     "fs-extra": "^4.0.2",

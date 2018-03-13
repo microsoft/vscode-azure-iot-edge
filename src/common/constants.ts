@@ -59,9 +59,9 @@ export class Constants {
     public static moduleDpManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", ""];
     public static moduleNameDpManifestJsonPathIndex = 4;
     // the 4th item is the module name enterred by the user which cannot be determined yet and will be skipped for checking
-    public static imgDpManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", "", "settings", "image"];
+    public static imgDeploymentManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", "", "settings", "image"];
     // the last item is the route name enterred by the user which cannot be determined yet and will be skipped for checking
-    public static routeDpManifestJsonPath = ["moduleContent", "$edgeHub", "properties.desired", "routes", ""];
+    public static routeDeploymentManifestJsonPath = ["moduleContent", "$edgeHub", "properties.desired", "routes", ""];
     public static moduleTypes = ["docker"];
     public static moduleStatuses = ["running", "stopped"];
     public static moduleRestartPolicies = ["always", "never", "on-failed", "on-unhealthy"];

@@ -45,12 +45,12 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
         //     return this.getCompletionItems(Constants.moduleRestartPolicies, document, position);
         // }
 
-        if (Utility.compareArray(location.path, Constants.imgDpManifestJsonPath, Constants.moduleNameDpManifestJsonPathIndex)) {
+        if (Utility.compareArray(location.path, Constants.imgDeploymentManifestJsonPath, Constants.moduleNameDpManifestJsonPathIndex)) {
             const images: string[] = await this.getSlnImgPlaceholders(document.uri);
             return this.getCompletionItems(images, document, position, location);
         }
 
-        if (Utility.compareArray(location.path, Constants.routeDpManifestJsonPath, Constants.routeDpManifestJsonPath.length)) {
+        if (Utility.compareArray(location.path, Constants.routeDeploymentManifestJsonPath, Constants.routeDeploymentManifestJsonPath.length)) {
             const json = parse(document.getText());
             const modules: any = ((json.moduleContent.$edgeAgent || {})["properties.desired"] || {}).modules || {};
             const moduleIds: string[] = Object.keys(modules);

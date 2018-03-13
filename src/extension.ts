@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
+import { JsonCompletionItemProvider } from "./common/jsonCompletionItemProvider";
 import { TelemetryClient } from "./common/telemetryClient";
 import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
@@ -17,7 +18,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     const edgeManager = new EdgeManager(context);
     const containerManager = new ContainerManager(context);
+
     Utility.registerDebugTelemetryListener();
+
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new JsonCompletionItemProvider(), "\"", ".", ":"));
+
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeChannel);
     context.subscriptions.push(outputChannel);
 

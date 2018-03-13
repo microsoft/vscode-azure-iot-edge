@@ -163,7 +163,7 @@ export class Utility {
     }
 
     public static async readJsonAndExpandEnv(filePath: string, ...exceptKeys: string[]): Promise<any> {
-        const content: string = await fse.readFile(filePath,  "utf8");
+        const content: string = await fse.readFile(filePath, "utf8");
         const expandedContent = Utility.expandEnv(content, ...exceptKeys);
         return JSON.parse(expandedContent);
     }
@@ -228,5 +228,46 @@ export class Utility {
         } else {
             return result;
         }
+    }
+
+    public static async setSlnModulesMap(slnPath: string,
+                                         moduleToImageMap: Map<string, string>,
+                                         imageToDockerfileMap: Map<string, string>): Promise<void> {
+        const modulesPath: string = path.join(slnPath, Constants.moduleFolder);
+        const stat: fse.Stats = await fse.lstat(modulesPath);
+        if (!stat.isDirectory()) {
+            throw new Error("no modules folder");
+        }
+
+        const moduleDirs: string[] = await Utility.getSubDirectories(modulesPath);
+        await Promise.all(
+            moduleDirs.map(async (module) => {
+                await this.setModuleMap(module, moduleToImageMap, imageToDockerfileMap);
+            }),
+        );
+    }
+
+    public static async setModuleMap(modulePath: string,
+                                     moduleToImageMap: Map<string, string>,
+                                     imageToDockerfileMap: Map<string, string>): Promise<void> {
+        const moduleFile = path.join(modulePath, Constants.moduleManifest);
+        const name: string = path.basename(modulePath);
+        if (await fse.exists(moduleFile)) {
+            const module = await Utility.readJsonAndExpandEnv(moduleFile);
+            const platformKeys: string[] = Object.keys(module.image.tag.platforms);
+            const repo: string = module.image.repository;
+            const version: string = module.image.tag.version;
+            platformKeys.map((platform) => {
+                const moduleKey: string = Utility.getModuleKey(name, platform);
+                const image: string = Utility.getImage(repo, version, platform);
+                moduleToImageMap.set(moduleKey, image);
+                imageToDockerfileMap.set(image, path.join(modulePath, module.image.tag.platforms[platform]));
+            });
+        }
+    }
+
+    public static compareArray(array1: any[], array2: any[], ...exceptIndexes: number[]): boolean {
+        return array1.length === array2.length
+            && array1.every((value, index) => array2[index] === value || exceptIndexes.indexOf(index) !== -1);
     }
 }

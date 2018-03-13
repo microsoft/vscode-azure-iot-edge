@@ -36,7 +36,10 @@ export class Constants {
     public static moduleName = "Module Name";
     public static moduleNamePrompt = "Provide a Module Name";
     public static moduleNameDft = "SampleModule";
-    public static repositoryPattern = "<registry>/<repo-name>";
+    public static registryPlaceholder = "<registry>";
+    public static repoNamePlaceholder = "<repo-name>";
+    public static tagPlaceholder = "<tag>";
+    public static repositoryPattern = `${Constants.registryPlaceholder}/${Constants.repoNamePlaceholder}`;
     public static repositoryPrompt = "Provide Docker Image Repository for the Module";
     public static selectTemplate = "Select Module Template";
     public static parentFolderLabel = "Select Folder";
@@ -55,4 +58,18 @@ export class Constants {
     public static manifestGenerated = "Deployment manifest has been generated at .config/deployment.json.";
     public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;
     public static selectPlatform = "Select Platform";
+    // the last item is the module name enterred by the user which cannot be determined yet and will be skipped for checking
+    public static moduleDpManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", ""];
+    public static moduleNameDpManifestJsonPathIndex = 4;
+    // the 4th item is the module name enterred by the user which cannot be determined yet and will be skipped for checking
+    public static imgDeploymentManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", "", "settings", "image"];
+    // the last item is the route name enterred by the user which cannot be determined yet and will be skipped for checking
+    public static routeDeploymentManifestJsonPath = ["moduleContent", "$edgeHub", "properties.desired", "routes", ""];
+    public static moduleTypes = ["docker"];
+    public static moduleStatuses = ["running", "stopped"];
+    public static moduleRestartPolicies = ["always", "never", "on-failed", "on-unhealthy"];
+    public static moduleSnippetLabel = "edgeModule";
+    public static moduleSnippetDetail = "Module for edgeAgent to start";
+    public static routeSnippetLabel = "edgeRoute";
+    public static routeSnippetDetail = "Route for the Edge Hub. Route name is used as the key for the route. To delete a route, set the route name as null";
 }

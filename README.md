@@ -60,6 +60,12 @@ You can also trigger following frequently-used commands in context menu.
 - **Edge: Generate Edge setup configuration file**: The context menu of an Edge device in device list. Device connection string will be passed to the Edge setup configuration file.
 - **Edge: Get module twin**: The context menu of a deployed module. Fetch target module twin. 
 
+## Code Snippets
+
+| Trigger | Content |
+| ---- | ---- |
+| edgeModule | Add Edge module in Edge deployment manifest |
+| edgeRoute | Add Edge route in Edge deployment manifest |
 
 ## Resources
 - [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-csharp-module)

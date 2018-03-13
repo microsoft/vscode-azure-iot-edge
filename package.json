@@ -30,8 +30,7 @@
     "onCommand:azure-iot-edge.newSolution",
     "onCommand:azure-iot-edge.generateDeployment",
     "onCommand:azure-iot-edge.addModulde",
-    "onCommand:azure-iot-edge.convertModule",
-    "workspaceContains:**/deployment.template.json"
+    "onCommand:azure-iot-edge.convertModule"
   ],
   "main": "./out/src/extension",
   "contributes": {

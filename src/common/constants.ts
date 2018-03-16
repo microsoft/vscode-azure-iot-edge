@@ -24,7 +24,7 @@ export class Constants {
     public static solutionFolder = "solution";
     public static LANGUAGE_CSHARP = "C# Module";
     public static CSHARP_FUNCTION = "Azure Functions - C#";
-    public static LANGUAGE_PYTHON = "python";
+    public static LANGUAGE_PYTHON = "Python Module";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";
@@ -55,7 +55,7 @@ export class Constants {
     public static addModuleEvent = "addModule";
     public static launchCSharp = "launch_csharp.json";
     public static noSolutionFileMessage = "no solution file";
-    public static manifestGenerated = "Deployment manifest has been generated at .config/deployment.json.";
+    public static manifestGenerated = "Deployment manifest has been generated at config/deployment.json.";
     public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;
     public static selectPlatform = "Select Platform";
     // the last item is the module name enterred by the user which cannot be determined yet and will be skipped for checking

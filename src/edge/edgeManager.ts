@@ -56,11 +56,12 @@ export class EdgeManager {
         await fse.writeFile(targetDeployment, deploymentGenerated, {encoding: "utf8"});
 
         const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, language, mapObj);
-        const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
-        await fse.ensureDir(targetVscodeFolder);
-        const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
-        await fse.writeFile(targetLaunchJson, debugGenerated, {encoding: "utf8"});
-
+        if (debugGenerated) {
+            const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
+            await fse.ensureDir(targetVscodeFolder);
+            const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
+            await fse.writeFile(targetLaunchJson, debugGenerated, {encoding: "utf8"});
+        }
         // open new created solution. Will also investigate how to open the module in the same workspace
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
     }
@@ -83,6 +84,7 @@ export class EdgeManager {
         const language = await this.selectModuleTemplate();
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath));
         const repositoryName: string = await this.inputRepository(moduleName);
+        await this.addModule(targetModulePath, moduleName, repositoryName, language, outputChannel);
 
         const newModuleSection = `{
             "version": "1.0",
@@ -101,20 +103,21 @@ export class EdgeManager {
         mapObj.set(Constants.moduleNamePlaceholder, moduleName);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
         const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, language, mapObj);
-        const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
-        await fse.ensureDir(targetVscodeFolder);
-        const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
-        if (await fse.exists(targetLaunchJson)) {
-            const launchJson = await fse.readJson(targetLaunchJson);
-            launchJson.configurations.push(...JSON.parse(debugGenerated).configurations);
-            await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
-        } else {
-            await fse.writeFile(targetLaunchJson, debugGenerated, { encoding: "utf8" });
+        if (debugGenerated) {
+            const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
+            await fse.ensureDir(targetVscodeFolder);
+            const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
+            if (await fse.exists(targetLaunchJson)) {
+                const launchJson = await fse.readJson(targetLaunchJson);
+                launchJson.configurations.push(...JSON.parse(debugGenerated).configurations);
+                await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
+            } else {
+                await fse.writeFile(targetLaunchJson, debugGenerated, { encoding: "utf8" });
+            }
         }
 
-        await this.addModule(targetModulePath, moduleName, repositoryName, language, outputChannel);
-
-        vscode.window.showInformationMessage(`Module '${moduleName}' is created. 'deployment.template.json' and 'launch.json' are updated.`);
+        const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "is updated.";
+        vscode.window.showInformationMessage(`Module '${moduleName}' is created. 'deployment.template.json' ${launchUpdated}`);
     }
 
     // TODO: The command is temperory for migration stage, will be removed later.
@@ -181,21 +184,25 @@ export class EdgeManager {
     private async generateDebugSetting(srcSlnPath: string,
                                        language: string,
                                        mapObj: Map<string, string>): Promise<string> {
-            // copy launch.json
-            let launchFile: string;
-            switch (language) {
-                case Constants.LANGUAGE_CSHARP:
-                case Constants.CSHARP_FUNCTION:
-                    launchFile = Constants.launchCSharp;
-                    mapObj.set(Constants.appFolder, "/app");
-                    break;
-                default:
-                    break;
-            }
+        // copy launch.json
+        let launchFile: string;
+        switch (language) {
+            case Constants.LANGUAGE_CSHARP:
+            case Constants.CSHARP_FUNCTION:
+                launchFile = Constants.launchCSharp;
+                mapObj.set(Constants.appFolder, "/app");
+                break;
+            default:
+                break;
+        }
 
+        if (launchFile) {
             const srcLaunchJson = path.join(srcSlnPath, launchFile);
             const debugData: string = await fse.readFile(srcLaunchJson, "utf8");
             return Utility.replaceAll(debugData, mapObj);
+        } else {
+            return "";
+        }
     }
 
     private async addModule(parent: string, name: string,
@@ -212,6 +219,13 @@ export class EdgeManager {
                 // TODO: Add following install command back when the template is released
                 // await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Function");
                 await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
+                break;
+            case Constants.LANGUAGE_PYTHON:
+                const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
+                await Executor.executeCMD(outputChannel,
+                    "cookiecutter",
+                    {cwd: `${parent}`, shell: true},
+                    `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName}`);
                 break;
             default:
                 break;
@@ -282,6 +296,7 @@ export class EdgeManager {
         const languagePicks: string[] = [
             Constants.LANGUAGE_CSHARP,
             Constants.CSHARP_FUNCTION,
+            Constants.LANGUAGE_PYTHON,
         ];
         if (label === undefined) {
             label = Constants.selectTemplate;

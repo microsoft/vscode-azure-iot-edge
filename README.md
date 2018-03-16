@@ -1,4 +1,4 @@
-# Azure IoT Edge for Visual Studio Code
+# Azure IoT Edge for Visual Studio Code 2
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-blue.svg)](https://gitter.im/Microsoft/vscode-azure-iot-edge)
 
 ## Overview

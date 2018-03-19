@@ -9,6 +9,15 @@
   "engines": {
     "vscode": "^1.18.0"
   },
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/vscode-azure-iot-edge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/vscode-azure-iot-edge/issues"
+  },
+  "homepage": "https://github.com/Microsoft/vscode-azure-iot-edge/blob/master/README.md",
   "categories": [
     "Azure",
     "Debuggers",

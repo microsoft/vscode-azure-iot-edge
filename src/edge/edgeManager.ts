@@ -6,6 +6,7 @@ import * as fs from "fs";
 import * as fse from "fs-extra";
 import * as os from "os";
 import * as path from "path";
+import * as stripJsonComments from "strip-json-comments";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
@@ -108,7 +109,8 @@ export class EdgeManager {
             await fse.ensureDir(targetVscodeFolder);
             const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
             if (await fse.exists(targetLaunchJson)) {
-                const launchJson = await fse.readJson(targetLaunchJson);
+                const text = await fse.readFile(targetLaunchJson, "utf8");
+                const launchJson = JSON.parse(stripJsonComments(text));
                 launchJson.configurations.push(...JSON.parse(debugGenerated).configurations);
                 await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
             } else {
@@ -232,21 +234,23 @@ export class EdgeManager {
         }
     }
 
-    private async validateFolderPath(parentPath: string, folderName: string): Promise<string | undefined> {
-        const folderPath = path.join(parentPath, folderName);
-        if (folderName && await fse.pathExists(folderPath)) {
-            return `${folderName} already exists under ${parentPath}`;
-        } else {
-            return undefined;
+    private async validateInputName(name: string, parentPath?: string): Promise<string | undefined> {
+        if (!name) {
+            return "The name could not be empty";
         }
-    }
-
-    private async validateModuleName(existingModules: string[], moduleName: string): Promise<string | undefined> {
-        if (existingModules.indexOf(moduleName) > -1) {
-            return `Module '${moduleName}' already exists`;
-        } else {
-            return undefined;
+        if (name.startsWith("_") || name.endsWith("_")) {
+            return "The name must not start or end with the symbol _";
         }
+        if (name.match(/[^a-zA-Z0-9\_]/)) {
+            return "The name must contain only alphanumeric characters or the symbol _";
+        }
+        if (parentPath) {
+            const folderPath = path.join(parentPath, name);
+            if (await fse.pathExists(folderPath)) {
+                return `${name} already exists under ${parentPath}`;
+            }
+        }
+        return undefined;
     }
 
     private async getSolutionParentFolder(): Promise<string | undefined> {
@@ -269,7 +273,7 @@ export class EdgeManager {
 
     private async inputSolutionName(parentPath: string): Promise<string> {
         const validateFunc = async (name: string): Promise<string> => {
-            return await this.validateFolderPath(parentPath, name);
+            return await this.validateInputName(name, parentPath);
         };
         return await Utility.showInputBox(Constants.solutionName,
                                           Constants.solutionNamePrompt,
@@ -277,9 +281,9 @@ export class EdgeManager {
     }
 
     private async inputModuleName(parentPath?: string): Promise<string> {
-        const validateFunc = parentPath ? async (name: string): Promise<string> => {
-            return await this.validateFolderPath(parentPath, name);
-        } : null;
+        const validateFunc = async (name: string): Promise<string> => {
+            return await this.validateInputName(name, parentPath);
+        };
         return await Utility.showInputBox(Constants.moduleName,
                                           Constants.moduleNamePrompt,
                                           validateFunc, Constants.moduleNameDft);

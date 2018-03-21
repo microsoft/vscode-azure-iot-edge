@@ -215,6 +215,7 @@
   "dependencies": {
     "fs-extra": "^4.0.2",
     "jsonc-parser": "^1.0.1",
+    "strip-json-comments": "^2.0.1",
     "vscode-extension-telemetry": "0.0.8"
   },
   "extensionDependencies": [

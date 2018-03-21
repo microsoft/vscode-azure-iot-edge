@@ -239,7 +239,7 @@ export class EdgeManager {
             return "The name could not be empty";
         }
         if (name.startsWith("_") || name.endsWith("_")) {
-            return "The name must not start or end with _";
+            return "The name must not start or end with the symbol _";
         }
         if (name.match(/[^a-zA-Z0-9\_]/)) {
             return "The name must contain only alphanumeric characters or the symbol _";

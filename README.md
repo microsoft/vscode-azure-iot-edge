@@ -14,7 +14,7 @@ Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy
 - Manage IoT Edge runtime.
 
 ### Note
-From 0.2.0, we added a new Azure IoT Edge solution scaffolding. The Azure IoT Edge module structure has also been changed. For the legacy Azure IoT Edge modules (C# module/C# Function) created in previous versions, a command "Edge: Convert to IoT Edge Module" is provided to support the migration. For detail information, please refer to the migration steps.
+From 0.2.0, we added a new Azure IoT Edge solution scaffolding. The Azure IoT Edge module structure has also been changed. For the legacy Azure IoT Edge modules (C# module/C# Function) created in previous versions, a command "Edge: Convert to IoT Edge Module" is provided to support the migration. For detail information, please refer to the [migration steps](MIGRATION_STEPS.md).
 
 ## Prerequisites
 
@@ -52,7 +52,6 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see al
 - **Edge: Restart Edge**: Restart the Edge runtime.
 - **Edge: Uninstall**: Remove all modules and generated files.
 - **Edge: Log in to container registry**: Add registry credentials to Edge runtime.
-- **Edge: Convert to IoT Edge Module**: Convert the legacy Edge module (C# module and C# function module) to the new structure.
 
 You can also trigger following frequently-used commands in context menu.
 - **Edge: Add IoT Edge Module**: The context menu of deployment.template.json file in VS Code file explorer. A new module will be added to the **modules** folder.
@@ -64,6 +63,7 @@ You can also trigger following frequently-used commands in context menu.
 - **Edge: Setup Edge**: The context menu of an Edge device in device list. Setup Edge runtime with target device connection string.
 - **Edge: Generate Edge setup configuration file**: The context menu of an Edge device in device list. Device connection string will be passed to the Edge setup configuration file.
 - **Edge: Get module twin**: The context menu of a deployed module. Fetch target module twin. 
+- **Edge: Convert to IoT Edge Module**: The context menu of .csproj file of C# module or host.json of C# Edge function module in VSCode file explorer. Convert the legacy Edge module (C# module and C# function module) to the new structure.
 
 ## Code Snippets
 

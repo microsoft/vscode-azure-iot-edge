@@ -13,6 +13,9 @@ Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy
 - Deploy IoT solutions to IoT Edge devices
 - Manage IoT Edge runtime.
 
+### Note
+From 0.2.0, we added a new Azure IoT Edge solution scaffolding. The Azure IoT Edge module structure has also been changed. For the legacy Azure IoT Edge modules (C# module/C# Function) created in previous versions, a command "Edge: Convert to IoT Edge Module" is provided to support the migration. For detail information, please refer to the migration steps.
+
 ## Prerequisites
 
 - [Docker](https://www.docker.com/)
@@ -26,7 +29,7 @@ For C# developers, you can develop, debug and deploy [C# modules](https://docs.m
 - [.Net Core 2.0 SDK](https://www.microsoft.com/net/download/core)
 - [C# for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
 
-For Python developers, you can develop and deploy [python module](https://github.com/Azure/cookiecutter-azure-iot-edge-module)
+For Python developers, you can develop and deploy [Python module](https://github.com/Azure/cookiecutter-azure-iot-edge-module)
 - [Python for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 
 We will soon support other languages and more services on IoT Edge.

@@ -29,7 +29,7 @@ For C# developers, you can develop, debug and deploy [C# modules](https://docs.m
 - [.Net Core 2.0 SDK](https://www.microsoft.com/net/download/core)
 - [C# for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
 
-For Python developers, you can develop and deploy [Python module](https://github.com/Azure/cookiecutter-azure-iot-edge-module)
+For Python developers, you can develop and deploy [Python module](docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Python for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 
 We will soon support other languages and more services on IoT Edge.
@@ -56,9 +56,9 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see al
 You can also trigger following frequently-used commands in context menu.
 - **Edge: Add IoT Edge Module**: The context menu of deployment.template.json file in VS Code file explorer. A new module will be added to the **modules** folder.
 - **Edge: Build IoT Edge Solution**: The context menu of deployment.template.json file in VS Code file explorer.
-- **Edge: Generate Edge setup configuration file**: The context menu of deployment.template.json file in VS Code file explorer. The deployment manifest (deployment.json) will be expanded from deployment.template.json.
+- **Edge: Generate IoT Edge Deployment Manifest**: The context menu of deployment.template.json file in VS Code file explorer. The deployment manifest (deployment.json) will be expanded from deployment.template.json.
 - **Edge: Build IoT Edge Module Image**: The context menu of the module.json file in VS Code file explorer. With the input platform from user, it will build the image with the target Dockerfile.
-- **Edge: Build and Push IoT Edge Module Image**: The context menu of the module.json file in VS Code file explore. With the input platform from user, it will build and push image with the target Dockerfile.
+- **Edge: Build and Push IoT Edge Module Image**: The context menu of the module.json file in VS Code file explorer. With the input platform from user, it will build and push image with the target Dockerfile.
 - **Edge: Create deployment for Edge device**: The context menu of an Edge device in device list. Create a deployment for target IoT Edge device with deployment manifest file you select.
 - **Edge: Setup Edge**: The context menu of an Edge device in device list. Setup Edge runtime with target device connection string.
 - **Edge: Generate Edge setup configuration file**: The context menu of an Edge device in device list. Device connection string will be passed to the Edge setup configuration file.

@@ -7,7 +7,7 @@
 Install azure-iot-edge (version 0.2.0) Visual Studio Code Extension.
 ### For legacy C# modules
 1. Open the legacy module project folder in VSCode.
-2. Right click the *.csproj file and choose "Convert to IoT Edge Module".
+2. Right click the `*.csproj` file and choose "Convert to IoT Edge Module".
 3. Fill in the module docker image repository name in the input box.
 4. A new file "module.json" will be created in the project folder. And Dockerfiles for different platform are also created in the same folder.
 

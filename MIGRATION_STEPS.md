@@ -4,7 +4,7 @@
 
 ## Migration steps
 ### Prerequisites
-Install azure-iot-edge (version 0.2.0) Visual Studio Code Extension.
+Install Azure Iot Edge (version 0.2.0) Visual Studio Code Extension.
 ### For legacy C# modules
 1. Open the legacy module project folder in VSCode.
 2. Right click the `*.csproj` file and choose "Convert to IoT Edge Module".

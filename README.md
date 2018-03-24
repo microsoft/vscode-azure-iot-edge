@@ -29,7 +29,7 @@ For C# developers, you can develop, debug and deploy [C# modules](https://docs.m
 - [.Net Core 2.0 SDK](https://www.microsoft.com/net/download/core)
 - [C# for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
 
-For Python developers, you can develop and deploy [Python module](docs.microsoft.com/azure/iot-edge/tutorial-python-module)
+For Python developers, you can develop and deploy [Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Python for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 
 We will soon support other languages and more services on IoT Edge.
@@ -77,7 +77,8 @@ You can also trigger following frequently-used commands in context menu.
 - [Debug C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-csharp-module)
 - [Develop and deploy Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-azure-function)
 - [Debug Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-azure-function)
-- [Easily Create IoT Edge custom modules with Visual Studio Code](https://blogs.msdn.microsoft.com/visualstudio/2017/12/12/easily-create-iot-edge-custom-modules-with-visual-studio-code/)
+- [Develop and deploy Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
+- [Work with multiple modules in VS Code](https://docs.microsoft.com/azure/iot-edge/tutorial-multiple-modules-in-vscode)
 
 ## Supported Operating Systems
 Currently this extension supports the following operating systems:

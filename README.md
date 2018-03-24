@@ -37,21 +37,21 @@ We will soon support other languages and more services on IoT Edge.
 ## Commnads
 
 Press `F1` or `Ctrl + Shift + P` to open command palette, type `Edge:` to see all the commands:
-- **Edge: Setup Edge**: Setup the Edge runtime.
-- **Edge: Start Edge**: Start Edge runtime in your local machine.
+- **Edge: Setup Edge**: Setup the IoT Edge runtime.
+- **Edge: Start Edge**: Start IoT Edge runtime in your local machine.
 - **Edge: New IoT Edge Solution**: Create an IoT Edge solution.
 - **Edge: Add IoT Edge Module**: Add a new IoT Edge module to the IoT Edge solution.
-- **Edge: Build IoT Edge Module Image**: Containerize Edge module from source code. 
-- **Edge: Build and Push IoT Edge Module Image**: Containerize and push Edge module image to a Docker registry.
-- **Edge: Build IoT Edge Solution**: Build and push all the Edge module image in the solution and expand deployment manifest. 
-- **Edge: Generate IoT Edge Deployment Manifest**: Generate the deployment manifest file for Edge deployment from deployment template.
-- **Edge: Create deployment for Edge device**: Create and submit the deployment to your Edge device with specified deployment manifest. 
-- **Edge: Setup Edge using configuration file**: Take a configuration file for Edge setup.
-- **Edge: Generate Edge setup configuration file**: Generate the json file for Edge: setup Edge using configuration file. Open the json file to see further description.
-- **Edge: Stop Edge**: Stop Edge runtime.
-- **Edge: Restart Edge**: Restart the Edge runtime.
+- **Edge: Build IoT Edge Module Image**: Containerize IoT Edge module from source code. 
+- **Edge: Build and Push IoT Edge Module Image**: Containerize and push IoT Edge module image to a Docker registry.
+- **Edge: Build IoT Edge Solution**: Build and push all the IoT Edge module image in the solution and expand deployment manifest. 
+- **Edge: Generate IoT Edge Deployment Manifest**: Generate the deployment manifest file for IoT Edge deployment from deployment template.
+- **Edge: Create deployment for Edge device**: Create and submit the deployment to your IoT Edge device with specified deployment manifest. 
+- **Edge: Setup Edge using configuration file**: Take a configuration file for IoT Edge setup.
+- **Edge: Generate Edge setup configuration file**: Generate the json file for IoT Edge: setup IoT Edge using configuration file. Open the json file to see further description.
+- **Edge: Stop Edge**: Stop IoT Edge runtime.
+- **Edge: Restart Edge**: Restart the IoT Edge runtime.
 - **Edge: Uninstall**: Remove all modules and generated files.
-- **Edge: Log in to container registry**: Add registry credentials to Edge runtime.
+- **Edge: Log in to container registry**: Add registry credentials to IoT Edge runtime.
 
 You can also trigger following frequently-used commands in context menu.
 - **Edge: Add IoT Edge Module**: The context menu of deployment.template.json file in VS Code file explorer. A new module will be added to the **modules** folder.
@@ -59,18 +59,18 @@ You can also trigger following frequently-used commands in context menu.
 - **Edge: Generate IoT Edge Deployment Manifest**: The context menu of deployment.template.json file in VS Code file explorer. The deployment manifest (deployment.json) will be expanded from deployment.template.json.
 - **Edge: Build IoT Edge Module Image**: The context menu of the module.json file in VS Code file explorer. With the input platform from user, it will build the image with the target Dockerfile.
 - **Edge: Build and Push IoT Edge Module Image**: The context menu of the module.json file in VS Code file explorer. With the input platform from user, it will build and push image with the target Dockerfile.
-- **Edge: Create deployment for Edge device**: The context menu of an Edge device in device list. Create a deployment for target IoT Edge device with deployment manifest file you select.
-- **Edge: Setup Edge**: The context menu of an Edge device in device list. Setup Edge runtime with target device connection string.
-- **Edge: Generate Edge setup configuration file**: The context menu of an Edge device in device list. Device connection string will be passed to the Edge setup configuration file.
+- **Edge: Create deployment for Edge device**: The context menu of an IoT Edge device in device list. Create a deployment for target IoT Edge device with deployment manifest file you select.
+- **Edge: Setup Edge**: The context menu of an IoT Edge device in device list. Setup IoT Edge runtime with target device connection string.
+- **Edge: Generate Edge setup configuration file**: The context menu of an IoT Edge device in device list. Device connection string will be passed to the IoT Edge setup configuration file.
 - **Edge: Get module twin**: The context menu of a deployed module. Fetch target module twin. 
-- **Edge: Convert to IoT Edge Module**: The context menu of .csproj file of C# module or host.json of C# Edge function module in VSCode file explorer. Convert the legacy Edge module (C# module and C# function module) to the new structure.
+- **Edge: Convert to IoT Edge Module**: The context menu of .csproj file of C# module or host.json of C# IoT Edge function module in VSCode file explorer. Convert the legacy IoT Edge module (C# module and C# function module) to the new structure.
 
 ## Code Snippets
 
 | Trigger | Content |
 | ---- | ---- |
-| edgeModule | Add Edge module in Edge deployment manifest |
-| edgeRoute | Add Edge route in Edge deployment manifest |
+| edgeModule | Add IoT Edge module in IoT Edge deployment manifest |
+| edgeRoute | Add IoT Edge route in IoT Edge deployment manifest |
 
 ## Resources
 - [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-csharp-module)

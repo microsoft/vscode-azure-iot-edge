@@ -9,7 +9,7 @@
 * Command "Generate IoT Edge Deployment Manifest".
 * Command "Add IoT Edge Module".
 * Command "Convert to IoT Edge Module". The command helps the migration from legacy modules. Please refer to the [migration steps](MIGRATION_STEPS.md) for detail.
-* Add intelliSense support in deployment.template.json file of IoT Edge Solution.
+* Add IntelliSense support in deployment.template.json file of IoT Edge Solution.
 * Support of the Python IoT Edge Module.
 
 ### Removed

@@ -1,4 +1,28 @@
 # Change Log
+## 0.2.0 - 2018-03-27
+### Added
+* Introduce IoT Edge Solution which includes multiple modules and a deployment manifest template (deployment.template.json)
+* Command "New IoT Edge Solution".
+* Command "Build IoT Edge Module Image".
+* Command "Build and Push IoT Edge Module Image".
+* Command "Build IoT Edge Solution".
+* Command "Generate IoT Edge Deployment Manifest".
+* Command "Add IoT Edge Module".
+* Command "Convert to IoT Edge Module". The command helps the migration from legacy modules. Please refer to the [migration steps](MIGRATION_STEPS.md) for detail.
+* Add IntelliSense support in deployment.template.json file of IoT Edge Solution.
+* Support of the Python IoT Edge Module.
+
+### Removed
+* Command "Build IoT Edge module" has been removed. Use command "Build IoT Edge Moduel Image" to build the module image in this new version.
+* Command "Build IoT Edge module Docker image" has been removed. Use command "Build IoT Edge Moduel Image" to build the module image in this new version.
+* Command "Push IoT Edge module Docker image" has been removed. Use command "Build and Push IoT Edge Module Image" to build and push the module image in this new version.
+
+### Changed
+* IoT Edge Module folder structure has been changed.
+  * module.json file is added to the project root to manage the version and platform.
+  * Dockerfiles for different platforms are moved to the project root.
+  * For C# IoT Edge module, the build binary steps are now put into Dockerfile. So module could be built without building C# project first.
+
 ## 0.1.3 - 2017-12-25
 ### Added
 * Add support for F#

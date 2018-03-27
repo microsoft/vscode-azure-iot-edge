@@ -3,6 +3,7 @@
 
 "use strict";
 import * as vscode from "vscode";
+import { ConfigDiagnostics } from "./common/configDiagnostics";
 import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
@@ -23,7 +24,15 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new JsonCompletionItemProvider(), "\"", ".", ":"));
 
-    const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeChannel);
+    const diagCollection: vscode.DiagnosticCollection = vscode.languages.createDiagnosticCollection(Constants.edgeDisplayName);
+    if (vscode.window.activeTextEditor) {
+        ConfigDiagnostics.updateDiagnostics(vscode.window.activeTextEditor.document, diagCollection);
+    }
+    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => ConfigDiagnostics.updateDiagnostics(event.document, diagCollection)));
+    // context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((event) => ConfigDiagnostics.updateDiagnostics(event.document, diagCollection)));
+    context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => ConfigDiagnostics.updateDiagnostics(document, diagCollection)));
+
+    const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     context.subscriptions.push(outputChannel);
 
     initCommmandAsync(context, outputChannel,

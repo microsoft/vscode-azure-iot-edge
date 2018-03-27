@@ -29,7 +29,7 @@ export class Constants {
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";
     public static userCancelled = "Cancelled by user";
-    public static edgeChannel = "Azure IoT Edge";
+    public static edgeDisplayName = "Azure IoT Edge";
     public static solutionName = "Solution Name";
     public static solutionNamePrompt = "Provide a Solution Name";
     public static solutionNameDft = "EdgeSolution";

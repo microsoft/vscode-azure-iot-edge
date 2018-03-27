@@ -10,7 +10,12 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
     public async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.CompletionItem[]> {
         const location: Location = getLocation(document.getText(), document.offsetAt(position));
 
-        if (Utility.compareArray(location.path, Constants.moduleDpManifestJsonPath, Constants.moduleDpManifestJsonPath.length)) {
+        if (location.matches(Constants.imgDeploymentManifestJsonPath)) {
+            const images: string[] = await this.getSlnImgPlaceholders(document.uri);
+            return this.getCompletionItems(images, document, position, location);
+        }
+
+        if (location.matches(Constants.moduleDeploymentManifestJsonPath)) {
             const moduleCompletionItem = new vscode.CompletionItem(Constants.moduleSnippetLabel);
             moduleCompletionItem.filterText = `\"${Constants.moduleSnippetLabel}\"`;
             moduleCompletionItem.kind = vscode.CompletionItemKind.Snippet;
@@ -45,12 +50,7 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
         //     return this.getCompletionItems(Constants.moduleRestartPolicies, document, position);
         // }
 
-        if (Utility.compareArray(location.path, Constants.imgDeploymentManifestJsonPath, Constants.moduleNameDpManifestJsonPathIndex)) {
-            const images: string[] = await this.getSlnImgPlaceholders(document.uri);
-            return this.getCompletionItems(images, document, position, location);
-        }
-
-        if (Utility.compareArray(location.path, Constants.routeDeploymentManifestJsonPath, Constants.routeDeploymentManifestJsonPath.length)) {
+        if (location.matches(Constants.routeDeploymentManifestJsonPath)) {
             const json = parse(document.getText());
             const modules: any = ((json.moduleContent.$edgeAgent || {})["properties.desired"] || {}).modules || {};
             const moduleIds: string[] = Object.keys(modules);

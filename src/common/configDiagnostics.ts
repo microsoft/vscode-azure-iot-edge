@@ -1,6 +1,6 @@
 "use restrict";
 import * as fse from "fs-extra";
-import { parse } from "jsonc-parser";
+import { findNodeAtLocation, Node, parse, parseTree } from "jsonc-parser";
 import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "./constants";
@@ -26,35 +26,50 @@ export class ConfigDiagnostics {
     private static async provideDeploymentTemplateDiagnostics(document: vscode.TextDocument): Promise<vscode.Diagnostic[]> {
         const diags: vscode.Diagnostic[] = [];
 
-        // const template: string = await fse.readFile(document.uri.fsPath, "utf8");
-        // const pattern: RegExp = new RegExp(/\${MODULES\..+}/g);
-        // const matched: string[] = template.match(pattern);
+        const pattern: RegExp = new RegExp(/\${MODULES\..+}/g);
 
-        // const moduleToImageMap: Map<string, string> = new Map();
-        // const imageToDockerfileMap: Map<string, string> = new Map();
+        const moduleToImageMap: Map<string, string> = new Map();
+        const imageToDockerfileMap: Map<string, string> = new Map();
 
-        // try {
-        //     await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap, imageToDockerfileMap);
+        try {
+            await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap, imageToDockerfileMap);
 
-        //     for (const image of matched) {
-        //         if (!moduleToImageMap.has(`\$${image}`)) {
-        //             const diag: vscode.Diagnostic = new vscode.Diagnostic(new vscode.Range(new vscode.Position(0, 0), new vscode.Position(5, 0)), "Invalid image URL", vscode.DiagnosticSeverity.Error);
-        //             diag.source = Constants.edgeDisplayName;
-        //             diags.push(diag);
-        //         }
-        //     }
-        // } catch {
-        //     return;
-        // }
+            const rootNode: Node = parseTree(document.getText());
+            const moduleJsonPath: string[] = Constants.moduleDeploymentManifestJsonPath.slice(0, - 1); // remove the trailing "*" element
+            const modulesNode: Node = findNodeAtLocation(rootNode, moduleJsonPath);
 
-        const json = parse(document.getText());
-        const modules: any = (((json.moduleContent || {}).$edgeAgent || {})["properties.desired"] || {}).modules || {};
-        const images: 
+            for (const moduleNode of modulesNode.children) {
+                const moduleName: string = moduleNode.children[0].value; // the node property name is stored in its first child node
+                const imgJsonPath: string[] = Constants.imgDeploymentManifestJsonPath.slice(Constants.moduleNameDeploymentManifestJsonPathIndex + 1); // image node JSON path relative to module node
+                const imageNode: Node = findNodeAtLocation(moduleNode.children[1], imgJsonPath); // the node value is stored in its second child node
+
+                if (!imageNode) {
+                    continue;
+                }
+
+                const imageUrl: string = imageNode.value;
+                if (imageUrl.search(pattern) !== -1) {
+                    const imageUnwrapped: string = imageUrl.slice(2, -1); // remove the wrapping "${" and "}"
+                    if (!moduleToImageMap.has(imageUnwrapped)) {
+                        const diag: vscode.Diagnostic = new vscode.Diagnostic(this.getNodeRange(document, imageNode),
+                            "Invalid image placeholder", vscode.DiagnosticSeverity.Error);
+                        diag.source = Constants.edgeDisplayName;
+                        diags.push(diag);
+                    }
+                }
+            }
+        } catch {
+            return [];
+        }
 
         return diags;
     }
 
     private static async provideModuleManifestDiagnostics(document: vscode.TextDocument): Promise<vscode.Diagnostic[]> {
         return [];
+    }
+
+    private static getNodeRange(document: vscode.TextDocument, node: Node): vscode.Range {
+        return new vscode.Range(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
     }
 }

@@ -13,8 +13,8 @@
 * Support of the Python IoT Edge Module.
 
 ### Removed
-* Command "Build IoT Edge module" has been removed. Use command "Build IoT Edge Moduel Image" to build the module image in this new version.
-* Command "Build IoT Edge module Docker image" has been removed. Use command "Build IoT Edge Moduel Image" to build the module image in this new version.
+* Command "Build IoT Edge module" has been removed. Use command "Build IoT Edge Module Image" to build the module image in this new version.
+* Command "Build IoT Edge module Docker image" has been removed. Use command "Build IoT Edge Module Image" to build the module image in this new version.
 * Command "Push IoT Edge module Docker image" has been removed. Use command "Build and Push IoT Edge Module Image" to build and push the module image in this new version.
 
 ### Changed

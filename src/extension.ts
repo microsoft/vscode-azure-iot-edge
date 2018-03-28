@@ -28,8 +28,8 @@ export function activate(context: vscode.ExtensionContext) {
     if (vscode.window.activeTextEditor) {
         ConfigDiagnostics.updateDiagnostics(vscode.window.activeTextEditor.document, diagCollection);
     }
+    context.subscriptions.push(diagCollection);
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => ConfigDiagnostics.updateDiagnostics(event.document, diagCollection)));
-    // context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((event) => ConfigDiagnostics.updateDiagnostics(event.document, diagCollection)));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => ConfigDiagnostics.updateDiagnostics(document, diagCollection)));
 
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);

@@ -49,8 +49,8 @@ export class ConfigDiagnostics {
 
                 const imageUrl: string = imageNode.value;
                 if (imageUrl.search(pattern) !== -1) {
-                    const imageUnwrapped: string = imageUrl.slice(2, -1); // remove the wrapping "${" and "}"
-                    if (!moduleToImageMap.has(imageUnwrapped)) {
+                    const imageUrlUnwrapped: string = imageUrl.slice(2, -1); // remove the wrapping "${" and "}"
+                    if (!moduleToImageMap.has(imageUrlUnwrapped)) {
                         const diag: vscode.Diagnostic = new vscode.Diagnostic(this.getNodeRange(document, imageNode),
                             "Invalid image placeholder", vscode.DiagnosticSeverity.Error);
                         diag.source = Constants.edgeDisplayName;
@@ -66,7 +66,25 @@ export class ConfigDiagnostics {
     }
 
     private static async provideModuleManifestDiagnostics(document: vscode.TextDocument): Promise<vscode.Diagnostic[]> {
-        return [];
+        const diags: vscode.Diagnostic[] = [];
+
+        const rootNode: Node = parseTree(document.getText());
+        const platformJsonPath: string[] = Constants.platformModuleManifestJsonPath.slice(0, -1); // remove the trailing "*" element
+        const platformsNode: Node = findNodeAtLocation(rootNode, platformJsonPath);
+
+        for (const platformNode of platformsNode.children) {
+            const dockerfilePath: string = platformNode.children[1].value; // the node value is stored in its second child node
+            const dockerfileFullPath: string = path.join(path.dirname(document.uri.fsPath), dockerfilePath);
+            const exists: boolean = await fse.pathExists(dockerfileFullPath);
+            if (!exists) {
+                const diag: vscode.Diagnostic = new vscode.Diagnostic(this.getNodeRange(document, platformNode.children[1]),
+                    "Invalid Dockfile path", vscode.DiagnosticSeverity.Error);
+                diag.source = Constants.edgeDisplayName;
+                diags.push(diag);
+            }
+        }
+
+        return diags;
     }
 
     private static getNodeRange(document: vscode.TextDocument, node: Node): vscode.Range {

@@ -10,12 +10,7 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
     public async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.CompletionItem[]> {
         const location: Location = getLocation(document.getText(), document.offsetAt(position));
 
-        if (location.matches(Constants.imgDeploymentManifestJsonPath)) {
-            const images: string[] = await this.getSlnImgPlaceholders(document.uri);
-            return this.getCompletionItems(images, document, position, location);
-        }
-
-        if (location.matches(Constants.moduleDeploymentManifestJsonPath)) {
+        if (this.locationMatch(location, Constants.moduleDeploymentManifestJsonPath)) {
             const moduleCompletionItem = new vscode.CompletionItem(Constants.moduleSnippetLabel);
             moduleCompletionItem.filterText = `\"${Constants.moduleSnippetLabel}\"`;
             moduleCompletionItem.kind = vscode.CompletionItemKind.Snippet;
@@ -36,21 +31,27 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
             return [moduleCompletionItem];
         }
 
-        // Disable these completion items temporarily because they will be duplicate with built-in JSON completion items
+        // Disable following two group of completion items temporarily because they will be duplicate with built-in JSON completion items
+        // Tracking issue: https://github.com/Microsoft/vscode/issues/45864
+
         // if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
         //     && location.path[2] === "properties.desired" && location.path[3] === "modules"
         //     && location.path[5] === "status") {
         //     return this.getCompletionItems(Constants.moduleStatuses, document, position);
         // }
 
-        // Disable these completion items temporarily because they will be duplicate with built-in JSON completion items
         // if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
         //     && location.path[2] === "properties.desired" && location.path[3] === "modules"
         //     && location.path[5] === "restartPolicy") {
         //     return this.getCompletionItems(Constants.moduleRestartPolicies, document, position);
         // }
 
-        if (location.matches(Constants.routeDeploymentManifestJsonPath)) {
+        if (this.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
+            const images: string[] = await this.getSlnImgPlaceholders(document.uri);
+            return this.getCompletionItems(images, document, position, location);
+        }
+
+        if (this.locationMatch(location, Constants.routeDeploymentManifestJsonPath)) {
             const json = parse(document.getText());
             const modules: any = ((json.moduleContent.$edgeAgent || {})["properties.desired"] || {}).modules || {};
             const moduleIds: string[] = Object.keys(modules);
@@ -63,6 +64,10 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
             routeCompletionItem.insertText = new vscode.SnippetString(this.getRouteSnippetString(moduleIds));
             return [routeCompletionItem];
         }
+    }
+
+    private locationMatch(location: Location, jsonPath: string[]): boolean {
+        return location.matches(jsonPath) && location.path.length === jsonPath.length;
     }
 
     private async getSlnImgPlaceholders(templateUri: vscode.Uri): Promise<string[]> {

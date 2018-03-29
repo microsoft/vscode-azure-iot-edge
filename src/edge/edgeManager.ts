@@ -108,7 +108,7 @@ export class EdgeManager {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
             const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
-            if (await fse.exists(targetLaunchJson)) {
+            if (await fse.pathExists(targetLaunchJson)) {
                 const text = await fse.readFile(targetLaunchJson, "utf8");
                 const launchJson = JSON.parse(stripJsonComments(text));
                 launchJson.configurations.push(...JSON.parse(debugGenerated).configurations);
@@ -137,7 +137,7 @@ export class EdgeManager {
             const isCSharp = extName === ".csproj";
 
             const targetPath = path.dirname(filePath);
-            const moduleExist = await fse.exists(path.join(targetPath, Constants.moduleManifest));
+            const moduleExist = await fse.pathExists(path.join(targetPath, Constants.moduleManifest));
             if (moduleExist) {
                 throw new Error("module.json exists already");
             }

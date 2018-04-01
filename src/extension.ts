@@ -7,6 +7,8 @@ import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
 import { JsonCompletionItemProvider } from "./common/jsonCompletionItemProvider";
+import { JsonDefinitionProvider } from "./common/jsonDefinitionProvider";
+import { JsonHoverProvider } from "./common/jsonHoverProvider";
 import { TelemetryClient } from "./common/telemetryClient";
 import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
@@ -22,6 +24,8 @@ export function activate(context: vscode.ExtensionContext) {
     Utility.registerDebugTelemetryListener();
 
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new JsonCompletionItemProvider(), "\"", ".", ":"));
+    context.subscriptions.push(vscode.languages.registerHoverProvider([{language: "json"}, {language: "jsonc"}], new JsonHoverProvider()));
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider([{pattern: "**/deployment.template.json"}], new JsonDefinitionProvider()));
 
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeChannel);
     context.subscriptions.push(outputChannel);

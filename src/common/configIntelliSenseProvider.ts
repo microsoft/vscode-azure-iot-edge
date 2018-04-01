@@ -1,0 +1,336 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
+"use strict";
+import * as fse from "fs-extra";
+import * as parser from "jsonc-parser";
+import * as path from "path";
+import * as vscode from "vscode";
+import { Constants } from "./constants";
+import { Utility } from "./utility";
+
+export class ConfigIntelliSenseProvider implements vscode.CompletionItemProvider, vscode.HoverProvider, vscode.DefinitionProvider {
+    public async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.CompletionItem[]> {
+        const location: parser.Location = parser.getLocation(document.getText(), document.offsetAt(position));
+
+        if (this.locationMatch(location, Constants.moduleDeploymentManifestJsonPath)) {
+            const moduleCompletionItem = new vscode.CompletionItem(Constants.moduleSnippetLabel);
+            moduleCompletionItem.filterText = `\"${Constants.moduleSnippetLabel}\"`;
+            moduleCompletionItem.kind = vscode.CompletionItemKind.Snippet;
+            moduleCompletionItem.detail = Constants.moduleSnippetDetail;
+            moduleCompletionItem.range = document.getWordRangeAtPosition(position);
+            moduleCompletionItem.insertText = new vscode.SnippetString([
+                "\"${1:" + Constants.moduleNameDft + "}\": {",
+                "\t\"version\": \"${2:1.0}\",",
+                "\t\"type\": \"" + Constants.moduleTypes.join(",") + "\",",
+                "\t\"status\": \"${3|" + Constants.moduleStatuses.join(",") + "|}\",",
+                "\t\"restartPolicy\": \"${4|" + Constants.moduleRestartPolicies.join(",") + "|}\",",
+                "\t\"settings\": {",
+                "\t\t\"image\": \"${5:" + Constants.registryPlaceholder + "}/${6:" + Constants.repoNamePlaceholder + "}:${7:" + Constants.tagPlaceholder + "}\",",
+                "\t\t\"createOptions\": \"${8:{}}\"",
+                "\t}",
+                "}",
+            ].join("\n"));
+            return [moduleCompletionItem];
+        }
+
+        // Disable following two group of completion items temporarily because they will be duplicate with built-in JSON completion items
+        // Tracking issue: https://github.com/Microsoft/vscode/issues/45864
+
+        // if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
+        //     && location.path[2] === "properties.desired" && location.path[3] === "modules"
+        //     && location.path[5] === "status") {
+        //     return this.getCompletionItems(Constants.moduleStatuses, document, position);
+        // }
+
+        // if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
+        //     && location.path[2] === "properties.desired" && location.path[3] === "modules"
+        //     && location.path[5] === "restartPolicy") {
+        //     return this.getCompletionItems(Constants.moduleRestartPolicies, document, position);
+        // }
+
+        if (this.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
+            const images: string[] = await this.getSlnImgPlaceholders(document.uri);
+            return this.getCompletionItems(images, document, position, location);
+        }
+
+        if (this.locationMatch(location, Constants.routeDeploymentManifestJsonPath)) {
+            const json = parser.parse(document.getText());
+            const modules: any = ((json.moduleContent.$edgeAgent || {})["properties.desired"] || {}).modules || {};
+            const moduleIds: string[] = Object.keys(modules);
+
+            const routeCompletionItem: vscode.CompletionItem = new vscode.CompletionItem(Constants.routeSnippetLabel);
+            routeCompletionItem.filterText = `\"${Constants.routeSnippetLabel}\"`;
+            routeCompletionItem.kind = vscode.CompletionItemKind.Snippet;
+            routeCompletionItem.detail = Constants.routeSnippetDetail;
+            routeCompletionItem.range = document.getWordRangeAtPosition(position);
+            routeCompletionItem.insertText = new vscode.SnippetString(this.getRouteSnippetString(moduleIds));
+            return [routeCompletionItem];
+        }
+    }
+
+    public async provideHover(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.Hover> {
+        const location: parser.Location = parser.getLocation(document.getText(), document.offsetAt(position));
+
+        if (this.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
+            const moduleToImageMap: Map<string, string> = new Map();
+            const imageToDockerfileMap: Map<string, string> = new Map();
+
+            try {
+                await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap, imageToDockerfileMap);
+
+                const node: parser.Node = location.previousNode;
+                const imageUrl: string = node.value;
+                const imageUrlUnwrapped: string = imageUrl.slice(2, -1); // remove the wrapping "${" and "}"
+                const image = moduleToImageMap.get(imageUrlUnwrapped);
+                if (image) {
+                    const dockerfile: string = imageToDockerfileMap.get(image);
+                    const dockerfileContent: string = await fse.readFile(dockerfile, "utf-8");
+                    const range: vscode.Range = this.getNodeRange(document, node);
+                    return new vscode.Hover({ language: "dockerfile", value: dockerfileContent }, range);
+                }
+            } catch {
+                return undefined;
+            }
+        }
+
+        return undefined;
+    }
+
+    public async provideDefinition(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.Definition> {
+        const location: parser.Location = parser.getLocation(document.getText(), document.offsetAt(position));
+
+        if (this.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
+            const moduleToImageMap: Map<string, string> = new Map();
+            const imageToDockerfileMap: Map<string, string> = new Map();
+
+            try {
+                await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap, imageToDockerfileMap);
+
+                const node: parser.Node = location.previousNode;
+                const imageUrl: string = node.value;
+                const imageUrlUnwrapped: string = imageUrl.slice(2, -1); // remove the wrapping "${" and "}"
+                const image = moduleToImageMap.get(imageUrlUnwrapped);
+                if (image) {
+                    const dockerfile: string = imageToDockerfileMap.get(image);
+                    const range: vscode.Range = this.getNodeRange(document, node);
+                    return new vscode.Location(vscode.Uri.file(dockerfile), new vscode.Position(0, 0));
+                }
+            } catch {
+                return undefined;
+            }
+        }
+
+        return undefined;
+    }
+
+    public async updateDiagnostics(document: vscode.TextDocument, diagCollection: vscode.DiagnosticCollection) {
+        if (!document && path.basename(document.uri.fsPath) !== Constants.deploymentTemplate && path.basename(document.uri.fsPath) !== Constants.moduleManifest) {
+            return;
+        }
+
+        diagCollection.delete(document.uri);
+        let diags: vscode.Diagnostic[] = [];
+        if (path.basename(document.uri.fsPath) === Constants.deploymentTemplate) {
+            diags = await this.provideDeploymentTemplateDiagnostics(document);
+        } else if (path.basename(document.uri.fsPath) === Constants.moduleManifest) {
+            diags = await this.provideModuleManifestDiagnostics(document);
+        }
+
+        diagCollection.set(document.uri, diags);
+    }
+
+    private locationMatch(location: parser.Location, jsonPath: string[]): boolean {
+        return location.matches(jsonPath) && location.path.length === jsonPath.length;
+    }
+
+    private async getSlnImgPlaceholders(templateUri: vscode.Uri): Promise<string[]> {
+        const moduleToImageMap: Map<string, string> = new Map();
+        const imageToDockerfileMap: Map<string, string> = new Map();
+
+        try {
+            await Utility.setSlnModulesMap(path.dirname(templateUri.fsPath), moduleToImageMap, imageToDockerfileMap);
+
+            const placeholders: string[] = [];
+            for (const module of moduleToImageMap.keys()) {
+                placeholders.push("${" + module + "}");
+            }
+
+            return placeholders;
+        } catch {
+            return;
+        }
+    }
+
+    private getCompletionItems(values: string[], document: vscode.TextDocument, position: vscode.Position, location: parser.Location): vscode.CompletionItem[] {
+        const offset: number = document.offsetAt(position);
+        const node: parser.Node = location.previousNode;
+
+        const overwriteRange: vscode.Range = this.getOverwriteRange(document, position, offset, node);
+        const separator: string = this.evaluateSeparaterAfter(document, position, offset, node);
+
+        const completionItems: vscode.CompletionItem[] = [];
+        for (let value of values) {
+            value = "\"" + value + "\"";
+            const completionItem: vscode.CompletionItem = new vscode.CompletionItem(value);
+            completionItem.range = overwriteRange;
+            completionItem.insertText = value + separator;
+            completionItem.kind = vscode.CompletionItemKind.Value;
+            completionItems.push(completionItem);
+        }
+
+        return completionItems;
+    }
+
+    // this method calculates the range to overwrite with the completion text
+    private getOverwriteRange(document: vscode.TextDocument, position: vscode.Position, offset: number, node: parser.Node): vscode.Range {
+        let overwriteRange: vscode.Range;
+        if (node && node.offset <= offset && offset <= node.offset + node.length
+            && (node.type === "property" || node.type === "string" || node.type === "number" || node.type === "boolean" || node.type === "null")) {
+            // when the cursor is placed in a node, overwrite the entire content of the node with the completion text
+            overwriteRange = new vscode.Range(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
+        } else {
+            // when the cursor is not placed in a node, overwrite the word to the postion with the completion text
+            const currentWord: string = this.getCurrentWord(document, position);
+            overwriteRange = new vscode.Range(document.positionAt(offset - currentWord.length), position);
+        }
+
+        return overwriteRange;
+    }
+
+    private getCurrentWord(document: vscode.TextDocument, position: vscode.Position): string {
+        let i: number = position.character - 1;
+        const text: string = document.lineAt(position.line).text;
+        while (i >= 0 && ' \t\n\r\v":{[,'.indexOf(text.charAt(i)) === -1) {
+            i--;
+        }
+        return text.substring(i + 1, position.character);
+    }
+
+    // this method evaluates whether to append a comma at the end of the completion text
+    private evaluateSeparaterAfter(document: vscode.TextDocument, position: vscode.Position, offset: number, node: parser.Node) {
+        // when the cursor is placed in a node, set the scanner location to the end of the node
+        if (node && (node.type === "string" || node.type === "number" || node.type === "boolean" || node.type === "null")) {
+            offset = node.offset + node.length;
+        }
+
+        const scanner: parser.JSONScanner = parser.createScanner(document.getText(), true);
+        scanner.setPosition(offset);
+        const token: parser.SyntaxKind = scanner.scan();
+        switch (token) {
+            // do not append a comma when next token is comma or other close tokens
+            case parser.SyntaxKind.CommaToken:
+            case parser.SyntaxKind.CloseBraceToken:
+            case parser.SyntaxKind.CloseBracketToken:
+            case parser.SyntaxKind.EOF:
+                return "";
+            default:
+                return ",";
+        }
+    }
+
+    private getRouteSnippetString(moduleIds: string[]): string {
+        const snippet: string[] = ["\"${1:route}\":", "\"FROM"];
+
+        const sources: string[] = ["${2|/*", "/messages/*", "/messages/modules/*"];
+        if (moduleIds.length === 0) {
+            sources.push(`/messages/modules/{moduleId}/*`);
+            sources.push(`/messages/modules/{moduleId}/outputs/*`);
+            sources.push(`/messages/modules/{moduleId}/outputs/{output}`);
+        } else {
+            for (const moduleId of moduleIds) {
+                sources.push(`/messages/modules/${moduleId}/*`);
+            }
+            for (const moduleId of moduleIds) {
+                sources.push(`/messages/modules/${moduleId}/outputs/*`);
+            }
+            for (const moduleId of moduleIds) {
+                sources.push(`/messages/modules/${moduleId}/outputs/{output}`);
+            }
+        }
+
+        snippet.push(sources.join(",") + "|}");
+        snippet.push("WHERE ${3:<condition>} INTO");
+
+        const sinks: string[] = ["${4|$upstream"];
+        if (moduleIds.length === 0) {
+            sinks.push(`BrokeredEndpoint(\\"/modules/{moduleId}/inputs/{input}\\")`);
+        } else {
+            for (const moduleId of moduleIds) {
+                sinks.push(`BrokeredEndpoint(\\"/modules/${moduleId}/inputs/{input}\\")`);
+            }
+        }
+
+        snippet.push(sinks.join(",") + "|}\"");
+
+        return snippet.join(" ");
+    }
+
+    private getNodeRange(document: vscode.TextDocument, node: parser.Node): vscode.Range {
+        return new vscode.Range(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
+    }
+
+    private async provideDeploymentTemplateDiagnostics(document: vscode.TextDocument): Promise<vscode.Diagnostic[]> {
+        const diags: vscode.Diagnostic[] = [];
+
+        const pattern: RegExp = new RegExp(/\${MODULES\..+}/g);
+
+        const moduleToImageMap: Map<string, string> = new Map();
+        const imageToDockerfileMap: Map<string, string> = new Map();
+
+        try {
+            await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap, imageToDockerfileMap);
+
+            const rootNode: parser.Node = parser.parseTree(document.getText());
+            const moduleJsonPath: string[] = Constants.moduleDeploymentManifestJsonPath.slice(0, - 1); // remove the trailing "*" element
+            const modulesNode: parser.Node = parser.findNodeAtLocation(rootNode, moduleJsonPath);
+
+            for (const moduleNode of modulesNode.children) {
+                const moduleName: string = moduleNode.children[0].value; // the node property name is stored in its first child node
+                const imgJsonPath: string[] = Constants.imgDeploymentManifestJsonPath.slice(Constants.moduleNameDeploymentManifestJsonPathIndex + 1); // image node JSON path relative to module node
+                const imageNode: parser.Node = parser.findNodeAtLocation(moduleNode.children[1], imgJsonPath); // the node value is stored in its second child node
+
+                if (!imageNode) {
+                    continue;
+                }
+
+                const imageUrl: string = imageNode.value;
+                if (imageUrl.search(pattern) !== -1) {
+                    const imageUrlUnwrapped: string = imageUrl.slice(2, -1); // remove the wrapping "${" and "}"
+                    if (!moduleToImageMap.has(imageUrlUnwrapped)) {
+                        const diag: vscode.Diagnostic = new vscode.Diagnostic(this.getNodeRange(document, imageNode),
+                            "Invalid image placeholder", vscode.DiagnosticSeverity.Error);
+                        diag.source = Constants.edgeDisplayName;
+                        diags.push(diag);
+                    }
+                }
+            }
+        } catch {
+            return [];
+        }
+
+        return diags;
+    }
+
+    private async provideModuleManifestDiagnostics(document: vscode.TextDocument): Promise<vscode.Diagnostic[]> {
+        const diags: vscode.Diagnostic[] = [];
+
+        const rootNode: parser.Node = parser.parseTree(document.getText());
+        const platformJsonPath: string[] = Constants.platformModuleManifestJsonPath.slice(0, -1); // remove the trailing "*" element
+        const platformsNode: parser.Node = parser.findNodeAtLocation(rootNode, platformJsonPath);
+
+        for (const platformNode of platformsNode.children) {
+            const dockerfilePath: string = platformNode.children[1].value; // the node value is stored in its second child node
+            const dockerfileFullPath: string = path.join(path.dirname(document.uri.fsPath), dockerfilePath);
+            const exists: boolean = await fse.pathExists(dockerfileFullPath);
+            if (!exists) {
+                const diag: vscode.Diagnostic = new vscode.Diagnostic(this.getNodeRange(document, platformNode.children[1]),
+                    "Invalid Dockfile path", vscode.DiagnosticSeverity.Error);
+                diag.source = Constants.edgeDisplayName;
+                diags.push(diag);
+            }
+        }
+
+        return diags;
+    }
+}

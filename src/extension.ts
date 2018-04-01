@@ -3,13 +3,10 @@
 
 "use strict";
 import * as vscode from "vscode";
-import { ConfigDiagnostics } from "./common/configDiagnostics";
+import { ConfigIntelliSenseProvider } from "./common/configIntelliSenseProvider";
 import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
-import { JsonCompletionItemProvider } from "./common/jsonCompletionItemProvider";
-import { JsonDefinitionProvider } from "./common/jsonDefinitionProvider";
-import { JsonHoverProvider } from "./common/jsonHoverProvider";
 import { TelemetryClient } from "./common/telemetryClient";
 import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
@@ -24,17 +21,20 @@ export function activate(context: vscode.ExtensionContext) {
 
     Utility.registerDebugTelemetryListener();
 
-    context.subscriptions.push(vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new JsonCompletionItemProvider(), "\"", ".", ":"));
-    context.subscriptions.push(vscode.languages.registerHoverProvider([{language: "json"}, {language: "jsonc"}], new JsonHoverProvider()));
-    context.subscriptions.push(vscode.languages.registerDefinitionProvider([{pattern: "**/deployment.template.json"}], new JsonDefinitionProvider()));
+    const configIntelliSenseProvider = new ConfigIntelliSenseProvider();
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], configIntelliSenseProvider, "\"", ".", ":"));
+    context.subscriptions.push(vscode.languages.registerHoverProvider([{ language: "json" }, { language: "jsonc" }], configIntelliSenseProvider));
+    // Calling registerDefinitionProvider will add "Go to definition" and "Peek definition" context menus to documents matched with the filter.
+    // Use the strict { pattern: "**/deployment.template.json" } instead of { language: "json" }, { language: "jsonc" } to avoid polluting the context menu of non-config JSON files.
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider([{ pattern: "**/deployment.template.json" }], configIntelliSenseProvider));
 
     const diagCollection: vscode.DiagnosticCollection = vscode.languages.createDiagnosticCollection(Constants.edgeDisplayName);
     if (vscode.window.activeTextEditor) {
-        ConfigDiagnostics.updateDiagnostics(vscode.window.activeTextEditor.document, diagCollection);
+        configIntelliSenseProvider.updateDiagnostics(vscode.window.activeTextEditor.document, diagCollection);
     }
     context.subscriptions.push(diagCollection);
-    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => ConfigDiagnostics.updateDiagnostics(event.document, diagCollection)));
-    context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => ConfigDiagnostics.updateDiagnostics(document, diagCollection)));
+    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => configIntelliSenseProvider.updateDiagnostics(event.document, diagCollection)));
+    context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => configIntelliSenseProvider.updateDiagnostics(document, diagCollection)));
 
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     context.subscriptions.push(outputChannel);

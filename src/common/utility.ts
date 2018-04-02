@@ -3,6 +3,7 @@
 
 "use strict";
 import * as fse from "fs-extra";
+import * as _ from "lodash";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -232,7 +233,8 @@ export class Utility {
 
     public static async setSlnModulesMap(slnPath: string,
                                          moduleToImageMap: Map<string, string>,
-                                         imageToDockerfileMap: Map<string, string>): Promise<void> {
+                                         imageToDockerfileMap: Map<string, string>,
+                                         imageBuildArgs: string[]): Promise<void> {
         const modulesPath: string = path.join(slnPath, Constants.moduleFolder);
         const stat: fse.Stats = await fse.lstat(modulesPath);
         if (!stat.isDirectory()) {
@@ -242,21 +244,24 @@ export class Utility {
         const moduleDirs: string[] = await Utility.getSubDirectories(modulesPath);
         await Promise.all(
             moduleDirs.map(async (module) => {
-                await this.setModuleMap(module, moduleToImageMap, imageToDockerfileMap);
+                await this.setModuleMap(module, moduleToImageMap, imageToDockerfileMap, imageBuildArgs);
             }),
         );
     }
 
     public static async setModuleMap(modulePath: string,
                                      moduleToImageMap: Map<string, string>,
-                                     imageToDockerfileMap: Map<string, string>): Promise<void> {
+                                     imageToDockerfileMap: Map<string, string>,
+                                     imageBuildArgs: string[]): Promise<void> {
         const moduleFile = path.join(modulePath, Constants.moduleManifest);
         const name: string = path.basename(modulePath);
         if (await fse.pathExists(moduleFile)) {
             const module = await Utility.readJsonAndExpandEnv(moduleFile);
             const platformKeys: string[] = Object.keys(module.image.tag.platforms);
+            const dockerBuildArgs: string[] = _.get(module, 'image.docker.build', []);
             const repo: string = module.image.repository;
             const version: string = module.image.tag.version;
+            imageBuildArgs.push(...dockerBuildArgs);
             platformKeys.map((platform) => {
                 const moduleKey: string = Utility.getModuleKey(name, platform);
                 const image: string = Utility.getImage(repo, version, platform);

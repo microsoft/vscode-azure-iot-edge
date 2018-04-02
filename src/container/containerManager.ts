@@ -29,7 +29,7 @@ export class ContainerManager {
                 const directory = path.dirname(moduleConfigFilePath);
                 const dockerfilePath = path.join(directory, platforms[platform]);
                 const imageName = Utility.getImage(moduleConfig.image.repository, moduleConfig.image.tag.version, platform);
-                const buildCommand = this.constructBuildCmd(dockerfilePath, imageName, directory);
+                const buildCommand = this.constructBuildCmd(dockerfilePath, imageName, directory, []);
                 if (pushImage) {
                     const pushCommand = this.constructPushCmd(imageName);
                     Executor.runInTerminal(Utility.combineCommands([buildCommand, pushCommand]));
@@ -69,8 +69,9 @@ export class ContainerManager {
     private async createDeploymentFile(templateFile: string, build: boolean = true) {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
+        const imageBuildArgs: string[] = [];
         const slnPath: string = path.dirname(templateFile);
-        await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap);
+        await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap, imageBuildArgs);
         const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
         const generatedDeployment: string = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
 
@@ -83,7 +84,7 @@ export class ContainerManager {
         const commands: string[] = [];
         buildMap.forEach((dockerFile, image) => {
             const context = path.dirname(dockerFile);
-            commands.push(this.constructBuildCmd(dockerFile, image, context));
+            commands.push(this.constructBuildCmd(dockerFile, image, context, imageBuildArgs));
             commands.push(this.constructPushCmd(image));
         });
         Executor.runInTerminal(Utility.combineCommands(commands));
@@ -128,8 +129,8 @@ export class ContainerManager {
         }
     }
 
-    private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string): string {
-        return `docker build --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(contextDir)}\"`;
+    private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string, args: string[]): string {
+        return `docker build --rm ${args.join(' ')} -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(contextDir)}\"`;
     }
 
     private constructPushCmd(imageName: string) {

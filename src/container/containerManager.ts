@@ -130,7 +130,7 @@ export class ContainerManager {
     }
 
     private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string, args: string[]): string {
-        return `docker build --rm ${args.join(' ')} -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(contextDir)}\"`;
+        return `docker build --rm ${args.join(" ")} -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(contextDir)}\"`;
     }
 
     private constructPushCmd(imageName: string) {

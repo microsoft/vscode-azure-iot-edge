@@ -258,7 +258,7 @@ export class Utility {
         if (await fse.pathExists(moduleFile)) {
             const module = await Utility.readJsonAndExpandEnv(moduleFile);
             const platformKeys: string[] = Object.keys(module.image.tag.platforms);
-            const dockerBuildArgs: string[] = _.get(module, 'image.docker.build', []);
+            const dockerBuildArgs: string[] = _.get(module, "image.docker.build", []);
             const repo: string = module.image.repository;
             const version: string = module.image.tag.version;
             imageBuildArgs.push(...dockerBuildArgs);

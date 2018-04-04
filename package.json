@@ -92,37 +92,37 @@
       {
         "command": "azure-iot-edge.buildModuleImage",
         "title": "Build IoT Edge Module Image",
-        "category": "Edge"
+        "category": "Azure IoT Edge"
       },
       {
         "command": "azure-iot-edge.buildAndPushModuleImage",
         "title": "Build and Push IoT Edge Module Image",
-        "category": "Edge"
+        "category": "Azure IoT Edge"
       },
       {
         "command": "azure-iot-edge.newSolution",
         "title": "New IoT Edge Solution",
-        "category": "Edge"
+        "category": "Azure IoT Edge"
       },
       {
         "command": "azure-iot-edge.buildSolution",
         "title": "Build IoT Edge Solution",
-        "category": "Edge"
+        "category": "Azure IoT Edge"
       },
       {
         "command": "azure-iot-edge.generateDeployment",
         "title": "Generate IoT Edge Deployment Manifest",
-        "category": "Edge"
+        "category": "Azure IoT Edge"
       },
       {
         "command": "azure-iot-edge.addModulde",
         "title": "Add IoT Edge Module",
-        "category": "Edge"
+        "category": "Azure IoT Edge"
       },
       {
         "command": "azure-iot-edge.convertModule",
         "title": "Convert to IoT Edge Module",
-        "category": "Edge"
+        "category": "Azure IoT Edge"
       }
     ],
     "configuration": {

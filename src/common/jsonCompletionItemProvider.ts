@@ -70,7 +70,7 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
         const imageToDockerfileMap: Map<string, string> = new Map();
 
         try {
-            await Utility.setSlnModulesMap(path.dirname(templateUri.fsPath), moduleToImageMap, imageToDockerfileMap);
+            await Utility.setSlnModulesMap(path.dirname(templateUri.fsPath), moduleToImageMap, imageToDockerfileMap, []);
 
             const placeholders: string[] = [];
             for (const module of moduleToImageMap.keys()) {

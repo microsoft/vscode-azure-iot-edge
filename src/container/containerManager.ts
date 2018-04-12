@@ -29,7 +29,9 @@ export class ContainerManager {
                 const directory = path.dirname(moduleConfigFilePath);
                 const dockerfilePath = path.join(directory, platforms[platform]);
                 const imageName = Utility.getImage(moduleConfig.image.repository, moduleConfig.image.tag.version, platform);
-                const buildCommand = this.constructBuildCmd(dockerfilePath, imageName, directory);
+                const options = moduleConfig.image.buildOptions;
+                const optionArray: string[] = options && options instanceof Array ? options : undefined;
+                const buildCommand = this.constructBuildCmd(dockerfilePath, imageName, directory, optionArray);
                 if (pushImage) {
                     const pushCommand = this.constructPushCmd(imageName);
                     Executor.runInTerminal(Utility.combineCommands([buildCommand, pushCommand]));
@@ -69,8 +71,9 @@ export class ContainerManager {
     private async createDeploymentFile(templateFile: string, build: boolean = true) {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
+        const imageToBuildOptions: Map<string, string[]> = new Map();
         const slnPath: string = path.dirname(templateFile);
-        await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap);
+        await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap, imageToBuildOptions);
         const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
         const generatedDeployment: string = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
 
@@ -79,11 +82,11 @@ export class ContainerManager {
         }
 
         // build docker images
-        const buildMap: Map<string, string> = this.getBuildMapFromDeployment(generatedDeployment, imageToDockerfileMap);
+        const buildMap: Map<string, any> = this.getBuildMapFromDeployment(generatedDeployment, imageToDockerfileMap, imageToBuildOptions);
         const commands: string[] = [];
-        buildMap.forEach((dockerFile, image) => {
-            const context = path.dirname(dockerFile);
-            commands.push(this.constructBuildCmd(dockerFile, image, context));
+        buildMap.forEach((buildSetting, image) => {
+            const context = path.dirname(buildSetting.dockerFile);
+            commands.push(this.constructBuildCmd(buildSetting.dockerFile, image, context, buildSetting.buildOption));
             commands.push(this.constructPushCmd(image));
         });
         Executor.runInTerminal(Utility.combineCommands(commands));
@@ -106,9 +109,11 @@ export class ContainerManager {
         return generatedDeployFile;
     }
 
-    private getBuildMapFromDeployment(dpManifestStr: string, imageToDockerfileMap: Map<string, string>): Map<string, string> {
+    private getBuildMapFromDeployment(dpManifestStr: string,
+                                      imageToDockerfileMap: Map<string, string>,
+                                      imageToBuildOptions: Map<string, string[]>): Map<string, any> {
         try {
-            const buildMap: Map<string, string> = new Map<string, string>();
+            const buildMap: Map<string, any> = new Map<string, any>();
             const manifestObj = JSON.parse(dpManifestStr);
             const modules = manifestObj.moduleContent.$edgeAgent["properties.desired"].modules;
             for (const m in modules) {
@@ -118,7 +123,11 @@ export class ContainerManager {
                         image = modules[m].settings.image;
                     } catch (e) {}
                     if (image && imageToDockerfileMap.get(image) !== undefined) {
-                        buildMap.set(image, imageToDockerfileMap.get(image));
+                        const buildSetting = {
+                            dockerFile: imageToDockerfileMap.get(image),
+                            buildOption: imageToBuildOptions.get(image),
+                        };
+                        buildMap.set(image, buildSetting);
                     }
                 }
             }
@@ -128,8 +137,20 @@ export class ContainerManager {
         }
     }
 
-    private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string): string {
-        return `docker build --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(contextDir)}\"`;
+    private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string, extraOptions ?: string[]): string {
+        let optionString: string = "";
+        if (extraOptions !== undefined) {
+            const filteredOption = extraOptions.filter((value, index) => {
+                const trimmed = value.trim();
+                return ! (trimmed.startsWith("--rm") ||
+                            trimmed.startsWith("--tag") ||
+                            trimmed.startsWith("-t") ||
+                            trimmed.startsWith("--file") ||
+                            trimmed.startsWith("-f"));
+            });
+            optionString = filteredOption.join(" ");
+        }
+        return `docker build ${optionString} --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(contextDir)}\"`;
     }
 
     private constructPushCmd(imageName: string) {

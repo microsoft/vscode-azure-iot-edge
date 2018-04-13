@@ -48,7 +48,20 @@ suite("utility tests", () => {
     assert.equal(moduleToImageMap.size, 4);
     assert.equal(imageToDockerfileMap.size, 4);
     assert.equal(imageToBuildOptions.size, 4);
-    assert.equal(imageToBuildOptions.get("localhost:5000/samplemodule:0.0.1-amd64").length, 7);
+    assert.equal(imageToBuildOptions.get("localhost:5000/samplemodule:0.0.1-amd64").length, 8);
+
+    const filteredOption = imageToBuildOptions.get("localhost:5000/samplemodule:0.0.1-amd64").filter((value, index) => {
+      const trimmed = value.trim();
+      const parsedOption: string[] = trimmed.split(/\s+/g);
+      return parsedOption.length > 0 &&
+             ! ((parsedOption[0] === "--rm" ) ||
+                  (parsedOption[0] === "--tag") ||
+                  (parsedOption[0] === "-t") ||
+                  (parsedOption[0] === "--file") ||
+                  (parsedOption[0] === "-f"));
+    });
+
+    assert.equal(filteredOption.length, 3);
   }).timeout(60 * 1000);
 
   test("replaceAll", async () => {

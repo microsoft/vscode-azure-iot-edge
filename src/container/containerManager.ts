@@ -142,11 +142,13 @@ export class ContainerManager {
         if (extraOptions !== undefined) {
             const filteredOption = extraOptions.filter((value, index) => {
                 const trimmed = value.trim();
-                return ! (trimmed.startsWith("--rm") ||
-                            trimmed.startsWith("--tag") ||
-                            trimmed.startsWith("-t") ||
-                            trimmed.startsWith("--file") ||
-                            trimmed.startsWith("-f"));
+                const parsedOption: string[] = trimmed.split(/\s+/g);
+                return parsedOption.length > 0 &&
+                       ! ((parsedOption[0] === "--rm" ) ||
+                            (parsedOption[0] === "--tag") ||
+                            (parsedOption[0] === "-t") ||
+                            (parsedOption[0] === "--file") ||
+                            (parsedOption[0] === "-f"));
             });
             optionString = filteredOption.join(" ");
         }

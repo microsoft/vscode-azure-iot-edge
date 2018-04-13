@@ -143,12 +143,7 @@ export class ContainerManager {
             const filteredOption = extraOptions.filter((value, index) => {
                 const trimmed = value.trim();
                 const parsedOption: string[] = trimmed.split(/\s+/g);
-                return parsedOption.length > 0 &&
-                       ! ((parsedOption[0] === "--rm" ) ||
-                            (parsedOption[0] === "--tag") ||
-                            (parsedOption[0] === "-t") ||
-                            (parsedOption[0] === "--file") ||
-                            (parsedOption[0] === "-f"));
+                return parsedOption.length > 0 && ["--rm", "--tag", "-t", "--file", "-f"].indexOf(parsedOption[0]) < 0;
             });
             optionString = filteredOption.join(" ");
         }

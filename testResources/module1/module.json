@@ -18,6 +18,7 @@
           "--rm",
           "-f test",
           "--file test",
+          "--file-test",
           "-t image",
           "--tag image"
       ]

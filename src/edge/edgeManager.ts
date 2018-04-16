@@ -341,6 +341,6 @@ export class EdgeManager {
         if (!templatePick) {
             throw new UserCancelledError();
         }
-        return templatePick ? templatePick.label : undefined;
+        return templatePick.label;
     }
 }

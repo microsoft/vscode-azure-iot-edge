@@ -319,19 +319,19 @@ export class EdgeManager {
         const templatePicks: vscode.QuickPickItem[] = [
             {
                 label: Constants.LANGUAGE_CSHARP,
-                description: "Use Azure IoT C# SDK to build a module",
+                description: Constants.LANGUAGE_CSHARP_DESCRIPTION,
             },
             {
                 label: Constants.CSHARP_FUNCTION,
-                description: "Create an Azure Function and deploy to IoT Edge",
+                description: Constants.CSHARP_FUNCTION_DESCRIPTION,
             },
             {
                 label: Constants.LANGUAGE_PYTHON,
-                description: "Use Azure IoT Python SDK to build a module",
+                description: Constants.LANGUAGE_PYTHON_DESCRIPTION,
             },
             {
                 label: Constants.EXISTING_MODULE,
-                description: "Import an exsting module image from any Docker registry",
+                description: Constants.EXISTING_MODULE_DESCRIPTION,
             },
         ];
         if (label === undefined) {

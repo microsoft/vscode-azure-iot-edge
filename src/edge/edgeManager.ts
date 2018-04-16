@@ -338,6 +338,9 @@ export class EdgeManager {
             label = Constants.selectTemplate;
         }
         const templatePick = await vscode.window.showQuickPick(templatePicks, {placeHolder: label, ignoreFocusOut: true});
+        if (!templatePick) {
+            throw new UserCancelledError();
+        }
         return templatePick ? templatePick.label : undefined;
     }
 }

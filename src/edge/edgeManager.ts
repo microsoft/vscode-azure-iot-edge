@@ -29,10 +29,10 @@ export class EdgeManager {
 
         await fse.ensureDir(parentPath);
         const slnName: string = await this.inputSolutionName(parentPath);
-        const language = await this.selectModuleTemplate();
+        const template = await this.selectModuleTemplate();
 
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName());
-        const repositoryName: string = await this.inputRepository(moduleName);
+        const { repositoryName, imageName } = await this.inputImage(moduleName, template);
         const slnPath: string = path.join(parentPath, slnName);
         await fse.mkdirs(slnPath);
 
@@ -46,17 +46,17 @@ export class EdgeManager {
         await fse.copy(sourceGitIgnore, targetGitIgnore);
         await fse.mkdirs(targetModulePath);
 
-        await this.addModule(targetModulePath, moduleName, repositoryName, language, outputChannel);
+        await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
 
         const data: string = await fse.readFile(sourceDeploymentTemplate, "utf8");
         const mapObj: Map<string, string> = new Map<string, string>();
         mapObj.set(Constants.moduleNamePlaceholder, moduleName);
-        mapObj.set(Constants.moduleImagePlaceholder, `\${${Utility.getModuleKey(moduleName, "amd64")}}`);
+        mapObj.set(Constants.moduleImagePlaceholder, imageName);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
         const deploymentGenerated: string = Utility.replaceAll(data, mapObj);
         await fse.writeFile(targetDeployment, deploymentGenerated, {encoding: "utf8"});
 
-        const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, language, mapObj);
+        const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
@@ -82,10 +82,11 @@ export class EdgeManager {
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
 
-        const language = await this.selectModuleTemplate();
-        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath));
-        const repositoryName: string = await this.inputRepository(moduleName);
-        await this.addModule(targetModulePath, moduleName, repositoryName, language, outputChannel);
+        const template = await this.selectModuleTemplate();
+        const modules = templateJson.moduleContent.$edgeAgent["properties.desired"].modules;
+        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
+        const { repositoryName, imageName } = await this.inputImage(moduleName, template);
+        await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
 
         const newModuleSection = `{
             "version": "1.0",
@@ -93,17 +94,17 @@ export class EdgeManager {
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "\${${Utility.getModuleKey(moduleName, "amd64")}}",
+              "image": "${imageName}",
               "createOptions": ""
             }
           }`;
-        templateJson.moduleContent.$edgeAgent["properties.desired"].modules[moduleName] = JSON.parse(newModuleSection);
+        modules[moduleName] = JSON.parse(newModuleSection);
         await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
 
         const mapObj: Map<string, string> = new Map<string, string>();
         mapObj.set(Constants.moduleNamePlaceholder, moduleName);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
-        const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, language, mapObj);
+        const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
@@ -119,7 +120,8 @@ export class EdgeManager {
         }
 
         const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "is updated.";
-        vscode.window.showInformationMessage(`Module '${moduleName}' is created. 'deployment.template.json' ${launchUpdated}`);
+        const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' is created. `;
+        vscode.window.showInformationMessage(`${moduleCreationMessage}'deployment.template.json' ${launchUpdated}`);
     }
 
     // TODO: The command is temperory for migration stage, will be removed later.
@@ -251,6 +253,13 @@ export class EdgeManager {
         return undefined;
     }
 
+    private validateModuleExistence(name: string, modules?: string[]): string | undefined {
+        if (modules && modules.indexOf(name) >= 0) {
+            return `${name} already exists in ${Constants.deploymentTemplate}`;
+        }
+        return undefined;
+    }
+
     private async getSolutionParentFolder(): Promise<string | undefined> {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         const defaultFolder: vscode.Uri | undefined = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri : undefined;
@@ -278,9 +287,9 @@ export class EdgeManager {
                                           validateFunc, Constants.solutionNameDft);
     }
 
-    private async inputModuleName(parentPath?: string): Promise<string> {
+    private async inputModuleName(parentPath?: string, modules?: string[]): Promise<string> {
         const validateFunc = async (name: string): Promise<string> => {
-            return await this.validateInputName(name, parentPath);
+            return await this.validateInputName(name, parentPath) || this.validateModuleExistence(name, modules);
         };
         return await Utility.showInputBox(Constants.moduleName,
                                           Constants.moduleNamePrompt,
@@ -294,15 +303,44 @@ export class EdgeManager {
                                           null, dftValue);
     }
 
+    private async inputImage(module: string, template: string): Promise<{repositoryName: string, imageName: string}> {
+        let repositoryName: string = "";
+        let imageName: string = "";
+        if (template === Constants.EXISTING_MODULE) {
+            imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt);
+        } else {
+            repositoryName = await this.inputRepository(module);
+            imageName = `\${${Utility.getModuleKey(module, "amd64")}}`;
+        }
+        return { repositoryName, imageName };
+    }
+
     private async selectModuleTemplate(label?: string): Promise<string> {
-        const languagePicks: string[] = [
-            Constants.LANGUAGE_CSHARP,
-            Constants.CSHARP_FUNCTION,
-            Constants.LANGUAGE_PYTHON,
+        const templatePicks: vscode.QuickPickItem[] = [
+            {
+                label: Constants.LANGUAGE_CSHARP,
+                description: Constants.LANGUAGE_CSHARP_DESCRIPTION,
+            },
+            {
+                label: Constants.CSHARP_FUNCTION,
+                description: Constants.CSHARP_FUNCTION_DESCRIPTION,
+            },
+            {
+                label: Constants.LANGUAGE_PYTHON,
+                description: Constants.LANGUAGE_PYTHON_DESCRIPTION,
+            },
+            {
+                label: Constants.EXISTING_MODULE,
+                description: Constants.EXISTING_MODULE_DESCRIPTION,
+            },
         ];
         if (label === undefined) {
             label = Constants.selectTemplate;
         }
-        return await vscode.window.showQuickPick(languagePicks, {placeHolder: label, ignoreFocusOut: true});
+        const templatePick = await vscode.window.showQuickPick(templatePicks, {placeHolder: label, ignoreFocusOut: true});
+        if (!templatePick) {
+            throw new UserCancelledError();
+        }
+        return templatePick.label;
     }
 }

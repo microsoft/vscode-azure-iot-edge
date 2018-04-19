@@ -20,6 +20,7 @@ export class Constants {
     public static appFolder = "%APP_FOLDER%";
     public static repositoryPlaceholder = "%REPOSITORY%";
     public static dllPlaceholder = "%DLLNAME%";
+    public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}/g);
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
     public static LANGUAGE_CSHARP = "C# Module";

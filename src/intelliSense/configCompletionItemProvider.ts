@@ -2,18 +2,18 @@
 // Licensed under the MIT license.
 
 "use strict";
-import * as fse from "fs-extra";
 import * as parser from "jsonc-parser";
 import * as path from "path";
 import * as vscode from "vscode";
-import { Constants } from "./constants";
-import { Utility } from "./utility";
+import { Constants } from "../common/constants";
+import { Utility } from "../common/utility";
+import { IntelliSenseUtility } from "./intelliSenseUtility";
 
-export class ConfigIntelliSenseProvider implements vscode.CompletionItemProvider, vscode.HoverProvider, vscode.DefinitionProvider {
+export class ConfigCompletionItemProvider implements vscode.CompletionItemProvider {
     public async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.CompletionItem[]> {
         const location: parser.Location = parser.getLocation(document.getText(), document.offsetAt(position));
 
-        if (this.locationMatch(location, Constants.moduleDeploymentManifestJsonPath)) {
+        if (IntelliSenseUtility.locationMatch(location, Constants.moduleDeploymentManifestJsonPath)) {
             const moduleCompletionItem = new vscode.CompletionItem(Constants.moduleSnippetLabel);
             moduleCompletionItem.filterText = `\"${Constants.moduleSnippetLabel}\"`;
             moduleCompletionItem.kind = vscode.CompletionItemKind.Snippet;
@@ -49,12 +49,12 @@ export class ConfigIntelliSenseProvider implements vscode.CompletionItemProvider
         //     return this.getCompletionItems(Constants.moduleRestartPolicies, document, position);
         // }
 
-        if (this.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
+        if (IntelliSenseUtility.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
             const images: string[] = await this.getSlnImgPlaceholders(document.uri);
             return this.getCompletionItems(images, document, position, location);
         }
 
-        if (this.locationMatch(location, Constants.routeDeploymentManifestJsonPath)) {
+        if (IntelliSenseUtility.locationMatch(location, Constants.routeDeploymentManifestJsonPath)) {
             const json = parser.parse(document.getText());
             const modules: any = ((json.moduleContent.$edgeAgent || {})["properties.desired"] || {}).modules || {};
             const moduleIds: string[] = Object.keys(modules);
@@ -67,81 +67,6 @@ export class ConfigIntelliSenseProvider implements vscode.CompletionItemProvider
             routeCompletionItem.insertText = new vscode.SnippetString(this.getRouteSnippetString(moduleIds));
             return [routeCompletionItem];
         }
-    }
-
-    public async provideHover(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.Hover> {
-        const location: parser.Location = parser.getLocation(document.getText(), document.offsetAt(position));
-
-        if (this.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
-            const moduleToImageMap: Map<string, string> = new Map();
-            const imageToDockerfileMap: Map<string, string> = new Map();
-
-            try {
-                await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap, imageToDockerfileMap);
-
-                const node: parser.Node = location.previousNode;
-                const imageUrl: string = node.value;
-                const imageUrlUnwrapped: string = imageUrl.slice(2, -1); // remove the wrapping "${" and "}"
-                const image = moduleToImageMap.get(imageUrlUnwrapped);
-                if (image) {
-                    const dockerfile: string = imageToDockerfileMap.get(image);
-                    const dockerfileContent: string = await fse.readFile(dockerfile, "utf-8");
-                    const range: vscode.Range = this.getNodeRange(document, node);
-                    return new vscode.Hover({ language: "dockerfile", value: dockerfileContent }, range);
-                }
-            } catch {
-                return undefined;
-            }
-        }
-
-        return undefined;
-    }
-
-    public async provideDefinition(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.Definition> {
-        const location: parser.Location = parser.getLocation(document.getText(), document.offsetAt(position));
-
-        if (this.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
-            const moduleToImageMap: Map<string, string> = new Map();
-            const imageToDockerfileMap: Map<string, string> = new Map();
-
-            try {
-                await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap, imageToDockerfileMap);
-
-                const node: parser.Node = location.previousNode;
-                const imageUrl: string = node.value;
-                const imageUrlUnwrapped: string = imageUrl.slice(2, -1); // remove the wrapping "${" and "}"
-                const image = moduleToImageMap.get(imageUrlUnwrapped);
-                if (image) {
-                    const dockerfile: string = imageToDockerfileMap.get(image);
-                    const range: vscode.Range = this.getNodeRange(document, node);
-                    return new vscode.Location(vscode.Uri.file(dockerfile), new vscode.Position(0, 0));
-                }
-            } catch {
-                return undefined;
-            }
-        }
-
-        return undefined;
-    }
-
-    public async updateDiagnostics(document: vscode.TextDocument, diagCollection: vscode.DiagnosticCollection) {
-        if (!document && path.basename(document.uri.fsPath) !== Constants.deploymentTemplate && path.basename(document.uri.fsPath) !== Constants.moduleManifest) {
-            return;
-        }
-
-        diagCollection.delete(document.uri);
-        let diags: vscode.Diagnostic[] = [];
-        if (path.basename(document.uri.fsPath) === Constants.deploymentTemplate) {
-            diags = await this.provideDeploymentTemplateDiagnostics(document);
-        } else if (path.basename(document.uri.fsPath) === Constants.moduleManifest) {
-            diags = await this.provideModuleManifestDiagnostics(document);
-        }
-
-        diagCollection.set(document.uri, diags);
-    }
-
-    private locationMatch(location: parser.Location, jsonPath: string[]): boolean {
-        return location.matches(jsonPath) && location.path.length === jsonPath.length;
     }
 
     private async getSlnImgPlaceholders(templateUri: vscode.Uri): Promise<string[]> {
@@ -264,73 +189,5 @@ export class ConfigIntelliSenseProvider implements vscode.CompletionItemProvider
         snippet.push(sinks.join(",") + "|}\"");
 
         return snippet.join(" ");
-    }
-
-    private getNodeRange(document: vscode.TextDocument, node: parser.Node): vscode.Range {
-        return new vscode.Range(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
-    }
-
-    private async provideDeploymentTemplateDiagnostics(document: vscode.TextDocument): Promise<vscode.Diagnostic[]> {
-        const diags: vscode.Diagnostic[] = [];
-
-        const pattern: RegExp = new RegExp(/\${MODULES\..+}/g);
-
-        const moduleToImageMap: Map<string, string> = new Map();
-        const imageToDockerfileMap: Map<string, string> = new Map();
-
-        try {
-            await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap, imageToDockerfileMap);
-
-            const rootNode: parser.Node = parser.parseTree(document.getText());
-            const moduleJsonPath: string[] = Constants.moduleDeploymentManifestJsonPath.slice(0, - 1); // remove the trailing "*" element
-            const modulesNode: parser.Node = parser.findNodeAtLocation(rootNode, moduleJsonPath);
-
-            for (const moduleNode of modulesNode.children) {
-                const moduleName: string = moduleNode.children[0].value; // the node property name is stored in its first child node
-                const imgJsonPath: string[] = Constants.imgDeploymentManifestJsonPath.slice(Constants.moduleNameDeploymentManifestJsonPathIndex + 1); // image node JSON path relative to module node
-                const imageNode: parser.Node = parser.findNodeAtLocation(moduleNode.children[1], imgJsonPath); // the node value is stored in its second child node
-
-                if (!imageNode) {
-                    continue;
-                }
-
-                const imageUrl: string = imageNode.value;
-                if (imageUrl.search(pattern) !== -1) {
-                    const imageUrlUnwrapped: string = imageUrl.slice(2, -1); // remove the wrapping "${" and "}"
-                    if (!moduleToImageMap.has(imageUrlUnwrapped)) {
-                        const diag: vscode.Diagnostic = new vscode.Diagnostic(this.getNodeRange(document, imageNode),
-                            "Invalid image placeholder", vscode.DiagnosticSeverity.Error);
-                        diag.source = Constants.edgeDisplayName;
-                        diags.push(diag);
-                    }
-                }
-            }
-        } catch {
-            return [];
-        }
-
-        return diags;
-    }
-
-    private async provideModuleManifestDiagnostics(document: vscode.TextDocument): Promise<vscode.Diagnostic[]> {
-        const diags: vscode.Diagnostic[] = [];
-
-        const rootNode: parser.Node = parser.parseTree(document.getText());
-        const platformJsonPath: string[] = Constants.platformModuleManifestJsonPath.slice(0, -1); // remove the trailing "*" element
-        const platformsNode: parser.Node = parser.findNodeAtLocation(rootNode, platformJsonPath);
-
-        for (const platformNode of platformsNode.children) {
-            const dockerfilePath: string = platformNode.children[1].value; // the node value is stored in its second child node
-            const dockerfileFullPath: string = path.join(path.dirname(document.uri.fsPath), dockerfilePath);
-            const exists: boolean = await fse.pathExists(dockerfileFullPath);
-            if (!exists) {
-                const diag: vscode.Diagnostic = new vscode.Diagnostic(this.getNodeRange(document, platformNode.children[1]),
-                    "Invalid Dockfile path", vscode.DiagnosticSeverity.Error);
-                diag.source = Constants.edgeDisplayName;
-                diags.push(diag);
-            }
-        }
-
-        return diags;
     }
 }

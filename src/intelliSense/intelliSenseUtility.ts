@@ -1,0 +1,46 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
+"use strict";
+import * as parser from "jsonc-parser";
+import * as path from "path";
+import * as vscode from "vscode";
+import { Constants } from "../common/constants";
+import { Utility } from "../common/utility";
+import { ContainerManager } from "../container/containerManager";
+
+export class IntelliSenseUtility {
+    public static locationMatch(location: parser.Location, jsonPath: string[]): boolean {
+        return location.matches(jsonPath) && location.path.length === jsonPath.length;
+    }
+
+    public static async getImageDockerfileAtLocation(document: vscode.TextDocument, position: vscode.Position): Promise<{dockerfile: string, range: vscode.Range}> {
+        const location: parser.Location = parser.getLocation(document.getText(), document.offsetAt(position));
+
+        if (IntelliSenseUtility.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
+            const moduleToImageMap: Map<string, string> = new Map();
+            const imageToDockerfileMap: Map<string, string> = new Map();
+
+            try {
+                await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap, imageToDockerfileMap);
+
+                const node: parser.Node = location.previousNode;
+                const imagePlaceholder: string = Utility.unwrapImagePlaceholder(node.value);
+                const image = moduleToImageMap.get(imagePlaceholder);
+                if (image) {
+                    const dockerfile: string = imageToDockerfileMap.get(image);
+                    const range: vscode.Range = IntelliSenseUtility.getNodeRange(document, node);
+                    return {dockerfile, range};
+                }
+            } catch {
+                return undefined;
+            }
+        }
+
+        return undefined;
+    }
+
+    public static getNodeRange(document: vscode.TextDocument, node: parser.Node): vscode.Range {
+        return new vscode.Range(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
+    }
+}

@@ -9,6 +9,8 @@ import { Constants } from "../common/constants";
 import { Utility } from "../common/utility";
 import { ContainerManager } from "../container/containerManager";
 
+// This class contains utility functions specific to IntelliSense features,
+// or more specifically, functions related to parser, which are unlikely to be used by non-IntelliSense classes.
 export class IntelliSenseUtility {
     public static locationMatch(location: parser.Location, jsonPath: string[]): boolean {
         return location.matches(jsonPath) && location.path.length === jsonPath.length;

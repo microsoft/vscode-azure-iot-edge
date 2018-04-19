@@ -231,7 +231,8 @@ export class Utility {
 
     public static async setSlnModulesMap(slnPath: string,
                                          moduleToImageMap: Map<string, string>,
-                                         imageToDockerfileMap: Map<string, string>): Promise<void> {
+                                         imageToDockerfileMap: Map<string, string>,
+                                         imageToBuildOptions?: Map<string, string[]>): Promise<void> {
         const modulesPath: string = path.join(slnPath, Constants.moduleFolder);
         const stat: fse.Stats = await fse.lstat(modulesPath);
         if (!stat.isDirectory()) {
@@ -241,14 +242,15 @@ export class Utility {
         const moduleDirs: string[] = await Utility.getSubDirectories(modulesPath);
         await Promise.all(
             moduleDirs.map(async (module) => {
-                await this.setModuleMap(module, moduleToImageMap, imageToDockerfileMap);
+                await this.setModuleMap(module, moduleToImageMap, imageToDockerfileMap, imageToBuildOptions);
             }),
         );
     }
 
     public static async setModuleMap(modulePath: string,
                                      moduleToImageMap: Map<string, string>,
-                                     imageToDockerfileMap: Map<string, string>): Promise<void> {
+                                     imageToDockerfileMap: Map<string, string>,
+                                     imageToBuildOptions?: Map<string, string[]>): Promise<void> {
         const moduleFile = path.join(modulePath, Constants.moduleManifest);
         const name: string = path.basename(modulePath);
         if (await fse.pathExists(moduleFile)) {
@@ -261,6 +263,12 @@ export class Utility {
                 const image: string = Utility.getImage(repo, version, platform);
                 moduleToImageMap.set(moduleKey, image);
                 imageToDockerfileMap.set(image, path.join(modulePath, module.image.tag.platforms[platform]));
+                if (imageToBuildOptions !== undefined) {
+                    const options = module.image.buildOptions;
+                    if (options !== undefined && options instanceof Array) {
+                        imageToBuildOptions.set(image, options);
+                    }
+                }
             });
         }
     }

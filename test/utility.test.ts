@@ -39,6 +39,18 @@ suite("utility tests", () => {
     assert.equal(valid, "test_Multiple_space");
   });
 
+  test("setModuleMap", async () => {
+    const moduleDir = path.resolve(__dirname, "../../testResources/module1");
+    const moduleToImageMap: Map<string, string> = new Map();
+    const imageToDockerfileMap: Map<string, string> = new Map();
+    const imageToBuildOptions: Map<string, string[]> = new Map();
+    await Utility.setModuleMap(moduleDir, moduleToImageMap, imageToDockerfileMap, imageToBuildOptions);
+    assert.equal(moduleToImageMap.size, 4);
+    assert.equal(imageToDockerfileMap.size, 4);
+    assert.equal(imageToBuildOptions.size, 4);
+    assert.equal(imageToBuildOptions.get("localhost:5000/samplemodule:0.0.1-amd64").length, 8);
+  }).timeout(60 * 1000);
+
   test("replaceAll", async () => {
     // tslint:disable-next-line:quotemark
     const input: string = '"%MODULE%": {\

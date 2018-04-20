@@ -1,16 +1,19 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
 "use strict";
-import * as fse from "fs-extra";
-import { createScanner, getLocation, JSONScanner, Location, Node, parse, SyntaxKind } from "jsonc-parser";
+import * as parser from "jsonc-parser";
 import * as path from "path";
 import * as vscode from "vscode";
-import { Constants } from "./constants";
-import { Utility } from "./utility";
+import { Constants } from "../common/constants";
+import { Utility } from "../common/utility";
+import { IntelliSenseUtility } from "./intelliSenseUtility";
 
-export class JsonCompletionItemProvider implements vscode.CompletionItemProvider {
+export class ConfigCompletionItemProvider implements vscode.CompletionItemProvider {
     public async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.CompletionItem[]> {
-        const location: Location = getLocation(document.getText(), document.offsetAt(position));
+        const location: parser.Location = parser.getLocation(document.getText(), document.offsetAt(position));
 
-        if (Utility.compareArray(location.path, Constants.moduleDpManifestJsonPath, Constants.moduleDpManifestJsonPath.length)) {
+        if (IntelliSenseUtility.locationMatch(location, Constants.moduleDeploymentManifestJsonPath)) {
             const moduleCompletionItem = new vscode.CompletionItem(Constants.moduleSnippetLabel);
             moduleCompletionItem.filterText = `\"${Constants.moduleSnippetLabel}\"`;
             moduleCompletionItem.kind = vscode.CompletionItemKind.Snippet;
@@ -31,27 +34,28 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
             return [moduleCompletionItem];
         }
 
-        // Disable these completion items temporarily because they will be duplicate with built-in JSON completion items
+        // Disable following two group of completion items temporarily because they will be duplicate with built-in JSON completion items
+        // Tracking issue: https://github.com/Microsoft/vscode/issues/45864
+
         // if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
         //     && location.path[2] === "properties.desired" && location.path[3] === "modules"
         //     && location.path[5] === "status") {
         //     return this.getCompletionItems(Constants.moduleStatuses, document, position);
         // }
 
-        // Disable these completion items temporarily because they will be duplicate with built-in JSON completion items
         // if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
         //     && location.path[2] === "properties.desired" && location.path[3] === "modules"
         //     && location.path[5] === "restartPolicy") {
         //     return this.getCompletionItems(Constants.moduleRestartPolicies, document, position);
         // }
 
-        if (Utility.compareArray(location.path, Constants.imgDeploymentManifestJsonPath, Constants.moduleNameDpManifestJsonPathIndex)) {
+        if (IntelliSenseUtility.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
             const images: string[] = await this.getSlnImgPlaceholders(document.uri);
             return this.getCompletionItems(images, document, position, location);
         }
 
-        if (Utility.compareArray(location.path, Constants.routeDeploymentManifestJsonPath, Constants.routeDeploymentManifestJsonPath.length)) {
-            const json = parse(document.getText());
+        if (IntelliSenseUtility.locationMatch(location, Constants.routeDeploymentManifestJsonPath)) {
+            const json = parser.parse(document.getText());
             const modules: any = ((json.moduleContent.$edgeAgent || {})["properties.desired"] || {}).modules || {};
             const moduleIds: string[] = Object.keys(modules);
 
@@ -83,9 +87,9 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
         }
     }
 
-    private getCompletionItems(values: string[], document: vscode.TextDocument, position: vscode.Position, location: Location): vscode.CompletionItem[] {
+    private getCompletionItems(values: string[], document: vscode.TextDocument, position: vscode.Position, location: parser.Location): vscode.CompletionItem[] {
         const offset: number = document.offsetAt(position);
-        const node: Node = location.previousNode;
+        const node: parser.Node = location.previousNode;
 
         const overwriteRange: vscode.Range = this.getOverwriteRange(document, position, offset, node);
         const separator: string = this.evaluateSeparaterAfter(document, position, offset, node);
@@ -104,7 +108,7 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
     }
 
     // this method calculates the range to overwrite with the completion text
-    private getOverwriteRange(document: vscode.TextDocument, position: vscode.Position, offset: number, node: Node): vscode.Range {
+    private getOverwriteRange(document: vscode.TextDocument, position: vscode.Position, offset: number, node: parser.Node): vscode.Range {
         let overwriteRange: vscode.Range;
         if (node && node.offset <= offset && offset <= node.offset + node.length
             && (node.type === "property" || node.type === "string" || node.type === "number" || node.type === "boolean" || node.type === "null")) {
@@ -129,21 +133,21 @@ export class JsonCompletionItemProvider implements vscode.CompletionItemProvider
     }
 
     // this method evaluates whether to append a comma at the end of the completion text
-    private evaluateSeparaterAfter(document: vscode.TextDocument, position: vscode.Position, offset: number, node: Node) {
+    private evaluateSeparaterAfter(document: vscode.TextDocument, position: vscode.Position, offset: number, node: parser.Node) {
         // when the cursor is placed in a node, set the scanner location to the end of the node
         if (node && (node.type === "string" || node.type === "number" || node.type === "boolean" || node.type === "null")) {
             offset = node.offset + node.length;
         }
 
-        const scanner: JSONScanner = createScanner(document.getText(), true);
+        const scanner: parser.JSONScanner = parser.createScanner(document.getText(), true);
         scanner.setPosition(offset);
-        const token: SyntaxKind = scanner.scan();
+        const token: parser.SyntaxKind = scanner.scan();
         switch (token) {
-            // do not append a comman when next token is comma or other close tokens
-            case SyntaxKind.CommaToken:
-            case SyntaxKind.CloseBraceToken:
-            case SyntaxKind.CloseBracketToken:
-            case SyntaxKind.EOF:
+            // do not append a comma when next token is comma or other close tokens
+            case parser.SyntaxKind.CommaToken:
+            case parser.SyntaxKind.CloseBraceToken:
+            case parser.SyntaxKind.CloseBracketToken:
+            case parser.SyntaxKind.EOF:
                 return "";
             default:
                 return ",";

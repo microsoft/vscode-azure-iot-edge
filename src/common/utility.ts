@@ -169,8 +169,7 @@ export class Utility {
     }
 
     public static expandModules(input: string, moduleMap: Map<string, string>): string {
-        const pattern: RegExp = new RegExp(/\${MODULES\..+}/g);
-        return input.replace(pattern, (matched) => {
+        return input.replace(Constants.imagePlaceholderPattern, (matched) => {
             const key: string = matched.replace(/\$|{|}/g, "");
             if (moduleMap.has(key)) {
                 const value: string = moduleMap.get(key);
@@ -274,8 +273,12 @@ export class Utility {
         }
     }
 
-    public static compareArray(array1: any[], array2: any[], ...exceptIndexes: number[]): boolean {
-        return array1.length === array2.length
-            && array1.every((value, index) => array2[index] === value || exceptIndexes.indexOf(index) !== -1);
+    // Remove the wrapping "${" and "}" of a image placeholder
+    public static unwrapImagePlaceholder(imagePlaceholder: string): string {
+        if (imagePlaceholder.search(Constants.imagePlaceholderPattern) === 0 && imagePlaceholder.endsWith("}")) {
+            return imagePlaceholder.slice(2, -1);
+        }
+
+        return undefined;
     }
 }

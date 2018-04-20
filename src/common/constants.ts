@@ -19,6 +19,7 @@ export class Constants {
     public static appFolder = "%APP_FOLDER%";
     public static repositoryPlaceholder = "%REPOSITORY%";
     public static dllPlaceholder = "%DLLNAME%";
+    public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}/g);
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
     public static LANGUAGE_CSHARP = "C# Module";
@@ -33,7 +34,7 @@ export class Constants {
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";
     public static userCancelled = "Cancelled by user";
-    public static edgeChannel = "Azure IoT Edge";
+    public static edgeDisplayName = "Azure IoT Edge";
     public static solutionName = "Solution Name";
     public static solutionNamePrompt = "Provide a Solution Name";
     public static solutionNameDft = "EdgeSolution";
@@ -65,12 +66,12 @@ export class Constants {
     public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;
     public static selectPlatform = "Select Platform";
     // the last item is the module name enterred by the user which cannot be determined yet and will be skipped for checking
-    public static moduleDpManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", ""];
-    public static moduleNameDpManifestJsonPathIndex = 4;
+    public static moduleDeploymentManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", "*"];
+    public static moduleNameDeploymentManifestJsonPathIndex = 4;
     // the 4th item is the module name enterred by the user which cannot be determined yet and will be skipped for checking
-    public static imgDeploymentManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", "", "settings", "image"];
+    public static imgDeploymentManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", "*", "settings", "image"];
     // the last item is the route name enterred by the user which cannot be determined yet and will be skipped for checking
-    public static routeDeploymentManifestJsonPath = ["moduleContent", "$edgeHub", "properties.desired", "routes", ""];
+    public static routeDeploymentManifestJsonPath = ["moduleContent", "$edgeHub", "properties.desired", "routes", "*"];
     public static moduleTypes = ["docker"];
     public static moduleStatuses = ["running", "stopped"];
     public static moduleRestartPolicies = ["always", "never", "on-failed", "on-unhealthy"];
@@ -78,4 +79,5 @@ export class Constants {
     public static moduleSnippetDetail = "Module for edgeAgent to start";
     public static routeSnippetLabel = "edgeRoute";
     public static routeSnippetDetail = "Route for the Edge Hub. Route name is used as the key for the route. To delete a route, set the route name as null";
+    public static platformModuleManifestJsonPath = ["image", "tag", "platforms", "*"];
 }

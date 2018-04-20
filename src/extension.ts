@@ -6,12 +6,15 @@ import * as vscode from "vscode";
 import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
-import { JsonCompletionItemProvider } from "./common/jsonCompletionItemProvider";
 import { TelemetryClient } from "./common/telemetryClient";
 import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
+import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionItemProvider";
+import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
+import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
+import { ConfigHoverProvider } from "./intelliSense/configHoverProvider";
 
 export function activate(context: vscode.ExtensionContext) {
     TelemetryClient.sendEvent("extensionActivated");
@@ -21,9 +24,22 @@ export function activate(context: vscode.ExtensionContext) {
 
     Utility.registerDebugTelemetryListener();
 
-    context.subscriptions.push(vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new JsonCompletionItemProvider(), "\"", ".", ":"));
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new ConfigCompletionItemProvider(), "\"", ".", ":"));
+    context.subscriptions.push(vscode.languages.registerHoverProvider([{ language: "json" }, { language: "jsonc" }], new ConfigHoverProvider()));
+    // Calling registerDefinitionProvider will add "Go to definition" and "Peek definition" context menus to documents matched with the filter.
+    // Use the strict { pattern: "**/deployment.template.json" } instead of { language: "json" }, { language: "jsonc" } to avoid polluting the context menu of non-config JSON files.
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider([{ pattern: "**/deployment.template.json" }], new ConfigDefinitionProvider()));
 
-    const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeChannel);
+    const diagCollection: vscode.DiagnosticCollection = vscode.languages.createDiagnosticCollection(Constants.edgeDisplayName);
+    const configDiagnosticProvider: ConfigDiagnosticProvider = new ConfigDiagnosticProvider();
+    if (vscode.window.activeTextEditor) {
+        configDiagnosticProvider.updateDiagnostics(vscode.window.activeTextEditor.document, diagCollection);
+    }
+    context.subscriptions.push(diagCollection);
+    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => configDiagnosticProvider.updateDiagnostics(event.document, diagCollection)));
+    context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => configDiagnosticProvider.updateDiagnostics(document, diagCollection)));
+
+    const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     context.subscriptions.push(outputChannel);
 
     initCommmandAsync(context, outputChannel,

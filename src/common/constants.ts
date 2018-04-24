@@ -63,6 +63,7 @@ export class Constants {
     public static generateDeploymentEvent = "generateDeployment";
     public static addModuleEvent = "addModule";
     public static launchCSharp = "launch_csharp.json";
+    public static launchJS = "launch_js.json";
     public static noSolutionFileMessage = "no solution file";
     public static manifestGenerated = "Deployment manifest has been generated at config/deployment.json.";
     public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;

@@ -196,6 +196,8 @@ export class EdgeManager {
                 launchFile = Constants.launchCSharp;
                 mapObj.set(Constants.appFolder, "/app");
                 break;
+            case Constants.LANGUAGE_JS:
+                launchFile = Constants.launchJS;
             default:
                 break;
         }
@@ -230,7 +232,7 @@ export class EdgeManager {
                     `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName}`);
                 break;
             case Constants.LANGUAGE_JS:
-                await Executor.executeCMD(outputChannel, "npm", {shell: true}, "i -g yo generator-azure-iot-edge-module");
+                // await Executor.executseCMD(outputChannel, "npm", {shell: true}, "i -g yo generator-azure-iot-edge-module");
                 await Executor.executeCMD(outputChannel, "yo", {cwd: `${parent}`, shell: true}, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
                 break;
             default:

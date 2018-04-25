@@ -196,8 +196,8 @@ export class EdgeManager {
                 launchFile = Constants.launchCSharp;
                 mapObj.set(Constants.appFolder, "/app");
                 break;
-            case Constants.LANGUAGE_NODEJS:
-                launchFile = Constants.launchJS;
+            case Constants.LANGUAGE_NODE:
+                launchFile = Constants.launchNode;
             default:
                 break;
         }
@@ -231,7 +231,7 @@ export class EdgeManager {
                     {cwd: `${parent}`, shell: true},
                     `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName}`);
                 break;
-            case Constants.LANGUAGE_NODEJS:
+            case Constants.LANGUAGE_NODE:
                 // await Executor.executseCMD(outputChannel, "npm", {shell: true}, "i -g yo generator-azure-iot-edge-module");
                 await Executor.executeCMD(outputChannel, "yo", {cwd: `${parent}`, shell: true}, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
                 break;
@@ -336,8 +336,8 @@ export class EdgeManager {
                 description: Constants.LANGUAGE_PYTHON_DESCRIPTION,
             },
             {
-                label: Constants.LANGUAGE_NODEJS,
-                description: Constants.LANGUAGE_NODEJS_DESCRIPTION,
+                label: Constants.LANGUAGE_NODE,
+                description: Constants.LANGUAGE_NODE_DESCRIPTION,
             },
             {
                 label: Constants.EXISTING_MODULE,

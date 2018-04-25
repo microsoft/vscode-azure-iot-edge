@@ -25,12 +25,12 @@ export class Constants {
     public static LANGUAGE_CSHARP = "C# Module";
     public static CSHARP_FUNCTION = "Azure Functions - C#";
     public static LANGUAGE_PYTHON = "Python Module";
-    public static LANGUAGE_NODEJS = "Node.js Module";
+    public static LANGUAGE_NODE = "Node.js Module";
     public static EXISTING_MODULE = "Existing Module";
     public static LANGUAGE_CSHARP_DESCRIPTION = "Use Azure IoT C# SDK to build a module";
     public static CSHARP_FUNCTION_DESCRIPTION = "Create an Azure Function and deploy to IoT Edge";
     public static LANGUAGE_PYTHON_DESCRIPTION = "Use Azure IoT Python SDK to build a module";
-    public static LANGUAGE_NODEJS_DESCRIPTION= "Use Azure IoT Node.js SDK to build a module";
+    public static LANGUAGE_NODE_DESCRIPTION= "Use Azure IoT Node.js SDK to build a module";
     public static EXISTING_MODULE_DESCRIPTION = "Import an exsting module image from any container registry";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
@@ -63,7 +63,7 @@ export class Constants {
     public static generateDeploymentEvent = "generateDeployment";
     public static addModuleEvent = "addModule";
     public static launchCSharp = "launch_csharp.json";
-    public static launchJS = "launch_js.json";
+    public static launchNode = "launch_node.json";
     public static noSolutionFileMessage = "no solution file";
     public static manifestGenerated = "Deployment manifest has been generated at config/deployment.json.";
     public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;

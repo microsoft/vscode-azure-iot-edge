@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug IoT Edge Module %MODULE% (JavaScript)",
+            "name": "Debug IoT Edge Module %MODULE% (Node.js)",
             "type": "node",
             "request": "attach",
             "port": 9229,
@@ -12,7 +12,7 @@
             "protocol": "inspector"
         },
         {
-          "name": "Debug IoT Edge Module %MODULE% (JavaScript in Windows Container)",
+          "name": "Debug IoT Edge Module %MODULE% (Node.j in Windows Container)",
           "type": "node",
           "request": "attach",
           "port": 9229,

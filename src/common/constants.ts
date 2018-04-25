@@ -25,12 +25,12 @@ export class Constants {
     public static LANGUAGE_CSHARP = "C# Module";
     public static CSHARP_FUNCTION = "Azure Functions - C#";
     public static LANGUAGE_PYTHON = "Python Module";
-    public static LANGUAGE_JS = "JavaScript Module";
+    public static LANGUAGE_NODEJS = "Node.js Module";
     public static EXISTING_MODULE = "Existing Module";
     public static LANGUAGE_CSHARP_DESCRIPTION = "Use Azure IoT C# SDK to build a module";
     public static CSHARP_FUNCTION_DESCRIPTION = "Create an Azure Function and deploy to IoT Edge";
     public static LANGUAGE_PYTHON_DESCRIPTION = "Use Azure IoT Python SDK to build a module";
-    public static LANGUAGE_JS_DESCRIPTION= "Use Azure IoT Node.js SDK to build a module";
+    public static LANGUAGE_NODEJS_DESCRIPTION= "Use Azure IoT Node.js SDK to build a module";
     public static EXISTING_MODULE_DESCRIPTION = "Import an exsting module image from any container registry";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";

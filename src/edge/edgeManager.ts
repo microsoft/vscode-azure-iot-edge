@@ -196,6 +196,9 @@ export class EdgeManager {
                 launchFile = Constants.launchCSharp;
                 mapObj.set(Constants.appFolder, "/app");
                 break;
+            case Constants.LANGUAGE_NODE:
+                launchFile = Constants.launchNode;
+                break;
             default:
                 break;
         }
@@ -228,6 +231,10 @@ export class EdgeManager {
                     "cookiecutter",
                     {cwd: `${parent}`, shell: true},
                     `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName}`);
+                break;
+            case Constants.LANGUAGE_NODE:
+                // await Executor.executseCMD(outputChannel, "npm", {shell: true}, "i -g yo generator-azure-iot-edge-module");
+                await Executor.executeCMD(outputChannel, "yo", {cwd: `${parent}`, shell: true}, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
                 break;
             default:
                 break;
@@ -322,12 +329,16 @@ export class EdgeManager {
                 description: Constants.LANGUAGE_CSHARP_DESCRIPTION,
             },
             {
-                label: Constants.CSHARP_FUNCTION,
-                description: Constants.CSHARP_FUNCTION_DESCRIPTION,
+                label: Constants.LANGUAGE_NODE,
+                description: Constants.LANGUAGE_NODE_DESCRIPTION,
             },
             {
                 label: Constants.LANGUAGE_PYTHON,
                 description: Constants.LANGUAGE_PYTHON_DESCRIPTION,
+            },
+            {
+                label: Constants.CSHARP_FUNCTION,
+                description: Constants.CSHARP_FUNCTION_DESCRIPTION,
             },
             {
                 label: Constants.EXISTING_MODULE,

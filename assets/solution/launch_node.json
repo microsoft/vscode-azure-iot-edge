@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug IoT Edge Module %MODULE% (Node.js)",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "address": "localhost",
+            "localRoot": "${workspaceRoot}/modules/%MODULE_FOLDER%",
+            "remoteRoot": "/app",
+            "protocol": "inspector"
+        },
+        {
+          "name": "Debug IoT Edge Module %MODULE% (Node.js in Windows Container)",
+          "type": "node",
+          "request": "attach",
+          "port": 9229,
+          "address": "localhost",
+          "localRoot": "${workspaceRoot}/modules/%MODULE_FOLDER%",
+          "remoteRoot": "C:\\app",
+          "protocol": "inspector"
+      }
+    ]
+  }

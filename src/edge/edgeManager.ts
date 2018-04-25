@@ -198,6 +198,7 @@ export class EdgeManager {
                 break;
             case Constants.LANGUAGE_NODE:
                 launchFile = Constants.launchNode;
+                break;
             default:
                 break;
         }

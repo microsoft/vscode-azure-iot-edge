@@ -328,16 +328,16 @@ export class EdgeManager {
                 description: Constants.LANGUAGE_CSHARP_DESCRIPTION,
             },
             {
-                label: Constants.CSHARP_FUNCTION,
-                description: Constants.CSHARP_FUNCTION_DESCRIPTION,
+                label: Constants.LANGUAGE_NODE,
+                description: Constants.LANGUAGE_NODE_DESCRIPTION,
             },
             {
                 label: Constants.LANGUAGE_PYTHON,
                 description: Constants.LANGUAGE_PYTHON_DESCRIPTION,
             },
             {
-                label: Constants.LANGUAGE_NODE,
-                description: Constants.LANGUAGE_NODE_DESCRIPTION,
+                label: Constants.CSHARP_FUNCTION,
+                description: Constants.CSHARP_FUNCTION_DESCRIPTION,
             },
             {
                 label: Constants.EXISTING_MODULE,

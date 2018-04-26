@@ -227,10 +227,11 @@ export class EdgeManager {
                 break;
             case Constants.LANGUAGE_PYTHON:
                 const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
+                const branch = "master";
                 await Executor.executeCMD(outputChannel,
                     "cookiecutter",
                     {cwd: `${parent}`, shell: true},
-                    `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName}`);
+                    `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`);
                 break;
             case Constants.LANGUAGE_NODE:
                 // await Executor.executseCMD(outputChannel, "npm", {shell: true}, "i -g yo generator-azure-iot-edge-module");

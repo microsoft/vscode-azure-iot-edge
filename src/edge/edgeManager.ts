@@ -120,7 +120,7 @@ export class EdgeManager {
         }
 
         const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "is updated.";
-        const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' is created. `;
+        const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
         vscode.window.showInformationMessage(`${moduleCreationMessage}'deployment.template.json' ${launchUpdated}`);
     }
 

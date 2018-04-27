@@ -2,7 +2,7 @@
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-blue.svg)](https://gitter.im/Microsoft/vscode-azure-iot-edge)
 
 ## Overview
-Azure IoT Edge extension <sup>Preview</sup> makes it easy to code, build, deploy, and debug your [IoT Edge](https://docs.microsoft.com/azure/iot-edge/how-iot-edge-works) solutions in Visual Studio Code, by providing a rich set of functionalities:
+[Azure IoT Edge extension](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-edge) <sup>Preview</sup> makes it easy to code, build, deploy, and debug your [IoT Edge](https://docs.microsoft.com/azure/iot-edge/how-iot-edge-works) solutions in Visual Studio Code, by providing a rich set of functionalities:
 
 - Create new IoT Edge solution
 - Add new IoT Edge module to Edge solution
@@ -32,7 +32,9 @@ For C# developers, you can develop, debug and deploy [C# modules](https://docs.m
 For Python developers, you can develop and deploy [Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Python for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 
-We will soon support other languages and more services on IoT Edge.
+For Node.js developer, you can develop, debug and deploy [Node.js module](https://docs.microsoft.com/en-us/azure/iot-edge/tutorial-node-module)
+
+We will soon support other languages and more services on Azure IoT Edge.
 
 ## Commnads
 
@@ -75,10 +77,15 @@ You can also trigger following frequently-used commands in context menu.
 ## Resources
 - [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-csharp-module)
 - [Debug C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-csharp-module)
+- [Develop and deploy Node.js module](https://docs.microsoft.com/en-us/azure/iot-edge/tutorial-node-module)
+- [Debug Node.js module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-node-module)
+- [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Develop and deploy Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-azure-function)
 - [Debug Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-azure-function)
-- [Develop and deploy Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Work with multiple modules in VS Code](https://docs.microsoft.com/azure/iot-edge/tutorial-multiple-modules-in-vscode)
+- [IoT Edge continuous integration and continuous deployment](https://docs.microsoft.com/azure/iot-edge/how-to-ci-cd)
+- [Azure IoT Edge for Visual Studio Team Service](https://marketplace.visualstudio.com/items?itemName=vsc-iot.iot-edge-build-deploy)
+
 
 ## Supported Operating Systems
 Currently this extension supports the following operating systems:

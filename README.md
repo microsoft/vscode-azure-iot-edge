@@ -2,7 +2,7 @@
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-blue.svg)](https://gitter.im/Microsoft/vscode-azure-iot-edge)
 
 ## Overview
-[Azure IoT Edge extension](https://github.com/shizn/azure-docs-pr/blob/master/articles/iot-edge/how-to-ci-cd.md) <sup>Preview</sup> makes it easy to code, build, deploy, and debug your [IoT Edge](https://docs.microsoft.com/azure/iot-edge/how-iot-edge-works) solutions in Visual Studio Code, by providing a rich set of functionalities:
+[Azure IoT Edge extension](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-edge) <sup>Preview</sup> makes it easy to code, build, deploy, and debug your [IoT Edge](https://docs.microsoft.com/azure/iot-edge/how-iot-edge-works) solutions in Visual Studio Code, by providing a rich set of functionalities:
 
 - Create new IoT Edge solution
 - Add new IoT Edge module to Edge solution
@@ -83,6 +83,9 @@ You can also trigger following frequently-used commands in context menu.
 - [Develop and deploy Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-azure-function)
 - [Debug Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-azure-function)
 - [Work with multiple modules in VS Code](https://docs.microsoft.com/azure/iot-edge/tutorial-multiple-modules-in-vscode)
+- [IoT Edge continuous integration and continuous deployment](https://docs.microsoft.com/azure/iot-edge/how-to-ci-cd.md)
+- [Azure IoT Edge for Visual Studio Team Service](https://marketplace.visualstudio.com/items?itemName=vsc-iot.iot-edge-build-deploy)
+
 
 ## Supported Operating Systems
 Currently this extension supports the following operating systems:

@@ -2,7 +2,7 @@
 ## 0.3.0 - 2018-04-??
 ### Added
 * Add Node.js module to solution (read the documentation [here](https://docs.microsoft.com/en-us/azure/iot-edge/tutorial-node-module))
-* Import existing module from Docker registry when adding new module to solution
+* Import existing module from container registry when adding new module to solution
 * Support adding extra Docker build options in the `buildOptions` array of module.json
 * New IntelliSense features (watch the screencasts [here](https://github.com/Microsoft/vscode-azure-iot-edge/issues/115))
   * Dockerfile path validation in module.json

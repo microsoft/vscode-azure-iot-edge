@@ -83,7 +83,7 @@ You can also trigger following frequently-used commands in context menu.
 - [Develop and deploy Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-azure-function)
 - [Debug Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-azure-function)
 - [Work with multiple modules in VS Code](https://docs.microsoft.com/azure/iot-edge/tutorial-multiple-modules-in-vscode)
-- [IoT Edge continuous integration and continuous deployment](https://docs.microsoft.com/azure/iot-edge/how-to-ci-cd.md)
+- [IoT Edge continuous integration and continuous deployment](https://docs.microsoft.com/azure/iot-edge/how-to-ci-cd)
 - [Azure IoT Edge for Visual Studio Team Service](https://marketplace.visualstudio.com/items?itemName=vsc-iot.iot-edge-build-deploy)
 
 

@@ -120,7 +120,7 @@ export class EdgeManager {
         }
 
         const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "is updated.";
-        const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' is created. `;
+        const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
         vscode.window.showInformationMessage(`${moduleCreationMessage}'deployment.template.json' ${launchUpdated}`);
     }
 
@@ -227,13 +227,14 @@ export class EdgeManager {
                 break;
             case Constants.LANGUAGE_PYTHON:
                 const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
+                const branch = "master";
                 await Executor.executeCMD(outputChannel,
                     "cookiecutter",
                     {cwd: `${parent}`, shell: true},
-                    `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName}`);
+                    `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`);
                 break;
             case Constants.LANGUAGE_NODE:
-                // await Executor.executseCMD(outputChannel, "npm", {shell: true}, "i -g yo generator-azure-iot-edge-module");
+                await Executor.executeCMD(outputChannel, "npm", {shell: true}, "i -g generator-azure-iot-edge-module");
                 await Executor.executeCMD(outputChannel, "yo", {cwd: `${parent}`, shell: true}, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
                 break;
             default:

@@ -32,8 +32,6 @@ For C# developers, you can develop, debug and deploy [C# modules](https://docs.m
 For Python developers, you can develop and deploy [Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Python for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 
-For Node.js developer, you can develop, debug and deploy [Node.js module](https://docs.microsoft.com/en-us/azure/iot-edge/tutorial-node-module)
-
 We will soon support other languages and more services on Azure IoT Edge.
 
 ## Commands
@@ -77,8 +75,6 @@ You can also trigger following frequently-used commands in context menu.
 ## Resources
 - [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-csharp-module)
 - [Debug C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-csharp-module)
-- [Develop and deploy Node.js module](https://docs.microsoft.com/en-us/azure/iot-edge/tutorial-node-module)
-- [Debug Node.js module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-node-module)
 - [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Develop and deploy Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-azure-function)
 - [Debug Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-azure-function)

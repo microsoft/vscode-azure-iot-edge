@@ -211,7 +211,7 @@
     "mocha": "^2.3.3",
     "tslint": "^5.7.0",
     "typescript": "^2.0.3",
-    "vscode": "^1.1.13"
+    "vscode": "^1.1.16"
   },
   "dependencies": {
     "fs-extra": "^4.0.2",

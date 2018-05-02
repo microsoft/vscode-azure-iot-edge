@@ -329,10 +329,10 @@ export class EdgeManager {
                 label: Constants.LANGUAGE_CSHARP,
                 description: Constants.LANGUAGE_CSHARP_DESCRIPTION,
             },
-            {
-                label: Constants.LANGUAGE_NODE,
-                description: Constants.LANGUAGE_NODE_DESCRIPTION,
-            },
+            // {
+            //     label: Constants.LANGUAGE_NODE,
+            //     description: Constants.LANGUAGE_NODE_DESCRIPTION,
+            // },
             {
                 label: Constants.LANGUAGE_PYTHON,
                 description: Constants.LANGUAGE_PYTHON_DESCRIPTION,

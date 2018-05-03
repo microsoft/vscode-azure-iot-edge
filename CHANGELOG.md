@@ -9,6 +9,7 @@
   * Dockerfile content hover preview in deployment.template.json
   * Go-to-Dockerfile in deployment.template.json
 * "Azure" branding to command palette category
+
 ### Changed
 * Always check out the `master` branch of [Cookiecutter template](https://github.com/Azure/cookiecutter-azure-iot-edge-module/) when adding Python module
 

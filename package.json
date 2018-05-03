@@ -39,7 +39,7 @@
     "onCommand:azure-iot-edge.buildAndPushModuleImage",
     "onCommand:azure-iot-edge.newSolution",
     "onCommand:azure-iot-edge.generateDeployment",
-    "onCommand:azure-iot-edge.addModulde",
+    "onCommand:azure-iot-edge.addModule",
     "onCommand:azure-iot-edge.convertModule",
     "workspaceContains:**/deployment.template.json"
   ],
@@ -77,7 +77,7 @@
         },
         {
           "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.addModulde"
+          "command": "azure-iot-edge.addModule"
         },
         {
           "when": "resourceExtname == .csproj",
@@ -116,7 +116,7 @@
         "category": "Azure IoT Edge"
       },
       {
-        "command": "azure-iot-edge.addModulde",
+        "command": "azure-iot-edge.addModule",
         "title": "Add IoT Edge Module",
         "category": "Azure IoT Edge"
       },

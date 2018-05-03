@@ -82,7 +82,7 @@ export class Utility {
     public static registerDebugTelemetryListener() {
         vscode.debug.onDidStartDebugSession((session) => {
             if (session.name.startsWith(Constants.EdgeDebugSessionPrefix)) {
-                TelemetryClient.sendEvent("startDebugSession", { sessionName: session.name });
+                TelemetryClient.sendEvent("startDebugSession");
             }
         });
     }

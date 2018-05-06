@@ -220,6 +220,7 @@
     "vscode-extension-telemetry": "0.0.8"
   },
   "extensionDependencies": [
+    "ms-vscode.azure-account",
     "vsciot-vscode.azure-iot-toolkit"
   ]
 }

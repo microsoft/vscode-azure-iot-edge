@@ -83,4 +83,5 @@ export class Constants {
     public static routeSnippetLabel = "edgeRoute";
     public static routeSnippetDetail = "Route for the Edge Hub. Route name is used as the key for the route. To delete a route, set the route name as null";
     public static platformModuleManifestJsonPath = ["image", "tag", "platforms", "*"];
+    public static envFile = ".env";
 }

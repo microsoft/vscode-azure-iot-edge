@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 "use strict";
+import * as dotenv from "dotenv";
 import * as fse from "fs-extra";
 import * as os from "os";
 import * as path from "path";
@@ -280,5 +281,14 @@ export class Utility {
         }
 
         return undefined;
+    }
+
+    public static async loadEnv(envFilePath: string) {
+        if (await fse.pathExists(envFilePath)) {
+            const envConfig = dotenv.parse(await fse.readFile(envFilePath));
+            for (const k of Object.keys(envConfig)) {
+                process.env[k] = envConfig[k];
+            }
+        }
     }
 }

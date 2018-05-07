@@ -2,18 +2,23 @@
 // Licensed under the MIT license.
 
 "use strict";
+import { ContainerRegistryManagementClient } from "azure-arm-containerregistry";
+import { Registry } from "azure-arm-containerregistry/lib/models";
 import * as fse from "fs-extra";
 import * as path from "path";
 import * as stripJsonComments from "strip-json-comments";
 import * as vscode from "vscode";
+import { AzureAccount } from "../../typings/azure-account.api";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 
 export class EdgeManager {
+    private readonly accountApi: AzureAccount;
 
     constructor(private context: vscode.ExtensionContext) {
+        this.accountApi = vscode.extensions.getExtension<AzureAccount>("ms-vscode.azure-account")!.exports;
     }
 
     public async createEdgeSolution(outputChannel: vscode.OutputChannel,
@@ -311,7 +316,9 @@ export class EdgeManager {
     private async inputImage(module: string, template: string): Promise<{repositoryName: string, imageName: string}> {
         let repositoryName: string = "";
         let imageName: string = "";
-        if (template === Constants.EXISTING_MODULE) {
+        if (template === Constants.ACR_MODULE) {
+            imageName = await this.selectAcrImage();
+        } else if (template === Constants.EXISTING_MODULE) {
             imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt);
         } else {
             repositoryName = await this.inputRepository(module);
@@ -339,6 +346,10 @@ export class EdgeManager {
                 description: Constants.CSHARP_FUNCTION_DESCRIPTION,
             },
             {
+                label: Constants.ACR_MODULE,
+                description: Constants.ACR_MODULE_DESCRIPTION,
+            },
+            {
                 label: Constants.EXISTING_MODULE,
                 description: Constants.EXISTING_MODULE_DESCRIPTION,
             },
@@ -351,5 +362,43 @@ export class EdgeManager {
             throw new UserCancelledError();
         }
         return templatePick.label;
+    }
+
+    private async selectAcrImage(): Promise<string> {
+        if (!(await this.accountApi.waitForLogin())) {
+            await vscode.commands.executeCommand("azure-account.askForLogin");
+        }
+
+        const acrItem: vscode.QuickPickItem = await vscode.window.showQuickPick(this.loadAcrItems(), {placeHolder: "Select Azure Container Registry", ignoreFocusOut: true});
+        if (!acrItem) {
+            throw new UserCancelledError();
+        }
+        return acrItem.label;
+    }
+
+    private async loadAcrItems() {
+        await this.accountApi.waitForLogin();
+        const registryPromises: Array<Promise<vscode.QuickPickItem[]>> = [];
+        for (const filter of this.accountApi.filters) {
+            const client = new ContainerRegistryManagementClient(
+                filter.session.credentials,
+                filter.subscription.subscriptionId!,
+            );
+
+            registryPromises.push(
+                Utility.listAll(client.registries, client.registries.list())
+                    .then((registries: Registry[]) => registries.map((registry: Registry) => {
+                        return {
+                            label: registry.loginServer || "",
+                            description: filter.subscription.displayName!,
+                            registry,
+                        };
+                    })),
+            );
+        }
+
+        const registryItems: vscode.QuickPickItem[] = ([] as vscode.QuickPickItem[]).concat(...(await Promise.all(registryPromises)));
+        registryItems.sort((a, b) => a.label.localeCompare(b.label));
+        return registryItems;
     }
 }

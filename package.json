@@ -214,6 +214,7 @@
     "vscode": "^1.1.17"
   },
   "dependencies": {
+    "azure-arm-containerregistry": "^2.2.0",
     "fs-extra": "^4.0.2",
     "jsonc-parser": "^1.0.1",
     "strip-json-comments": "^2.0.1",

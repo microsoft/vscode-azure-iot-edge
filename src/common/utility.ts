@@ -280,4 +280,20 @@ export class Utility {
 
         return undefined;
     }
+
+    public static async listAll<T>(client: IAzureClient<T>, first: Promise<IPartialList<T>>): Promise<T[]> {
+        const all: T[] = [];
+        for (let list = await first; list.length || list.nextLink; list = list.nextLink ? await client.listNext(list.nextLink) : []) {
+            all.push(...list);
+        }
+        return all;
+    }
+}
+
+export interface IAzureClient<T> {
+    listNext(nextPageLink: string): Promise<IPartialList<T>>;
+}
+
+export interface IPartialList<T> extends Array<T> {
+    nextLink?: string;
 }

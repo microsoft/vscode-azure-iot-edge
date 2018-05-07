@@ -10,13 +10,6 @@ suite("Extension Tests", () => {
         assert.ok(vscode.extensions.getExtension(Constants.ExtensionId));
     });
 
-    test("should activate", function() {
-        this.timeout(1 * 60 * 1000);
-        return vscode.extensions.getExtension(Constants.ExtensionId).activate().then((api) => {
-            assert.ok(true);
-        });
-    });
-
     test("should be able to get config", () => {
         const terminalRoot = Utility.getConfiguration().get<string>("terminalRoot");
         assert.equal(terminalRoot, "");

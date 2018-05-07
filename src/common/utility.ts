@@ -293,7 +293,8 @@ export class Utility {
         } catch (error) { }
     }
 
-    public static async listAll<T>(client: IAzureClient<T>, first: Promise<IPartialList<T>>): Promise<T[]> {
+    // The Azure API of listing resources is paginated. This method will follow the links and return all resources
+    public static async listAllAzureResource<T>(client: IAzureClient<T>, first: Promise<IPartialList<T>>): Promise<T[]> {
         const all: T[] = [];
         for (let list = await first; list.length || list.nextLink; list = list.nextLink ? await client.listNext(list.nextLink) : []) {
             all.push(...list);

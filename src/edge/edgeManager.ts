@@ -386,7 +386,7 @@ export class EdgeManager {
             );
 
             registryPromises.push(
-                Utility.listAll(client.registries, client.registries.list())
+                Utility.listAllAzureResource(client.registries, client.registries.list())
                     .then((registries: Registry[]) => registries.map((registry: Registry) => {
                         return {
                             label: registry.loginServer || "",

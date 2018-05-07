@@ -21,11 +21,12 @@ export class ContainerManager {
         const moduleConfigFilePath: string = await Utility.getInputFilePath(fileUri, Constants.moduleConfigFileNamePattern, Constants.moduleConfigFile, `${event}.selectModuleConfigFile`);
 
         if (moduleConfigFilePath) {
+            const directory = path.dirname(moduleConfigFilePath);
+            await Utility.loadEnv(path.join(directory, Constants.envFile));
             const moduleConfig = await Utility.readJsonAndExpandEnv(moduleConfigFilePath, "$schema");
             const platforms = moduleConfig.image.tag.platforms;
             const platform = await vscode.window.showQuickPick(Object.keys(platforms), { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
             if (platform) {
-                const directory = path.dirname(moduleConfigFilePath);
                 const dockerfilePath = path.join(directory, platforms[platform]);
                 const imageName = Utility.getImage(moduleConfig.image.repository, moduleConfig.image.tag.version, platform);
                 const options = moduleConfig.image.buildOptions;
@@ -72,6 +73,7 @@ export class ContainerManager {
         const imageToDockerfileMap: Map<string, string> = new Map();
         const imageToBuildOptions: Map<string, string[]> = new Map();
         const slnPath: string = path.dirname(templateFile);
+        await Utility.loadEnv(path.join(slnPath, Constants.envFile));
         await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap, imageToBuildOptions);
         const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
         const generatedDeployment: string = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);

@@ -26,7 +26,7 @@ export class Constants {
     public static LANGUAGE_NODE = "Node.js Module";
     public static LANGUAGE_PYTHON = "Python Module";
     public static CSHARP_FUNCTION = "Azure Functions - C#";
-    public static ACR_MODULE = "Existing Module on ACR";
+    public static ACR_MODULE = "Existing Module on Azure Container Registry";
     public static EXISTING_MODULE = "Existing Module";
     public static LANGUAGE_CSHARP_DESCRIPTION = "Use Azure IoT C# SDK to build a module";
     public static LANGUAGE_NODE_DESCRIPTION= "Use Azure IoT Node.js SDK to build a module";

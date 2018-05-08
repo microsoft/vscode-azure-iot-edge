@@ -14,13 +14,14 @@ import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
-import { AcrQuickPickItem } from "../container/models/AcrQuickPickItem";
+import { AcrRegistryQuickPickItem } from "../container/models/AcrRegistryQuickPickItem";
 
 export class EdgeManager {
-    private readonly accountApi: AzureAccount;
+    private readonly azureAccount: AzureAccount;
+    private refreshTokenArc: string;
 
     constructor(private context: vscode.ExtensionContext) {
-        this.accountApi = vscode.extensions.getExtension<AzureAccount>("ms-vscode.azure-account")!.exports;
+        this.azureAccount = vscode.extensions.getExtension<AzureAccount>("ms-vscode.azure-account")!.exports;
     }
 
     public async createEdgeSolution(outputChannel: vscode.OutputChannel,
@@ -367,88 +368,87 @@ export class EdgeManager {
     }
 
     private async selectAcrImage(): Promise<string> {
-        const acrItem: AcrQuickPickItem = await this.selectAcrRegistry();
-        if (acrItem === undefined) {
+        const acrRegistryItem: AcrRegistryQuickPickItem = await this.selectAcrRegistry();
+        if (acrRegistryItem === undefined) {
             throw new UserCancelledError();
         }
 
-        const acrRepoItem: vscode.QuickPickItem = await this.selectAcrRepo(acrItem);
+        const session: AzureSession = acrRegistryItem.azureSubscription.session;
+        const registryUrl: string = acrRegistryItem.registry.loginServer;
+
+        const acrRepoItem: vscode.QuickPickItem = await this.selectAcrRepo(registryUrl, session);
         if (acrRepoItem === undefined) {
             throw new UserCancelledError();
         }
 
-        const acrTagItem: vscode.QuickPickItem = await this.selectAcrTag(acrItem, acrRepoItem.label, "");
+        const acrTagItem: vscode.QuickPickItem = await this.selectAcrTag(registryUrl, acrRepoItem.label);
+        if (acrTagItem === undefined) {
+            throw new UserCancelledError();
+        }
 
         return acrTagItem.description;
     }
 
-    private async selectAcrRegistry(): Promise<AcrQuickPickItem> {
-        if (!(await this.accountApi.waitForLogin())) {
+    private async selectAcrRegistry(): Promise<AcrRegistryQuickPickItem> {
+        if (!(await this.azureAccount.waitForLogin())) {
             await vscode.commands.executeCommand("azure-account.askForLogin");
         }
 
-        const acrItem: AcrQuickPickItem = await vscode.window.showQuickPick(this.loadAcrRegistryItems(), { placeHolder: "Select Azure Container Registry", ignoreFocusOut: true });
-        return acrItem;
+        const acrRegistryItem: AcrRegistryQuickPickItem = await vscode.window.showQuickPick(this.loadAcrRegistryItems(), { placeHolder: "Select Azure Container Registry", ignoreFocusOut: true });
+        return acrRegistryItem;
     }
 
-    private async loadAcrRegistryItems(): Promise<AcrQuickPickItem[]> {
-        await this.accountApi.waitForLogin();
-        const registryPromises: Array<Promise<AcrQuickPickItem[]>> = [];
-        for (const filter of this.accountApi.filters) {
+    private async loadAcrRegistryItems(): Promise<AcrRegistryQuickPickItem[]> {
+        await this.azureAccount.waitForFilters();
+        const registryPromises: Array<Promise<AcrRegistryQuickPickItem[]>> = [];
+        for (const azureSubscription of this.azureAccount.filters) {
             const client = new ContainerRegistryManagementClient(
-                filter.session.credentials,
-                filter.subscription.subscriptionId!,
+                azureSubscription.session.credentials,
+                azureSubscription.subscription.subscriptionId!,
             );
 
             registryPromises.push(
                 Utility.listAllAzureResource(client.registries, client.registries.list())
                     .then((registries: Registry[]) => registries.map((registry: Registry) => {
-                        return new AcrQuickPickItem(registry, filter);
+                        return new AcrRegistryQuickPickItem(registry, azureSubscription);
                     })),
             );
         }
 
-        const registryItems: AcrQuickPickItem[] = ([] as AcrQuickPickItem[]).concat(...(await Promise.all(registryPromises)));
+        const registryItems: AcrRegistryQuickPickItem[] = ([] as AcrRegistryQuickPickItem[]).concat(...(await Promise.all(registryPromises)));
         registryItems.sort((a, b) => a.label.localeCompare(b.label));
         return registryItems;
     }
 
-    private async selectAcrRepo(acrItem: AcrQuickPickItem): Promise<vscode.QuickPickItem> {
-        const acrRepoItem: vscode.QuickPickItem = await vscode.window.showQuickPick(this.loadAcrRepoItems(acrItem), { placeHolder: "Select Repository", ignoreFocusOut: true });
+    private async selectAcrRepo(registryUrl: string, session: AzureSession): Promise<vscode.QuickPickItem> {
+        const acrRepoItem: vscode.QuickPickItem = await vscode.window.showQuickPick(this.loadAcrRepoItems(registryUrl, session), { placeHolder: "Select Repository", ignoreFocusOut: true });
         return acrRepoItem;
     }
 
-    private async loadAcrRepoItems(acrItem: AcrQuickPickItem): Promise<vscode.QuickPickItem[]> {
-        const session: AzureSession = acrItem.azureSubscription.session;
-        const { accessToken, refreshToken } = await this.acquireToken(session);
-        const url: string = acrItem.registry.loginServer;
+    private async loadAcrRepoItems(registryUrl: string, session: AzureSession): Promise<vscode.QuickPickItem[]> {
+        try {
+            const { accessToken, refreshToken } = await this.acquireToken(session);
+            this.refreshTokenArc = await this.acquireRefreshTokenArc(registryUrl, session.tenantId, refreshToken, accessToken);
+            const accessTokenArc = await this.acquireAccessTokenArc(registryUrl, "registry:catalog:*", this.refreshTokenArc);
 
-        if (accessToken && refreshToken) {
-            try {
-                const refreshTokenArc = await this.acquireRefreshTokenArc(url, url, session.tenantId, refreshToken, accessToken);
+            const catalogResponse = await request.get(`https://${registryUrl}/v2/_catalog`, {
+                auth: {
+                    bearer: accessTokenArc,
+                },
+            });
 
-                const accessTokenArc = await this.acquireAccessTokenArc(url, url, "registry:catalog:*", refreshTokenArc);
-
-                const catalogResponse = await request.get(`https://${url}/v2/_catalog`, {
-                    auth: {
-                        bearer: accessTokenArc,
-                    },
+            const repoItems: vscode.QuickPickItem[] = [];
+            const repos = JSON.parse(catalogResponse).repositories;
+            repos.map((repo) => {
+                repoItems.push({
+                    label: repo,
+                    description: `${registryUrl}/${repo}`,
                 });
-
-                const repoItems: vscode.QuickPickItem[] = [];
-                const repos = JSON.parse(catalogResponse).repositories;
-                repos.map((repo) => {
-                    repoItems.push({
-                        label: repo,
-                        description: `${url}/${repo}`,
-                    });
-                });
-
-                repoItems.sort((a, b) => a.label.localeCompare(b.label));
-                return repoItems;
-            } catch (error) {
-                vscode.window.showErrorMessage(error.message);
-            }
+            });
+            repoItems.sort((a, b) => a.label.localeCompare(b.label));
+            return repoItems;
+        } catch (error) {
+            vscode.window.showErrorMessage(error.message);
         }
     }
 
@@ -469,11 +469,11 @@ export class EdgeManager {
         });
     }
 
-    private async acquireRefreshTokenArc(url: string, service: string, tenantId: string, refreshToken: string, accessToken: string): Promise<string> {
-        const refreshTokenResponse = await request.post(`https://${url}/oauth2/exchange`, {
+    private async acquireRefreshTokenArc(registryUrl: string, tenantId: string, refreshToken: string, accessToken: string): Promise<string> {
+        const refreshTokenResponse = await request.post(`https://${registryUrl}/oauth2/exchange`, {
             form: {
                 grant_type: "access_token_refresh_token",
-                service,
+                service: registryUrl,
                 tenant: tenantId,
                 refresh_token: refreshToken,
                 access_token: accessToken,
@@ -482,11 +482,11 @@ export class EdgeManager {
         return JSON.parse(refreshTokenResponse).refresh_token;
     }
 
-    private async acquireAccessTokenArc(url: string, service: string, scope: string, refreshTokenArc: string) {
-        const accessTokenResponse = await request.post(`https://${url}/oauth2/token`, {
+    private async acquireAccessTokenArc(registryUrl: string, scope: string, refreshTokenArc: string) {
+        const accessTokenResponse = await request.post(`https://${registryUrl}/oauth2/token`, {
             form: {
                 grant_type: "refresh_token",
-                service: url,
+                service: registryUrl,
                 scope,
                 refresh_token: refreshTokenArc,
             },
@@ -494,41 +494,33 @@ export class EdgeManager {
         return JSON.parse(accessTokenResponse).access_token;
     }
 
-    private async selectAcrTag(acrItem: AcrQuickPickItem, repo: string, accessToken: string): Promise<vscode.QuickPickItem> {
-        const tag: vscode.QuickPickItem = await vscode.window.showQuickPick(this.loadAcrTagItems(acrItem, repo), { placeHolder: "Select Tag", ignoreFocusOut: true });
+    private async selectAcrTag(registryUrl: string, repo: string): Promise<vscode.QuickPickItem> {
+        const tag: vscode.QuickPickItem = await vscode.window.showQuickPick(this.loadAcrTagItems(registryUrl, repo), { placeHolder: "Select Tag", ignoreFocusOut: true });
         return tag;
     }
 
-    private async loadAcrTagItems(acrItem: AcrQuickPickItem, repo: string): Promise<vscode.QuickPickItem[]> {
-        const session: AzureSession = acrItem.azureSubscription.session;
-        const { accessToken, refreshToken } = await this.acquireToken(session);
-        const url: string = acrItem.registry.loginServer;
+    private async loadAcrTagItems(registryUrl: string, repo: string): Promise<vscode.QuickPickItem[]> {
+        try {
+            const accessTokenArc = await this.acquireAccessTokenArc(registryUrl, `repository:${repo}:pull`, this.refreshTokenArc);
 
-        if (accessToken && refreshToken) {
-            try {
-                const refreshTokenArc = await this.acquireRefreshTokenArc(url, url, session.tenantId, refreshToken, accessToken);
+            const tagsResponse = await request.get(`https://${registryUrl}/v2/${repo}/tags/list`, {
+                auth: {
+                    bearer: accessTokenArc,
+                },
+            });
 
-                const accessTokenArc = await this.acquireAccessTokenArc(url, url, `repository:${repo}:pull`, refreshTokenArc);
-
-                const tagsResponse = await request.get(`https://${url}/v2/${repo}/tags/list`, {
-                    auth: {
-                        bearer: accessTokenArc,
-                    },
+            const tagItems: vscode.QuickPickItem[] = [];
+            const tags = JSON.parse(tagsResponse).tags;
+            tags.map((tag) => {
+                tagItems.push({
+                    label: tag,
+                    description: `${registryUrl}/${repo}:${tag}`,
                 });
-
-                const tagItems: vscode.QuickPickItem[] = [];
-                const tags = JSON.parse(tagsResponse).tags;
-                tags.map((tag) => {
-                    tagItems.push({
-                        label: tag,
-                        description: `${url}/${repo}:${tag}`,
-                    });
-                });
-                tagItems.sort((a, b) => a.label.localeCompare(b.label));
-                return tagItems;
-            } catch (error) {
-                vscode.window.showErrorMessage(error.message);
-            }
+            });
+            tagItems.sort((a, b) => a.label.localeCompare(b.label));
+            return tagItems;
+        } catch (error) {
+            vscode.window.showErrorMessage(error.message);
         }
     }
 }

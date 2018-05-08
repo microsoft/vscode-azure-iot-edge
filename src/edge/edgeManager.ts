@@ -6,13 +6,15 @@ import { ContainerRegistryManagementClient } from "azure-arm-containerregistry";
 import { Registry } from "azure-arm-containerregistry/lib/models";
 import * as fse from "fs-extra";
 import * as path from "path";
+import * as request from "request-promise";
 import * as stripJsonComments from "strip-json-comments";
 import * as vscode from "vscode";
-import { AzureAccount } from "../../typings/azure-account.api";
+import { AzureAccount, AzureSession } from "../../typings/azure-account.api";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
+import { AcrQuickPickItem } from "../container/models/AcrQuickPickItem";
 
 export class EdgeManager {
     private readonly accountApi: AzureAccount;
@@ -56,14 +58,14 @@ export class EdgeManager {
         mapObj.set(Constants.moduleImagePlaceholder, imageName);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
         const deploymentGenerated: string = Utility.replaceAll(data, mapObj);
-        await fse.writeFile(targetDeployment, deploymentGenerated, {encoding: "utf8"});
+        await fse.writeFile(targetDeployment, deploymentGenerated, { encoding: "utf8" });
 
         const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
             const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
-            await fse.writeFile(targetLaunchJson, debugGenerated, {encoding: "utf8"});
+            await fse.writeFile(targetLaunchJson, debugGenerated, { encoding: "utf8" });
         }
         // open new created solution. Will also investigate how to open the module in the same workspace
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
@@ -160,7 +162,7 @@ export class EdgeManager {
                 mapObj.set(Constants.repositoryPlaceholder, repositoryName);
                 const moduleGenerated: string = Utility.replaceAll(moduleData, mapObj);
                 const targetModule: string = path.join(targetPath, Constants.moduleManifest);
-                await fse.writeFile(targetModule, moduleGenerated, {encoding: "utf8"});
+                await fse.writeFile(targetModule, moduleGenerated, { encoding: "utf8" });
 
                 const targetDockerFile = path.join(targetPath, dockerFile);
                 const targetDockerDebugFile = path.join(targetPath, dockerDebugFile);
@@ -172,11 +174,11 @@ export class EdgeManager {
                     dockerMapObj.set(Constants.dllPlaceholder, moduleName);
                     const dockerFileData: string = await fse.readFile(srcDockerFile, "utf8");
                     const dockerFileGenerated: string = Utility.replaceAll(dockerFileData, dockerMapObj);
-                    await fse.writeFile(targetDockerFile, dockerFileGenerated, {encoding: "utf8"});
+                    await fse.writeFile(targetDockerFile, dockerFileGenerated, { encoding: "utf8" });
 
                     const dockerDebugFileData: string = await fse.readFile(srcDockerDebugFile, "utf8");
                     const dockerDebugFileGenerated: string = Utility.replaceAll(dockerDebugFileData, dockerMapObj);
-                    await fse.writeFile(targetDockerDebugFile, dockerDebugFileGenerated, {encoding: "utf8"});
+                    await fse.writeFile(targetDockerDebugFile, dockerDebugFileGenerated, { encoding: "utf8" });
                 }
                 vscode.window.showInformationMessage("Converted successfully. module.json and Dockerfiles have been added.");
             } else {
@@ -220,24 +222,24 @@ export class EdgeManager {
         // TODO command to create module;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
-                await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Module");
-                await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Module");
+                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.CSHARP_FUNCTION:
-                await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Function");
-                await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Function");
+                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.LANGUAGE_PYTHON:
                 const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
                 const branch = "master";
                 await Executor.executeCMD(outputChannel,
                     "cookiecutter",
-                    {cwd: `${parent}`, shell: true},
+                    { cwd: `${parent}`, shell: true },
                     `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`);
                 break;
             case Constants.LANGUAGE_NODE:
-                await Executor.executeCMD(outputChannel, "npm", {shell: true}, "i -g generator-azure-iot-edge-module");
-                await Executor.executeCMD(outputChannel, "yo", {cwd: `${parent}`, shell: true}, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "npm", { shell: true }, "i -g generator-azure-iot-edge-module");
+                await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
                 break;
             default:
                 break;
@@ -293,8 +295,8 @@ export class EdgeManager {
             return await this.validateInputName(name, parentPath);
         };
         return await Utility.showInputBox(Constants.solutionName,
-                                          Constants.solutionNamePrompt,
-                                          validateFunc, Constants.solutionNameDft);
+            Constants.solutionNamePrompt,
+            validateFunc, Constants.solutionNameDft);
     }
 
     private async inputModuleName(parentPath?: string, modules?: string[]): Promise<string> {
@@ -302,18 +304,18 @@ export class EdgeManager {
             return await this.validateInputName(name, parentPath) || this.validateModuleExistence(name, modules);
         };
         return await Utility.showInputBox(Constants.moduleName,
-                                          Constants.moduleNamePrompt,
-                                          validateFunc, Constants.moduleNameDft);
+            Constants.moduleNamePrompt,
+            validateFunc, Constants.moduleNameDft);
     }
 
     private async inputRepository(module: string): Promise<string> {
         const dftValue: string = `localhost:5000/${module.toLowerCase()}`;
         return await Utility.showInputBox(Constants.repositoryPattern,
-                                          Constants.repositoryPrompt,
-                                          null, dftValue);
+            Constants.repositoryPrompt,
+            null, dftValue);
     }
 
-    private async inputImage(module: string, template: string): Promise<{repositoryName: string, imageName: string}> {
+    private async inputImage(module: string, template: string): Promise<{ repositoryName: string, imageName: string }> {
         let repositoryName: string = "";
         let imageName: string = "";
         if (template === Constants.ACR_MODULE) {
@@ -357,7 +359,7 @@ export class EdgeManager {
         if (label === undefined) {
             label = Constants.selectTemplate;
         }
-        const templatePick = await vscode.window.showQuickPick(templatePicks, {placeHolder: label, ignoreFocusOut: true});
+        const templatePick = await vscode.window.showQuickPick(templatePicks, { placeHolder: label, ignoreFocusOut: true });
         if (!templatePick) {
             throw new UserCancelledError();
         }
@@ -365,20 +367,33 @@ export class EdgeManager {
     }
 
     private async selectAcrImage(): Promise<string> {
+        const acrItem: AcrQuickPickItem = await this.selectAcrRegistry();
+        if (acrItem === undefined) {
+            throw new UserCancelledError();
+        }
+
+        const acrRepoItem: vscode.QuickPickItem = await this.selectAcrRepo(acrItem);
+        if (acrRepoItem === undefined) {
+            throw new UserCancelledError();
+        }
+
+        const acrTagItem: vscode.QuickPickItem = await this.selectAcrTag(acrItem, acrRepoItem.label, "");
+
+        return acrTagItem.description;
+    }
+
+    private async selectAcrRegistry(): Promise<AcrQuickPickItem> {
         if (!(await this.accountApi.waitForLogin())) {
             await vscode.commands.executeCommand("azure-account.askForLogin");
         }
 
-        const acrItem: vscode.QuickPickItem = await vscode.window.showQuickPick(this.loadAcrItems(), {placeHolder: "Select Azure Container Registry", ignoreFocusOut: true});
-        if (!acrItem) {
-            throw new UserCancelledError();
-        }
-        return acrItem.label;
+        const acrItem: AcrQuickPickItem = await vscode.window.showQuickPick(this.loadAcrRegistryItems(), { placeHolder: "Select Azure Container Registry", ignoreFocusOut: true });
+        return acrItem;
     }
 
-    private async loadAcrItems() {
+    private async loadAcrRegistryItems(): Promise<AcrQuickPickItem[]> {
         await this.accountApi.waitForLogin();
-        const registryPromises: Array<Promise<vscode.QuickPickItem[]>> = [];
+        const registryPromises: Array<Promise<AcrQuickPickItem[]>> = [];
         for (const filter of this.accountApi.filters) {
             const client = new ContainerRegistryManagementClient(
                 filter.session.credentials,
@@ -388,17 +403,132 @@ export class EdgeManager {
             registryPromises.push(
                 Utility.listAllAzureResource(client.registries, client.registries.list())
                     .then((registries: Registry[]) => registries.map((registry: Registry) => {
-                        return {
-                            label: registry.loginServer || "",
-                            description: filter.subscription.displayName!,
-                            registry,
-                        };
+                        return new AcrQuickPickItem(registry, filter);
                     })),
             );
         }
 
-        const registryItems: vscode.QuickPickItem[] = ([] as vscode.QuickPickItem[]).concat(...(await Promise.all(registryPromises)));
+        const registryItems: AcrQuickPickItem[] = ([] as AcrQuickPickItem[]).concat(...(await Promise.all(registryPromises)));
         registryItems.sort((a, b) => a.label.localeCompare(b.label));
         return registryItems;
+    }
+
+    private async selectAcrRepo(acrItem: AcrQuickPickItem): Promise<vscode.QuickPickItem> {
+        const acrRepoItem: vscode.QuickPickItem = await vscode.window.showQuickPick(this.loadAcrRepoItems(acrItem), { placeHolder: "Select Repository", ignoreFocusOut: true });
+        return acrRepoItem;
+    }
+
+    private async loadAcrRepoItems(acrItem: AcrQuickPickItem): Promise<vscode.QuickPickItem[]> {
+        const session: AzureSession = acrItem.azureSubscription.session;
+        const { accessToken, refreshToken } = await this.acquireToken(session);
+        const url: string = acrItem.registry.loginServer;
+
+        if (accessToken && refreshToken) {
+            try {
+                const refreshTokenArc = await this.acquireRefreshTokenArc(url, url, session.tenantId, refreshToken, accessToken);
+
+                const accessTokenArc = await this.acquireAccessTokenArc(url, url, "registry:catalog:*", refreshTokenArc);
+
+                const catalogResponse = await request.get(`https://${url}/v2/_catalog`, {
+                    auth: {
+                        bearer: accessTokenArc,
+                    },
+                });
+
+                const repoItems: vscode.QuickPickItem[] = [];
+                const repos = JSON.parse(catalogResponse).repositories;
+                repos.map((repo) => {
+                    repoItems.push({
+                        label: repo,
+                        description: `${url}/${repo}`,
+                    });
+                });
+
+                repoItems.sort((a, b) => a.label.localeCompare(b.label));
+                return repoItems;
+            } catch (error) {
+                vscode.window.showErrorMessage(error.message);
+            }
+        }
+    }
+
+    private async acquireToken(session: AzureSession): Promise<{ accessToken: string, refreshToken: string }> {
+        return new Promise<{ accessToken: string, refreshToken: string }>((resolve, reject) => {
+            const credentials: any = session.credentials;
+            const environment: any = session.environment;
+            credentials.context.acquireToken(environment.activeDirectoryResourceId, credentials.username, credentials.clientId, (err: any, result: any) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({
+                        accessToken: result.accessToken,
+                        refreshToken: result.refreshToken,
+                    });
+                }
+            });
+        });
+    }
+
+    private async acquireRefreshTokenArc(url: string, service: string, tenantId: string, refreshToken: string, accessToken: string): Promise<string> {
+        const refreshTokenResponse = await request.post(`https://${url}/oauth2/exchange`, {
+            form: {
+                grant_type: "access_token_refresh_token",
+                service,
+                tenant: tenantId,
+                refresh_token: refreshToken,
+                access_token: accessToken,
+            },
+        });
+        return JSON.parse(refreshTokenResponse).refresh_token;
+    }
+
+    private async acquireAccessTokenArc(url: string, service: string, scope: string, refreshTokenArc: string) {
+        const accessTokenResponse = await request.post(`https://${url}/oauth2/token`, {
+            form: {
+                grant_type: "refresh_token",
+                service: url,
+                scope,
+                refresh_token: refreshTokenArc,
+            },
+        });
+        return JSON.parse(accessTokenResponse).access_token;
+    }
+
+    private async selectAcrTag(acrItem: AcrQuickPickItem, repo: string, accessToken: string): Promise<vscode.QuickPickItem> {
+        const tag: vscode.QuickPickItem = await vscode.window.showQuickPick(this.loadAcrTagItems(acrItem, repo), { placeHolder: "Select Tag", ignoreFocusOut: true });
+        return tag;
+    }
+
+    private async loadAcrTagItems(acrItem: AcrQuickPickItem, repo: string): Promise<vscode.QuickPickItem[]> {
+        const session: AzureSession = acrItem.azureSubscription.session;
+        const { accessToken, refreshToken } = await this.acquireToken(session);
+        const url: string = acrItem.registry.loginServer;
+
+        if (accessToken && refreshToken) {
+            try {
+                const refreshTokenArc = await this.acquireRefreshTokenArc(url, url, session.tenantId, refreshToken, accessToken);
+
+                const accessTokenArc = await this.acquireAccessTokenArc(url, url, `repository:${repo}:pull`, refreshTokenArc);
+
+                const tagsResponse = await request.get(`https://${url}/v2/${repo}/tags/list`, {
+                    auth: {
+                        bearer: accessTokenArc,
+                    },
+                });
+
+                const tagItems: vscode.QuickPickItem[] = [];
+                const tags = JSON.parse(tagsResponse).tags;
+                tags.map((tag) => {
+                    tagItems.push({
+                        label: tag,
+                        description: `${url}/${repo}:${tag}`,
+                    });
+                });
+                tagItems.sort((a, b) => a.label.localeCompare(b.label));
+                return tagItems;
+            } catch (error) {
+                vscode.window.showErrorMessage(error.message);
+            }
+        }
     }
 }

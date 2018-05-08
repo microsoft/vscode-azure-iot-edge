@@ -8,6 +8,8 @@ import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "./constants";
+import { IAzureClient } from "./models/IAzureClient";
+import { IPartialList } from "./models/IPartialList";
 import { TelemetryClient } from "./telemetryClient";
 import { UserCancelledError } from "./UserCancelledError";
 
@@ -301,12 +303,4 @@ export class Utility {
         }
         return all;
     }
-}
-
-export interface IAzureClient<T> {
-    listNext(nextPageLink: string): Promise<IPartialList<T>>;
-}
-
-export interface IPartialList<T> extends Array<T> {
-    nextLink?: string;
 }

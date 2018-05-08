@@ -7,7 +7,7 @@ import * as fse from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
-import { Constants } from "./constants";
+import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
 import { UserCancelledError } from "./UserCancelledError";
@@ -292,5 +292,37 @@ export class Utility {
                 }
             }
         } catch (error) {}
+    }
+
+    public static initLocalRegistry(images: string[]) {
+        try {
+            let port;
+            for (const image of images) {
+                const matches = /^localhost:(\d+)\/.+$/.exec(image);
+                if (matches) {
+                    port = matches[1];
+                    break;
+                }
+            }
+            if (port) {
+                switch (Utility.getLocalRegistryState()) {
+                    case ContainerState.NotFound:
+                        Executor.runInTerminal(`docker run -d -p ${port}:5000 --restart always --name registry registry:2`);
+                        break;
+                    case ContainerState.NotRunning:
+                        Executor.runInTerminal(`docker start registry`);
+                        break;
+                }
+            }
+        } catch (error) {}
+    }
+
+    private static getLocalRegistryState(): ContainerState {
+        try {
+            const isRunning = Executor.execSync("docker inspect registry --format='{{.State.Running}}'");
+            return isRunning.includes("true") ? ContainerState.Running : ContainerState.NotRunning;
+        } catch (error) {
+            return ContainerState.NotFound;
+        }
     }
 }

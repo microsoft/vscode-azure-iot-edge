@@ -85,3 +85,9 @@ export class Constants {
     public static platformModuleManifestJsonPath = ["image", "tag", "platforms", "*"];
     public static envFile = ".env";
 }
+
+export enum ContainerState {
+    Running,
+    NotRunning,
+    NotFound,
+}

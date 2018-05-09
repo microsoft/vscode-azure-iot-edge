@@ -4,6 +4,7 @@
 "use strict";
 import * as dotenv from "dotenv";
 import * as fse from "fs-extra";
+import * as isPortReachable from "is-port-reachable";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -294,7 +295,7 @@ export class Utility {
         } catch (error) {}
     }
 
-    public static initLocalRegistry(images: string[]) {
+    public static async initLocalRegistry(images: string[]) {
         try {
             let port;
             for (const image of images) {
@@ -305,6 +306,9 @@ export class Utility {
                 }
             }
             if (port) {
+                if (await isPortReachable(port)) {
+                    return;
+                }
                 switch (Utility.getLocalRegistryState()) {
                     case ContainerState.NotFound:
                         Executor.runInTerminal(`docker run -d -p ${port}:5000 --restart always --name registry registry:2`);

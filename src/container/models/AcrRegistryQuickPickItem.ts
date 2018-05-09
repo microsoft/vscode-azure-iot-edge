@@ -5,7 +5,7 @@
 import { Registry } from "azure-arm-containerregistry/lib/models";
 import { SubscriptionModels } from "azure-arm-resource";
 import * as vscode from "vscode";
-import { AzureSubscription } from "../../../typings/azure-account.api";
+import { AzureSubscription } from "../../typings/azure-account.api";
 
 export class AcrRegistryQuickPickItem implements vscode.QuickPickItem {
     public readonly label: string;

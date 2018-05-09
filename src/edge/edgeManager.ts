@@ -9,12 +9,12 @@ import * as path from "path";
 import * as request from "request-promise";
 import * as stripJsonComments from "strip-json-comments";
 import * as vscode from "vscode";
-import { AzureAccount, AzureSession } from "../../typings/azure-account.api";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AcrRegistryQuickPickItem } from "../container/models/AcrRegistryQuickPickItem";
+import { AzureAccount, AzureSession } from "../typings/azure-account.api";
 
 export class EdgeManager {
     private readonly azureAccount: AzureAccount;

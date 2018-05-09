@@ -15,4 +15,3 @@ appveyor.yml
 CONTRIBUTING.md
 package-lock.json
 tslint.json
-typings/**

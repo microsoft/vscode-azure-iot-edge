@@ -10,7 +10,7 @@ import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
-import { AcrManager } from "./acrManager";
+import { AcrManager } from "../container/acrManager";
 
 export class EdgeManager {
 

@@ -32,7 +32,7 @@ export class Constants {
     public static LANGUAGE_NODE_DESCRIPTION = "Use Azure IoT Node.js SDK to build a module";
     public static LANGUAGE_PYTHON_DESCRIPTION = "Use Azure IoT Python SDK to build a module";
     public static CSHARP_FUNCTION_DESCRIPTION = "Create an Azure Function and deploy to IoT Edge";
-    public static ACR_MODULE_DESCRIPTION = "Import an exsting module image from your ACR";
+    public static ACR_MODULE_DESCRIPTION = "Import an exsting module image from your Azure Container Registry";
     public static EXISTING_MODULE_DESCRIPTION = "Import an exsting module image from any container registry";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";

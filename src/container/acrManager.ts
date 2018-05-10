@@ -14,7 +14,7 @@ import { AzureAccount, AzureSession, AzureSubscription } from "../typings/azure-
 
 export class AcrManager {
     private readonly azureAccount: AzureAccount;
-    private refreshTokenArc: string;
+    private acrRefreshToken: string;
 
     constructor() {
         this.azureAccount = vscode.extensions.getExtension<AzureAccount>("ms-vscode.azure-account")!.exports;
@@ -99,13 +99,13 @@ export class AcrManager {
 
     private async loadAcrRepoItems(registryUrl: string, session: AzureSession): Promise<vscode.QuickPickItem[]> {
         try {
-            const { accessToken, refreshToken } = await this.acquireToken(session);
-            this.refreshTokenArc = await this.acquireRefreshTokenArc(registryUrl, session.tenantId, refreshToken, accessToken);
-            const accessTokenArc = await this.acquireAccessTokenArc(registryUrl, "registry:catalog:*", this.refreshTokenArc);
+            const { aadAccessToken, aadRefreshToken } = await this.acquireAadToken(session);
+            this.acrRefreshToken = await this.acquireAcrRefreshToken(registryUrl, session.tenantId, aadRefreshToken, aadAccessToken);
+            const acrAccessToken = await this.acquireAcrAccessToken(registryUrl, "registry:catalog:*", this.acrRefreshToken);
 
             const catalogResponse = await request.get(`https://${registryUrl}/v2/_catalog`, {
                 auth: {
-                    bearer: accessTokenArc,
+                    bearer: acrAccessToken,
                 },
             });
 
@@ -125,8 +125,8 @@ export class AcrManager {
         }
     }
 
-    private async acquireToken(session: AzureSession): Promise<{ accessToken: string, refreshToken: string }> {
-        return new Promise<{ accessToken: string, refreshToken: string }>((resolve, reject) => {
+    private async acquireAadToken(session: AzureSession): Promise<{ aadAccessToken: string, aadRefreshToken: string }> {
+        return new Promise<{ aadAccessToken: string, aadRefreshToken: string }>((resolve, reject) => {
             const credentials: any = session.credentials;
             const environment: any = session.environment;
             credentials.context.acquireToken(environment.activeDirectoryResourceId, credentials.username, credentials.clientId, (err: any, result: any) => {
@@ -134,37 +134,37 @@ export class AcrManager {
                     reject(err);
                 } else {
                     resolve({
-                        accessToken: result.accessToken,
-                        refreshToken: result.refreshToken,
+                        aadAccessToken: result.accessToken,
+                        aadRefreshToken: result.refreshToken,
                     });
                 }
             });
         });
     }
 
-    private async acquireRefreshTokenArc(registryUrl: string, tenantId: string, refreshToken: string, accessToken: string): Promise<string> {
-        const refreshTokenResponse = await request.post(`https://${registryUrl}/oauth2/exchange`, {
+    private async acquireAcrRefreshToken(registryUrl: string, tenantId: string, aadRefreshToken: string, aadAccessToken: string): Promise<string> {
+        const acrRefreshTokenResponse = await request.post(`https://${registryUrl}/oauth2/exchange`, {
             form: {
                 grant_type: "access_token_refresh_token",
                 service: registryUrl,
                 tenant: tenantId,
-                refresh_token: refreshToken,
-                access_token: accessToken,
+                refresh_token: aadRefreshToken,
+                access_token: aadAccessToken,
             },
         });
-        return JSON.parse(refreshTokenResponse).refresh_token;
+        return JSON.parse(acrRefreshTokenResponse).refresh_token;
     }
 
-    private async acquireAccessTokenArc(registryUrl: string, scope: string, refreshTokenArc: string) {
-        const accessTokenResponse = await request.post(`https://${registryUrl}/oauth2/token`, {
+    private async acquireAcrAccessToken(registryUrl: string, scope: string, acrRefreshToken: string) {
+        const acrAccessTokenResponse = await request.post(`https://${registryUrl}/oauth2/token`, {
             form: {
                 grant_type: "refresh_token",
                 service: registryUrl,
                 scope,
-                refresh_token: refreshTokenArc,
+                refresh_token: acrRefreshToken,
             },
         });
-        return JSON.parse(accessTokenResponse).access_token;
+        return JSON.parse(acrAccessTokenResponse).access_token;
     }
 
     private async selectAcrTag(registryUrl: string, repo: string): Promise<vscode.QuickPickItem> {
@@ -174,11 +174,11 @@ export class AcrManager {
 
     private async loadAcrTagItems(registryUrl: string, repo: string): Promise<vscode.QuickPickItem[]> {
         try {
-            const accessTokenArc = await this.acquireAccessTokenArc(registryUrl, `repository:${repo}:pull`, this.refreshTokenArc);
+            const acrAccessToken = await this.acquireAcrAccessToken(registryUrl, `repository:${repo}:pull`, this.acrRefreshToken);
 
             const tagsResponse = await request.get(`https://${registryUrl}/v2/${repo}/tags/list`, {
                 auth: {
-                    bearer: accessTokenArc,
+                    bearer: acrAccessToken,
                 },
             });
 

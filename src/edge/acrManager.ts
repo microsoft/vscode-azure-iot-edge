@@ -3,18 +3,19 @@
 
 "use strict";
 import { ContainerRegistryManagementClient } from "azure-arm-containerregistry";
-import { Registry, RegistryListCredentialsResult } from "azure-arm-containerregistry/lib/models";
+import { Registry, RegistryListCredentialsResult, RegistryListResult } from "azure-arm-containerregistry/lib/models";
+import { Registries } from "azure-arm-containerregistry/lib/operations";
 import * as request from "request-promise";
 import * as vscode from "vscode";
 import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
-import { Utility } from "../common/utility";
 import { AcrRegistryQuickPickItem } from "../container/models/AcrRegistryQuickPickItem";
-import { AzureAccount, AzureSession, AzureSubscription } from "../typings/azure-account.api";
+import { AzureAccount, AzureSession } from "../typings/azure-account.api";
 
 export class AcrManager {
     private readonly azureAccount: AzureAccount;
     private refreshTokenArc: string;
+    private acrClient: ContainerRegistryManagementClient;
 
     constructor() {
         this.azureAccount = vscode.extensions.getExtension<AzureAccount>("ms-vscode.azure-account")!.exports;
@@ -38,7 +39,7 @@ export class AcrManager {
             throw new UserCancelledError();
         }
 
-        this.loginToAcr(acrRegistryItem.registry, acrRegistryItem.azureSubscription);
+        this.loginToAcr(acrRegistryItem.registry);
 
         return acrTagItem.description;
     }
@@ -46,6 +47,10 @@ export class AcrManager {
     private async selectAcrRegistry(): Promise<AcrRegistryQuickPickItem> {
         if (!(await this.azureAccount.waitForLogin())) {
             await vscode.commands.executeCommand("azure-account.askForLogin");
+            // If the promise returned the by above command execution is fulfilled and the user is still not logged in, it means the user cancels.
+            if (!(await this.azureAccount.waitForLogin())) {
+                throw new UserCancelledError();
+            }
         }
 
         const acrRegistryItem: AcrRegistryQuickPickItem = await vscode.window.showQuickPick(this.loadAcrRegistryItems(), { placeHolder: "Select Azure Container Registry", ignoreFocusOut: true });
@@ -57,13 +62,13 @@ export class AcrManager {
             await this.azureAccount.waitForFilters();
             const registryPromises: Array<Promise<AcrRegistryQuickPickItem[]>> = [];
             for (const azureSubscription of this.azureAccount.filters) {
-                const client = new ContainerRegistryManagementClient(
+                this.acrClient = new ContainerRegistryManagementClient(
                     azureSubscription.session.credentials,
                     azureSubscription.subscription.subscriptionId!,
                 );
 
                 registryPromises.push(
-                    Utility.listAllAzureResource(client.registries, client.registries.list())
+                    this.listAcrRegistries(this.acrClient.registries, this.acrClient.registries.list())
                         .then((registries: Registry[]) => registries.map((registry: Registry) => {
                             return new AcrRegistryQuickPickItem(registry, azureSubscription);
                         })),
@@ -77,6 +82,15 @@ export class AcrManager {
             error.message = `Error fetching registry list: ${error.message}`;
             throw error;
         }
+    }
+
+    // The Azure API of listing resources is paginated. This method will follow the links and return all resources
+    private async listAcrRegistries(client: Registries, first: Promise<RegistryListResult>): Promise<Registry[]> {
+        const all: Registry[] = [];
+        for (let list = await first; list !== undefined; list = list.nextLink ? await client.listNext(list.nextLink) : undefined) {
+            all.push(...list);
+        }
+        return all;
     }
 
     private async selectAcrRepo(registryUrl: string, session: AzureSession): Promise<vscode.QuickPickItem> {
@@ -185,7 +199,7 @@ export class AcrManager {
         }
     }
 
-    private async loginToAcr(registry: Registry, azureSubscription: AzureSubscription) {
+    private async loginToAcr(registry: Registry) {
         try {
             const adminUserEnabled: boolean = registry.adminUserEnabled;
             const registryUrl: string = registry.loginServer;
@@ -198,18 +212,14 @@ export class AcrManager {
                 vscode.window.withProgress({ title: `Logging in to registry "${registryUrl}"...`, location: vscode.ProgressLocation.Window }, async (progress) => {
                     const registryName: string = registry.name;
                     const resourceGroup: string = registry.id.slice(registry.id.toLowerCase().search("resourcegroups/") + "resourcegroups/".length, registry.id.toLowerCase().search("/providers/"));
-                    const client = new ContainerRegistryManagementClient(
-                        azureSubscription.session.credentials,
-                        azureSubscription.subscription.subscriptionId!,
-                    );
 
                     if (!adminUserEnabled) {
                         progress.report({ message: `Enabling admin user for registry "${registryUrl}"...` });
-                        await client.registries.update(resourceGroup, registryName, { adminUserEnabled: true });
+                        await this.acrClient.registries.update(resourceGroup, registryName, { adminUserEnabled: true });
                     }
 
                     progress.report({ message: `Fetching admin user credentials for registry "${registryUrl}"...` });
-                    const creds: RegistryListCredentialsResult = await client.registries.listCredentials(resourceGroup, registryName);
+                    const creds: RegistryListCredentialsResult = await this.acrClient.registries.listCredentials(resourceGroup, registryName);
                     const username: string = creds.username;
                     const password: string = creds.passwords[0].value;
 

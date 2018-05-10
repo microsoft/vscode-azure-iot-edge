@@ -10,8 +10,6 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
-import { IAzureClient } from "./models/IAzureClient";
-import { IPartialList } from "./models/IPartialList";
 import { TelemetryClient } from "./telemetryClient";
 import { UserCancelledError } from "./UserCancelledError";
 
@@ -295,15 +293,6 @@ export class Utility {
                 }
             }
         } catch (error) { }
-    }
-
-    // The Azure API of listing resources is paginated. This method will follow the links and return all resources
-    public static async listAllAzureResource<T>(client: IAzureClient<T>, first: Promise<IPartialList<T>>): Promise<T[]> {
-        const all: T[] = [];
-        for (let list = await first; list.length || list.nextLink; list = list.nextLink ? await client.listNext(list.nextLink) : []) {
-            all.push(...list);
-        }
-        return all;
     }
 
     public static async initLocalRegistry(images: string[]) {

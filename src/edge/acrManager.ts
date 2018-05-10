@@ -10,7 +10,7 @@ import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AcrRegistryQuickPickItem } from "../container/models/AcrRegistryQuickPickItem";
-import { AzureAccount, AzureSession } from "../typings/azure-account.api";
+import { AzureAccount, AzureSession, AzureSubscription } from "../typings/azure-account.api";
 
 export class AcrManager {
     private readonly azureAccount: AzureAccount;
@@ -26,10 +26,9 @@ export class AcrManager {
             throw new UserCancelledError();
         }
 
-        const session: AzureSession = acrRegistryItem.azureSubscription.session;
         const registryUrl: string = acrRegistryItem.registry.loginServer;
 
-        const acrRepoItem: vscode.QuickPickItem = await this.selectAcrRepo(registryUrl, session);
+        const acrRepoItem: vscode.QuickPickItem = await this.selectAcrRepo(registryUrl, acrRegistryItem.azureSubscription.session);
         if (acrRepoItem === undefined) {
             throw new UserCancelledError();
         }
@@ -39,18 +38,7 @@ export class AcrManager {
             throw new UserCancelledError();
         }
 
-        const adminUserEnabled: boolean = acrRegistryItem.registry.adminUserEnabled;
-        const loginMessage = adminUserEnabled ? `Looks like the registry "${registryUrl}" has admin user enabled. `
-            + `Would you like to log in to Docker with the admin user credentials?`
-            : `Looks like the registry "${registryUrl}" does not have admin user enabled. `
-            + `Would you like to enable admin user and log in to Docker with the admin user credentials?`;
-        const option: string = await vscode.window.showInformationMessage(loginMessage, "Yes", "No");
-        if (option === "Yes") {
-            if (!adminUserEnabled) {
-                await this.enableAcrAdminUser(acrRegistryItem);
-            }
-            await this.loginToAcr(acrRegistryItem);
-        }
+        this.loginToAcr(acrRegistryItem.registry, acrRegistryItem.azureSubscription);
 
         return acrTagItem.description;
     }
@@ -65,25 +53,29 @@ export class AcrManager {
     }
 
     private async loadAcrRegistryItems(): Promise<AcrRegistryQuickPickItem[]> {
-        await this.azureAccount.waitForFilters();
-        const registryPromises: Array<Promise<AcrRegistryQuickPickItem[]>> = [];
-        for (const azureSubscription of this.azureAccount.filters) {
-            const client = new ContainerRegistryManagementClient(
-                azureSubscription.session.credentials,
-                azureSubscription.subscription.subscriptionId!,
-            );
+        try {
+            await this.azureAccount.waitForFilters();
+            const registryPromises: Array<Promise<AcrRegistryQuickPickItem[]>> = [];
+            for (const azureSubscription of this.azureAccount.filters) {
+                const client = new ContainerRegistryManagementClient(
+                    azureSubscription.session.credentials,
+                    azureSubscription.subscription.subscriptionId!,
+                );
 
-            registryPromises.push(
-                Utility.listAllAzureResource(client.registries, client.registries.list())
-                    .then((registries: Registry[]) => registries.map((registry: Registry) => {
-                        return new AcrRegistryQuickPickItem(registry, azureSubscription);
-                    })),
-            );
+                registryPromises.push(
+                    Utility.listAllAzureResource(client.registries, client.registries.list())
+                        .then((registries: Registry[]) => registries.map((registry: Registry) => {
+                            return new AcrRegistryQuickPickItem(registry, azureSubscription);
+                        })),
+                );
+            }
+
+            const registryItems: AcrRegistryQuickPickItem[] = ([] as AcrRegistryQuickPickItem[]).concat(...(await Promise.all(registryPromises)));
+            registryItems.sort((a, b) => a.label.localeCompare(b.label));
+            return registryItems;
+        } catch (error) {
+            vscode.window.showErrorMessage(`Error fetching registry list: ${error.message}`);
         }
-
-        const registryItems: AcrRegistryQuickPickItem[] = ([] as AcrRegistryQuickPickItem[]).concat(...(await Promise.all(registryPromises)));
-        registryItems.sort((a, b) => a.label.localeCompare(b.label));
-        return registryItems;
     }
 
     private async selectAcrRepo(registryUrl: string, session: AzureSession): Promise<vscode.QuickPickItem> {
@@ -114,7 +106,8 @@ export class AcrManager {
             repoItems.sort((a, b) => a.label.localeCompare(b.label));
             return repoItems;
         } catch (error) {
-            vscode.window.showErrorMessage(error.message);
+            vscode.window.showErrorMessage(`Error fetching repository list: ${error.message}`);
+            return [];
         }
     }
 
@@ -186,41 +179,45 @@ export class AcrManager {
             tagItems.sort((a, b) => a.label.localeCompare(b.label));
             return tagItems;
         } catch (error) {
-            vscode.window.showErrorMessage(error.message);
+            vscode.window.showErrorMessage(`Error fetching tag list: ${error.message}`);
+            return [];
         }
     }
 
-    private async enableAcrAdminUser(acrRegistryItem: AcrRegistryQuickPickItem) {
+    private async loginToAcr(registry: Registry, azureSubscription: AzureSubscription) {
         try {
-            const registry: Registry = acrRegistryItem.registry;
-            const resourceGroup: string = registry.id.slice(registry.id.toLowerCase().search("resourcegroups/") + "resourceGroups/".length, registry.id.toLowerCase().search("/providers/"));
-            const client = new ContainerRegistryManagementClient(
-                acrRegistryItem.azureSubscription.session.credentials,
-                acrRegistryItem.azureSubscription.subscription.subscriptionId!,
-            );
+            const adminUserEnabled: boolean = registry.adminUserEnabled;
+            const registryUrl: string = registry.loginServer;
+            const loginMessage = adminUserEnabled ? `Looks like the registry "${registryUrl}" has admin user enabled. `
+                + `Would you like to run "docker login" with the admin user credentials?`
+                : `Looks like the registry "${registryUrl}" does not have admin user enabled. `
+                + `Would you like to enable admin user and run "docker login" with the admin user credentials?`;
+            const option: string = await vscode.window.showInformationMessage(loginMessage, "Yes", "No");
+            if (option === "Yes") {
+                vscode.window.withProgress({ title: `Logging in to registry "${registryUrl}"...`, location: vscode.ProgressLocation.Window }, async (progress) => {
+                    const registryName: string = registry.name;
+                    const resourceGroup: string = registry.id.slice(registry.id.toLowerCase().search("resourcegroups/") + "resourcegroups/".length, registry.id.toLowerCase().search("/providers/"));
+                    const client = new ContainerRegistryManagementClient(
+                        azureSubscription.session.credentials,
+                        azureSubscription.subscription.subscriptionId!,
+                    );
 
-            await client.registries.update(resourceGroup, registry.name, { adminUserEnabled: true });
+                    if (!adminUserEnabled) {
+                        progress.report({ message: `Enabling admin user for registry "${registryUrl}"...` });
+                        await client.registries.update(resourceGroup, registryName, { adminUserEnabled: true });
+                    }
+
+                    progress.report({ message: `Fetching admin user credentials for registry "${registryUrl}"...` });
+                    const creds: RegistryListCredentialsResult = await client.registries.listCredentials(resourceGroup, registryName);
+                    const username: string = creds.username;
+                    const password: string = creds.passwords[0].value;
+
+                    Executor.runInTerminal(`docker login -u ${username} -p ${password} ${registryUrl}`);
+                });
+            }
         } catch (error) {
-            vscode.window.showErrorMessage(error.message);
-        }
-    }
-
-    private async loginToAcr(acrRegistryItem: AcrRegistryQuickPickItem) {
-        try {
-            const registry: Registry = acrRegistryItem.registry;
-            const resourceGroup: string = registry.id.slice(registry.id.toLowerCase().search("resourcegroups/") + "resourceGroups/".length, registry.id.toLowerCase().search("/providers/"));
-            const client = new ContainerRegistryManagementClient(
-                acrRegistryItem.azureSubscription.session.credentials,
-                acrRegistryItem.azureSubscription.subscription.subscriptionId!,
-            );
-
-            const creds: RegistryListCredentialsResult = await client.registries.listCredentials(resourceGroup, registry.name);
-            const username: string = creds.username;
-            const password: string = creds.passwords[0].value;
-
-            Executor.runInTerminal(`docker login -u ${username} -p ${password} ${acrRegistryItem.registry.loginServer}`);
-        } catch (error) {
-            vscode.window.showErrorMessage(error.message);
+            vscode.window.showErrorMessage(`Error fetching registry credentials: ${error.message}`);
+            return [];
         }
     }
 }

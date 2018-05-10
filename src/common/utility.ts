@@ -4,10 +4,12 @@
 "use strict";
 import * as dotenv from "dotenv";
 import * as fse from "fs-extra";
+import * as isPortReachable from "is-port-reachable";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
-import { Constants } from "./constants";
+import { Constants, ContainerState } from "./constants";
+import { Executor } from "./executor";
 import { IAzureClient } from "./models/IAzureClient";
 import { IPartialList } from "./models/IPartialList";
 import { TelemetryClient } from "./telemetryClient";
@@ -302,5 +304,40 @@ export class Utility {
             all.push(...list);
         }
         return all;
+    }
+
+    public static async initLocalRegistry(images: string[]) {
+        try {
+            let port;
+            for (const image of images) {
+                const matches = /^localhost:(\d+)\/.+$/.exec(image);
+                if (matches) {
+                    port = matches[1];
+                    break;
+                }
+            }
+            if (port) {
+                if (await isPortReachable(port)) {
+                    return;
+                }
+                switch (Utility.getLocalRegistryState()) {
+                    case ContainerState.NotFound:
+                        Executor.runInTerminal(`docker run -d -p ${port}:5000 --restart always --name registry registry:2`);
+                        break;
+                    case ContainerState.NotRunning:
+                        Executor.runInTerminal(`docker start registry`);
+                        break;
+                }
+            }
+        } catch (error) {}
+    }
+
+    private static getLocalRegistryState(): ContainerState {
+        try {
+            const isRunning = Executor.execSync("docker inspect registry --format='{{.State.Running}}'");
+            return isRunning.includes("true") ? ContainerState.Running : ContainerState.NotRunning;
+        } catch (error) {
+            return ContainerState.NotFound;
+        }
     }
 }

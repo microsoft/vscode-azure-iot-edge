@@ -221,6 +221,7 @@
     "azure-arm-containerregistry": "^2.2.0",
     "dotenv": "^5.0.1",
     "fs-extra": "^4.0.2",
+    "is-port-reachable": "^2.0.0",
     "jsonc-parser": "^1.0.1",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",

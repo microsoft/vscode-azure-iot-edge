@@ -33,6 +33,7 @@ export class ContainerManager {
                 const optionArray: string[] = options && options instanceof Array ? options : undefined;
                 const buildCommand = this.constructBuildCmd(dockerfilePath, imageName, directory, optionArray);
                 if (pushImage) {
+                    await Utility.initLocalRegistry([imageName]);
                     const pushCommand = this.constructPushCmd(imageName);
                     Executor.runInTerminal(Utility.combineCommands([buildCommand, pushCommand]));
                 } else {
@@ -85,6 +86,7 @@ export class ContainerManager {
         // build docker images
         const buildMap: Map<string, any> = this.getBuildMapFromDeployment(generatedDeployment, imageToDockerfileMap, imageToBuildOptions);
         const commands: string[] = [];
+        await Utility.initLocalRegistry([...buildMap.keys()]);
         buildMap.forEach((buildSetting, image) => {
             const context = path.dirname(buildSetting.dockerFile);
             commands.push(this.constructBuildCmd(buildSetting.dockerFile, image, context, buildSetting.buildOption));

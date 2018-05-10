@@ -74,7 +74,8 @@ export class AcrManager {
             registryItems.sort((a, b) => a.label.localeCompare(b.label));
             return registryItems;
         } catch (error) {
-            vscode.window.showErrorMessage(`Error fetching registry list: ${error.message}`);
+            error.message = `Error fetching registry list: ${error.message}`;
+            throw error;
         }
     }
 
@@ -106,8 +107,8 @@ export class AcrManager {
             repoItems.sort((a, b) => a.label.localeCompare(b.label));
             return repoItems;
         } catch (error) {
-            vscode.window.showErrorMessage(`Error fetching repository list: ${error.message}`);
-            return [];
+            error.message = `Error fetching repository list: ${error.message}`;
+            throw error;
         }
     }
 
@@ -179,8 +180,8 @@ export class AcrManager {
             tagItems.sort((a, b) => a.label.localeCompare(b.label));
             return tagItems;
         } catch (error) {
-            vscode.window.showErrorMessage(`Error fetching tag list: ${error.message}`);
-            return [];
+            error.message = `Error fetching tag list: ${error.message}`;
+            throw error;
         }
     }
 
@@ -216,8 +217,8 @@ export class AcrManager {
                 });
             }
         } catch (error) {
-            vscode.window.showErrorMessage(`Error fetching registry credentials: ${error.message}`);
-            return [];
+            error.message = `Error fetching registry credentials: ${error.message}`;
+            throw error;
         }
     }
 }

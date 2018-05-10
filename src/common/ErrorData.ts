@@ -5,6 +5,11 @@ export class ErrorData {
     public readonly message: string;
     public readonly errorType: string;
     constructor(error: any) {
+        // Dirty hack to work around VSCode's bug. Tracking issue: https://github.com/Microsoft/vscode/issues/39465
+        if (error.value !== undefined && error.value._value !== undefined) {
+            error = error.value._value;
+        }
+
         if (error instanceof Error) {
             try {
                 this.errorType = JSON.parse(error.message).Code;

@@ -292,7 +292,7 @@ export class Utility {
                     process.env[k] = envConfig[k];
                 }
             }
-        } catch (error) {}
+        } catch (error) { }
     }
 
     public static async initLocalRegistry(images: string[]) {

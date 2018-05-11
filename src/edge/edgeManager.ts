@@ -2,17 +2,15 @@
 // Licensed under the MIT license.
 
 "use strict";
-import * as fs from "fs";
 import * as fse from "fs-extra";
-import * as os from "os";
 import * as path from "path";
 import * as stripJsonComments from "strip-json-comments";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
-import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
+import { AcrManager } from "../container/acrManager";
 
 export class EdgeManager {
 
@@ -54,14 +52,14 @@ export class EdgeManager {
         mapObj.set(Constants.moduleImagePlaceholder, imageName);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
         const deploymentGenerated: string = Utility.replaceAll(data, mapObj);
-        await fse.writeFile(targetDeployment, deploymentGenerated, {encoding: "utf8"});
+        await fse.writeFile(targetDeployment, deploymentGenerated, { encoding: "utf8" });
 
         const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
             const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
-            await fse.writeFile(targetLaunchJson, debugGenerated, {encoding: "utf8"});
+            await fse.writeFile(targetLaunchJson, debugGenerated, { encoding: "utf8" });
         }
         // open new created solution. Will also investigate how to open the module in the same workspace
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
@@ -158,7 +156,7 @@ export class EdgeManager {
                 mapObj.set(Constants.repositoryPlaceholder, repositoryName);
                 const moduleGenerated: string = Utility.replaceAll(moduleData, mapObj);
                 const targetModule: string = path.join(targetPath, Constants.moduleManifest);
-                await fse.writeFile(targetModule, moduleGenerated, {encoding: "utf8"});
+                await fse.writeFile(targetModule, moduleGenerated, { encoding: "utf8" });
 
                 const targetDockerFile = path.join(targetPath, dockerFile);
                 const targetDockerDebugFile = path.join(targetPath, dockerDebugFile);
@@ -170,11 +168,11 @@ export class EdgeManager {
                     dockerMapObj.set(Constants.dllPlaceholder, moduleName);
                     const dockerFileData: string = await fse.readFile(srcDockerFile, "utf8");
                     const dockerFileGenerated: string = Utility.replaceAll(dockerFileData, dockerMapObj);
-                    await fse.writeFile(targetDockerFile, dockerFileGenerated, {encoding: "utf8"});
+                    await fse.writeFile(targetDockerFile, dockerFileGenerated, { encoding: "utf8" });
 
                     const dockerDebugFileData: string = await fse.readFile(srcDockerDebugFile, "utf8");
                     const dockerDebugFileGenerated: string = Utility.replaceAll(dockerDebugFileData, dockerMapObj);
-                    await fse.writeFile(targetDockerDebugFile, dockerDebugFileGenerated, {encoding: "utf8"});
+                    await fse.writeFile(targetDockerDebugFile, dockerDebugFileGenerated, { encoding: "utf8" });
                 }
                 vscode.window.showInformationMessage("Converted successfully. module.json and Dockerfiles have been added.");
             } else {
@@ -218,24 +216,24 @@ export class EdgeManager {
         // TODO command to create module;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
-                await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Module");
-                await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Module");
+                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.CSHARP_FUNCTION:
-                await Executor.executeCMD(outputChannel, "dotnet", {shell: true}, "new -i Microsoft.Azure.IoT.Edge.Function");
-                await Executor.executeCMD(outputChannel, "dotnet", {cwd: `${parent}`, shell: true}, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Function");
+                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.LANGUAGE_PYTHON:
                 const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
                 const branch = "master";
                 await Executor.executeCMD(outputChannel,
                     "cookiecutter",
-                    {cwd: `${parent}`, shell: true},
+                    { cwd: `${parent}`, shell: true },
                     `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`);
                 break;
             case Constants.LANGUAGE_NODE:
-                await Executor.executeCMD(outputChannel, "npm", {shell: true}, "i -g generator-azure-iot-edge-module");
-                await Executor.executeCMD(outputChannel, "yo", {cwd: `${parent}`, shell: true}, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "npm", { shell: true }, "i -g generator-azure-iot-edge-module");
+                await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
                 break;
             default:
                 break;
@@ -291,8 +289,8 @@ export class EdgeManager {
             return await this.validateInputName(name, parentPath);
         };
         return await Utility.showInputBox(Constants.solutionName,
-                                          Constants.solutionNamePrompt,
-                                          validateFunc, Constants.solutionNameDft);
+            Constants.solutionNamePrompt,
+            validateFunc, Constants.solutionNameDft);
     }
 
     private async inputModuleName(parentPath?: string, modules?: string[]): Promise<string> {
@@ -300,21 +298,24 @@ export class EdgeManager {
             return await this.validateInputName(name, parentPath) || this.validateModuleExistence(name, modules);
         };
         return await Utility.showInputBox(Constants.moduleName,
-                                          Constants.moduleNamePrompt,
-                                          validateFunc, Constants.moduleNameDft);
+            Constants.moduleNamePrompt,
+            validateFunc, Constants.moduleNameDft);
     }
 
     private async inputRepository(module: string): Promise<string> {
         const dftValue: string = `localhost:5000/${module.toLowerCase()}`;
         return await Utility.showInputBox(Constants.repositoryPattern,
-                                          Constants.repositoryPrompt,
-                                          null, dftValue);
+            Constants.repositoryPrompt,
+            null, dftValue);
     }
 
-    private async inputImage(module: string, template: string): Promise<{repositoryName: string, imageName: string}> {
+    private async inputImage(module: string, template: string): Promise<{ repositoryName: string, imageName: string }> {
         let repositoryName: string = "";
         let imageName: string = "";
-        if (template === Constants.EXISTING_MODULE) {
+        if (template === Constants.ACR_MODULE) {
+            const acrManager = new AcrManager();
+            imageName = await acrManager.selectAcrImage();
+        } else if (template === Constants.EXISTING_MODULE) {
             imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt);
         } else {
             repositoryName = await this.inputRepository(module);
@@ -342,6 +343,10 @@ export class EdgeManager {
                 description: Constants.CSHARP_FUNCTION_DESCRIPTION,
             },
             {
+                label: Constants.ACR_MODULE,
+                description: Constants.ACR_MODULE_DESCRIPTION,
+            },
+            {
                 label: Constants.EXISTING_MODULE,
                 description: Constants.EXISTING_MODULE_DESCRIPTION,
             },
@@ -349,7 +354,7 @@ export class EdgeManager {
         if (label === undefined) {
             label = Constants.selectTemplate;
         }
-        const templatePick = await vscode.window.showQuickPick(templatePicks, {placeHolder: label, ignoreFocusOut: true});
+        const templatePick = await vscode.window.showQuickPick(templatePicks, { placeHolder: label, ignoreFocusOut: true });
         if (!templatePick) {
             throw new UserCancelledError();
         }

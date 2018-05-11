@@ -7,7 +7,6 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
-import { TelemetryClient } from "../common/telemetryClient";
 import { Utility } from "../common/utility";
 
 export class ContainerManager {

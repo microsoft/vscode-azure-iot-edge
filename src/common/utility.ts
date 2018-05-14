@@ -286,7 +286,13 @@ export class Utility {
 
     public static async loadEnv(envFilePath: string) {
         try {
-            if (await fse.pathExists(envFilePath)) {
+            const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(envFilePath));
+            if (!workspaceFolder) {
+                return;
+            }
+            const directory = path.dirname(envFilePath);
+            // Check whether .env file is in the root folder of solution
+            if (await fse.pathExists(path.join(directory, Constants.deploymentTemplate)) && await fse.pathExists(envFilePath)) {
                 const envConfig = dotenv.parse(await fse.readFile(envFilePath));
                 for (const k of Object.keys(envConfig)) {
                     process.env[k] = envConfig[k];

@@ -22,7 +22,7 @@ export class ContainerManager {
 
         if (moduleConfigFilePath) {
             const directory = path.dirname(moduleConfigFilePath);
-            await Utility.loadEnv(path.join(directory, Constants.envFile));
+            await Utility.loadEnv(path.join(directory, "..", "..", Constants.envFile));
             const moduleConfig = await Utility.readJsonAndExpandEnv(moduleConfigFilePath, "$schema");
             const platforms = moduleConfig.image.tag.platforms;
             const platform = await vscode.window.showQuickPick(Object.keys(platforms), { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });

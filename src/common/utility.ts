@@ -27,6 +27,10 @@ export class Utility {
         return true;
     }
 
+    public static adjustTerminalCommand(command: string): string {
+        return (os.platform() === "linux" || os.platform() === "darwin") ? `sudo ${command}` : command;
+    }
+
     public static adjustFilePath(filePath: string): string {
         if (os.platform() === "win32") {
             const windowsShell = vscode.workspace.getConfiguration("terminal").get<string>("integrated.shell.windows");

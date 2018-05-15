@@ -9,6 +9,7 @@ import * as request from "request-promise";
 import * as vscode from "vscode";
 import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
+import { Utility } from "../common/utility";
 import { AcrRegistryQuickPickItem } from "../container/models/AcrRegistryQuickPickItem";
 import { AzureAccount, AzureSession, AzureSubscription } from "../typings/azure-account.api";
 
@@ -226,7 +227,7 @@ export class AcrManager {
                     const username: string = creds.username;
                     const password: string = creds.passwords[0].value;
 
-                    Executor.runInTerminal(`iotedgectl login --address ${registryUrl} --username ${username} --password ${password}`);
+                    Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgectl login --address ${registryUrl} --username ${username} --password ${password}`));
                 });
             }
         } catch (error) {

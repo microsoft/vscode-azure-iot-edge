@@ -203,12 +203,12 @@ export class AcrManager {
             const adminUserEnabled: boolean = registry.adminUserEnabled;
             const registryUrl: string = registry.loginServer;
             const loginMessage = adminUserEnabled ? `Looks like the registry "${registryUrl}" has admin user enabled. `
-                + `Would you like to run "docker login" with the admin user credentials?`
+                + `Would you like to add the admin user credentials to IoT Edge runtime?`
                 : `Looks like the registry "${registryUrl}" does not have admin user enabled. `
-                + `Would you like to enable admin user and run "docker login" with the admin user credentials?`;
+                + `Would you like to enable admin user and add the admin user credentials to IoT Edge runtime?`;
             const option: string = await vscode.window.showInformationMessage(loginMessage, "Yes", "No");
             if (option === "Yes") {
-                vscode.window.withProgress({ title: `Logging in to registry "${registryUrl}"...`, location: vscode.ProgressLocation.Window }, async (progress) => {
+                vscode.window.withProgress({ title: `Adding registry "${registryUrl}" credentials to IoT Edge runtime...`, location: vscode.ProgressLocation.Window }, async (progress) => {
                     const registryName: string = registry.name;
                     const resourceGroup: string = registry.id.slice(registry.id.toLowerCase().search("resourcegroups/") + "resourcegroups/".length, registry.id.toLowerCase().search("/providers/"));
                     const client = new ContainerRegistryManagementClient(
@@ -226,7 +226,7 @@ export class AcrManager {
                     const username: string = creds.username;
                     const password: string = creds.passwords[0].value;
 
-                    Executor.runInTerminal(`docker login -u ${username} -p ${password} ${registryUrl}`);
+                    Executor.runInTerminal(`iotedgectl login --address ${registryUrl} --username ${username} --password ${password}`);
                 });
             }
         } catch (error) {

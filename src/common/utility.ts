@@ -297,6 +297,7 @@ export class Utility {
             const directory = path.dirname(envFilePath);
             // Check whether .env file is in the root folder of solution
             if (await fse.pathExists(path.join(directory, Constants.deploymentTemplate)) && await fse.pathExists(envFilePath)) {
+                TelemetryClient.sendEvent("envFileDetected");
                 const envConfig = dotenv.parse(await fse.readFile(envFilePath));
                 for (const k of Object.keys(envConfig)) {
                     process.env[k] = envConfig[k];
@@ -316,14 +317,17 @@ export class Utility {
                 }
             }
             if (port) {
+                TelemetryClient.sendEvent("localRegistryDetected");
                 if (await isPortReachable(port)) {
                     return;
                 }
                 switch (Utility.getLocalRegistryState()) {
                     case ContainerState.NotFound:
+                        TelemetryClient.sendEvent("createLocalRegistry");
                         Executor.runInTerminal(`docker run -d -p ${port}:5000 --restart always --name registry registry:2`);
                         break;
                     case ContainerState.NotRunning:
+                        TelemetryClient.sendEvent("startLocalRegistry");
                         Executor.runInTerminal(`docker start registry`);
                         break;
                 }

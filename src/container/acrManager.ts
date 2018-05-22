@@ -122,6 +122,11 @@ export class AcrManager {
             return repoItems;
         } catch (error) {
             error.message = `Error fetching repository list: ${error.message}`;
+
+            if (error.statusCode === 404) {
+                error.message = `Please make sure that there is at least one repository in the registry. ${error.message}`;
+            }
+
             throw error;
         }
     }

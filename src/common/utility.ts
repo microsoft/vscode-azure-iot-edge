@@ -143,6 +143,14 @@ export class Utility {
         return null;
     }
 
+    public static async copyTemplateFile(srcPath: string, fileName: string, targetPath: string, mapObj: Map<string, string>) {
+        const srcFile: string = path.join(srcPath, fileName);
+        const srcFileContent: string = await fse.readFile(srcFile, "utf8");
+        const fileContentGenerated: string = Utility.replaceAll(srcFileContent, mapObj);
+        const targetFile: string = path.join(targetPath, fileName);
+        await fse.writeFile(targetFile, fileContentGenerated, { encoding: "utf8" });
+    }
+
     public static replaceAll(str: string, mapObj: Map<string, string>, caseInSensitive: boolean = false): string {
         let modifier = "g";
         if (caseInSensitive) {

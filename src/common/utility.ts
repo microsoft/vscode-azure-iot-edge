@@ -143,11 +143,11 @@ export class Utility {
         return null;
     }
 
-    public static async copyTemplateFile(srcPath: string, srcFile: string, targetPath: string, mapObj: Map<string, string>) {
-        const srcFileFullPath: string = path.join(srcPath, srcFile);
-        const srcfileContent: string = await fse.readFile(srcFileFullPath, "utf8");
-        const fileContentGenerated: string = Utility.replaceAll(srcfileContent, mapObj);
-        const targetFile: string = path.join(targetPath, srcFile);
+    public static async copyTemplateFile(srcPath: string, fileName: string, targetPath: string, mapObj: Map<string, string>) {
+        const srcFile: string = path.join(srcPath, fileName);
+        const srcFileContent: string = await fse.readFile(srcFile, "utf8");
+        const fileContentGenerated: string = Utility.replaceAll(srcFileContent, mapObj);
+        const targetFile: string = path.join(targetPath, fileName);
         await fse.writeFile(targetFile, fileContentGenerated, { encoding: "utf8" });
     }
 

@@ -35,24 +35,20 @@ export class EdgeManager {
         await fse.mkdirs(slnPath);
 
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
-        const sourceDeploymentTemplate = path.join(sourceSolutionPath, Constants.deploymentTemplate);
         const sourceGitIgnore = path.join(sourceSolutionPath, Constants.gitIgnore);
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
         const targetGitIgnore = path.join(slnPath, Constants.gitIgnore);
-        const targetDeployment = path.join(slnPath, Constants.deploymentTemplate);
 
         await fse.copy(sourceGitIgnore, targetGitIgnore);
         await fse.mkdirs(targetModulePath);
 
         await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
 
-        const data: string = await fse.readFile(sourceDeploymentTemplate, "utf8");
         const mapObj: Map<string, string> = new Map<string, string>();
         mapObj.set(Constants.moduleNamePlaceholder, moduleName);
         mapObj.set(Constants.moduleImagePlaceholder, imageName);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
-        const deploymentGenerated: string = Utility.replaceAll(data, mapObj);
-        await fse.writeFile(targetDeployment, deploymentGenerated, { encoding: "utf8" });
+        await Utility.copyTemplateFile(sourceSolutionPath, Constants.deploymentTemplate, slnPath, mapObj);
 
         const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
         if (debugGenerated) {
@@ -126,8 +122,12 @@ export class EdgeManager {
     public async convertModule(fileUri?: vscode.Uri): Promise<void> {
         const filePath = fileUri ? fileUri.fsPath : undefined;
         if (filePath) {
-            const dockerFile = "Dockerfile";
-            const dockerDebugFile = "Dockerfile.amd64.debug";
+            const targetPath = path.dirname(filePath);
+            const moduleExist = await fse.pathExists(path.join(targetPath, Constants.moduleManifest));
+            if (moduleExist) {
+                throw new Error("module.json exists already");
+            }
+
             const csharpFolder = "csharp";
             const csharpFunction = "csharpfunction";
 
@@ -135,45 +135,28 @@ export class EdgeManager {
             const extName = path.extname(filePath);
             const isFunction = fileName === "host.json";
             const isCSharp = extName === ".csproj";
-
-            const targetPath = path.dirname(filePath);
-            const moduleExist = await fse.pathExists(path.join(targetPath, Constants.moduleManifest));
-            if (moduleExist) {
-                throw new Error("module.json exists already");
-            }
             if (isFunction || isCSharp) {
-                const moduleName: string = isCSharp ? path.basename(fileName, extName)
-                    : Utility.getValidModuleName(path.basename(targetPath));
+                const moduleName: string = isCSharp ? path.basename(fileName, extName) : Utility.getValidModuleName(path.basename(targetPath));
                 const repositoryName: string = await this.inputRepository(moduleName);
-                const srcPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.moduleFolder));
-                const srcModuleFile = path.join(srcPath, Constants.moduleManifest);
-                const srcDockerFolder = path.join(srcPath, isFunction ? csharpFunction : csharpFolder);
-                const srcDockerFile = path.join(srcDockerFolder, dockerFile);
-                const srcDockerDebugFile = path.join(srcDockerFolder, dockerDebugFile);
+                const srcPath: string = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.moduleFolder, isFunction ? csharpFunction : csharpFolder));
+                const srcFiles: string[] = await fse.readdir(srcPath);
 
-                const moduleData: string = await fse.readFile(srcModuleFile, "utf8");
-                const mapObj: Map<string, string> = new Map<string, string>();
-                mapObj.set(Constants.repositoryPlaceholder, repositoryName);
-                const moduleGenerated: string = Utility.replaceAll(moduleData, mapObj);
-                const targetModule: string = path.join(targetPath, Constants.moduleManifest);
-                await fse.writeFile(targetModule, moduleGenerated, { encoding: "utf8" });
+                const dockerFileMapObj: Map<string, string> = new Map<string, string>();
+                dockerFileMapObj.set(Constants.dllPlaceholder, moduleName);
+                const moduleJsonMapObj: Map<string, string> = new Map<string, string>();
+                moduleJsonMapObj.set(Constants.repositoryPlaceholder, repositoryName);
 
-                const targetDockerFile = path.join(targetPath, dockerFile);
-                const targetDockerDebugFile = path.join(targetPath, dockerDebugFile);
-                if (isFunction) {
-                    await fse.copy(srcDockerFile, targetDockerFile);
-                    await fse.copy(srcDockerDebugFile, targetDockerDebugFile);
-                } else {
-                    const dockerMapObj: Map<string, string> = new Map<string, string>();
-                    dockerMapObj.set(Constants.dllPlaceholder, moduleName);
-                    const dockerFileData: string = await fse.readFile(srcDockerFile, "utf8");
-                    const dockerFileGenerated: string = Utility.replaceAll(dockerFileData, dockerMapObj);
-                    await fse.writeFile(targetDockerFile, dockerFileGenerated, { encoding: "utf8" });
+                const copyPromises: Array<Promise<void>> = [];
+                srcFiles.forEach((srcFile) => {
+                    if (srcFile === Constants.moduleManifest) {
+                        copyPromises.push(Utility.copyTemplateFile(srcPath, srcFile, targetPath, moduleJsonMapObj));
+                    } else if (srcFile.startsWith("Dockerfile")) {
+                        copyPromises.push(Utility.copyTemplateFile(srcPath, srcFile, targetPath, dockerFileMapObj));
+                    }
+                });
 
-                    const dockerDebugFileData: string = await fse.readFile(srcDockerDebugFile, "utf8");
-                    const dockerDebugFileGenerated: string = Utility.replaceAll(dockerDebugFileData, dockerMapObj);
-                    await fse.writeFile(targetDockerDebugFile, dockerDebugFileGenerated, { encoding: "utf8" });
-                }
+                await Promise.all(copyPromises);
+
                 vscode.window.showInformationMessage("Converted successfully. module.json and Dockerfiles have been added.");
             } else {
                 throw new Error("File type is wrong");

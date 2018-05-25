@@ -75,7 +75,7 @@ You can also trigger following frequently-used commands in context menu.
 ## Resources
 - [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-csharp-module)
 - [Debug C# module](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-csharp-module)
-- [Develop and deploy C# module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
+- [Develop and deploy Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Develop and deploy Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-develop-azure-function)
 - [Debug Azure Functions](https://docs.microsoft.com/azure/iot-edge/how-to-vscode-debug-azure-function)
 - [Work with multiple modules in VS Code](https://docs.microsoft.com/azure/iot-edge/tutorial-multiple-modules-in-vscode)

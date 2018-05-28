@@ -199,24 +199,24 @@ export class EdgeManager {
         // TODO command to create module;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
-                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Module");
-                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "dotnet", {}, ..."new -i Microsoft.Azure.IoT.Edge.Module".split(" "));
+                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}` }, ...`new aziotedgemodule -n ${name} -r ${repositoryName}`.split(" "));
                 break;
             case Constants.CSHARP_FUNCTION:
-                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Function");
-                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "dotnet", {}, ..."new -i Microsoft.Azure.IoT.Edge.Function".split(" "));
+                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}` }, ...`new aziotedgefunction -n ${name} -r ${repositoryName}`.split(" "));
                 break;
             case Constants.LANGUAGE_PYTHON:
                 const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
                 const branch = "master";
                 await Executor.executeCMD(outputChannel,
                     "cookiecutter",
-                    { cwd: `${parent}`, shell: true },
-                    `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`);
+                    { cwd: `${parent}` },
+                    ...`--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`.split(" "));
                 break;
             case Constants.LANGUAGE_NODE:
-                await Executor.executeCMD(outputChannel, "npm", { shell: true }, "i -g generator-azure-iot-edge-module");
-                await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "npm", { shell: true }, ..."i -g generator-azure-iot-edge-module".split(" "));
+                await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, ...`azure-iot-edge-module -n ${name} -r ${repositoryName}`.split(" "));
                 break;
             default:
                 break;

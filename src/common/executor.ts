@@ -30,6 +30,7 @@ export class Executor {
                                    options: SpawnOptions, ...args: string[]): Promise<void> {
         await new Promise((resolve: () => void, reject: (e: Error) => void): void => {
             outputPane.show();
+            outputPane.appendLine(`Executing ${command} ${args.join(" ")}`);
             let stderr: string = "";
             const p: ChildProcess = spawn(command, args, options);
             p.stdout.on("data", (data: string | Buffer): void =>

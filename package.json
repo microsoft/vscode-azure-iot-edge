@@ -80,6 +80,10 @@
           "command": "azure-iot-edge.addModule"
         },
         {
+          "when": "explorerResourceIsFolder && resourceFilename == modules",
+          "command": "azure-iot-edge.addModule"
+        },
+        {
           "when": "resourceExtname == .csproj",
           "command": "azure-iot-edge.convertModule"
         },

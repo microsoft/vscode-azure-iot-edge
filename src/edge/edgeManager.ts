@@ -76,7 +76,7 @@ export class EdgeManager {
             const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(templateFile));
             if (!workspaceFolder || !await fse.exists(templateFile)) {
                 vscode.window.showInformationMessage(Constants.noSolutionFileWithModulesFolder);
-                return; 
+                return;
             }
         }
 

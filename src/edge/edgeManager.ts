@@ -62,13 +62,22 @@ export class EdgeManager {
     }
 
     public async addModuleForSolution(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
-        const templateFile: string = await Utility.getInputFilePath(templateUri,
+        let templateFile: string = await Utility.getInputFilePath(templateUri,
             Constants.deploymentTemplatePattern,
             Constants.deploymentTemplateDesc,
             `${Constants.addModuleEvent}.selectTemplate`);
         if (!templateFile) {
             vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
+        }
+
+        if (path.basename(templateFile) === Constants.moduleFolder) {
+            templateFile = path.join(path.dirname(templateFile),  Constants.deploymentTemplate);
+            const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(templateFile));
+            if (!workspaceFolder || !await fse.exists(templateFile)) {
+                vscode.window.showInformationMessage(Constants.noSolutionFileWithModulesFolder);
+                return; 
+            }
         }
 
         const templateJson = await fse.readJson(templateFile);
@@ -78,6 +87,7 @@ export class EdgeManager {
 
         const template = await this.selectModuleTemplate();
         const modules = templateJson.moduleContent.$edgeAgent["properties.desired"].modules;
+        const routes = templateJson.moduleContent.$edgeHub["properties.desired"].routes;
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
         const { repositoryName, imageName } = await this.inputImage(moduleName, template);
         await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
@@ -93,6 +103,8 @@ export class EdgeManager {
             }
           }`;
         modules[moduleName] = JSON.parse(newModuleSection);
+        const newModuleToUpstream = `${moduleName}ToIoTHub`;
+        routes[newModuleToUpstream] = `FROM /messages/modules/${moduleName}/outputs/* INTO $upstream`;
         await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
 
         const mapObj: Map<string, string> = new Map<string, string>();

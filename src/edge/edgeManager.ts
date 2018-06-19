@@ -227,7 +227,7 @@ export class EdgeManager {
                     `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`);
                 break;
             case Constants.LANGUAGE_NODE:
-                await Executor.executeCMD(outputChannel, "npm", { shell: true }, "i -g generator-azure-iot-edge-module");
+                // await Executor.executeCMD(outputChannel, "npm", { shell: true }, "i -g generator-azure-iot-edge-module");
                 await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
                 break;
             default:
@@ -325,10 +325,10 @@ export class EdgeManager {
                 label: Constants.LANGUAGE_CSHARP,
                 description: Constants.LANGUAGE_CSHARP_DESCRIPTION,
             },
-            // {
-            //     label: Constants.LANGUAGE_NODE,
-            //     description: Constants.LANGUAGE_NODE_DESCRIPTION,
-            // },
+            {
+                label: Constants.LANGUAGE_NODE,
+                description: Constants.LANGUAGE_NODE_DESCRIPTION,
+            },
             {
                 label: Constants.LANGUAGE_PYTHON,
                 description: Constants.LANGUAGE_PYTHON_DESCRIPTION,

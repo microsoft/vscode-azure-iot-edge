@@ -11,6 +11,8 @@ import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AcrManager } from "../container/acrManager";
+import { exists } from "fs-extra";
+import { relativeTimeThreshold } from "moment";
 
 export class EdgeManager {
 
@@ -32,6 +34,16 @@ export class EdgeManager {
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName());
         const { repositoryName, imageName } = await this.inputImage(moduleName, template);
         const slnPath: string = path.join(parentPath, slnName);
+        const registryAddress = this.getRegistryAddress(repositoryName);
+        const registries = {};
+        registries["EdgeShared"] = {
+                "username":"EdgeShared",
+                "password":"<password>",
+                "address":"edgeshared.azurecr.io"
+        };
+        const envFilePath: string = path.join(slnPath, Constants.envFile);
+        const {userName, password} = await this.inputRegistryCredential(registryAddress);
+        await this.updateRegistryEnvSettings(registryAddress, userName, password, new Set(), registries, envFilePath);
         await fse.mkdirs(slnPath);
 
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
@@ -48,6 +60,7 @@ export class EdgeManager {
         mapObj.set(Constants.moduleNamePlaceholder, moduleName);
         mapObj.set(Constants.moduleImagePlaceholder, imageName);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
+        mapObj.set("%REGISTRY%", JSON.stringify(registries));
         await Utility.copyTemplateFile(sourceSolutionPath, Constants.deploymentTemplate, slnPath, mapObj);
 
         const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
@@ -84,12 +97,25 @@ export class EdgeManager {
         const slnPath: string = path.dirname(templateFile);
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
+        const envFilePath = path.join(slnPath, Constants.envFile);
 
         const template = await this.selectModuleTemplate();
         const modules = templateJson.moduleContent.$edgeAgent["properties.desired"].modules;
         const routes = templateJson.moduleContent.$edgeHub["properties.desired"].routes;
+        const runtimeSettings = templateJson.moduleContent.$edgeAgent["properties.desired"].runtime.settings;
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
         const { repositoryName, imageName } = await this.inputImage(moduleName, template);
+        const address = await this.getRegistryAddress(repositoryName);        
+        let registries = runtimeSettings.registryCredentials;
+        if (registries === undefined) {
+            registries = {};
+            runtimeSettings.registryCredentials = registries;
+        }
+        const {exists, keySet} = this.checkAddressExist(address, registries);
+        if (!exists) {
+            const {userName, password} = await this.inputRegistryCredential(address);
+            await this.updateRegistryEnvSettings(address, userName, password, keySet, registries, envFilePath);
+        }
         await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
 
         const newModuleSection = `{
@@ -176,6 +202,27 @@ export class EdgeManager {
         } else {
             throw new Error("No file is selected");
         }
+    }
+
+    private checkAddressExist(address: string, registriesObj: any): {exists: boolean, keySet: Set<string>} {
+        const keySet = new Set();
+        let exists = false;
+        if (registriesObj === undefined) {
+            return {exists, keySet};
+        }
+
+        const expandedContent = Utility.expandEnv(JSON.stringify(registriesObj));
+        const registriesExpanded = JSON.parse(expandedContent);
+
+        for (const key in registriesExpanded) {
+            if (registriesExpanded.hasOwnProperty(key)) {
+                keySet.add(key);
+                if (registriesExpanded[key].address === address) {
+                    exists = true;
+                }
+            }
+        }
+        return {exists, keySet};
     }
 
     private async generateDebugSetting(srcSlnPath: string,
@@ -317,6 +364,104 @@ export class EdgeManager {
             imageName = `\${${Utility.getModuleKey(module, "amd64")}}`;
         }
         return { repositoryName, imageName };
+    }
+
+    private async inputRegistryCredential(registryAddress): Promise<{userName: string, password: string}> {
+        let userName;
+        let password;
+
+        const needSet = await this.setRegistryCredentialOrNot(registryAddress);
+        if (needSet) {
+            userName = await Utility.showInputBox('Username', 'Input container registry username');
+            password = await Utility.showInputBox('Password', 'Input container registry password');
+        }
+
+        return {userName, password}
+    }
+
+    private getAddressKey(address: string, keySet: Set<string>): string {
+        let key = address;
+        let index = address.indexOf('.');
+        if (index === -1) {
+            index = address.indexOf(':');
+        }
+        if (index !== -1){
+            key = address.substring(0, index);
+        }
+        let suffix = 1;
+        while (keySet.has(address)) {
+            key = `${key}_${suffix}`;
+            suffix += 1;
+        }
+
+        return key;
+    }
+
+    private getRegistryAddress(repositoryName: string) {
+        const DefaultHostname = "docker.io"
+        const LegacyDefaultHostname = "index.docker.io"
+        const index = repositoryName.indexOf('/');
+
+        let name: string;
+        let hostname: string;
+        if (index !== -1)
+            name = repositoryName.substring(0, index);
+        if (name === undefined
+            || (name !== 'localhost' && (!(name.includes('.')||name.includes(':'))))
+        ) {
+            hostname = DefaultHostname;
+        } else {
+            hostname = name;
+        }
+
+        if (hostname === LegacyDefaultHostname) {
+            hostname = DefaultHostname;
+        }
+
+        return hostname;
+    }
+
+    private async updateRegistryEnvSettings(address: string, userName: string, password: string,
+                                            keySet: Set<string>, registries: any,
+                                            envFilePath: string): Promise<void> {
+        await Utility.loadEnv(envFilePath);
+        let envContent = undefined;
+        
+        if (userName !== undefined) {
+            const addressKey = this.getAddressKey(address, keySet);
+            const usernameEnv = `CONTAINER_REGISTRY_USERNAME_${addressKey}`;
+            const passwordEnv = `CONTAINER_REGISTRY_PASSWORD_${addressKey}`;
+            const newRegistry = `{
+                "username": "$${usernameEnv}",
+                "password": "$${passwordEnv}",
+                "address": "${address}"
+            }`;
+
+            registries[addressKey] = JSON.parse(newRegistry);
+            const envContent = `${usernameEnv}=${userName}\n${passwordEnv}=${password}\n`;
+            await fse.ensureFile(envFilePath);
+            await fse.appendFile(envFilePath, envContent, { encoding: "utf8" });
+        }
+    }
+
+    private async setRegistryCredentialOrNot(registry: string): Promise<boolean> {
+        const templatePicks: vscode.QuickPickItem[] = [
+            {
+                label: 'Yes',
+                description: 'Set the registry credential in deployment manifest'
+            },
+            {
+                label: 'No',
+                description: 'Do not set registry credential in deployment manifest'
+            }
+        ];
+
+        const label = `Set the credential for ${registry} now?`;
+        const templatePick = await vscode.window.showQuickPick(templatePicks, { placeHolder: label, ignoreFocusOut: true });
+        if (!templatePick) {
+            throw new UserCancelledError();
+        }
+        return templatePick.label === 'Yes';
     }
 
     private async selectModuleTemplate(label?: string): Promise<string> {

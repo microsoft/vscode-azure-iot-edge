@@ -8,13 +8,7 @@
           "settings": {
             "minDockerVersion": "v1.25",
             "loggingOptions": "",
-            "registryCredentials":{
-              "EdgeShared": {
-                  "username":"EdgeShared",
-                  "password":"<password>",
-                  "address":"edgeshared.azurecr.io"
-              }
-            }
+            "registryCredentials": %REGISTRY%
           }
         },
         "systemModules": {

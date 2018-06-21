@@ -8,7 +8,7 @@
           "settings": {
             "minDockerVersion": "v1.25",
             "loggingOptions": "",
-            "registryCredentials": %REGISTRY%
+            "registryCredentials": "%REGISTRY%"
           }
         },
         "systemModules": {

@@ -38,6 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(diagCollection);
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => configDiagnosticProvider.updateDiagnostics(event.document, diagCollection)));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => configDiagnosticProvider.updateDiagnostics(document, diagCollection)));
+    //context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((event) => checkRegistryEnv(event.added, edgeManager.checkRegistryEnv)));
 
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     context.subscriptions.push(outputChannel);
@@ -87,6 +88,11 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {
         Executor.onDidCloseTerminal(closedTerminal);
     }));
+
+    const folders = vscode.workspace.workspaceFolders;
+    if (folders && folders.length > 0) {
+        folders.forEach(async value => await edgeManager.checkRegistryEnv(value));
+    }
 }
 
 function initCommand(context: vscode.ExtensionContext,

@@ -50,11 +50,10 @@ export class AcrManager {
 
         if (await this.azureAccount.waitForLogin()) {
             const registriesItems = await this.loadAcrRegistryItems();
-            for (let idx = 0; idx < registriesItems.length; idx++) {
-                const registry = registriesItems[idx].registry;
-
+            for (const registryItem of registriesItems) {
+                const registry = registryItem.registry;
                 if (registry.loginServer === address && registry.adminUserEnabled) {
-                    const azureSubscription = registriesItems[idx].azureSubscription;
+                    const azureSubscription = registryItem.azureSubscription;
                     const registryName: string = registry.name;
                     const resourceGroup: string = registry.id.slice(registry.id.toLowerCase().search("resourcegroups/") + "resourcegroups/".length, registry.id.toLowerCase().search("/providers/"));
                     const client = new ContainerRegistryManagementClient(
@@ -64,7 +63,7 @@ export class AcrManager {
                     const creds: RegistryListCredentialsResult = await client.registries.listCredentials(resourceGroup, registryName);
                     username = creds.username;
                     password = creds.passwords[0].value;
-                    break;                
+                    break;
                 }
             }
         }

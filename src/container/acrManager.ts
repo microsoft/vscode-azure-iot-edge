@@ -44,6 +44,34 @@ export class AcrManager {
         return acrTagItem.description;
     }
 
+    public async getAcrRegistryCredential(address: string): Promise<{username: string, password: string}> {
+        let username: string;
+        let password: string;
+
+        if (await this.azureAccount.waitForLogin()) {
+            const registriesItems = await this.loadAcrRegistryItems();
+            for (let idx = 0; idx < registriesItems.length; idx++) {
+                const registry = registriesItems[idx].registry;
+
+                if (registry.loginServer === address && registry.adminUserEnabled) {
+                    const azureSubscription = registriesItems[idx].azureSubscription;
+                    const registryName: string = registry.name;
+                    const resourceGroup: string = registry.id.slice(registry.id.toLowerCase().search("resourcegroups/") + "resourcegroups/".length, registry.id.toLowerCase().search("/providers/"));
+                    const client = new ContainerRegistryManagementClient(
+                        azureSubscription.session.credentials,
+                        azureSubscription.subscription.subscriptionId!,
+                    );
+                    const creds: RegistryListCredentialsResult = await client.registries.listCredentials(resourceGroup, registryName);
+                    username = creds.username;
+                    password = creds.passwords[0].value;
+                    break;                
+                }
+            }
+        }
+
+        return {username, password};
+    }
+
     private async selectAcrRegistry(): Promise<AcrRegistryQuickPickItem> {
         if (!(await this.azureAccount.waitForLogin())) {
             await vscode.commands.executeCommand("azure-account.askForLogin");

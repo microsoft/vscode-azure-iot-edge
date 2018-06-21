@@ -147,8 +147,9 @@ export class Utility {
         const srcFile: string = path.join(srcPath, fileName);
         const srcFileContent: string = await fse.readFile(srcFile, "utf8");
         const fileContentGenerated: string = Utility.replaceAll(srcFileContent, mapObj);
+        const jsonFormat = JSON.parse(fileContentGenerated);
         const targetFile: string = path.join(targetPath, fileName);
-        await fse.writeFile(targetFile, fileContentGenerated, { encoding: "utf8" });
+        await fse.writeFile(targetFile, JSON.stringify(jsonFormat, null, 2), { encoding: "utf8" });
     }
 
     public static replaceAll(str: string, mapObj: Map<string, string>, caseInSensitive: boolean = false): string {

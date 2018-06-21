@@ -35,32 +35,35 @@ export class EdgeManager {
         const { repositoryName, imageName } = await this.inputImage(moduleName, template);
         const slnPath: string = path.join(parentPath, slnName);
         const registryAddress = this.getRegistryAddress(repositoryName);
-        const registries = {};
-        registries["EdgeShared"] = {
-                "username":"EdgeShared",
-                "password":"<password>",
-                "address":"edgeshared.azurecr.io"
-        };
         const envFilePath: string = path.join(slnPath, Constants.envFile);
-        const {userName, password} = await this.inputRegistryCredential(registryAddress);
-        await this.updateRegistryEnvSettings(registryAddress, userName, password, new Set(), registries, envFilePath);
-        await fse.mkdirs(slnPath);
-
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const sourceGitIgnore = path.join(sourceSolutionPath, Constants.gitIgnore);
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
         const targetGitIgnore = path.join(slnPath, Constants.gitIgnore);
 
+        await fse.mkdirs(slnPath);
         await fse.copy(sourceGitIgnore, targetGitIgnore);
         await fse.mkdirs(targetModulePath);
 
         await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
 
+        // TODO: remove after bug bash
+        const registries = {
+            EdgeShared: {
+                username: "EdgeShared",
+                password: "$CONTAINER_REGISTRY_USERNAME_edgeshared",
+                address: "edgeshared.azurecr.io"
+            }
+        };
+        await fse.ensureFile(envFilePath);
+        await fse.appendFile(envFilePath, "CONTAINER_REGISTRY_USERNAME_edgeshared=\n", { encoding: "utf8" });
+
+        const result = await this.updateRegistrySettings(registryAddress, registries, envFilePath);
         const mapObj: Map<string, string> = new Map<string, string>();
         mapObj.set(Constants.moduleNamePlaceholder, moduleName);
         mapObj.set(Constants.moduleImagePlaceholder, imageName);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
-        mapObj.set("%REGISTRY%", JSON.stringify(registries));
+        mapObj.set("\"%REGISTRY%\"", JSON.stringify(result.registries, null, 2));
         await Utility.copyTemplateFile(sourceSolutionPath, Constants.deploymentTemplate, slnPath, mapObj);
 
         const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
@@ -70,7 +73,7 @@ export class EdgeManager {
             const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
             await fse.writeFile(targetLaunchJson, debugGenerated, { encoding: "utf8" });
         }
-        // open new created solution. Will also investigate how to open the module in the same workspace
+        await this.writeRegistryCredEnv(registryAddress, envFilePath, result.usernameEnv, result.passwordEnv);
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
     }
 
@@ -111,11 +114,7 @@ export class EdgeManager {
             registries = {};
             runtimeSettings.registryCredentials = registries;
         }
-        const {exists, keySet} = this.checkAddressExist(address, registries);
-        if (!exists) {
-            const {userName, password} = await this.inputRegistryCredential(address);
-            await this.updateRegistryEnvSettings(address, userName, password, keySet, registries, envFilePath);
-        }
+        const result = await this.updateRegistrySettings(address, registries, envFilePath);
         await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
 
         const newModuleSection = `{
@@ -154,6 +153,33 @@ export class EdgeManager {
         const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "is updated.";
         const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
         vscode.window.showInformationMessage(`${moduleCreationMessage}'deployment.template.json' ${launchUpdated}`);
+        await this.writeRegistryCredEnv(address, envFilePath, result.usernameEnv, result.passwordEnv);
+    }
+
+    public async checkRegistryEnv(folder: vscode.WorkspaceFolder): Promise<void> {
+        if (!folder) {
+            return;
+        }
+
+        const folderPath = folder.uri.fsPath;
+        if (folder) {
+            const deploymentTemplate = path.join(folderPath, Constants.deploymentTemplate);
+            const envFile = path.join(folderPath, Constants.envFile);
+            if (await fse.exists(deploymentTemplate)) {
+                const templateJson = await fse.readJson(deploymentTemplate);
+                const runtimeSettings = templateJson.moduleContent.$edgeAgent["properties.desired"].runtime.settings;
+                const registries = runtimeSettings.registryCredentials; 
+                if (registries) {
+                    await Utility.loadEnv(envFile);
+                    const expanded = Utility.expandEnv(JSON.stringify(registries, null, 2));
+                    const pattern: RegExp = new RegExp(/\$([a-zA-Z0-9_]+)|\${([a-zA-Z0-9_]+)}/g);
+                    const matchArr = expanded.match(pattern);
+                    if (matchArr && matchArr.length > 0) {
+                        await this.askEditEnv(envFile);
+                    }
+                }
+            }
+        }
     }
 
     // TODO: The command is temperory for migration stage, will be removed later.
@@ -202,27 +228,6 @@ export class EdgeManager {
         } else {
             throw new Error("No file is selected");
         }
-    }
-
-    private checkAddressExist(address: string, registriesObj: any): {exists: boolean, keySet: Set<string>} {
-        const keySet = new Set();
-        let exists = false;
-        if (registriesObj === undefined) {
-            return {exists, keySet};
-        }
-
-        const expandedContent = Utility.expandEnv(JSON.stringify(registriesObj));
-        const registriesExpanded = JSON.parse(expandedContent);
-
-        for (const key in registriesExpanded) {
-            if (registriesExpanded.hasOwnProperty(key)) {
-                keySet.add(key);
-                if (registriesExpanded[key].address === address) {
-                    exists = true;
-                }
-            }
-        }
-        return {exists, keySet};
     }
 
     private async generateDebugSetting(srcSlnPath: string,
@@ -366,19 +371,6 @@ export class EdgeManager {
         return { repositoryName, imageName };
     }
 
-    private async inputRegistryCredential(registryAddress): Promise<{userName: string, password: string}> {
-        let userName;
-        let password;
-
-        const needSet = await this.setRegistryCredentialOrNot(registryAddress);
-        if (needSet) {
-            userName = await Utility.showInputBox('Username', 'Input container registry username');
-            password = await Utility.showInputBox('Password', 'Input container registry password');
-        }
-
-        return {userName, password}
-    }
-
     private getAddressKey(address: string, keySet: Set<string>): string {
         let key = address;
         let index = address.indexOf('.');
@@ -421,47 +413,97 @@ export class EdgeManager {
         return hostname;
     }
 
-    private async updateRegistryEnvSettings(address: string, userName: string, password: string,
-                                            keySet: Set<string>, registries: any,
-                                            envFilePath: string): Promise<void> {
-        await Utility.loadEnv(envFilePath);
-        let envContent = undefined;
-        
-        if (userName !== undefined) {
-            const addressKey = this.getAddressKey(address, keySet);
-            const usernameEnv = `CONTAINER_REGISTRY_USERNAME_${addressKey}`;
-            const passwordEnv = `CONTAINER_REGISTRY_PASSWORD_${addressKey}`;
-            const newRegistry = `{
-                "username": "$${usernameEnv}",
-                "password": "$${passwordEnv}",
-                "address": "${address}"
-            }`;
+    private async updateRegistrySettings(address: string, registries: any, envFile: string) : Promise<{registries: string, usernameEnv: string, passwordEnv: string}> {
+        await Utility.loadEnv(envFile);
+        let isEnvSet = false; 
+        const {exists, keySet} = this.checkAddressExist(address, registries);
+        let usernameEnv, passwordEnv;
+        if (!exists) {
+            const needSet = address.endsWith('.azurecr.io') || await vscode.window.showInformationMessage('Add registry credential to deployment manifest?', 'Yes') === 'Yes';
+            if (needSet) {
+                const addressKey = this.getAddressKey(address, keySet);
+                usernameEnv = `CONTAINER_REGISTRY_USERNAME_${addressKey}`;
+                passwordEnv = `CONTAINER_REGISTRY_PASSWORD_${addressKey}`;
+                const newRegistry = `{
+                    "username": "$${usernameEnv}",
+                    "password": "$${passwordEnv}",
+                    "address": "${address}"
+                }`;
+                if (!registries) {
+                    registries = {}
+                }
+                registries[addressKey] = JSON.parse(newRegistry);
+                return {registries, usernameEnv, passwordEnv};
+            }
+        }
+        return {registries, usernameEnv, passwordEnv};
+    }
 
-            registries[addressKey] = JSON.parse(newRegistry);
-            const envContent = `${usernameEnv}=${userName}\n${passwordEnv}=${password}\n`;
-            await fse.ensureFile(envFilePath);
-            await fse.appendFile(envFilePath, envContent, { encoding: "utf8" });
+    private async writeRegistryCredEnv(address: string, envFile: string, usernameEnv: string, passwordEnv: string): Promise<void> {
+        if (!usernameEnv) {
+            return;
+        }
+
+        if (address.endsWith('.azurecr.io')) {
+            await this.populateACRCredential(address, envFile, usernameEnv, passwordEnv);
+        } else {
+            await this.populateStaticEnv(envFile, usernameEnv, passwordEnv);
         }
     }
 
-    private async setRegistryCredentialOrNot(registry: string): Promise<boolean> {
-        const templatePicks: vscode.QuickPickItem[] = [
-            {
-                label: 'Yes',
-                description: 'Set the registry credential in deployment manifest'
-            },
-            {
-                label: 'No',
-                description: 'Do not set registry credential in deployment manifest'
-            }
-        ];
+    private async populateStaticEnv(envFile: string, usernameEnv: string, passwordEnv: string): Promise<void> {
+        const envContent = `${usernameEnv}=\n${passwordEnv}=\n`;
+        await fse.ensureFile(envFile);
+        await fse.appendFile(envFile, envContent, { encoding: "utf8" });
+        this.askEditEnv(envFile);
+    }
 
-        const label = `Set the credential for ${registry} now?`;
-        const templatePick = await vscode.window.showQuickPick(templatePicks, { placeHolder: label, ignoreFocusOut: true });
-        if (!templatePick) {
-            throw new UserCancelledError();
+    private async populateACRCredential(address: string, envFile: string, usernameEnv: string, passwordEnv: string): Promise<void> {
+        const acrManager = new AcrManager();
+        let cred;
+        try {
+            cred = await acrManager.getAcrRegistryCredential(address);
+        } catch (err) {
+            console.error(err);
         }
-        return templatePick.label === 'Yes';
+        if (cred && cred.username !== undefined) {
+            const envContent = `${usernameEnv}=${cred.username}\n${passwordEnv}=${cred.password}\n`;
+            await fse.ensureFile(envFile);
+            await fse.appendFile(envFile, envContent, { encoding: "utf8" });
+            vscode.window.showInformationMessage(Constants.acrEnvSet);
+        } else {
+            await this.populateStaticEnv(envFile, usernameEnv, passwordEnv);
+        }
+    }
+
+    private async askEditEnv(envFile: string): Promise<void> {
+        const yesOption = 'Yes';
+        const option = await vscode.window.showInformationMessage(Constants.setRegistryEnvNotification, yesOption);
+        if (option === yesOption) {
+            await fse.ensureFile(envFile);
+            await vscode.window.showTextDocument(vscode.Uri.file(envFile));
+        }
+    }
+
+    private checkAddressExist(address: string, registriesObj: any): {exists: boolean, keySet: Set<string>} {
+        const keySet = new Set();
+        let exists = false;
+        if (registriesObj === undefined) {
+            return {exists, keySet};
+        }
+
+        const expandedContent = Utility.expandEnv(JSON.stringify(registriesObj));
+        const registriesExpanded = JSON.parse(expandedContent);
+
+        for (const key in registriesExpanded) {
+            if (registriesExpanded.hasOwnProperty(key)) {
+                keySet.add(key);
+                if (registriesExpanded[key].address === address) {
+                    exists = true;
+                }
+            }
+        }
+        return {exists, keySet};
     }
 
     private async selectModuleTemplate(label?: string): Promise<string> {

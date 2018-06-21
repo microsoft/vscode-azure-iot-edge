@@ -82,4 +82,38 @@ suite("utility tests", () => {
                           }';
     assert.equal(generated, expected);
   }).timeout(60 * 1000);
+
+  test("getAddressKey", () => {
+    const keySet = new Set([]);
+    let key = Utility.getAddressKey("localhost:5000", new Set([]));
+    assert.equal(key, "localhost");
+    keySet.add("localhost");
+    key = Utility.getAddressKey("localhost:5000", keySet);
+    assert.equal(key, "localhost_1");
+    keySet.add("localhost_1");
+    key = Utility.getAddressKey("localhost", keySet);
+    assert.equal(key, "localhost_2");
+    key = Utility.getAddressKey("a.azurecr.io", keySet);
+    assert.equal(key, "a");
+    keySet.add("a");
+    key = Utility.getAddressKey("a", keySet);
+    assert.equal(key, "a_1");
+  });
+
+  test("getRegistryAddress", () => {
+    let registry = Utility.getRegistryAddress("localhost:5000/test");
+    assert.equal(registry, "localhost:5000");
+
+    registry = Utility.getRegistryAddress("localhost/test");
+    assert.equal(registry, "localhost");
+
+    registry = Utility.getRegistryAddress("a.azurecr.io/test");
+    assert.equal(registry, "a.azurecr.io");
+
+    registry = Utility.getRegistryAddress("microsoft/tet");
+    assert.equal(registry, "docker.io");
+
+    registry = Utility.getRegistryAddress("python");
+    assert.equal(registry, "docker.io");
+  });
 });

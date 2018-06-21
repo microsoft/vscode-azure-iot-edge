@@ -344,6 +344,51 @@ export class Utility {
         } catch (error) {}
     }
 
+    public static getAddressKey(address: string, keySet: Set<string>): string {
+        let key = address;
+        let index = address.indexOf(".");
+        if (index === -1) {
+            index = address.indexOf(":");
+        }
+        if (index !== -1) {
+            key = address.substring(0, index);
+        }
+
+        let suffix = 1;
+        const keyPrefix: string = key;
+        while (keySet.has(key)) {
+            key = `${keyPrefix}_${suffix}`;
+            suffix += 1;
+        }
+
+        return key;
+    }
+
+    public static getRegistryAddress(repositoryName: string) {
+        const DefaultHostname = "docker.io";
+        const LegacyDefaultHostname = "index.docker.io";
+        const index = repositoryName.indexOf("/");
+
+        let name: string;
+        let hostname: string;
+        if (index !== -1) {
+            name = repositoryName.substring(0, index);
+        }
+        if (name === undefined
+            || (name !== "localhost" && (!(name.includes(".") || name.includes(":"))))
+        ) {
+            hostname = DefaultHostname;
+        } else {
+            hostname = name;
+        }
+
+        if (hostname === LegacyDefaultHostname) {
+            hostname = DefaultHostname;
+        }
+
+        return hostname;
+    }
+
     private static getLocalRegistryState(): ContainerState {
         try {
             const isRunning = Executor.execSync("docker inspect registry --format='{{.State.Running}}'");

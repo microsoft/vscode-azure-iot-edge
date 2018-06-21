@@ -33,7 +33,7 @@ export class EdgeManager {
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName());
         const { repositoryName, imageName } = await this.inputImage(moduleName, template);
         const slnPath: string = path.join(parentPath, slnName);
-        const registryAddress = this.getRegistryAddress(repositoryName);
+        const registryAddress = Utility.getRegistryAddress(repositoryName);
         const envFilePath: string = path.join(slnPath, Constants.envFile);
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const sourceGitIgnore = path.join(sourceSolutionPath, Constants.gitIgnore);
@@ -107,7 +107,7 @@ export class EdgeManager {
         const runtimeSettings = templateJson.moduleContent.$edgeAgent["properties.desired"].runtime.settings;
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
         const { repositoryName, imageName } = await this.inputImage(moduleName, template);
-        const address = await this.getRegistryAddress(repositoryName);
+        const address = await Utility.getRegistryAddress(repositoryName);
         let registries = runtimeSettings.registryCredentials;
         if (registries === undefined) {
             registries = {};
@@ -370,56 +370,13 @@ export class EdgeManager {
         return { repositoryName, imageName };
     }
 
-    private getAddressKey(address: string, keySet: Set<string>): string {
-        let key = address;
-        let index = address.indexOf(".");
-        if (index === -1) {
-            index = address.indexOf(":");
-        }
-        if (index !== -1) {
-            key = address.substring(0, index);
-        }
-        let suffix = 1;
-        while (keySet.has(address)) {
-            key = `${key}_${suffix}`;
-            suffix += 1;
-        }
-
-        return key;
-    }
-
-    private getRegistryAddress(repositoryName: string) {
-        const DefaultHostname = "docker.io";
-        const LegacyDefaultHostname = "index.docker.io";
-        const index = repositoryName.indexOf("/");
-
-        let name: string;
-        let hostname: string;
-        if (index !== -1) {
-            name = repositoryName.substring(0, index);
-        }
-        if (name === undefined
-            || (name !== "localhost" && (!(name.includes(".") || name.includes(":"))))
-        ) {
-            hostname = DefaultHostname;
-        } else {
-            hostname = name;
-        }
-
-        if (hostname === LegacyDefaultHostname) {
-            hostname = DefaultHostname;
-        }
-
-        return hostname;
-    }
-
     private async updateRegistrySettings(address: string, registries: any, envFile: string): Promise<{registries: string, usernameEnv: string, passwordEnv: string}> {
         await Utility.loadEnv(envFile);
         const {exists, keySet} = this.checkAddressExist(address, registries);
         let usernameEnv;
         let passwordEnv;
         if (!exists) {
-            const addressKey = this.getAddressKey(address, keySet);
+            const addressKey = Utility.getAddressKey(address, keySet);
             usernameEnv = `CONTAINER_REGISTRY_USERNAME_${addressKey}`;
             passwordEnv = `CONTAINER_REGISTRY_PASSWORD_${addressKey}`;
             const newRegistry = `{

@@ -388,7 +388,6 @@ export class EdgeManager {
                 registries = {};
             }
             registries[addressKey] = JSON.parse(newRegistry);
-            return {registries, usernameEnv, passwordEnv};
         }
         return {registries, usernameEnv, passwordEnv};
     }

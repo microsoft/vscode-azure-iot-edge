@@ -39,8 +39,6 @@ export class AcrManager {
             throw new UserCancelledError();
         }
 
-        this.loginToAcr(acrRegistryItem.registry, acrRegistryItem.azureSubscription);
-
         return acrTagItem.description;
     }
 
@@ -227,43 +225,6 @@ export class AcrManager {
             return tagItems;
         } catch (error) {
             error.message = `Error fetching tag list: ${error.message}`;
-            throw error;
-        }
-    }
-
-    private async loginToAcr(registry: Registry, azureSubscription: AzureSubscription) {
-        try {
-            const adminUserEnabled: boolean = registry.adminUserEnabled;
-            const registryUrl: string = registry.loginServer;
-            const loginMessage = adminUserEnabled ? `Looks like the registry "${registryUrl}" has admin user enabled. `
-                + `Would you like to add the admin user credentials to IoT Edge runtime?`
-                : `Looks like the registry "${registryUrl}" does not have admin user enabled. `
-                + `Would you like to enable admin user and add the admin user credentials to IoT Edge runtime?`;
-            const option: string = await vscode.window.showInformationMessage(loginMessage, "Yes", "No");
-            if (option === "Yes") {
-                vscode.window.withProgress({ title: `Adding registry "${registryUrl}" credentials to IoT Edge runtime...`, location: vscode.ProgressLocation.Window }, async (progress) => {
-                    const registryName: string = registry.name;
-                    const resourceGroup: string = registry.id.slice(registry.id.toLowerCase().search("resourcegroups/") + "resourcegroups/".length, registry.id.toLowerCase().search("/providers/"));
-                    const client = new ContainerRegistryManagementClient(
-                        azureSubscription.session.credentials,
-                        azureSubscription.subscription.subscriptionId!,
-                    );
-
-                    if (!adminUserEnabled) {
-                        progress.report({ message: `Enabling admin user for registry "${registryUrl}"...` });
-                        await client.registries.update(resourceGroup, registryName, { adminUserEnabled: true });
-                    }
-
-                    progress.report({ message: `Fetching admin user credentials for registry "${registryUrl}"...` });
-                    const creds: RegistryListCredentialsResult = await client.registries.listCredentials(resourceGroup, registryName);
-                    const username: string = creds.username;
-                    const password: string = creds.passwords[0].value;
-
-                    Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgectl login --address ${registryUrl} --username ${username} --password ${password}`));
-                });
-            }
-        } catch (error) {
-            error.message = `Error fetching registry credentials: ${error.message}`;
             throw error;
         }
     }

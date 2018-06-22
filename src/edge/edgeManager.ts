@@ -50,12 +50,12 @@ export class EdgeManager {
         const registries = {
             EdgeShared: {
                 username: "EdgeShared",
-                password: "$CONTAINER_REGISTRY_USERNAME_edgeshared",
+                password: "$CONTAINER_REGISTRY_PASSWORD_edgeshared",
                 address: "edgeshared.azurecr.io",
             },
         };
         await fse.ensureFile(envFilePath);
-        await fse.appendFile(envFilePath, "CONTAINER_REGISTRY_USERNAME_edgeshared=\n", { encoding: "utf8" });
+        await fse.appendFile(envFilePath, "CONTAINER_REGISTRY_PASSWORD_edgeshared=\n", { encoding: "utf8" });
 
         const result = await this.updateRegistrySettings(registryAddress, registries, envFilePath);
         const mapObj: Map<string, string> = new Map<string, string>();

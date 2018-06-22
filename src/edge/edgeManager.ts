@@ -363,8 +363,10 @@ export class EdgeManager {
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
             imageName = await acrManager.selectAcrImage();
+            repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else if (template === Constants.EXISTING_MODULE) {
             imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt);
+            repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else {
             repositoryName = await this.inputRepository(module);
             imageName = `\${${Utility.getModuleKey(module, "amd64")}}`;

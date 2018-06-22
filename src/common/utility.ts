@@ -389,6 +389,15 @@ export class Utility {
         return hostname;
     }
 
+    public static getRepositoryNameFromImageName(imageName: string): string {
+        const index = imageName.lastIndexOf(":");
+        if (index === -1) {
+            return imageName;
+        } else {
+            return imageName.substring(0, index);
+        }
+    }
+
     private static getLocalRegistryState(): ContainerState {
         try {
             const isRunning = Executor.execSync("docker inspect registry --format='{{.State.Running}}'");

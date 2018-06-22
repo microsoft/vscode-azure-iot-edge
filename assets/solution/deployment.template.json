@@ -15,7 +15,7 @@
           "edgeAgent": {
             "type": "docker",
             "settings": {
-              "image": "edgeshared.azurecr.io/microsoft/azureiotedge-agent:13885920-linux-amd64",
+              "image": "mcr.microsoft.com/azureiotedge-agent:1.0",
               "createOptions": ""
             }
           },
@@ -24,7 +24,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "edgeshared.azurecr.io/microsoft/azureiotedge-hub:13885920-linux-amd64",
+              "image": "mcr.microsoft.com/azureiotedge-hub:1.0",
               "createOptions": "{\"HostConfig\":{\"PortBindings\":{\"8883/tcp\":[{\"HostPort\":\"8883\"}],\"443/tcp\":[{\"HostPort\":\"443\"}]}}}"
             }
           }
@@ -36,7 +36,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "edgeshared.azurecr.io/microsoft/azureiotedge-simulated-temperature-sensor:13885920-linux-amd64",
+              "image": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:1.0",
               "createOptions": ""
             }
           },

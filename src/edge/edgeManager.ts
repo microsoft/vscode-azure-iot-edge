@@ -160,25 +160,27 @@ export class EdgeManager {
             return;
         }
 
-        const folderPath = folder.uri.fsPath;
-        if (folder) {
-            const deploymentTemplate = path.join(folderPath, Constants.deploymentTemplate);
-            const envFile = path.join(folderPath, Constants.envFile);
-            if (await fse.exists(deploymentTemplate)) {
-                const templateJson = await fse.readJson(deploymentTemplate);
-                const runtimeSettings = templateJson.moduleContent.$edgeAgent["properties.desired"].runtime.settings;
-                const registries = runtimeSettings.registryCredentials;
-                if (registries) {
-                    await Utility.loadEnv(envFile);
-                    const expanded = Utility.expandEnv(JSON.stringify(registries, null, 2));
-                    const pattern: RegExp = new RegExp(/\$([a-zA-Z0-9_]+)|\${([a-zA-Z0-9_]+)}/g);
-                    const matchArr = expanded.match(pattern);
-                    if (matchArr && matchArr.length > 0) {
-                        await this.askEditEnv(envFile);
+        try {
+            const folderPath = folder.uri.fsPath;
+            if (folder) {
+                const deploymentTemplate = path.join(folderPath, Constants.deploymentTemplate);
+                const envFile = path.join(folderPath, Constants.envFile);
+                if (await fse.exists(deploymentTemplate)) {
+                    const templateJson = await fse.readJson(deploymentTemplate);
+                    const runtimeSettings = templateJson.moduleContent.$edgeAgent["properties.desired"].runtime.settings;
+                    const registries = runtimeSettings.registryCredentials;
+                    if (registries) {
+                        await Utility.loadEnv(envFile);
+                        const expanded = Utility.expandEnv(JSON.stringify(registries, null, 2));
+                        const pattern: RegExp = new RegExp(/\$([a-zA-Z0-9_]+)|\${([a-zA-Z0-9_]+)}/g);
+                        const matchArr = expanded.match(pattern);
+                        if (matchArr && matchArr.length > 0) {
+                            await this.askEditEnv(envFile);
+                        }
                     }
                 }
             }
-        }
+        } catch (err) {}
     }
 
     // TODO: The command is temperory for migration stage, will be removed later.

@@ -371,10 +371,15 @@ export class EdgeManager {
     }
 
     private async updateRegistrySettings(address: string, registries: any, envFile: string): Promise<{registries: string, usernameEnv: string, passwordEnv: string}> {
-        await Utility.loadEnv(envFile);
-        const {exists, keySet} = this.checkAddressExist(address, registries);
         let usernameEnv;
         let passwordEnv;
+        const lowerCase = address.toLowerCase();
+        if (lowerCase === "localhost" || lowerCase.startsWith("localhost:")) {
+            return {registries, usernameEnv, passwordEnv};
+        }
+        await Utility.loadEnv(envFile);
+        const {exists, keySet} = this.checkAddressExist(address, registries);
+
         if (!exists) {
             const addressKey = Utility.getAddressKey(address, keySet);
             usernameEnv = `CONTAINER_REGISTRY_USERNAME_${addressKey}`;

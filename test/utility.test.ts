@@ -107,6 +107,9 @@ suite("utility tests", () => {
     registry = Utility.getRegistryAddress("localhost/test");
     assert.equal(registry, "localhost");
 
+    registry = Utility.getRegistryAddress("LOCALHOST/test");
+    assert.equal(registry, "localhost");
+
     registry = Utility.getRegistryAddress("a.azurecr.io/test");
     assert.equal(registry, "a.azurecr.io");
 

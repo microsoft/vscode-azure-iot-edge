@@ -365,8 +365,8 @@ export class Utility {
     }
 
     public static getRegistryAddress(repositoryName: string) {
-        const DefaultHostname = "docker.io";
-        const LegacyDefaultHostname = "index.docker.io";
+        const defaultHostname = "docker.io";
+        const legacyDefaultHostname = "index.docker.io";
         const index = repositoryName.indexOf("/");
 
         let name: string;
@@ -377,13 +377,13 @@ export class Utility {
         if (name === undefined
             || (name !== "localhost" && (!(name.includes(".") || name.includes(":"))))
         ) {
-            hostname = DefaultHostname;
+            hostname = defaultHostname;
         } else {
             hostname = name;
         }
 
-        if (hostname === LegacyDefaultHostname) {
-            hostname = DefaultHostname;
+        if (hostname === legacyDefaultHostname) {
+            hostname = defaultHostname;
         }
 
         return hostname;

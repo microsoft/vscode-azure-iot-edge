@@ -372,7 +372,7 @@ export class Utility {
         let name: string;
         let hostname: string;
         if (index !== -1) {
-            name = repositoryName.substring(0, index);
+            name = (repositoryName.substring(0, index)).toLocaleLowerCase();
         }
         if (name === undefined
             || (name !== "localhost" && (!(name.includes(".") || name.includes(":"))))

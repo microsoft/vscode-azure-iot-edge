@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug IoT Edge Module %MODULE% (.NET Core)",
+      "name": "%MODULE% Reomte Debug (.NET Core)",
       "type": "coreclr",
       "request": "attach",
       "processId": "${command:pickRemoteProcess}",

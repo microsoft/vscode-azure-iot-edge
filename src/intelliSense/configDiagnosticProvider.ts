@@ -79,7 +79,7 @@ export class ConfigDiagnosticProvider {
             const exists: boolean = await fse.pathExists(dockerfileFullPath);
             if (!exists) {
                 const diag: vscode.Diagnostic = new vscode.Diagnostic(IntelliSenseUtility.getNodeRange(document, platformNode.children[1]),
-                    "Invalid Dockfile path", vscode.DiagnosticSeverity.Error);
+                    "Invalid Dockerfile path", vscode.DiagnosticSeverity.Error);
                 diag.source = Constants.edgeDisplayName;
                 diags.push(diag);
             }

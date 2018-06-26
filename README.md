@@ -24,6 +24,8 @@ For C# developers, you can develop, debug and deploy [C# modules](https://docs.m
 For Python developers, you can develop and deploy [Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Python for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 
+For Node.js developers, you can develop and deploy [Node.js module](https://docs.microsoft.com/en-us/azure/iot-edge/tutorial-node-module)
+
 We will soon support other languages and more services on Azure IoT Edge.
 
 ## Commands

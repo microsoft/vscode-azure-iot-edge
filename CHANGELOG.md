@@ -1,4 +1,24 @@
 # Change Log
+## 1.0.0 - 2018-06-27
+### Added
+* Add "Add IoT Edge Module" item to the context menu of "modules" folder
+* Add support for Node JS module 
+
+### Changed
+* Default route is added into deployment.template.json when adding module
+* Docker registry credential is now managed in deployment.template.json
+
+### Removed
+* Azure IoT Edge: Setup Edge
+* Azure IoT Edge: Start Edge
+* Azure IoT Edge: Setup Edge using configuration file
+* Azure IoT Edge: Generate Edge setup configuration file
+* Azure IoT Edge: Stop Edge
+* Azure IoT Edge: Restart Edge
+* Azure IoT Edge: Uninstall IoT Edge
+* Azure IoT Edge: Log in to container registry
+* Azure IoT Edge: Convert to IoT Edge Module
+
 ## 0.4.0 - 2018-05-24
 ### Added
 * Import existing modules from Azure Container Registry when adding new modules to the solution

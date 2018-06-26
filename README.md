@@ -11,15 +11,10 @@
 - IntelliSense and code snippets for the deployment manifest
 - Manage IoT Edge devices and modules in IoT Hub (with [Azure IoT Toolkit](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-toolkit))
 - Deploy IoT solutions to IoT Edge devices
-- Manage IoT Edge runtime.
 
 ## Prerequisites
 
 - [Docker](https://www.docker.com/)
-- [Azure IoT Edge Runtime Control](https://pypi.python.org/pypi/azure-iot-edge-runtime-ctl).
-  ```
-  pip install -U azure-iot-edge-runtime-ctl
-  ```
 - It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manage your IoT Edge Docker images, containers and registries. 
 
 For C# developers, you can develop, debug and deploy [C# modules](https://docs.microsoft.com/azure/iot-edge/tutorial-csharp-module) and [C# Functions on IoT Edge](https://docs.microsoft.com/azure/iot-edge/tutorial-deploy-function)
@@ -40,7 +35,6 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Azure IoT Edge:`
 - **Azure IoT Edge: Build and Push IoT Edge Module Image**: Containerize and push IoT Edge module image to a Docker registry.
 - **Azure IoT Edge: Build IoT Edge Solution**: Build and push all the IoT Edge module image in the solution and expand deployment manifest. 
 - **Azure IoT Edge: Create deployment for Edge device**: Create and submit the deployment to your IoT Edge device with specified deployment manifest. 
-- **Azure IoT Edge: Uninstall**: Remove all modules and generated files.
 
 You can also trigger following frequently-used commands in context menu.
 - **Azure IoT Edge: Add IoT Edge Module**: The context menu of deployment.template.json file in VS Code file explorer. A new module will be added to the **modules** folder.

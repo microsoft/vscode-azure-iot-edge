@@ -2,7 +2,7 @@
 ## 1.0.0 - 2018-06-27
 ### Added
 * Add "Add IoT Edge Module" item to the context menu of "modules" folder
-* Add support for Node JS module 
+* Add support for Node.js module 
 
 ### Changed
 * Default route is added into deployment.template.json when adding module

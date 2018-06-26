@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "%MODULE% Reomte Debug (.NET Core)",
+      "name": "%MODULE% Remote Debug (.NET Core)",
       "type": "coreclr",
       "request": "attach",
       "processId": "${command:pickRemoteProcess}",

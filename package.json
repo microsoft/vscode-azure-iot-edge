@@ -6,7 +6,6 @@
   "publisher": "vsciot-vscode",
   "aiKey": "95b20d64-f54f-4de3-8ad5-165a75a6c6fe",
   "icon": "logo.png",
-  "preview": true,
   "engines": {
     "vscode": "^1.18.0"
   },

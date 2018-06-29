@@ -179,7 +179,7 @@ export class EdgeManager {
     public async setupIotedgehubdev(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel) {
         deviceItem = await Utility.getInputDevice(deviceItem, outputChannel);
         if (deviceItem) {
-                Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
+            Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
         }
     }
 
@@ -214,20 +214,23 @@ export class EdgeManager {
                 break;
             case Constants.LANGUAGE_NODE:
                 debugCreateOptions = {
-                    ExposedPorts: { "9229/tcp": {}},
-                    HostConfig: {PortBindings: {"9229/tcp": [{HostPort: "9229"}]}}};
+                    ExposedPorts: { "9229/tcp": {} },
+                    HostConfig: { PortBindings: { "9229/tcp": [{ HostPort: "9229" }] } },
+                };
                 break;
             case Constants.LANGUAGE_C:
-                debugCreateOptions = {HostConfig: {Privileged: true}};
+                debugCreateOptions = { HostConfig: { Privileged: true } };
                 break;
             case Constants.LANGUAGE_JAVA:
                 debugCreateOptions = {
-                    HostConfig: {PortBindings: {"5005/tcp": [{HostPort: "5005"}]}}};
+                    HostConfig: { PortBindings: { "5005/tcp": [{ HostPort: "5005" }] } },
+                };
                 break;
             case Constants.LANGUAGE_PYTHON:
                 debugCreateOptions = {
-                    ExposedPorts: {"5678/tcp": {}},
-                    HostConfig: {PortBindings: {"5678/tcp": [{HostPort: "5678"}]}}};
+                    ExposedPorts: { "5678/tcp": {} },
+                    HostConfig: { PortBindings: { "5678/tcp": [{ HostPort: "5678" }] } },
+                };
                 break;
             default:
                 break;
@@ -328,10 +331,10 @@ export class EdgeManager {
 
         const needUpdateRegistry: boolean = template !== Constants.STREAM_ANALYTICS;
 
-        const {usernameEnv, passwordEnv} = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, needUpdateRegistry, isNewSolution);
+        const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, needUpdateRegistry, isNewSolution);
 
         const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
-        const debugTemplateEnv = {usernameEnv: undefined, passwordEnv: undefined};
+        const debugTemplateEnv = { usernameEnv: undefined, passwordEnv: undefined };
         let debugExist = false;
         if (await fse.pathExists(templateDebugFile)) {
             debugExist = true;
@@ -353,7 +356,7 @@ export class EdgeManager {
 
     private async addModuleToDeploymentTemplate(templateJson: any, templateFile: string, envFilePath: string,
                                                 moduleInfo: ModuleInfo, updateRegistry: boolean,
-                                                isNewSolution: boolean, isDebug: boolean = false): Promise<{usernameEnv: string, passwordEnv: string}> {
+                                                isNewSolution: boolean, isDebug: boolean = false): Promise<{ usernameEnv: string, passwordEnv: string }> {
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
         const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
         const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
@@ -369,7 +372,7 @@ export class EdgeManager {
             runtimeSettings.registryCredentials = registries;
         }
 
-        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
+        let result = { registries: {}, usernameEnv: undefined, passwordEnv: undefined };
         if (updateRegistry) {
             result = await this.updateRegistrySettings(address, registries, envFilePath);
         }
@@ -382,10 +385,10 @@ export class EdgeManager {
             status: "running",
             restartPolicy: "always",
             settings: {
-              image: imageName,
-              createOptions,
+                image: imageName,
+                createOptions,
             },
-          };
+        };
         modules[moduleInfo.moduleName] = newModuleSection;
         const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
         routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
@@ -432,7 +435,8 @@ export class EdgeManager {
                     `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`);
                 break;
             case Constants.LANGUAGE_NODE:
-                await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                await Executor.executeCMD(outputChannel, "npx", { cwd: `${parent}`, shell: true },
+                    `-p yo -p generator-azure-iot-edge-module -- yo azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.LANGUAGE_C:
                 await new Promise((resolve, reject) => {
@@ -778,7 +782,7 @@ export class EdgeManager {
         if (!templatePick) {
             throw new UserCancelledError();
         }
-        TelemetryClient.sendEvent( `${Constants.addModuleEvent}.selectModuleTemplate`, {
+        TelemetryClient.sendEvent(`${Constants.addModuleEvent}.selectModuleTemplate`, {
             template: templatePick.label,
         });
         return templatePick.label;

@@ -67,6 +67,12 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
     initCommandAsync(context, outputChannel,
+        "azure-iot-edge.runSolution",
+        (templateUri?: vscode.Uri): Promise<void> => {
+            return containerManager.runSolution(templateUri);
+        });
+
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.generateDeployment",
         (templateUri?: vscode.Uri): Promise<void> => {
             return containerManager.generateDeployment(templateUri);

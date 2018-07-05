@@ -61,15 +61,23 @@
         },
         {
           "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.buildSolution"
+          "command": "azure-iot-edge.buildSolution",
+          "group": "edge@1"
         },
         {
           "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.generateDeployment"
+          "command": "azure-iot-edge.runSolution",
+          "group": "edge@2"
         },
         {
           "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.addModule"
+          "command": "azure-iot-edge.generateDeployment",
+          "group": "edge@3"
+        },
+        {
+          "when": "resourceFilename == deployment.template.json",
+          "command": "azure-iot-edge.addModule",
+          "group": "edge@0"
         },
         {
           "when": "explorerResourceIsFolder && resourceFilename == modules",
@@ -96,6 +104,11 @@
       {
         "command": "azure-iot-edge.buildSolution",
         "title": "Build IoT Edge Solution",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.runSolution",
+        "title": "Run IoT Edge Solution",
         "category": "Azure IoT Edge"
       },
       {

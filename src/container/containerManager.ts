@@ -56,6 +56,24 @@ export class ContainerManager {
         vscode.window.showInformationMessage(Constants.manifestGeneratedWithBuild);
     }
 
+    public async runSolution(templateUri?: vscode.Uri): Promise<void> {
+        const templateFile: string = await Utility.getInputFilePath(templateUri,
+            Constants.deploymentTemplatePattern,
+            Constants.deploymentTemplateDesc,
+            `${Constants.runSolutionEvent}.selectTemplate`);
+        if (!templateFile) {
+            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
+            return;
+        }
+        await this.createDeploymentFile(templateFile, false);
+        vscode.window.showInformationMessage(Constants.manifestGenerated);
+
+        const slnPath: string = path.dirname(templateFile);
+        const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
+
+        Executor.runInTerminal(`iotedgehubdev start -d ${deployFile}`);
+    }
+
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
             Constants.deploymentTemplatePattern,
@@ -124,7 +142,7 @@ export class ContainerManager {
                     let image: string;
                     try {
                         image = modules[m].settings.image;
-                    } catch (e) {}
+                    } catch (e) { }
                     if (image && imageToDockerfileMap.get(image) !== undefined) {
                         const buildSetting = {
                             dockerFile: imageToDockerfileMap.get(image),
@@ -140,7 +158,7 @@ export class ContainerManager {
         }
     }
 
-    private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string, extraOptions ?: string[]): string {
+    private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string, extraOptions?: string[]): string {
         let optionString: string = "";
         if (extraOptions !== undefined) {
             const filteredOption = extraOptions.filter((value, index) => {

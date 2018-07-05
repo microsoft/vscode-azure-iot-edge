@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
     TelemetryClient.sendEvent("extensionActivated");
 
     const edgeManager = new EdgeManager(context);
-    const containerManager = new ContainerManager(context);
+    const containerManager = new ContainerManager();
 
     Utility.registerDebugTelemetryListener();
 

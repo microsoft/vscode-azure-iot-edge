@@ -10,12 +10,6 @@ import { Executor } from "../common/executor";
 import { Utility } from "../common/utility";
 
 export class ContainerManager {
-    private workspaceState: vscode.Memento;
-
-    constructor(context: vscode.ExtensionContext) {
-        this.workspaceState = context.workspaceState;
-    }
-
     public async buildModuleImage(fileUri?: vscode.Uri, pushImage: boolean = false) {
         const event = pushImage ? Constants.buildAndPushModuleImageEvent : Constants.buildModuleImageEvent;
         const moduleConfigFilePath: string = await Utility.getInputFilePath(fileUri, Constants.moduleConfigFileNamePattern, Constants.moduleConfigFile, `${event}.selectModuleConfigFile`);

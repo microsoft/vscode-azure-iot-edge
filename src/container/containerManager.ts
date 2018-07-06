@@ -65,7 +65,7 @@ export class ContainerManager {
         const slnPath: string = path.dirname(templateFile);
         const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
 
-        Executor.runInTerminal(`iotedgehubdev start -d ${deployFile}`);
+        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev start -d ${deployFile}`));
     }
 
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {

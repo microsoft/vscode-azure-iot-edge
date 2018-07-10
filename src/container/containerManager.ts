@@ -65,7 +65,12 @@ export class ContainerManager {
         const slnPath: string = path.dirname(templateFile);
         const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
 
-        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev start -d ${deployFile}`));
+        // A temporary hack to keep the command running in a dedicated terminal
+        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev start -d ${deployFile}`), Constants.edgeDisplayName + " Solution Status");
+    }
+
+    public async stopSolution(): Promise<void> {
+        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev stop`));
     }
 
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {

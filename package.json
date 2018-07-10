@@ -39,6 +39,7 @@
     "onCommand:azure-iot-edge.newSolution",
     "onCommand:azure-iot-edge.generateDeployment",
     "onCommand:azure-iot-edge.addModule",
+    "onCommand:azure-iot-edge.stopSolution",
     "workspaceContains:**/deployment.template.json"
   ],
   "main": "./out/src/extension",
@@ -109,6 +110,11 @@
       {
         "command": "azure-iot-edge.runSolution",
         "title": "Run IoT Edge Solution",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.stopSolution",
+        "title": "Stop IoT Edge Solution",
         "category": "Azure IoT Edge"
       },
       {

@@ -63,6 +63,7 @@ export class Constants {
     public static buildAndPushModuleImageEvent = "buildAndPushModuleImage";
     public static buildSolutionEvent = "buildSolution";
     public static runSolutionEvent = "runSolution";
+    public static stopSolutionEvent = "stopSolution";
     public static generateDeploymentEvent = "generateDeployment";
     public static addModuleEvent = "addModule";
     public static launchCSharp = "launch_csharp.json";

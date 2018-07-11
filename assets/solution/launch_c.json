@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug IoT Edge Module %MODULE% (C)",
+      "name": "%MODULE% Remote Debug (C)",
       "type": "cppdbg",
       "request": "attach",
       "program": "./main",

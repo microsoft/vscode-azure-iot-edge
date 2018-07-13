@@ -202,6 +202,7 @@
   },
   "dependencies": {
     "azure-arm-containerregistry": "^2.2.0",
+    "azure-arm-streamanalytics": "^1.0.0-preview",
     "dotenv": "^5.0.1",
     "fs-extra": "^4.0.2",
     "is-port-reachable": "^2.0.0",

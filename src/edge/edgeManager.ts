@@ -12,6 +12,7 @@ import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AcrManager } from "../container/acrManager";
+import { StreamAnalyticsManager } from "../container/streamAnalyticsManager";
 
 export class EdgeManager {
 
@@ -31,7 +32,7 @@ export class EdgeManager {
         const template = await this.selectModuleTemplate();
 
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName());
-        const { repositoryName, imageName } = await this.inputImage(moduleName, template);
+        const { repositoryName, imageName, moduleTwin } = await this.inputImage(moduleName, template);
         const slnPath: string = path.join(parentPath, slnName);
         const registryAddress = Utility.getRegistryAddress(repositoryName);
         const envFilePath: string = path.join(slnPath, Constants.envFile);
@@ -53,6 +54,12 @@ export class EdgeManager {
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
         mapObj.set("\"%REGISTRY%\"", JSON.stringify(result.registries, null, 2));
         await Utility.copyTemplateFile(sourceSolutionPath, Constants.deploymentTemplate, slnPath, mapObj);
+
+        if (template === Constants.STREAM_ANALYTICS && moduleTwin !== null) {
+            const templateJson = await fse.readJson(path.join(slnPath, Constants.deploymentTemplate));
+            templateJson.moduleContent[moduleName] = moduleTwin;
+            await fse.writeFile(path.join(slnPath, Constants.deploymentTemplate), JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
+        }
 
         const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
         if (debugGenerated) {
@@ -95,7 +102,12 @@ export class EdgeManager {
         const routes = templateJson.moduleContent.$edgeHub["properties.desired"].routes;
         const runtimeSettings = templateJson.moduleContent.$edgeAgent["properties.desired"].runtime.settings;
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
-        const { repositoryName, imageName } = await this.inputImage(moduleName, template);
+        const { repositoryName, imageName, moduleTwin } = await this.inputImage(moduleName, template);
+
+        if (template === Constants.STREAM_ANALYTICS && moduleTwin !== null) {
+            templateJson.moduleContent[moduleName] = moduleTwin;
+        }
+
         const address = await Utility.getRegistryAddress(repositoryName);
         let registries = runtimeSettings.registryCredentials;
         if (registries === undefined) {
@@ -345,9 +357,10 @@ export class EdgeManager {
             null, dftValue);
     }
 
-    private async inputImage(module: string, template: string): Promise<{ repositoryName: string, imageName: string }> {
+    private async inputImage(module: string, template: string): Promise<{ repositoryName: string, imageName: string, moduleTwin: object }> {
         let repositoryName: string = "";
         let imageName: string = "";
+        let moduleTwin: object = null;
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
             imageName = await acrManager.selectAcrImage();
@@ -355,11 +368,17 @@ export class EdgeManager {
         } else if (template === Constants.EXISTING_MODULE) {
             imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt);
             repositoryName = Utility.getRepositoryNameFromImageName(imageName);
+        } else if (template === Constants.STREAM_ANALYTICS){
+            const saManager = new StreamAnalyticsManager();
+            const job = await saManager.selectStreamingJob();
+            const JobInfo: any = await saManager.getJobInfo(job);
+            imageName = JobInfo.settings.image;
+            moduleTwin = JobInfo.twin.content;
         } else {
             repositoryName = await this.inputRepository(module);
             imageName = `\${${Utility.getModuleKey(module, "amd64")}}`;
         }
-        return { repositoryName, imageName };
+        return { repositoryName, imageName, moduleTwin};
     }
 
     private async updateRegistrySettings(address: string, registries: any, envFile: string): Promise<{registries: string, usernameEnv: string, passwordEnv: string}> {
@@ -483,6 +502,10 @@ export class EdgeManager {
                 label: Constants.EXISTING_MODULE,
                 description: Constants.EXISTING_MODULE_DESCRIPTION,
             },
+            {
+                label: Constants.STREAM_ANALYTICS,
+                description: Constants.STREAM_ANALYTICS_DESCRIPTION
+            }
         ];
         if (label === undefined) {
             label = Constants.selectTemplate;

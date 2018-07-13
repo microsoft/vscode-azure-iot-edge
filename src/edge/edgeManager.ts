@@ -368,7 +368,7 @@ export class EdgeManager {
         } else if (template === Constants.EXISTING_MODULE) {
             imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt);
             repositoryName = Utility.getRepositoryNameFromImageName(imageName);
-        } else if (template === Constants.STREAM_ANALYTICS){
+        } else if (template === Constants.STREAM_ANALYTICS) {
             const saManager = new StreamAnalyticsManager();
             const job = await saManager.selectStreamingJob();
             const JobInfo: any = await saManager.getJobInfo(job);
@@ -504,8 +504,8 @@ export class EdgeManager {
             },
             {
                 label: Constants.STREAM_ANALYTICS,
-                description: Constants.STREAM_ANALYTICS_DESCRIPTION
-            }
+                description: Constants.STREAM_ANALYTICS_DESCRIPTION,
+            },
         ];
         if (label === undefined) {
             label = Constants.selectTemplate;

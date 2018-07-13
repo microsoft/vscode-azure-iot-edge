@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 
 "use strict";
+import { StreamingJob } from "azure-arm-streamanalytics/lib/models";
 import * as vscode from "vscode";
 import { AzureSubscription } from "../../typings/azure-account.api";
-import { StreamingJob } from "azure-arm-streamanalytics/lib/models";
 
 export class StreamAnalyticsPicItem implements vscode.QuickPickItem {
     public readonly label: string;

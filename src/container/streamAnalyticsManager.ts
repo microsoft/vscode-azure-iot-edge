@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
-import { AzureAccount, AzureSession } from "../typings/azure-account.api";
 import StreamAnalyticsManagementClient = require("azure-arm-streamanalytics");
+import * as request from "request-promise";
 import * as vscode from "vscode";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { StreamAnalyticsPicItem } from "../container/models/streamAnalyticsPickItem";
-import * as request from "request-promise";
+import { AzureAccount, AzureSession } from "../typings/azure-account.api";
 
 export class StreamAnalyticsManager {
     private readonly azureAccount: AzureAccount;
@@ -33,11 +33,13 @@ export class StreamAnalyticsManager {
         return this.STREAM_ANALYTICS_IMAGE;
     }
 
-    public async getJobInfo(streamingJob: StreamAnalyticsPicItem): Promise<Object> {
-        var subscriptionId: string = streamingJob.azureSubscription.subscription.id;
-        var resourceGroup: string = streamingJob.job.id.slice(streamingJob.job.id.toLowerCase().search("resourcegroups/") + "resourcegroups/".length, streamingJob.job.id.toLowerCase().search("/providers/"));
-        var jobName: string = streamingJob.job.name;
-        var publishJobUrl: string = `https://management.azure.com${subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.StreamAnalytics/streamingjobs/${jobName}/publishedgepackage?api-version=2017-04-01-preview`;
+    public async getJobInfo(streamingJob: StreamAnalyticsPicItem): Promise<object> {
+        const subscriptionId: string = streamingJob.azureSubscription.subscription.id;
+        const id: string = streamingJob.job.id;
+        const resourceGroup: string = id.slice(id.toLowerCase().search("resourcegroups/") + "resourcegroups/".length, id.toLowerCase().search("/providers/"));
+        const jobName: string = streamingJob.job.name;
+        const publishJobUrl: string = `https://management.azure.com${subscriptionId}/resourceGroups/${resourceGroup}` +
+                                    `/providers/Microsoft.StreamAnalytics/streamingjobs/${jobName}/publishedgepackage?api-version=2017-04-01-preview`;
 
         const { aadAccessToken } = await this.acquireAadToken(streamingJob.azureSubscription.session);
 
@@ -45,7 +47,7 @@ export class StreamAnalyticsManager {
             auth: {
                 bearer: aadAccessToken,
             },
-            resolveWithFullResponse: true
+            resolveWithFullResponse: true,
         });
 
         const operationResultUrl = publishResponse.headers.location;
@@ -53,22 +55,21 @@ export class StreamAnalyticsManager {
         const jobInfoResult = await request.get(operationResultUrl, {
             auth: {
                 bearer: aadAccessToken,
-            }
+            },
         });
 
         try {
-            var info = JSON.parse(JSON.parse(jobInfoResult).manifest);
+            const info = JSON.parse(JSON.parse(jobInfoResult).manifest);
             return info;
+        } catch (e) {
+            throw new Error("Cannot parse Stream Analytics publish job information!") + e.toString();
         }
-        catch (e) {
-            throw "Cannot parse Stream Analytics publish job information!" + e.toString();
-        }        
     }
 
     private async loadAllStreamingJobs(): Promise<StreamAnalyticsPicItem[]> {
         try {
             await this.azureAccount.waitForFilters();
-            const items: Array<StreamAnalyticsPicItem> = [];
+            const items: StreamAnalyticsPicItem[] = [];
 
             for (const azureSubscription of this.azureAccount.filters) {
                 const client = new StreamAnalyticsManagementClient(
@@ -76,9 +77,8 @@ export class StreamAnalyticsManager {
                     azureSubscription.subscription.subscriptionId!,
                 );
 
-                var streamingJobs = await client.streamingJobs.list();
-                console.log('List of streamingJobs:');
-                streamingJobs.forEach(job => {
+                const streamingJobs = await client.streamingJobs.list();
+                streamingJobs.forEach((job) => {
                     items.push(new StreamAnalyticsPicItem(job, azureSubscription));
                 });
             }

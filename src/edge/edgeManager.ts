@@ -55,7 +55,7 @@ export class EdgeManager {
         mapObj.set("\"%REGISTRY%\"", JSON.stringify(result.registries, null, 2));
         await Utility.copyTemplateFile(sourceSolutionPath, Constants.deploymentTemplate, slnPath, mapObj);
 
-        if (template === Constants.STREAM_ANALYTICS && moduleTwin !== null) {
+        if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
             const templateJson = await fse.readJson(path.join(slnPath, Constants.deploymentTemplate));
             templateJson.moduleContent[moduleName] = moduleTwin;
             await fse.writeFile(path.join(slnPath, Constants.deploymentTemplate), JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
@@ -104,7 +104,7 @@ export class EdgeManager {
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
         const { repositoryName, imageName, moduleTwin } = await this.inputImage(moduleName, template);
 
-        if (template === Constants.STREAM_ANALYTICS && moduleTwin !== null) {
+        if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
             templateJson.moduleContent[moduleName] = moduleTwin;
         }
 
@@ -360,7 +360,7 @@ export class EdgeManager {
     private async inputImage(module: string, template: string): Promise<{ repositoryName: string, imageName: string, moduleTwin: object }> {
         let repositoryName: string = "";
         let imageName: string = "";
-        let moduleTwin: object = null;
+        let moduleTwin: object;
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
             imageName = await acrManager.selectAcrImage();

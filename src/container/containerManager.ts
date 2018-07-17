@@ -66,7 +66,7 @@ export class ContainerManager {
         const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
 
         // A temporary hack to keep the command running in a dedicated terminal
-        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev start -d ${deployFile}`), Constants.edgeDisplayName + " Solution Status");
+        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev start -d "${deployFile}" -v`), Constants.edgeDisplayName + " Solution Status");
     }
 
     public async stopSolution(): Promise<void> {

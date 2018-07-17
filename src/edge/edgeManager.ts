@@ -47,7 +47,11 @@ export class EdgeManager {
 
         await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
 
-        const result = await this.updateRegistrySettings(registryAddress, {}, envFilePath);
+        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
+        if (template !== Constants.STREAM_ANALYTICS) {
+            result = await this.updateRegistrySettings(registryAddress, {}, envFilePath);
+        }
+
         const mapObj: Map<string, string> = new Map<string, string>();
         mapObj.set(Constants.moduleNamePlaceholder, moduleName);
         mapObj.set(Constants.moduleImagePlaceholder, imageName);
@@ -114,7 +118,12 @@ export class EdgeManager {
             registries = {};
             runtimeSettings.registryCredentials = registries;
         }
-        const result = await this.updateRegistrySettings(address, registries, envFilePath);
+
+        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
+        if (template !== Constants.STREAM_ANALYTICS) {
+            result = await this.updateRegistrySettings(address, registries, envFilePath);
+        }
+
         await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
 
         const newModuleSection = `{

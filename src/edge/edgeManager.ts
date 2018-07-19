@@ -134,7 +134,7 @@ export class EdgeManager {
             if (await fse.pathExists(targetLaunchJson)) {
                 const text = await fse.readFile(targetLaunchJson, "utf8");
                 const launchJson = JSON.parse(stripJsonComments(text));
-                launchJson.configurations.push(debugGenerated.configurations);
+                launchJson.configurations.push(...debugGenerated.configurations);
                 await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
             } else {
                 await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });

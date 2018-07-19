@@ -2,8 +2,10 @@
 // Licensed under the MIT license.
 
 "use strict";
+import * as dotenv from "dotenv";
 import * as download from "download-git-repo";
 import * as fse from "fs-extra";
+import * as os from "os";
 import { relativeTimeThreshold } from "moment";
 import * as path from "path";
 import * as stripJsonComments from "strip-json-comments";
@@ -173,6 +175,26 @@ export class EdgeManager {
         } catch (err) {}
     }
 
+    public async startEdgeHubSingleModule(outputChannel: vscode.OutputChannel): Promise<void> {
+        const inputs = await this.inputInputNames();
+        await Executor.executeCMD(outputChannel, "iotedgehubdev", {shell: true}, `start -i "${inputs}"`);
+        await this.setModuleCred(outputChannel);
+    }
+
+    public async setModuleCred(outputChannel: vscode.OutputChannel): Promise<void> {
+        let storagePath = this.context.storagePath;
+        if (!storagePath) {
+            storagePath = path.resolve(os.tmpdir(), 'vscodeedge');
+        }
+        await fse.ensureDir(storagePath);
+        let outputFile = path.join(storagePath, "module.env");
+        await Executor.executeCMD(outputChannel, "iotedgehubdev", {shell: true}, `modulecred -o ${outputFile}`);
+
+        const moduleConfig = dotenv.parse(await fse.readFile(outputFile));
+        await Utility.setGlobalConfigurationProperty("EdgeHubConnectionString", moduleConfig.EdgeHubConnectionString);
+        await Utility.setGlobalConfigurationProperty("EdgeModuleCACertificateFile", moduleConfig.EdgeModuleCACertificateFile); 
+    }
+
     // TODO: The command is temperory for migration stage, will be removed later.
     public async convertModule(fileUri?: vscode.Uri): Promise<void> {
         const filePath = fileUri ? fileUri.fsPath : undefined;
@@ -338,6 +360,12 @@ export class EdgeManager {
         }
 
         return selectedUri[0].fsPath;
+    }
+
+    private async inputInputNames(): Promise<string> {
+        return await Utility.showInputBox(
+            Constants.inputNamePattern,
+            Constants.inputNamePrompt, null, "input1,input2");
     }
 
     private async inputSolutionName(parentPath: string): Promise<string> {

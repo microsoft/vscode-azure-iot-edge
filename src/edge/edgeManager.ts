@@ -57,12 +57,12 @@ export class EdgeManager {
         mapObj.set("\"%REGISTRY%\"", JSON.stringify(result.registries, null, 2));
         await Utility.copyTemplateFile(sourceSolutionPath, Constants.deploymentTemplate, slnPath, mapObj);
 
-        const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
+        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
             const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
-            await fse.writeFile(targetLaunchJson, debugGenerated, { encoding: "utf8" });
+            await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });
         }
         await this.writeRegistryCredEnv(registryAddress, envFilePath, result.usernameEnv, result.passwordEnv);
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
@@ -126,7 +126,7 @@ export class EdgeManager {
         const mapObj: Map<string, string> = new Map<string, string>();
         mapObj.set(Constants.moduleNamePlaceholder, moduleName);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
-        const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
+        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
@@ -134,10 +134,10 @@ export class EdgeManager {
             if (await fse.pathExists(targetLaunchJson)) {
                 const text = await fse.readFile(targetLaunchJson, "utf8");
                 const launchJson = JSON.parse(stripJsonComments(text));
-                launchJson.configurations.push(...JSON.parse(debugGenerated).configurations);
+                launchJson.configurations.push(debugGenerated.configurations);
                 await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
             } else {
-                await fse.writeFile(targetLaunchJson, debugGenerated, { encoding: "utf8" });
+                await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });
             }
         }
 
@@ -245,14 +245,19 @@ export class EdgeManager {
 
     private async generateDebugSetting(srcSlnPath: string,
                                        language: string,
-                                       mapObj: Map<string, string>): Promise<string> {
+                                       mapObj: Map<string, string>): Promise<any> {
         // copy launch.json
         let launchFile: string;
+        let isFunction: boolean = false;
         switch (language) {
             case Constants.LANGUAGE_CSHARP:
+                launchFile = Constants.launchCSharp;
+                mapObj.set(Constants.appFolder, "/app");
+                break;
             case Constants.CSHARP_FUNCTION:
                 launchFile = Constants.launchCSharp;
                 mapObj.set(Constants.appFolder, "/app");
+                isFunction = true;
                 break;
             case Constants.LANGUAGE_NODE:
                 launchFile = Constants.launchNode;
@@ -268,9 +273,13 @@ export class EdgeManager {
         if (launchFile) {
             const srcLaunchJson = path.join(srcSlnPath, launchFile);
             const debugData: string = await fse.readFile(srcLaunchJson, "utf8");
-            return Utility.replaceAll(debugData, mapObj);
+            const debugConfig = JSON.parse(Utility.replaceAll(debugData, mapObj));
+            if (isFunction && debugConfig && debugConfig.configurations) {
+                debugConfig.configurations = debugConfig.configurations.filter(config => config.request !== "launch");
+            }
+            return debugConfig;
         } else {
-            return "";
+            return undefined;
         }
     }
 

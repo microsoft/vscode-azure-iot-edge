@@ -171,7 +171,7 @@
             "justMyCode": true
           },
           {
-            "name": "Launch a local IoT Edge Module (.NET Core)",
+            "name": "Launch IoT Edge Module (.NET Core)",
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceRoot}/bin/Debug/<target-framework>/<project-name.dll>",
@@ -247,7 +247,7 @@
             "remoteRoot": "<Absolute path of the program in the docker container>"
           },
           {
-            "name": "Launch a local IoT Edge Module (Node.js)",
+            "name": "Launch IoT Edge Module (Node.js)",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/app.js",
@@ -262,7 +262,7 @@
           {
             "label": "Node.js: Launch a local IoT Edge Module",
             "body": {
-              "name": "Launch a local IoT Edge Module (Node.js)",
+              "name": "Launch IoT Edge Module (Node.js)",
               "type": "node",
               "request": "launch",
               "program": "^\"\\${workspaceRoot}/app.js\"",

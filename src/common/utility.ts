@@ -8,6 +8,7 @@ import * as isPortReachable from "is-port-reachable";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
+import { AzureSession } from "../typings/azure-account.api";
 import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
@@ -396,6 +397,23 @@ export class Utility {
         } else {
             return imageName.substring(0, index);
         }
+    }
+
+    public static async acquireAadToken(session: AzureSession): Promise<{ aadAccessToken: string, aadRefreshToken: string }> {
+        return new Promise<{ aadAccessToken: string, aadRefreshToken: string }>((resolve, reject) => {
+            const credentials: any = session.credentials;
+            const environment: any = session.environment;
+            credentials.context.acquireToken(environment.activeDirectoryResourceId, credentials.username, credentials.clientId, (err: any, result: any) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({
+                        aadAccessToken: result.accessToken,
+                        aadRefreshToken: result.refreshToken,
+                    });
+                }
+            });
+        });
     }
 
     private static getLocalRegistryState(): ContainerState {

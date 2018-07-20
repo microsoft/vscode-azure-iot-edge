@@ -32,7 +32,7 @@ export class EdgeManager {
         const template = await this.selectModuleTemplate();
 
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName());
-        const { repositoryName, imageName, moduleTwin } = await this.inputImage(moduleName, template);
+        const { repositoryName, imageName, moduleTwin, createOptions } = await this.inputImage(moduleName, template);
         const slnPath: string = path.join(parentPath, slnName);
         const registryAddress = Utility.getRegistryAddress(repositoryName);
         const envFilePath: string = path.join(slnPath, Constants.envFile);
@@ -62,6 +62,8 @@ export class EdgeManager {
         if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
             const templateJson = await fse.readJson(path.join(slnPath, Constants.deploymentTemplate));
             templateJson.moduleContent[moduleName] = moduleTwin;
+            const modules = templateJson.moduleContent.$edgeAgent["properties.desired"].modules;
+            modules[moduleName].settings.createOptions = createOptions.replace(/\\\\/g, "\\");
             await fse.writeFile(path.join(slnPath, Constants.deploymentTemplate), JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
         }
 
@@ -106,7 +108,7 @@ export class EdgeManager {
         const routes = templateJson.moduleContent.$edgeHub["properties.desired"].routes;
         const runtimeSettings = templateJson.moduleContent.$edgeAgent["properties.desired"].runtime.settings;
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
-        const { repositoryName, imageName, moduleTwin } = await this.inputImage(moduleName, template);
+        const { repositoryName, imageName, moduleTwin, createOptions } = await this.inputImage(moduleName, template);
 
         if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
             templateJson.moduleContent[moduleName] = moduleTwin;
@@ -133,7 +135,7 @@ export class EdgeManager {
             "restartPolicy": "always",
             "settings": {
               "image": "${imageName}",
-              "createOptions": ""
+              "createOptions": "${createOptions.replace(/"/g, '\\"')}"
             }
           }`;
         modules[moduleName] = JSON.parse(newModuleSection);
@@ -366,10 +368,11 @@ export class EdgeManager {
             null, dftValue);
     }
 
-    private async inputImage(module: string, template: string): Promise<{ repositoryName: string, imageName: string, moduleTwin: object }> {
+    private async inputImage(module: string, template: string): Promise<{ repositoryName: string, imageName: string, moduleTwin: object, createOptions }> {
         let repositoryName: string = "";
         let imageName: string = "";
         let moduleTwin: object;
+        let createOptions: string = "";
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
             imageName = await acrManager.selectAcrImage();
@@ -383,11 +386,12 @@ export class EdgeManager {
             const JobInfo: any = await saManager.getJobInfo(job);
             imageName = JobInfo.settings.image;
             moduleTwin = JobInfo.twin.content;
+            createOptions = JobInfo.settings.createOptions ? JSON.stringify(JobInfo.settings.createOptions) : "";
         } else {
             repositoryName = await this.inputRepository(module);
             imageName = `\${${Utility.getModuleKey(module, "amd64")}}`;
         }
-        return { repositoryName, imageName, moduleTwin};
+        return { repositoryName, imageName, moduleTwin, createOptions};
     }
 
     private async updateRegistrySettings(address: string, registries: any, envFile: string): Promise<{registries: string, usernameEnv: string, passwordEnv: string}> {

@@ -508,16 +508,16 @@ export class EdgeManager {
                 description: Constants.CSHARP_FUNCTION_DESCRIPTION,
             },
             {
+                label: Constants.STREAM_ANALYTICS,
+                description: Constants.STREAM_ANALYTICS_DESCRIPTION,
+            },
+            {
                 label: Constants.ACR_MODULE,
                 description: Constants.ACR_MODULE_DESCRIPTION,
             },
             {
                 label: Constants.EXISTING_MODULE,
                 description: Constants.EXISTING_MODULE_DESCRIPTION,
-            },
-            {
-                label: Constants.STREAM_ANALYTICS,
-                description: Constants.STREAM_ANALYTICS_DESCRIPTION,
             },
         ];
         if (label === undefined) {

@@ -125,7 +125,7 @@ export class AcrManager {
 
     private async loadAcrRepoItems(registryUrl: string, session: AzureSession): Promise<vscode.QuickPickItem[]> {
         try {
-            const { aadAccessToken, aadRefreshToken } = await this.acquireAadToken(session);
+            const { aadAccessToken, aadRefreshToken } = await Utility.acquireAadToken(session);
             this.acrRefreshToken = await this.acquireAcrRefreshToken(registryUrl, session.tenantId, aadRefreshToken, aadAccessToken);
             const acrAccessToken = await this.acquireAcrAccessToken(registryUrl, "registry:catalog:*", this.acrRefreshToken);
 
@@ -154,23 +154,6 @@ export class AcrManager {
 
             throw error;
         }
-    }
-
-    private async acquireAadToken(session: AzureSession): Promise<{ aadAccessToken: string, aadRefreshToken: string }> {
-        return new Promise<{ aadAccessToken: string, aadRefreshToken: string }>((resolve, reject) => {
-            const credentials: any = session.credentials;
-            const environment: any = session.environment;
-            credentials.context.acquireToken(environment.activeDirectoryResourceId, credentials.username, credentials.clientId, (err: any, result: any) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve({
-                        aadAccessToken: result.accessToken,
-                        aadRefreshToken: result.refreshToken,
-                    });
-                }
-            });
-        });
     }
 
     private async acquireAcrRefreshToken(registryUrl: string, tenantId: string, aadRefreshToken: string, aadAccessToken: string): Promise<string> {

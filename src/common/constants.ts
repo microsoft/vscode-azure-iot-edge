@@ -29,6 +29,7 @@ export class Constants {
     public static CSHARP_FUNCTION = "Azure Functions - C#";
     public static ACR_MODULE = "Existing Module (Import from ACR)";
     public static EXISTING_MODULE = "Existing Module (Enter Full Image URL)";
+    public static STREAM_ANALYTICS = "Azure Stream Analytics";
     public static LANGUAGE_CSHARP_DESCRIPTION = "Use Azure IoT C# SDK to build a module";
     public static LANGUAGE_NODE_DESCRIPTION = "Use Azure IoT Node.js SDK to build a module";
     public static LANGUAGE_PYTHON_DESCRIPTION = "Use Azure IoT Python SDK to build a module";
@@ -36,6 +37,7 @@ export class Constants {
     public static CSHARP_FUNCTION_DESCRIPTION = "Create an Azure Function and deploy to IoT Edge";
     public static ACR_MODULE_DESCRIPTION = "Import an exsting module image from your Azure Container Registry";
     public static EXISTING_MODULE_DESCRIPTION = "Import an exsting module image from any container registry";
+    public static STREAM_ANALYTICS_DESCRIPTION = "Deploy Azure Stream Analytics to Azure IoT Edge";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";

@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 "use strict";
+import * as download from "download-git-repo";
 import * as fse from "fs-extra";
 import { relativeTimeThreshold } from "moment";
 import * as path from "path";
@@ -257,6 +258,10 @@ export class EdgeManager {
             case Constants.LANGUAGE_NODE:
                 launchFile = Constants.launchNode;
                 break;
+            case Constants.LANGUAGE_C:
+                launchFile = Constants.launchC;
+                mapObj.set(Constants.appFolder, "/app");
+                break;
             default:
                 break;
         }
@@ -293,6 +298,21 @@ export class EdgeManager {
                 break;
             case Constants.LANGUAGE_NODE:
                 await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                break;
+            case Constants.LANGUAGE_C:
+                await new Promise((resolve, reject) => {
+                    download("github:Azure/azure-iot-edge-c-module#master", path.join(parent, name), (err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+                const moduleFile = path.join(parent, name, Constants.moduleManifest);
+                const moduleJson = await fse.readJson(moduleFile);
+                moduleJson.image.repository = repositoryName;
+                await fse.writeFile(moduleFile, JSON.stringify(moduleJson, null, 2), { encoding: "utf8" });
                 break;
             default:
                 break;
@@ -502,6 +522,10 @@ export class EdgeManager {
             {
                 label: Constants.LANGUAGE_PYTHON,
                 description: Constants.LANGUAGE_PYTHON_DESCRIPTION,
+            },
+            {
+                label: Constants.LANGUAGE_C,
+                description: Constants.LANGUAGE_C_DESCRIPTION,
             },
             {
                 label: Constants.CSHARP_FUNCTION,

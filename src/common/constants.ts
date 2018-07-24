@@ -95,7 +95,7 @@ export class Constants {
     public static acrEnvSet = "ACR credentials have been set in .env file";
     public static envFile = ".env";
     public static inputNamePrompt = "Provide the input names of the module to handle message";
-    public static inputNamePattern = "input1,input2,input3"
+    public static inputNamePattern = "input1,input2,input3";
 }
 
 export enum ContainerState {

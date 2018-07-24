@@ -88,16 +88,13 @@ export function activate(context: vscode.ExtensionContext) {
         "azure-iot-edge.startEdgeHubSingle",
         (): Promise<void> => {
             return edgeManager.startEdgeHubSingleModule(outputChannel);
-        }
-    )
+        });
 
     initCommmandAsync(context, outputChannel,
         "azure-iot-edge.setModuleCred",
         (): Promise<void> => {
             return edgeManager.setModuleCred(outputChannel);
-        }
-    )
-
+        });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {
         Executor.onDidCloseTerminal(closedTerminal);

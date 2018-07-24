@@ -2,14 +2,16 @@
 // Licensed under the MIT license.
 
 "use strict";
+
 import * as dotenv from "dotenv";
 import * as download from "download-git-repo";
 import * as fse from "fs-extra";
-import * as os from "os";
 import { relativeTimeThreshold } from "moment";
+import * as os from "os";
 import * as path from "path";
 import * as stripJsonComments from "strip-json-comments";
 import * as vscode from "vscode";
+
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
@@ -61,7 +63,6 @@ export class EdgeManager {
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
         mapObj.set("\"%REGISTRY%\"", JSON.stringify(result.registries, null, 2));
         await Utility.copyTemplateFile(sourceSolutionPath, Constants.deploymentTemplate, slnPath, mapObj);
-
 
         if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
             const templateJson = await fse.readJson(path.join(slnPath, Constants.deploymentTemplate));
@@ -209,15 +210,15 @@ export class EdgeManager {
     public async setModuleCred(outputChannel: vscode.OutputChannel): Promise<void> {
         let storagePath = this.context.storagePath;
         if (!storagePath) {
-            storagePath = path.resolve(os.tmpdir(), 'vscodeedge');
+            storagePath = path.resolve(os.tmpdir(), "vscodeedge");
         }
         await fse.ensureDir(storagePath);
-        let outputFile = path.join(storagePath, "module.env");
+        const outputFile = path.join(storagePath, "module.env");
         await Executor.executeCMD(outputChannel, "iotedgehubdev", {shell: true}, `modulecred -o ${outputFile}`);
 
         const moduleConfig = dotenv.parse(await fse.readFile(outputFile));
         await Utility.setGlobalConfigurationProperty("EdgeHubConnectionString", moduleConfig.EdgeHubConnectionString);
-        await Utility.setGlobalConfigurationProperty("EdgeModuleCACertificateFile", moduleConfig.EdgeModuleCACertificateFile); 
+        await Utility.setGlobalConfigurationProperty("EdgeModuleCACertificateFile", moduleConfig.EdgeModuleCACertificateFile);
     }
 
     // TODO: The command is temperory for migration stage, will be removed later.
@@ -300,7 +301,7 @@ export class EdgeManager {
             const debugData: string = await fse.readFile(srcLaunchJson, "utf8");
             const debugConfig = JSON.parse(Utility.replaceAll(debugData, mapObj));
             if (isFunction && debugConfig && debugConfig.configurations) {
-                debugConfig.configurations = debugConfig.configurations.filter(config => config.request !== "launch");
+                debugConfig.configurations = debugConfig.configurations.filter((config) => config.request !== "launch");
             }
             return debugConfig;
         } else {

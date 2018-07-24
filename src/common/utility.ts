@@ -32,6 +32,14 @@ export class Utility {
         return (os.platform() === "linux" || os.platform() === "darwin") ? `sudo ${command}` : command;
     }
 
+    public static getConfigurationProperty(id: string): string {
+        return Utility.getConfiguration().get(id);
+    }
+
+    public static async setGlobalConfigurationProperty(id: string, value: string): Promise<void> {
+        await Utility.getConfiguration().update(id, value, true);
+    }
+
     public static adjustFilePath(filePath: string): string {
         if (os.platform() === "win32") {
             const windowsShell = vscode.workspace.getConfiguration("terminal").get<string>("integrated.shell.windows");

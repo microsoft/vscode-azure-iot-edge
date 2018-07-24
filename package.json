@@ -132,12 +132,12 @@
         },
         "azure-iot-edge.EdgeHubConnectionString": {
           "type": "string",
-          "default": "<insert your Module Connection String>",
+          "default": "",
           "description": "Module Connection String"
         },
         "azure-iot-edge.EdgeModuleCACertificateFile": {
           "type": "string",
-          "default": "<insert your Edge Module CA path>",
+          "default": "",
           "description": "Edge Module CA path"
         }
       }
@@ -253,8 +253,8 @@
             "program": "${workspaceRoot}/app.js",
             "console": "integratedTerminal",
             "env": {
-                "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
-                "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+              "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+              "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
             }
           }
         ],
@@ -268,8 +268,8 @@
               "program": "^\"\\${workspaceRoot}/app.js\"",
               "console": "integratedTerminal",
               "env": {
-                  "EdgeHubConnectionString": "^\"\\${config:azure-iot-edge.EdgeHubConnectionString}\"",
-                  "EdgeModuleCACertificateFile": "^\"\\${config:azure-iot-edge.EdgeModuleCACertificateFile}\""
+                "EdgeHubConnectionString": "^\"\\${config:azure-iot-edge.EdgeHubConnectionString}\"",
+                "EdgeModuleCACertificateFile": "^\"\\${config:azure-iot-edge.EdgeModuleCACertificateFile}\""
               }
             }
           }

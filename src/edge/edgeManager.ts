@@ -2,12 +2,16 @@
 // Licensed under the MIT license.
 
 "use strict";
+
+import * as dotenv from "dotenv";
 import * as download from "download-git-repo";
 import * as fse from "fs-extra";
 import { relativeTimeThreshold } from "moment";
+import * as os from "os";
 import * as path from "path";
 import * as stripJsonComments from "strip-json-comments";
 import * as vscode from "vscode";
+
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
@@ -68,12 +72,13 @@ export class EdgeManager {
             await fse.writeFile(path.join(slnPath, Constants.deploymentTemplate), JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
         }
 
-        const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
+        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
+
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
             const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
-            await fse.writeFile(targetLaunchJson, debugGenerated, { encoding: "utf8" });
+            await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });
         }
         await this.writeRegistryCredEnv(registryAddress, envFilePath, result.usernameEnv, result.passwordEnv);
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
@@ -147,7 +152,7 @@ export class EdgeManager {
         const mapObj: Map<string, string> = new Map<string, string>();
         mapObj.set(Constants.moduleNamePlaceholder, moduleName);
         mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
-        const debugGenerated: string = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
+        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
@@ -155,10 +160,10 @@ export class EdgeManager {
             if (await fse.pathExists(targetLaunchJson)) {
                 const text = await fse.readFile(targetLaunchJson, "utf8");
                 const launchJson = JSON.parse(stripJsonComments(text));
-                launchJson.configurations.push(...JSON.parse(debugGenerated).configurations);
+                launchJson.configurations.push(...debugGenerated.configurations);
                 await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
             } else {
-                await fse.writeFile(targetLaunchJson, debugGenerated, { encoding: "utf8" });
+                await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });
             }
         }
 
@@ -194,6 +199,26 @@ export class EdgeManager {
                 }
             }
         } catch (err) {}
+    }
+
+    public async startEdgeHubSingleModule(outputChannel: vscode.OutputChannel): Promise<void> {
+        const inputs = await this.inputInputNames();
+        await Executor.executeCMD(outputChannel, "iotedgehubdev", {shell: true}, `start -i "${inputs}"`);
+        await this.setModuleCred(outputChannel);
+    }
+
+    public async setModuleCred(outputChannel: vscode.OutputChannel): Promise<void> {
+        let storagePath = this.context.storagePath;
+        if (!storagePath) {
+            storagePath = path.resolve(os.tmpdir(), "vscodeedge");
+        }
+        await fse.ensureDir(storagePath);
+        const outputFile = path.join(storagePath, "module.env");
+        await Executor.executeCMD(outputChannel, "iotedgehubdev", {shell: true}, `modulecred -o ${outputFile}`);
+
+        const moduleConfig = dotenv.parse(await fse.readFile(outputFile));
+        await Utility.setGlobalConfigurationProperty("EdgeHubConnectionString", moduleConfig.EdgeHubConnectionString);
+        await Utility.setGlobalConfigurationProperty("EdgeModuleCACertificateFile", moduleConfig.EdgeModuleCACertificateFile);
     }
 
     // TODO: The command is temperory for migration stage, will be removed later.
@@ -246,14 +271,19 @@ export class EdgeManager {
 
     private async generateDebugSetting(srcSlnPath: string,
                                        language: string,
-                                       mapObj: Map<string, string>): Promise<string> {
+                                       mapObj: Map<string, string>): Promise<any> {
         // copy launch.json
         let launchFile: string;
+        let isFunction: boolean = false;
         switch (language) {
             case Constants.LANGUAGE_CSHARP:
+                launchFile = Constants.launchCSharp;
+                mapObj.set(Constants.appFolder, "/app");
+                break;
             case Constants.CSHARP_FUNCTION:
                 launchFile = Constants.launchCSharp;
                 mapObj.set(Constants.appFolder, "/app");
+                isFunction = true;
                 break;
             case Constants.LANGUAGE_NODE:
                 launchFile = Constants.launchNode;
@@ -269,9 +299,13 @@ export class EdgeManager {
         if (launchFile) {
             const srcLaunchJson = path.join(srcSlnPath, launchFile);
             const debugData: string = await fse.readFile(srcLaunchJson, "utf8");
-            return Utility.replaceAll(debugData, mapObj);
+            const debugConfig = JSON.parse(Utility.replaceAll(debugData, mapObj));
+            if (isFunction && debugConfig && debugConfig.configurations) {
+                debugConfig.configurations = debugConfig.configurations.filter((config) => config.request !== "launch");
+            }
+            return debugConfig;
         } else {
-            return "";
+            return undefined;
         }
     }
 
@@ -361,6 +395,12 @@ export class EdgeManager {
         }
 
         return selectedUri[0].fsPath;
+    }
+
+    private async inputInputNames(): Promise<string> {
+        return await Utility.showInputBox(
+            Constants.inputNamePattern,
+            Constants.inputNamePrompt, null, "input1,input2");
     }
 
     private async inputSolutionName(parentPath: string): Promise<string> {

@@ -8,7 +8,7 @@ import * as isPortReachable from "is-port-reachable";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
-import { DeviceItem } from "../typings/DeviceItem";
+import { IDeviceItem } from "../typings/IDeviceItem";
 import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
@@ -399,7 +399,7 @@ export class Utility {
         }
     }
 
-    public static async getInputDevice(deviceItem: DeviceItem, outputChannel: vscode.OutputChannel, onlyEdgeDevice: boolean = true): Promise<DeviceItem> {
+    public static async getInputDevice(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel, onlyEdgeDevice: boolean = true): Promise<IDeviceItem> {
         if (deviceItem !== undefined) {
             return deviceItem;
         }

@@ -40,6 +40,7 @@
     "onCommand:azure-iot-edge.generateDeployment",
     "onCommand:azure-iot-edge.addModule",
     "onCommand:azure-iot-edge.stopSolution",
+    "onCommand:azure-iot-edge.setupIotedgehubdev",
     "workspaceContains:**/deployment.template.json"
   ],
   "main": "./out/src/extension",
@@ -84,6 +85,13 @@
           "when": "explorerResourceIsFolder && resourceFilename == modules",
           "command": "azure-iot-edge.addModule"
         }
+      ],
+      "view/item/context": [
+        {
+          "command": "azure-iot-edge.setupIotedgehubdev",
+          "when": "view == iotHubDevices && viewItem == edge",
+          "group": "azure-iot-toolkit-edge@2"
+        }
       ]
     },
     "commands": [
@@ -125,6 +133,11 @@
       {
         "command": "azure-iot-edge.addModule",
         "title": "Add IoT Edge Module",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.setupIotedgehubdev",
+        "title": "Setup IoT Edge Simulator",
         "category": "Azure IoT Edge"
       }
     ],
@@ -203,7 +216,7 @@
     "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "tslint": "tslint -t verbose src/**/*.ts --exclude src/**/*.d.ts",
+    "tslint": "tslint -t verbose src/**/*.ts",
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {

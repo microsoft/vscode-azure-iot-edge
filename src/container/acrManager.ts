@@ -7,11 +7,9 @@ import { Registry, RegistryListCredentialsResult, RegistryListResult } from "azu
 import { Registries } from "azure-arm-containerregistry/lib/operations";
 import * as request from "request-promise";
 import * as vscode from "vscode";
-import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
-import { Utility } from "../common/utility";
-import { AcrRegistryQuickPickItem } from "../container/models/AcrRegistryQuickPickItem";
-import { AzureAccount, AzureSession, AzureSubscription } from "../typings/azure-account.api";
+import { AzureAccount, AzureSession } from "../typings/azure-account.api";
+import { AcrRegistryQuickPickItem } from "./models/AcrRegistryQuickPickItem";
 
 export class AcrManager {
     private readonly azureAccount: AzureAccount;

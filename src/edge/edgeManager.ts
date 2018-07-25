@@ -12,6 +12,7 @@ import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AcrManager } from "../container/acrManager";
+import { IDeviceItem } from "../typings/IDeviceItem";
 
 export class EdgeManager {
 
@@ -218,6 +219,12 @@ export class EdgeManager {
         } else {
             throw new Error("No file is selected");
         }
+    }
+
+    public async setupIotedgehubdev(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel) {
+        deviceItem = await Utility.getInputDevice(deviceItem, outputChannel);
+
+        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
     }
 
     private async generateDebugSetting(srcSlnPath: string,

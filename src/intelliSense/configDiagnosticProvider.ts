@@ -3,7 +3,7 @@
 
 "use strict";
 import * as fse from "fs-extra";
-import * as parser from "jsonc-parser";
+import * as parser from "jsonc-parser/lib/umd/main";
 import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";

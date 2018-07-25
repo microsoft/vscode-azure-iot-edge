@@ -406,11 +406,11 @@ export class Utility {
 
         const toolkit = vscode.extensions.getExtension("vsciot-vscode.azure-iot-toolkit");
         if (toolkit === undefined) {
-            throw new Error("Error loading Azure IoT Toolkit extensions");
+            throw new Error("Error loading Azure IoT Toolkit extension");
         }
 
         // TODO: only get Edge devices when Toolkit API supports this parameter
-        deviceItem = toolkit.exports.azureIoTExplorer.getDevice(deviceItem, undefined, outputChannel);
+        deviceItem = await toolkit.exports.azureIoTExplorer.getDevice(undefined, undefined, outputChannel);
         return deviceItem;
     }
 

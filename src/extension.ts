@@ -15,6 +15,7 @@ import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionIte
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
 import { ConfigHoverProvider } from "./intelliSense/configHoverProvider";
+import { DeviceItem } from "./typings/DeviceItem";
 
 export function activate(context: vscode.ExtensionContext) {
     TelemetryClient.sendEvent("extensionActivated");
@@ -94,6 +95,12 @@ export function activate(context: vscode.ExtensionContext) {
         "azure-iot-edge.convertModule",
         (fileUri?: vscode.Uri): Promise<void> => {
             return edgeManager.convertModule(fileUri);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.setupIotedgehubdev",
+        (deviceItem?: DeviceItem): Promise<void> => {
+            return edgeManager.setupIotedgehubdev(deviceItem, outputChannel);
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

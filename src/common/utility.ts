@@ -8,6 +8,7 @@ import * as isPortReachable from "is-port-reachable";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
+import { DeviceItem } from "../typings/DeviceItem";
 import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
@@ -341,7 +342,7 @@ export class Utility {
                         break;
                 }
             }
-        } catch (error) {}
+        } catch (error) { }
     }
 
     public static getAddressKey(address: string, keySet: Set<string>): string {
@@ -396,6 +397,21 @@ export class Utility {
         } else {
             return imageName.substring(0, index);
         }
+    }
+
+    public static async getInputDevice(deviceItem: DeviceItem, outputChannel: vscode.OutputChannel, onlyEdgeDevice: boolean = true): Promise<DeviceItem> {
+        if (deviceItem !== undefined) {
+            return deviceItem;
+        }
+
+        const toolkit = vscode.extensions.getExtension("vsciot-vscode.azure-iot-toolkit");
+        if (toolkit === undefined) {
+            throw new Error("Error loading Azure IoT Toolkit extensions");
+        }
+
+        // TODO: only get Edge devices when Toolkit API supports this parameter
+        deviceItem = toolkit.exports.azureIoTExplorer.getDevice(deviceItem, undefined, outputChannel);
+        return deviceItem;
     }
 
     private static getLocalRegistryState(): ContainerState {

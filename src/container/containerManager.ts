@@ -37,7 +37,7 @@ export class ContainerManager {
         }
     }
 
-    public async buildSolution(templateUri?: vscode.Uri, build: boolean = true, push: boolean = true, run: boolean = false): Promise<void> {
+    public async buildSolution(templateUri?: vscode.Uri, push: boolean = true, run: boolean = false): Promise<void> {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
             Constants.deploymentTemplatePattern,
             Constants.deploymentTemplateDesc,
@@ -45,7 +45,7 @@ export class ContainerManager {
         if (!templateFile) {
             return;
         }
-        await this.createDeploymentFile(templateFile, build, push, run);
+        await this.createDeploymentFile(templateFile, true, push, run);
         vscode.window.showInformationMessage(Constants.manifestGeneratedWithBuild);
     }
 

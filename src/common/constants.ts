@@ -10,9 +10,12 @@ export class Constants {
     public static dockerfileNamePattern = "**/[dD]ocker[fF]ile*";
     public static dotNetProjectFileNamePattern = "**/*.{csproj,fsproj}";
     public static moduleConfigFileNamePattern = "**/module.json";
+    public static moduleConfigFile = "Module Config file";
     public static deploymentTemplatePattern = "**/deployment.template.json";
+    public static deploymentTemplateDesc = "Deployment Template file";
+    public static deploymentFilePattern = "**/deployment.json";
+    public static deploymentFileDesc = "Deployment Manifest file";
     public static EdgeDebugSessionPrefix = "Debug IoT Edge";
-    public static lastUsedImageNameCacheKey = "azureIotEdge.lastUsedImageName";
     public static moduleNamePlaceholder = "%MODULE%";
     public static moduleImagePlaceholder = "%MODULE_IMAGE%";
     public static moduleFolderPlaceholder = "%MODULE_FOLDER%";
@@ -32,8 +35,8 @@ export class Constants {
     public static LANGUAGE_NODE_DESCRIPTION = "Use Azure IoT Node.js SDK to build a module";
     public static LANGUAGE_PYTHON_DESCRIPTION = "Use Azure IoT Python SDK to build a module";
     public static CSHARP_FUNCTION_DESCRIPTION = "Create an Azure Function and deploy to IoT Edge";
-    public static ACR_MODULE_DESCRIPTION = "Import an exsting module image from your Azure Container Registry";
-    public static EXISTING_MODULE_DESCRIPTION = "Import an exsting module image from any container registry";
+    public static ACR_MODULE_DESCRIPTION = "Import an existing module image from your Azure Container Registry";
+    public static EXISTING_MODULE_DESCRIPTION = "Import an existing module image from any container registry";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";
@@ -57,8 +60,6 @@ export class Constants {
     public static moduleManifest = "module.json";
     public static outputConfig = "config";
     public static vscodeFolder = ".vscode";
-    public static moduleConfigFile = "Module Config file";
-    public static deploymentTemplateDesc = "Deployment Template file";
     public static buildModuleImageEvent = "buildModuleImage";
     public static buildAndPushModuleImageEvent = "buildAndPushModuleImage";
     public static buildSolutionEvent = "buildSolution";
@@ -68,7 +69,6 @@ export class Constants {
     public static addModuleEvent = "addModule";
     public static launchCSharp = "launch_csharp.json";
     public static launchNode = "launch_node.json";
-    public static noSolutionFileMessage = "No solution file can be found in workspace.";
     public static noSolutionFileWithModulesFolder = "No solution file for the selected modules folder can be found in workspace.";
     public static manifestGenerated = "Deployment manifest has been generated at config/deployment.json.";
     public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;

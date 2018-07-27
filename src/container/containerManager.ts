@@ -37,33 +37,26 @@ export class ContainerManager {
         }
     }
 
-    public async buildSolution(templateUri?: vscode.Uri): Promise<void> {
+    public async buildSolution(templateUri?: vscode.Uri, build: boolean = true, push: boolean = true, run: boolean = false): Promise<void> {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
             Constants.deploymentTemplatePattern,
             Constants.deploymentTemplateDesc,
             `${Constants.buildSolutionEvent}.selectTemplate`);
         if (!templateFile) {
-            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
-        await this.createDeploymentFile(templateFile, true);
+        await this.createDeploymentFile(templateFile, build, push, run);
         vscode.window.showInformationMessage(Constants.manifestGeneratedWithBuild);
     }
 
-    public async runSolution(templateUri?: vscode.Uri): Promise<void> {
-        const templateFile: string = await Utility.getInputFilePath(templateUri,
-            Constants.deploymentTemplatePattern,
-            Constants.deploymentTemplateDesc,
-            `${Constants.runSolutionEvent}.selectTemplate`);
-        if (!templateFile) {
-            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
+    public async runSolution(deployFileUri?: vscode.Uri): Promise<void> {
+        const deployFile: string = await Utility.getInputFilePath(deployFileUri,
+            Constants.deploymentFilePattern,
+            Constants.deploymentFileDesc,
+            `${Constants.runSolutionEvent}.selectDeploymentFile`);
+        if (!deployFile) {
             return;
         }
-        await this.createDeploymentFile(templateFile, false);
-        vscode.window.showInformationMessage(Constants.manifestGenerated);
-
-        const slnPath: string = path.dirname(templateFile);
-        const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
 
         // A temporary hack to keep the command running in a dedicated terminal
         Executor.runInTerminal(`iotedgehubdev start -d "${deployFile}" -v`, Constants.edgeDisplayName + " Solution Status");
@@ -79,14 +72,13 @@ export class ContainerManager {
             Constants.deploymentTemplateDesc,
             `${Constants.generateDeploymentEvent}.selectTemplate`);
         if (!templateFile) {
-            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
         await this.createDeploymentFile(templateFile, false);
         vscode.window.showInformationMessage(Constants.manifestGenerated);
     }
 
-    private async createDeploymentFile(templateFile: string, build: boolean = true) {
+    private async createDeploymentFile(templateFile: string, build: boolean = true, push: boolean = true, run: boolean = false) {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
         const imageToBuildOptions: Map<string, string[]> = new Map();
@@ -107,8 +99,18 @@ export class ContainerManager {
         buildMap.forEach((buildSetting, image) => {
             const context = path.dirname(buildSetting.dockerFile);
             commands.push(this.constructBuildCmd(buildSetting.dockerFile, image, context, buildSetting.buildOption));
-            commands.push(this.constructPushCmd(image));
+            if (push) {
+                commands.push(this.constructPushCmd(image));
+            }
         });
+
+        if (run) {
+            // A temporary hack to keep the command running in a dedicated terminal
+            commands.push(`iotedgehubdev start -d "${deployFile}" -v`);
+            Executor.runInTerminal(Utility.combineCommands(commands), Constants.edgeDisplayName + " Solution Status");
+            return;
+        }
+
         Executor.runInTerminal(Utility.combineCommands(commands));
     }
 

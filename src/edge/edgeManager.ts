@@ -72,7 +72,6 @@ export class EdgeManager {
             Constants.deploymentTemplateDesc,
             `${Constants.addModuleEvent}.selectTemplate`);
         if (!templateFile) {
-            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
 

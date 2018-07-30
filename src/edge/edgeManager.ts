@@ -201,8 +201,8 @@ export class EdgeManager {
 
     public async startEdgeHubSingleModule(outputChannel: vscode.OutputChannel): Promise<void> {
         const inputs = await this.inputInputNames();
-        await Executor.executeCMD(outputChannel, "iotedgehubdev", { shell: true }, `start -i "${inputs}"`);
         await this.setModuleCred(outputChannel);
+        await Executor.runInTerminal(`iotedgehubdev start -i "${inputs}"`);
     }
 
     public async setModuleCred(outputChannel: vscode.OutputChannel): Promise<void> {

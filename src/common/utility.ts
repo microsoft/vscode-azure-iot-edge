@@ -442,7 +442,7 @@ export class Utility {
 
     // Temp utility to sovle the compatibale issue because of the schema change in IoT Hub Service.
     // moduleContent -> modulesContent
-    public static updateSchema(deployment: any) : any {
+    public static updateSchema(deployment: any): any {
         if (deployment && deployment.moduleContent) {
             deployment.modulesContent = deployment.moduleContent;
             delete deployment.moduleContent;

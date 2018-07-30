@@ -45,7 +45,7 @@ export class EdgeManager {
         const templateFile = path.join(slnPath, Constants.deploymentTemplate);
         await fse.copy(path.join(sourceSolutionPath, Constants.deploymentTemplate), templateFile);
 
-        await this.addModule(templateFile, outputChannel, true); 
+        await this.addModule(templateFile, outputChannel, true);
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
     }
 
@@ -260,9 +260,9 @@ export class EdgeManager {
         const newModuleToUpstream = `${moduleName}ToIoTHub`;
         routes[newModuleToUpstream] = `FROM /messages/modules/${moduleName}/outputs/* INTO $upstream`;
         if (isNewSolution) {
-            const tempSensorToModule = `sensorTo${moduleName}`
+            const tempSensorToModule = `sensorTo${moduleName}`;
             routes[tempSensorToModule] =
-                `FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/${moduleName}/inputs/input1\")`
+                `FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/${moduleName}/inputs/input1\")`;
         }
         await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
 
@@ -284,7 +284,7 @@ export class EdgeManager {
             }
         }
 
-        if (!isNewSolution){
+        if (!isNewSolution) {
             const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "is updated.";
             const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
             vscode.window.showInformationMessage(`${moduleCreationMessage}'deployment.template.json' ${launchUpdated}`);
@@ -293,8 +293,8 @@ export class EdgeManager {
     }
 
     private async addModuleProj(parent: string, name: string,
-                            repositoryName: string, template: string,
-                            outputChannel: vscode.OutputChannel): Promise<void> {
+                                repositoryName: string, template: string,
+                                outputChannel: vscode.OutputChannel): Promise<void> {
         // TODO command to create module;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:

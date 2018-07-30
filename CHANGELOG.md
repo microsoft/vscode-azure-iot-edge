@@ -1,5 +1,5 @@
 # Change Log
-## 1.1.0 - 2018-07-27
+## 1.1.0 - 2018-07-30
 ### Added
 * Add support for C module 
 

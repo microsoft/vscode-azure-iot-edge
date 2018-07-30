@@ -15,7 +15,7 @@ suite("utility tests", () => {
     const exceptStr: string[] = ["$edgeHub", "$edgeAgent", "$upstream"];
     const generated: string = Utility.expandEnv(input, ...exceptStr);
     const generatedObj = JSON.parse(generated);
-    assert.equal(generatedObj.moduleContent
+    assert.equal(generatedObj.modulesContent
                   .$edgeAgent["properties.desired"]
                   .modules.tempSensor.settings.image, imageString);
   }).timeout(60 * 1000);
@@ -26,7 +26,7 @@ suite("utility tests", () => {
     mapObj.set("MODULES.SampleModule.amd64", "test.az.io/filter:0.0.1-amd64");
     const generated: string = Utility.expandModules(input, mapObj);
     const generatedObj = JSON.parse(generated);
-    assert.equal(generatedObj.moduleContent
+    assert.equal(generatedObj.modulesContent
                   .$edgeAgent["properties.desired"]
                   .modules.samplemodule.settings.image, "test.az.io/filter:0.0.1-amd64");
   }).timeout(60 * 1000);

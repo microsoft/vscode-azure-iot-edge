@@ -64,18 +64,30 @@ export function activate(context: vscode.ExtensionContext) {
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildSolution",
         (templateUri?: vscode.Uri): Promise<void> => {
-            return containerManager.buildSolution(templateUri);
+            return containerManager.buildSolution(templateUri, false, false);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.buildAndPushSolution",
+        (templateUri?: vscode.Uri): Promise<void> => {
+            return containerManager.buildSolution(templateUri, true, false);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.buildAndRunSolution",
+        (templateUri?: vscode.Uri): Promise<void> => {
+            return containerManager.buildSolution(templateUri, false, true);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.runSolution",
-        (templateUri?: vscode.Uri): Promise<void> => {
-            return containerManager.runSolution(templateUri);
+        (deployFileUri?: vscode.Uri): Promise<void> => {
+            return containerManager.runSolution(deployFileUri);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.stopSolution",
-        (templateUri?: vscode.Uri): Promise<void> => {
+        (): Promise<void> => {
             return containerManager.stopSolution();
         });
 

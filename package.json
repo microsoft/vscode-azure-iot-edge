@@ -34,6 +34,9 @@
   "activationEvents": [
     "onDebug",
     "onCommand:azure-iot-edge.buildSolution",
+    "onCommand:azure-iot-edge.buildAndPushSolution",
+    "onCommand:azure-iot-edge.buildAndRunSolution",
+    "onCommand:azure-iot-edge.runSolution",
     "onCommand:azure-iot-edge.buildModuleImage",
     "onCommand:azure-iot-edge.buildAndPushModuleImage",
     "onCommand:azure-iot-edge.newSolution",
@@ -63,22 +66,32 @@
         },
         {
           "when": "resourceFilename == deployment.template.json",
+          "command": "azure-iot-edge.addModule",
+          "group": "edge@0"
+        },
+        {
+          "when": "resourceFilename == deployment.template.json",
           "command": "azure-iot-edge.buildSolution",
           "group": "edge@1"
         },
         {
           "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.runSolution",
+          "command": "azure-iot-edge.buildAndPushSolution",
           "group": "edge@2"
         },
         {
           "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.generateDeployment",
+          "command": "azure-iot-edge.buildAndRunSolution",
           "group": "edge@3"
         },
         {
           "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.addModule",
+          "command": "azure-iot-edge.generateDeployment",
+          "group": "edge@4"
+        },
+        {
+          "when": "resourceFilename == deployment.json",
+          "command": "azure-iot-edge.runSolution",
           "group": "edge@0"
         },
         {
@@ -113,6 +126,16 @@
       {
         "command": "azure-iot-edge.buildSolution",
         "title": "Build IoT Edge Solution",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.buildAndPushSolution",
+        "title": "Build and Push IoT Edge Solution",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.buildAndRunSolution",
+        "title": "Build and Run IoT Edge Solution",
         "category": "Azure IoT Edge"
       },
       {

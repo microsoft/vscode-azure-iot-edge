@@ -86,14 +86,14 @@ export class ContainerManager {
         await Utility.loadEnv(path.join(slnPath, Constants.envFile));
         await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap, imageToBuildOptions);
         const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
-        const generatedDeployment: string = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
+        const dpManifest: any = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
 
         if (!build) {
             return;
         }
 
         // build docker images
-        const buildMap: Map<string, any> = this.getBuildMapFromDeployment(generatedDeployment, imageToDockerfileMap, imageToBuildOptions);
+        const buildMap: Map<string, any> = this.getBuildMapFromDeployment(dpManifest, imageToDockerfileMap, imageToBuildOptions);
         const commands: string[] = [];
         await Utility.initLocalRegistry([...buildMap.keys()]);
         buildMap.forEach((buildSetting, image) => {
@@ -113,7 +113,7 @@ export class ContainerManager {
 
     private async generateDeploymentString(templateFile: string,
                                            deployFile: string,
-                                           moduleToImageMap: Map<string, string>): Promise<string> {
+                                           moduleToImageMap: Map<string, string>): Promise<any> {
         const configPath = path.dirname(deployFile);
         await fse.remove(deployFile);
 
@@ -121,18 +121,18 @@ export class ContainerManager {
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
         const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream"];
         const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, ...exceptStr);
+        const dpManifest = Utility.updateSchema(JSON.parse(generatedDeployFile));
         // generate config file
         await fse.ensureDir(configPath);
-        await fse.writeFile(deployFile, generatedDeployFile, "utf8");
-        return generatedDeployFile;
+        await fse.writeFile(deployFile, JSON.stringify(dpManifest, null, 2), { encoding: "utf8" });
+        return dpManifest;
     }
 
-    private getBuildMapFromDeployment(dpManifestStr: string,
+    private getBuildMapFromDeployment(manifestObj: any,
                                       imageToDockerfileMap: Map<string, string>,
                                       imageToBuildOptions: Map<string, string[]>): Map<string, any> {
         try {
             const buildMap: Map<string, any> = new Map<string, any>();
-            const manifestObj = Utility.updateSchema(JSON.parse(dpManifestStr));
             const modules = manifestObj.modulesContent.$edgeAgent["properties.desired"].modules;
             for (const m in modules) {
                 if (modules.hasOwnProperty(m)) {

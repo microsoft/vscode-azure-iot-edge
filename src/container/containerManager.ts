@@ -49,7 +49,7 @@ export class ContainerManager {
         vscode.window.showInformationMessage(Constants.manifestGeneratedWithBuild);
     }
 
-    public async runSolution(deployFileUri?: vscode.Uri): Promise<void> {
+    public async runSolution(deployFileUri?: vscode.Uri, commands: string[] = []): Promise<void> {
         const deployFile: string = await Utility.getInputFilePath(deployFileUri,
             Constants.deploymentFilePattern,
             Constants.deploymentFileDesc,
@@ -58,8 +58,8 @@ export class ContainerManager {
             return;
         }
 
-        // A temporary hack to keep the command running in a dedicated terminal
-        Executor.runInTerminal(`iotedgehubdev start -d "${deployFile}" -v`, Constants.edgeDisplayName + " Solution Status");
+        commands.push(this.constructRunCmd(deployFile));
+        Executor.runInTerminal(Utility.combineCommands(commands), this.getRunCmdTerminalTitle());
     }
 
     public async stopSolution(): Promise<void> {
@@ -105,10 +105,7 @@ export class ContainerManager {
         });
 
         if (run) {
-            // A temporary hack to keep the command running in a dedicated terminal
-            commands.push(`iotedgehubdev start -d "${deployFile}" -v`);
-            Executor.runInTerminal(Utility.combineCommands(commands), Constants.edgeDisplayName + " Solution Status");
-            return;
+            return this.runSolution(vscode.Uri.file(deployFile), commands);
         }
 
         Executor.runInTerminal(Utility.combineCommands(commands));
@@ -121,7 +118,6 @@ export class ContainerManager {
         await fse.remove(deployFile);
 
         const data: string = await fse.readFile(templateFile, "utf8");
-        const buildSet: Set<string> = new Set();
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
         const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream"];
         const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, ...exceptStr);
@@ -172,7 +168,16 @@ export class ContainerManager {
         return `docker build ${optionString} --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(contextDir)}\"`;
     }
 
-    private constructPushCmd(imageName: string) {
+    private constructPushCmd(imageName: string): string {
         return `docker push ${imageName}`;
+    }
+
+    private constructRunCmd(deployFile: string): string {
+        return `iotedgehubdev start -d "${deployFile}" -v`;
+    }
+
+    // A temporary hack to keep the command running in a dedicated terminal
+    private getRunCmdTerminalTitle(): string {
+        return Constants.edgeDisplayName + " Solution Status";
     }
 }

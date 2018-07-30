@@ -6,18 +6,17 @@
 import * as dotenv from "dotenv";
 import * as download from "download-git-repo";
 import * as fse from "fs-extra";
-import { relativeTimeThreshold } from "moment";
 import * as os from "os";
 import * as path from "path";
 import * as stripJsonComments from "strip-json-comments";
 import * as vscode from "vscode";
-
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AcrManager } from "../container/acrManager";
 import { StreamAnalyticsManager } from "../container/streamAnalyticsManager";
+import { IDeviceItem } from "../typings/IDeviceItem";
 
 export class EdgeManager {
 
@@ -52,7 +51,7 @@ export class EdgeManager {
 
         await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
 
-        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
+        let result = { registries: {}, usernameEnv: undefined, passwordEnv: undefined };
         if (template !== Constants.STREAM_ANALYTICS) {
             result = await this.updateRegistrySettings(registryAddress, {}, envFilePath);
         }
@@ -90,12 +89,11 @@ export class EdgeManager {
             Constants.deploymentTemplateDesc,
             `${Constants.addModuleEvent}.selectTemplate`);
         if (!templateFile) {
-            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
 
         if (path.basename(templateFile) === Constants.moduleFolder) {
-            templateFile = path.join(path.dirname(templateFile),  Constants.deploymentTemplate);
+            templateFile = path.join(path.dirname(templateFile), Constants.deploymentTemplate);
             const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(templateFile));
             if (!workspaceFolder || !await fse.exists(templateFile)) {
                 vscode.window.showInformationMessage(Constants.noSolutionFileWithModulesFolder);
@@ -127,7 +125,7 @@ export class EdgeManager {
             runtimeSettings.registryCredentials = registries;
         }
 
-        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
+        let result = { registries: {}, usernameEnv: undefined, passwordEnv: undefined };
         if (template !== Constants.STREAM_ANALYTICS) {
             result = await this.updateRegistrySettings(address, registries, envFilePath);
         }
@@ -198,13 +196,13 @@ export class EdgeManager {
                     }
                 }
             }
-        } catch (err) {}
+        } catch (err) { }
     }
 
     public async startEdgeHubSingleModule(outputChannel: vscode.OutputChannel): Promise<void> {
         const inputs = await this.inputInputNames();
-        await Executor.executeCMD(outputChannel, "iotedgehubdev", {shell: true}, `start -i "${inputs}"`);
         await this.setModuleCred(outputChannel);
+        await Executor.runInTerminal(`iotedgehubdev start -i "${inputs}"`);
     }
 
     public async setModuleCred(outputChannel: vscode.OutputChannel): Promise<void> {
@@ -214,7 +212,7 @@ export class EdgeManager {
         }
         await fse.ensureDir(storagePath);
         const outputFile = path.join(storagePath, "module.env");
-        await Executor.executeCMD(outputChannel, "iotedgehubdev", {shell: true}, `modulecred -o ${outputFile}`);
+        await Executor.executeCMD(outputChannel, "iotedgehubdev", { shell: true }, `modulecred -o ${outputFile}`);
 
         const moduleConfig = dotenv.parse(await fse.readFile(outputFile));
         await Utility.setGlobalConfigurationProperty("EdgeHubConnectionString", moduleConfig.EdgeHubConnectionString);
@@ -267,6 +265,12 @@ export class EdgeManager {
         } else {
             throw new Error("No file is selected");
         }
+    }
+
+    public async setupIotedgehubdev(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel) {
+        deviceItem = await Utility.getInputDevice(deviceItem, outputChannel);
+
+        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
     }
 
     private async generateDebugSetting(srcSlnPath: string,
@@ -451,18 +455,18 @@ export class EdgeManager {
             repositoryName = await this.inputRepository(module);
             imageName = `\${${Utility.getModuleKey(module, "amd64")}}`;
         }
-        return { repositoryName, imageName, moduleTwin, createOptions};
+        return { repositoryName, imageName, moduleTwin, createOptions };
     }
 
-    private async updateRegistrySettings(address: string, registries: any, envFile: string): Promise<{registries: string, usernameEnv: string, passwordEnv: string}> {
+    private async updateRegistrySettings(address: string, registries: any, envFile: string): Promise<{ registries: string, usernameEnv: string, passwordEnv: string }> {
         let usernameEnv;
         let passwordEnv;
         const lowerCase = address.toLowerCase();
         if (lowerCase === "localhost" || lowerCase.startsWith("localhost:")) {
-            return {registries, usernameEnv, passwordEnv};
+            return { registries, usernameEnv, passwordEnv };
         }
         await Utility.loadEnv(envFile);
-        const {exists, keySet} = this.checkAddressExist(address, registries);
+        const { exists, keySet } = this.checkAddressExist(address, registries);
 
         if (!exists) {
             const addressKey = Utility.getAddressKey(address, keySet);
@@ -478,7 +482,7 @@ export class EdgeManager {
             }
             registries[addressKey] = JSON.parse(newRegistry);
         }
-        return {registries, usernameEnv, passwordEnv};
+        return { registries, usernameEnv, passwordEnv };
     }
 
     private async writeRegistryCredEnv(address: string, envFile: string, usernameEnv: string, passwordEnv: string): Promise<void> {
@@ -528,11 +532,11 @@ export class EdgeManager {
         }
     }
 
-    private checkAddressExist(address: string, registriesObj: any): {exists: boolean, keySet: Set<string>} {
+    private checkAddressExist(address: string, registriesObj: any): { exists: boolean, keySet: Set<string> } {
         const keySet = new Set();
         let exists = false;
         if (registriesObj === undefined) {
-            return {exists, keySet};
+            return { exists, keySet };
         }
 
         const expandedContent = Utility.expandEnv(JSON.stringify(registriesObj));
@@ -546,7 +550,7 @@ export class EdgeManager {
                 }
             }
         }
-        return {exists, keySet};
+        return { exists, keySet };
     }
 
     private async selectModuleTemplate(label?: string): Promise<string> {

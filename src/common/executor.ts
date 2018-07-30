@@ -4,9 +4,10 @@
 "use strict";
 import { ChildProcess, exec, execSync, spawn, SpawnOptions } from "child_process";
 import * as vscode from "vscode";
+import { Constants } from "./constants";
 
 export class Executor {
-    public static runInTerminal(command: string, terminal: string = "Azure IoT Edge"): void {
+    public static runInTerminal(command: string, terminal: string = Constants.edgeDisplayName): void {
         if (this.terminals[terminal] === undefined ) {
             this.terminals[terminal] = vscode.window.createTerminal(terminal);
         }

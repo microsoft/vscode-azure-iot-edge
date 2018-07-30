@@ -117,8 +117,8 @@ export class ContainerManager {
                                       imageToBuildOptions: Map<string, string[]>): Map<string, any> {
         try {
             const buildMap: Map<string, any> = new Map<string, any>();
-            const manifestObj = JSON.parse(dpManifestStr);
-            const modules = manifestObj.moduleContent.$edgeAgent["properties.desired"].modules;
+            const manifestObj = Utility.updateSchema(JSON.parse(dpManifestStr));
+            const modules = manifestObj.modulesContent.$edgeAgent["properties.desired"].modules;
             for (const m in modules) {
                 if (modules.hasOwnProperty(m)) {
                     let image: string;

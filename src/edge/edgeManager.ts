@@ -34,13 +34,7 @@ export class EdgeManager {
 
         await fse.ensureDir(parentPath);
         const slnName: string = await this.inputSolutionName(parentPath);
-        const template = await this.selectModuleTemplate();
-
-        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName());
-        const { repositoryName, imageName, moduleTwin, createOptions } = await this.inputImage(moduleName, template);
         const slnPath: string = path.join(parentPath, slnName);
-        const registryAddress = Utility.getRegistryAddress(repositoryName);
-        const envFilePath: string = path.join(slnPath, Constants.envFile);
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const sourceGitIgnore = path.join(sourceSolutionPath, Constants.gitIgnore);
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
@@ -49,38 +43,10 @@ export class EdgeManager {
         await fse.mkdirs(slnPath);
         await fse.copy(sourceGitIgnore, targetGitIgnore);
         await fse.mkdirs(targetModulePath);
+        const templateFile = path.join(slnPath, Constants.deploymentTemplate);
+        await fse.copy(path.join(sourceSolutionPath, Constants.deploymentTemplate), templateFile);
 
-        await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
-
-        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
-        if (template !== Constants.STREAM_ANALYTICS) {
-            result = await this.updateRegistrySettings(registryAddress, {}, envFilePath);
-        }
-
-        const mapObj: Map<string, string> = new Map<string, string>();
-        mapObj.set(Constants.moduleNamePlaceholder, moduleName);
-        mapObj.set(Constants.moduleImagePlaceholder, imageName);
-        mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
-        mapObj.set("\"%REGISTRY%\"", JSON.stringify(result.registries, null, 2));
-        await Utility.copyTemplateFile(sourceSolutionPath, Constants.deploymentTemplate, slnPath, mapObj);
-
-        if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
-            const templateJson = await fse.readJson(path.join(slnPath, Constants.deploymentTemplate));
-            templateJson.moduleContent[moduleName] = moduleTwin;
-            const modules = templateJson.moduleContent.$edgeAgent["properties.desired"].modules;
-            modules[moduleName].settings.createOptions = createOptions.replace(/\\\\/g, "\\");
-            await fse.writeFile(path.join(slnPath, Constants.deploymentTemplate), JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
-        }
-
-        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
-
-        if (debugGenerated) {
-            const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
-            await fse.ensureDir(targetVscodeFolder);
-            const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
-            await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });
-        }
-        await this.writeRegistryCredEnv(registryAddress, envFilePath, result.usernameEnv, result.passwordEnv);
+        await this.addModule(templateFile, outputChannel, true); 
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
     }
 
@@ -103,74 +69,7 @@ export class EdgeManager {
             }
         }
 
-        const templateJson = await fse.readJson(templateFile);
-        const slnPath: string = path.dirname(templateFile);
-        const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
-        const targetModulePath = path.join(slnPath, Constants.moduleFolder);
-        const envFilePath = path.join(slnPath, Constants.envFile);
-
-        const template = await this.selectModuleTemplate();
-        const modules = templateJson.moduleContent.$edgeAgent["properties.desired"].modules;
-        const routes = templateJson.moduleContent.$edgeHub["properties.desired"].routes;
-        const runtimeSettings = templateJson.moduleContent.$edgeAgent["properties.desired"].runtime.settings;
-        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
-        const { repositoryName, imageName, moduleTwin, createOptions } = await this.inputImage(moduleName, template);
-
-        if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
-            templateJson.moduleContent[moduleName] = moduleTwin;
-        }
-
-        const address = await Utility.getRegistryAddress(repositoryName);
-        let registries = runtimeSettings.registryCredentials;
-        if (registries === undefined) {
-            registries = {};
-            runtimeSettings.registryCredentials = registries;
-        }
-
-        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
-        if (template !== Constants.STREAM_ANALYTICS) {
-            result = await this.updateRegistrySettings(address, registries, envFilePath);
-        }
-
-        await this.addModule(targetModulePath, moduleName, repositoryName, template, outputChannel);
-
-        const newModuleSection = `{
-            "version": "1.0",
-            "type": "docker",
-            "status": "running",
-            "restartPolicy": "always",
-            "settings": {
-              "image": "${imageName}",
-              "createOptions": "${createOptions.replace(/"/g, '\\"')}"
-            }
-          }`;
-        modules[moduleName] = JSON.parse(newModuleSection);
-        const newModuleToUpstream = `${moduleName}ToIoTHub`;
-        routes[newModuleToUpstream] = `FROM /messages/modules/${moduleName}/outputs/* INTO $upstream`;
-        await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
-
-        const mapObj: Map<string, string> = new Map<string, string>();
-        mapObj.set(Constants.moduleNamePlaceholder, moduleName);
-        mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
-        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
-        if (debugGenerated) {
-            const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
-            await fse.ensureDir(targetVscodeFolder);
-            const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
-            if (await fse.pathExists(targetLaunchJson)) {
-                const text = await fse.readFile(targetLaunchJson, "utf8");
-                const launchJson = JSON.parse(stripJsonComments(text));
-                launchJson.configurations.push(...debugGenerated.configurations);
-                await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
-            } else {
-                await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });
-            }
-        }
-
-        const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "is updated.";
-        const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
-        vscode.window.showInformationMessage(`${moduleCreationMessage}'deployment.template.json' ${launchUpdated}`);
-        await this.writeRegistryCredEnv(address, envFilePath, result.usernameEnv, result.passwordEnv);
+        await this.addModule(templateFile, outputChannel, false);
     }
 
     public async checkRegistryEnv(folder: vscode.WorkspaceFolder): Promise<void> {
@@ -184,8 +83,8 @@ export class EdgeManager {
                 const deploymentTemplate = path.join(folderPath, Constants.deploymentTemplate);
                 const envFile = path.join(folderPath, Constants.envFile);
                 if (await fse.exists(deploymentTemplate)) {
-                    const templateJson = await fse.readJson(deploymentTemplate);
-                    const runtimeSettings = templateJson.moduleContent.$edgeAgent["properties.desired"].runtime.settings;
+                    const templateJson = Utility.updateSchema(await fse.readJson(deploymentTemplate));
+                    const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
                     const registries = runtimeSettings.registryCredentials;
                     if (registries) {
                         await Utility.loadEnv(envFile);
@@ -309,7 +208,88 @@ export class EdgeManager {
         }
     }
 
-    private async addModule(parent: string, name: string,
+    private async addModule(templateFile: string,
+                            outputChannel: vscode.OutputChannel,
+                            isNewSolution: boolean): Promise<void> {
+        const templateJson = Utility.updateSchema(await fse.readJson(templateFile));
+        const slnPath: string = path.dirname(templateFile);
+        const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
+        const targetModulePath = path.join(slnPath, Constants.moduleFolder);
+        const envFilePath = path.join(slnPath, Constants.envFile);
+
+        const template = await this.selectModuleTemplate();
+        const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
+        const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
+        const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
+        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
+        const { repositoryName, imageName, moduleTwin, createOptions } = await this.inputImage(moduleName, template);
+
+        if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
+            templateJson.modulesContent[moduleName] = moduleTwin;
+        }
+
+        const address = await Utility.getRegistryAddress(repositoryName);
+        let registries = runtimeSettings.registryCredentials;
+        if (registries === undefined) {
+            registries = {};
+            runtimeSettings.registryCredentials = registries;
+        }
+
+        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
+        if (template !== Constants.STREAM_ANALYTICS) {
+            result = await this.updateRegistrySettings(address, registries, envFilePath);
+        }
+
+        await this.addModuleProj(targetModulePath, moduleName, repositoryName, template, outputChannel);
+
+        const newModuleSection = `{
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${imageName}",
+              "createOptions": "${createOptions.replace(/"/g, '\\"')}"
+            }
+          }`;
+        modules[moduleName] = JSON.parse(newModuleSection);
+        const newModuleToUpstream = `${moduleName}ToIoTHub`;
+        routes[newModuleToUpstream] = `FROM /messages/modules/${moduleName}/outputs/* INTO $upstream`;
+        if (isNewSolution) {
+            const tempSensorToModule = `sensorTo${moduleName}`
+            routes[tempSensorToModule] =
+                `FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/${moduleName}/inputs/input1\")`
+        }
+
+        await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
+
+        const mapObj: Map<string, string> = new Map<string, string>();
+        mapObj.set(Constants.moduleNamePlaceholder, moduleName);
+        mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
+        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
+        if (debugGenerated) {
+            const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
+            await fse.ensureDir(targetVscodeFolder);
+            const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
+            if (await fse.pathExists(targetLaunchJson)) {
+                const text = await fse.readFile(targetLaunchJson, "utf8");
+                const launchJson = JSON.parse(stripJsonComments(text));
+                launchJson.configurations.push(...debugGenerated.configurations);
+                await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
+            } else {
+                await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });
+            }
+        }
+
+        if (!isNewSolution){
+            const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "is updated.";
+            const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
+            vscode.window.showInformationMessage(`${moduleCreationMessage}'deployment.template.json' ${launchUpdated}`);
+        }
+        await this.writeRegistryCredEnv(address, envFilePath, result.usernameEnv, result.passwordEnv);
+    }
+
+    private async addModuleProj(parent: string, name: string,
                             repositoryName: string, template: string,
                             outputChannel: vscode.OutputChannel): Promise<void> {
         // TODO command to create module;

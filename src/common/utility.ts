@@ -424,6 +424,16 @@ export class Utility {
         });
     }
 
+    // Temp utility to sovle the compatibale issue because of the schema change in IoT Hub Service.
+    // moduleContent -> modulesContent
+    public static updateSchema(deployment: any) : any {
+        if (deployment && deployment.moduleContent) {
+            deployment.modulesContent = deployment.moduleContent;
+            delete deployment.moduleContent;
+        }
+        return deployment;
+    }
+
     private static getLocalRegistryState(): ContainerState {
         try {
             const isRunning = Executor.execSync("docker inspect registry --format='{{.State.Running}}'");

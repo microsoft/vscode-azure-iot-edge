@@ -15,12 +15,13 @@ import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionIte
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
 import { ConfigHoverProvider } from "./intelliSense/configHoverProvider";
+import { IDeviceItem } from "./typings/IDeviceItem";
 
 export function activate(context: vscode.ExtensionContext) {
     TelemetryClient.sendEvent("extensionActivated");
 
     const edgeManager = new EdgeManager(context);
-    const containerManager = new ContainerManager(context);
+    const containerManager = new ContainerManager();
 
     Utility.registerDebugTelemetryListener();
 
@@ -42,55 +43,85 @@ export function activate(context: vscode.ExtensionContext) {
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     context.subscriptions.push(outputChannel);
 
-    initCommmandAsync(context, outputChannel,
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildModuleImage",
         (fileUri?: vscode.Uri): Promise<void> => {
             return containerManager.buildModuleImage(fileUri, false);
         });
 
-    initCommmandAsync(context, outputChannel,
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildAndPushModuleImage",
         (fileUri?: vscode.Uri): Promise<void> => {
             return containerManager.buildModuleImage(fileUri, true);
         });
 
-    initCommmandAsync(context, outputChannel,
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.newSolution",
         (parentUri?: vscode.Uri): Promise<void> => {
             return edgeManager.createEdgeSolution(outputChannel, parentUri);
         });
 
-    initCommmandAsync(context, outputChannel,
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildSolution",
         (templateUri?: vscode.Uri): Promise<void> => {
-            return containerManager.buildSolution(templateUri);
+            return containerManager.buildSolution(templateUri, false, false);
         });
 
-    initCommmandAsync(context, outputChannel,
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.buildAndPushSolution",
+        (templateUri?: vscode.Uri): Promise<void> => {
+            return containerManager.buildSolution(templateUri, true, false);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.buildAndRunSolution",
+        (templateUri?: vscode.Uri): Promise<void> => {
+            return containerManager.buildSolution(templateUri, false, true);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.runSolution",
+        (deployFileUri?: vscode.Uri): Promise<void> => {
+            return containerManager.runSolution(deployFileUri);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.stopSolution",
+        (): Promise<void> => {
+            return containerManager.stopSolution();
+        });
+
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.generateDeployment",
         (templateUri?: vscode.Uri): Promise<void> => {
             return containerManager.generateDeployment(templateUri);
         });
 
-    initCommmandAsync(context, outputChannel,
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.addModule",
         (templateUri?: vscode.Uri): Promise<void> => {
             return edgeManager.addModuleForSolution(outputChannel, templateUri);
         });
 
-    initCommmandAsync(context, outputChannel,
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.convertModule",
         (fileUri?: vscode.Uri): Promise<void> => {
             return edgeManager.convertModule(fileUri);
         });
 
-    initCommmandAsync(context, outputChannel,
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.setupIotedgehubdev",
+        (deviceItem?: IDeviceItem): Promise<void> => {
+            return edgeManager.setupIotedgehubdev(deviceItem, outputChannel);
+        });
+
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.startEdgeHubSingle",
         (): Promise<void> => {
             return edgeManager.startEdgeHubSingleModule(outputChannel);
         });
 
-    initCommmandAsync(context, outputChannel,
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.setModuleCred",
         (): Promise<void> => {
             return edgeManager.setModuleCred(outputChannel);
@@ -109,12 +140,12 @@ export function activate(context: vscode.ExtensionContext) {
 function initCommand(context: vscode.ExtensionContext,
                      outputChannel: vscode.OutputChannel,
                      commandId: string, callback: (...args: any[]) => any): void {
-    initCommmandAsync(context, outputChannel, commandId, async (...args) => callback(...args));
+    initCommandAsync(context, outputChannel, commandId, async (...args) => callback(...args));
 }
 
-function initCommmandAsync(context: vscode.ExtensionContext,
-                           outputChannel: vscode.OutputChannel,
-                           commandId: string, callback: (...args: any[]) => Promise<any>): void {
+function initCommandAsync(context: vscode.ExtensionContext,
+                          outputChannel: vscode.OutputChannel,
+                          commandId: string, callback: (...args: any[]) => Promise<any>): void {
     context.subscriptions.push(vscode.commands.registerCommand(commandId, async (...args: any[]) => {
         const start: number = Date.now();
         let errorData: ErrorData | undefined;

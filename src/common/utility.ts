@@ -9,6 +9,7 @@ import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import { AzureSession } from "../typings/azure-account.api";
+import { IDeviceItem } from "../typings/IDeviceItem";
 import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
@@ -350,7 +351,7 @@ export class Utility {
                         break;
                 }
             }
-        } catch (error) {}
+        } catch (error) { }
     }
 
     public static getAddressKey(address: string, keySet: Set<string>): string {
@@ -405,6 +406,21 @@ export class Utility {
         } else {
             return imageName.substring(0, index);
         }
+    }
+
+    public static async getInputDevice(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel, onlyEdgeDevice: boolean = true): Promise<IDeviceItem> {
+        if (deviceItem !== undefined) {
+            return deviceItem;
+        }
+
+        const toolkit = vscode.extensions.getExtension("vsciot-vscode.azure-iot-toolkit");
+        if (toolkit === undefined) {
+            throw new Error("Error loading Azure IoT Toolkit extension");
+        }
+
+        // TODO: only get Edge devices when Toolkit API supports this parameter
+        deviceItem = await toolkit.exports.azureIoTExplorer.getDevice(undefined, undefined, outputChannel);
+        return deviceItem;
     }
 
     public static async acquireAadToken(session: AzureSession): Promise<{ aadAccessToken: string, aadRefreshToken: string }> {

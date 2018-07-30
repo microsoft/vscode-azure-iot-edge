@@ -26,6 +26,9 @@ export class StreamAnalyticsManager {
         }
 
         const job: StreamAnalyticsPicItem = await vscode.window.showQuickPick(this.loadAllStreamingJobs(), { placeHolder: "Select Azure Stream Analytics Jobs", ignoreFocusOut: true });
+        if (!job) {
+            throw new UserCancelledError();
+        }
         return job;
     }
 

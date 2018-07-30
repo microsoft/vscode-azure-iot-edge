@@ -63,7 +63,7 @@ export class ContainerManager {
     }
 
     public async stopSolution(): Promise<void> {
-        Executor.runInTerminal(`iotedgehubdev stop`);
+        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev stop`));
     }
 
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {
@@ -173,7 +173,7 @@ export class ContainerManager {
     }
 
     private constructRunCmd(deployFile: string): string {
-        return `iotedgehubdev start -d "${deployFile}" -v`;
+        return Utility.adjustTerminalCommand(`iotedgehubdev start -d "${deployFile}" -v`);
     }
 
     // A temporary hack to keep the command running in a dedicated terminal

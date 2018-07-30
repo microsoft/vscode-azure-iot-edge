@@ -147,7 +147,7 @@
       },
       {
         "command": "azure-iot-edge.stopSolution",
-        "title": "Stop IoT Edge Solution",
+        "title": "Stop IoT Edge Simulator",
         "category": "Azure IoT Edge"
       },
       {

@@ -10,12 +10,6 @@ import { Executor } from "../common/executor";
 import { Utility } from "../common/utility";
 
 export class ContainerManager {
-    private workspaceState: vscode.Memento;
-
-    constructor(context: vscode.ExtensionContext) {
-        this.workspaceState = context.workspaceState;
-    }
-
     public async buildModuleImage(fileUri?: vscode.Uri, pushImage: boolean = false) {
         const event = pushImage ? Constants.buildAndPushModuleImageEvent : Constants.buildModuleImageEvent;
         const moduleConfigFilePath: string = await Utility.getInputFilePath(fileUri, Constants.moduleConfigFileNamePattern, Constants.moduleConfigFile, `${event}.selectModuleConfigFile`);
@@ -43,17 +37,33 @@ export class ContainerManager {
         }
     }
 
-    public async buildSolution(templateUri?: vscode.Uri): Promise<void> {
+    public async buildSolution(templateUri?: vscode.Uri, push: boolean = true, run: boolean = false): Promise<void> {
         const templateFile: string = await Utility.getInputFilePath(templateUri,
             Constants.deploymentTemplatePattern,
             Constants.deploymentTemplateDesc,
             `${Constants.buildSolutionEvent}.selectTemplate`);
         if (!templateFile) {
-            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
-        await this.createDeploymentFile(templateFile, true);
+        await this.createDeploymentFile(templateFile, true, push, run);
         vscode.window.showInformationMessage(Constants.manifestGeneratedWithBuild);
+    }
+
+    public async runSolution(deployFileUri?: vscode.Uri, commands: string[] = []): Promise<void> {
+        const deployFile: string = await Utility.getInputFilePath(deployFileUri,
+            Constants.deploymentFilePattern,
+            Constants.deploymentFileDesc,
+            `${Constants.runSolutionEvent}.selectDeploymentFile`);
+        if (!deployFile) {
+            return;
+        }
+
+        commands.push(this.constructRunCmd(deployFile));
+        Executor.runInTerminal(Utility.combineCommands(commands), this.getRunCmdTerminalTitle());
+    }
+
+    public async stopSolution(): Promise<void> {
+        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev stop`));
     }
 
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {
@@ -62,14 +72,13 @@ export class ContainerManager {
             Constants.deploymentTemplateDesc,
             `${Constants.generateDeploymentEvent}.selectTemplate`);
         if (!templateFile) {
-            vscode.window.showInformationMessage(Constants.noSolutionFileMessage);
             return;
         }
         await this.createDeploymentFile(templateFile, false);
         vscode.window.showInformationMessage(Constants.manifestGenerated);
     }
 
-    private async createDeploymentFile(templateFile: string, build: boolean = true) {
+    private async createDeploymentFile(templateFile: string, build: boolean = true, push: boolean = true, run: boolean = false) {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToDockerfileMap: Map<string, string> = new Map();
         const imageToBuildOptions: Map<string, string[]> = new Map();
@@ -77,54 +86,60 @@ export class ContainerManager {
         await Utility.loadEnv(path.join(slnPath, Constants.envFile));
         await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap, imageToBuildOptions);
         const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
-        const generatedDeployment: string = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
+        const dpManifest: any = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
 
         if (!build) {
             return;
         }
 
         // build docker images
-        const buildMap: Map<string, any> = this.getBuildMapFromDeployment(generatedDeployment, imageToDockerfileMap, imageToBuildOptions);
+        const buildMap: Map<string, any> = this.getBuildMapFromDeployment(dpManifest, imageToDockerfileMap, imageToBuildOptions);
         const commands: string[] = [];
         await Utility.initLocalRegistry([...buildMap.keys()]);
         buildMap.forEach((buildSetting, image) => {
             const context = path.dirname(buildSetting.dockerFile);
             commands.push(this.constructBuildCmd(buildSetting.dockerFile, image, context, buildSetting.buildOption));
-            commands.push(this.constructPushCmd(image));
+            if (push) {
+                commands.push(this.constructPushCmd(image));
+            }
         });
+
+        if (run) {
+            return this.runSolution(vscode.Uri.file(deployFile), commands);
+        }
+
         Executor.runInTerminal(Utility.combineCommands(commands));
     }
 
     private async generateDeploymentString(templateFile: string,
                                            deployFile: string,
-                                           moduleToImageMap: Map<string, string>): Promise<string> {
+                                           moduleToImageMap: Map<string, string>): Promise<any> {
         const configPath = path.dirname(deployFile);
         await fse.remove(deployFile);
 
         const data: string = await fse.readFile(templateFile, "utf8");
-        const buildSet: Set<string> = new Set();
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
         const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream"];
         const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, ...exceptStr);
+        const dpManifest = Utility.updateSchema(JSON.parse(generatedDeployFile));
         // generate config file
         await fse.ensureDir(configPath);
-        await fse.writeFile(deployFile, generatedDeployFile, "utf8");
-        return generatedDeployFile;
+        await fse.writeFile(deployFile, JSON.stringify(dpManifest, null, 2), { encoding: "utf8" });
+        return dpManifest;
     }
 
-    private getBuildMapFromDeployment(dpManifestStr: string,
+    private getBuildMapFromDeployment(manifestObj: any,
                                       imageToDockerfileMap: Map<string, string>,
                                       imageToBuildOptions: Map<string, string[]>): Map<string, any> {
         try {
             const buildMap: Map<string, any> = new Map<string, any>();
-            const manifestObj = JSON.parse(dpManifestStr);
-            const modules = manifestObj.moduleContent.$edgeAgent["properties.desired"].modules;
+            const modules = manifestObj.modulesContent.$edgeAgent["properties.desired"].modules;
             for (const m in modules) {
                 if (modules.hasOwnProperty(m)) {
                     let image: string;
                     try {
                         image = modules[m].settings.image;
-                    } catch (e) {}
+                    } catch (e) { }
                     if (image && imageToDockerfileMap.get(image) !== undefined) {
                         const buildSetting = {
                             dockerFile: imageToDockerfileMap.get(image),
@@ -140,7 +155,7 @@ export class ContainerManager {
         }
     }
 
-    private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string, extraOptions ?: string[]): string {
+    private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string, extraOptions?: string[]): string {
         let optionString: string = "";
         if (extraOptions !== undefined) {
             const filteredOption = extraOptions.filter((value, index) => {
@@ -153,7 +168,16 @@ export class ContainerManager {
         return `docker build ${optionString} --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(contextDir)}\"`;
     }
 
-    private constructPushCmd(imageName: string) {
+    private constructPushCmd(imageName: string): string {
         return `docker push ${imageName}`;
+    }
+
+    private constructRunCmd(deployFile: string): string {
+        return Utility.adjustTerminalCommand(`iotedgehubdev start -d "${deployFile}" -v`);
+    }
+
+    // A temporary hack to keep the command running in a dedicated terminal
+    private getRunCmdTerminalTitle(): string {
+        return Constants.edgeDisplayName + " Solution Status";
     }
 }

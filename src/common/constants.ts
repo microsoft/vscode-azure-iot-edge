@@ -10,9 +10,12 @@ export class Constants {
     public static dockerfileNamePattern = "**/[dD]ocker[fF]ile*";
     public static dotNetProjectFileNamePattern = "**/*.{csproj,fsproj}";
     public static moduleConfigFileNamePattern = "**/module.json";
+    public static moduleConfigFile = "Module Config file";
     public static deploymentTemplatePattern = "**/deployment.template.json";
+    public static deploymentTemplateDesc = "Deployment Template file";
+    public static deploymentFilePattern = "**/deployment.json";
+    public static deploymentFileDesc = "Deployment Manifest file";
     public static EdgeDebugSessionPrefix = "Debug IoT Edge";
-    public static lastUsedImageNameCacheKey = "azureIotEdge.lastUsedImageName";
     public static moduleNamePlaceholder = "%MODULE%";
     public static moduleImagePlaceholder = "%MODULE_IMAGE%";
     public static moduleFolderPlaceholder = "%MODULE_FOLDER%";
@@ -29,13 +32,15 @@ export class Constants {
     public static CSHARP_FUNCTION = "Azure Functions - C#";
     public static ACR_MODULE = "Existing Module (Import from ACR)";
     public static EXISTING_MODULE = "Existing Module (Enter Full Image URL)";
+    public static STREAM_ANALYTICS = "Azure Stream Analytics";
     public static LANGUAGE_CSHARP_DESCRIPTION = "Use Azure IoT C# SDK to build a module";
     public static LANGUAGE_NODE_DESCRIPTION = "Use Azure IoT Node.js SDK to build a module";
     public static LANGUAGE_PYTHON_DESCRIPTION = "Use Azure IoT Python SDK to build a module";
     public static LANGUAGE_C_DESCRIPTION = "Use Azure IoT C SDK to build a module";
     public static CSHARP_FUNCTION_DESCRIPTION = "Create an Azure Function and deploy to IoT Edge";
-    public static ACR_MODULE_DESCRIPTION = "Import an exsting module image from your Azure Container Registry";
-    public static EXISTING_MODULE_DESCRIPTION = "Import an exsting module image from any container registry";
+    public static ACR_MODULE_DESCRIPTION = "Import an existing module image from your Azure Container Registry";
+    public static EXISTING_MODULE_DESCRIPTION = "Import an existing module image from any container registry";
+    public static STREAM_ANALYTICS_DESCRIPTION = "Deploy Azure Stream Analytics to Azure IoT Edge";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";
@@ -59,28 +64,26 @@ export class Constants {
     public static moduleManifest = "module.json";
     public static outputConfig = "config";
     public static vscodeFolder = ".vscode";
-    public static moduleConfigFile = "Module Config file";
-    public static deploymentTemplateDesc = "Deployment Template file";
     public static buildModuleImageEvent = "buildModuleImage";
     public static buildAndPushModuleImageEvent = "buildAndPushModuleImage";
     public static buildSolutionEvent = "buildSolution";
+    public static runSolutionEvent = "runSolution";
     public static generateDeploymentEvent = "generateDeployment";
     public static addModuleEvent = "addModule";
     public static launchCSharp = "launch_csharp.json";
     public static launchNode = "launch_node.json";
     public static launchC = "launch_c.json";
-    public static noSolutionFileMessage = "No solution file can be found in workspace.";
     public static noSolutionFileWithModulesFolder = "No solution file for the selected modules folder can be found in workspace.";
     public static manifestGenerated = "Deployment manifest has been generated at config/deployment.json.";
     public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;
     public static selectPlatform = "Select Platform";
     // the last item is the module name enterred by the user which cannot be determined yet and will be skipped for checking
-    public static moduleDeploymentManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", "*"];
+    public static moduleDeploymentManifestJsonPath = ["modulesContent", "$edgeAgent", "properties.desired", "modules", "*"];
     public static moduleNameDeploymentManifestJsonPathIndex = 4;
     // the 4th item is the module name enterred by the user which cannot be determined yet and will be skipped for checking
-    public static imgDeploymentManifestJsonPath = ["moduleContent", "$edgeAgent", "properties.desired", "modules", "*", "settings", "image"];
+    public static imgDeploymentManifestJsonPath = ["modulesContent", "$edgeAgent", "properties.desired", "modules", "*", "settings", "image"];
     // the last item is the route name enterred by the user which cannot be determined yet and will be skipped for checking
-    public static routeDeploymentManifestJsonPath = ["moduleContent", "$edgeHub", "properties.desired", "routes", "*"];
+    public static routeDeploymentManifestJsonPath = ["modulesContent", "$edgeHub", "properties.desired", "routes", "*"];
     public static moduleTypes = ["docker"];
     public static moduleStatuses = ["running", "stopped"];
     public static moduleRestartPolicies = ["always", "never", "on-failed", "on-unhealthy"];
@@ -92,6 +95,8 @@ export class Constants {
     public static setRegistryEnvNotification = "Please set container registry credentials to .env file";
     public static acrEnvSet = "ACR credentials have been set in .env file";
     public static envFile = ".env";
+    public static inputNamePrompt = "Provide the input names of the module to handle message";
+    public static inputNamePattern = "input1,input2,input3";
 }
 
 export enum ContainerState {

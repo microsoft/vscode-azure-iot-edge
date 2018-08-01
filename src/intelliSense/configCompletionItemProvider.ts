@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 "use strict";
-import * as parser from "jsonc-parser";
+import * as parser from "jsonc-parser/lib/umd/main";
 import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
@@ -37,13 +37,13 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
         // Disable following two group of completion items temporarily because they will be duplicate with built-in JSON completion items
         // Tracking issue: https://github.com/Microsoft/vscode/issues/45864
 
-        // if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
+        // if (location.path[0] === "modulesContent" && location.path[1] === "$edgeAgent"
         //     && location.path[2] === "properties.desired" && location.path[3] === "modules"
         //     && location.path[5] === "status") {
         //     return this.getCompletionItems(Constants.moduleStatuses, document, position);
         // }
 
-        // if (location.path[0] === "moduleContent" && location.path[1] === "$edgeAgent"
+        // if (location.path[0] === "modulesContent" && location.path[1] === "$edgeAgent"
         //     && location.path[2] === "properties.desired" && location.path[3] === "modules"
         //     && location.path[5] === "restartPolicy") {
         //     return this.getCompletionItems(Constants.moduleRestartPolicies, document, position);
@@ -56,7 +56,7 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
 
         if (IntelliSenseUtility.locationMatch(location, Constants.routeDeploymentManifestJsonPath)) {
             const json = parser.parse(document.getText());
-            const modules: any = ((json.moduleContent.$edgeAgent || {})["properties.desired"] || {}).modules || {};
+            const modules: any = ((json.modulesContent.$edgeAgent || {})["properties.desired"] || {}).modules || {};
             const moduleIds: string[] = Object.keys(modules);
 
             const routeCompletionItem: vscode.CompletionItem = new vscode.CompletionItem(Constants.routeSnippetLabel);

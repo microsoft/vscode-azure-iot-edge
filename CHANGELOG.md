@@ -5,7 +5,7 @@
 
 ## 1.1.0 - 2018-07-30
 ### Added
-* Add support for C module 
+* Add support for C module
 
 ## 1.0.0 - 2018-06-27
 ### Added

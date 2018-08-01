@@ -8,6 +8,8 @@ import * as isPortReachable from "is-port-reachable";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
+import { AzureSession } from "../typings/azure-account.api";
+import { IDeviceItem } from "../typings/IDeviceItem";
 import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
@@ -29,6 +31,14 @@ export class Utility {
 
     public static adjustTerminalCommand(command: string): string {
         return (os.platform() === "linux" || os.platform() === "darwin") ? `sudo ${command}` : command;
+    }
+
+    public static getConfigurationProperty(id: string): string {
+        return Utility.getConfiguration().get(id);
+    }
+
+    public static async setGlobalConfigurationProperty(id: string, value: string): Promise<void> {
+        await Utility.getConfiguration().update(id, value, true);
     }
 
     public static adjustFilePath(filePath: string): string {
@@ -341,7 +351,7 @@ export class Utility {
                         break;
                 }
             }
-        } catch (error) {}
+        } catch (error) { }
     }
 
     public static getAddressKey(address: string, keySet: Set<string>): string {
@@ -396,6 +406,48 @@ export class Utility {
         } else {
             return imageName.substring(0, index);
         }
+    }
+
+    public static async getInputDevice(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel, onlyEdgeDevice: boolean = true): Promise<IDeviceItem> {
+        if (deviceItem !== undefined) {
+            return deviceItem;
+        }
+
+        const toolkit = vscode.extensions.getExtension("vsciot-vscode.azure-iot-toolkit");
+        if (toolkit === undefined) {
+            throw new Error("Error loading Azure IoT Toolkit extension");
+        }
+
+        // TODO: only get Edge devices when Toolkit API supports this parameter
+        deviceItem = await toolkit.exports.azureIoTExplorer.getDevice(undefined, undefined, outputChannel);
+        return deviceItem;
+    }
+
+    public static async acquireAadToken(session: AzureSession): Promise<{ aadAccessToken: string, aadRefreshToken: string }> {
+        return new Promise<{ aadAccessToken: string, aadRefreshToken: string }>((resolve, reject) => {
+            const credentials: any = session.credentials;
+            const environment: any = session.environment;
+            credentials.context.acquireToken(environment.activeDirectoryResourceId, credentials.username, credentials.clientId, (err: any, result: any) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({
+                        aadAccessToken: result.accessToken,
+                        aadRefreshToken: result.refreshToken,
+                    });
+                }
+            });
+        });
+    }
+
+    // Temp utility to sovle the compatibale issue because of the schema change in IoT Hub Service.
+    // moduleContent -> modulesContent
+    public static updateSchema(deployment: any): any {
+        if (deployment && deployment.moduleContent) {
+            deployment.modulesContent = deployment.moduleContent;
+            delete deployment.moduleContent;
+        }
+        return deployment;
     }
 
     private static getLocalRegistryState(): ContainerState {

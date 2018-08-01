@@ -2,12 +2,12 @@
   "name": "azure-iot-edge",
   "displayName": "Azure IoT Edge",
   "description": "Develop, deploy, debug, and manage your IoT Edge solution",
-  "version": "1.1.1",
+  "version": "1.2.0-rc",
   "publisher": "vsciot-vscode",
   "aiKey": "95b20d64-f54f-4de3-8ad5-165a75a6c6fe",
   "icon": "logo.png",
   "engines": {
-    "vscode": "^1.18.0"
+    "vscode": "^1.23.0"
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "repository": {
@@ -34,11 +34,18 @@
   "activationEvents": [
     "onDebug",
     "onCommand:azure-iot-edge.buildSolution",
+    "onCommand:azure-iot-edge.buildAndPushSolution",
+    "onCommand:azure-iot-edge.buildAndRunSolution",
+    "onCommand:azure-iot-edge.runSolution",
     "onCommand:azure-iot-edge.buildModuleImage",
     "onCommand:azure-iot-edge.buildAndPushModuleImage",
     "onCommand:azure-iot-edge.newSolution",
     "onCommand:azure-iot-edge.generateDeployment",
     "onCommand:azure-iot-edge.addModule",
+    "onCommand:azure-iot-edge.stopSolution",
+    "onCommand:azure-iot-edge.setupIotedgehubdev",
+    "onCommand:azure-iot-edge.startEdgeHubSingle",
+    "onCommand:azure-iot-edge.setModuleCred",
     "workspaceContains:**/deployment.template.json"
   ],
   "main": "./out/src/extension",
@@ -61,19 +68,44 @@
         },
         {
           "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.buildSolution"
+          "command": "azure-iot-edge.addModule",
+          "group": "edge@0"
         },
         {
           "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.generateDeployment"
+          "command": "azure-iot-edge.buildSolution",
+          "group": "edge@1"
         },
         {
           "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.addModule"
+          "command": "azure-iot-edge.buildAndPushSolution",
+          "group": "edge@2"
+        },
+        {
+          "when": "resourceFilename == deployment.template.json",
+          "command": "azure-iot-edge.buildAndRunSolution",
+          "group": "edge@3"
+        },
+        {
+          "when": "resourceFilename == deployment.template.json",
+          "command": "azure-iot-edge.generateDeployment",
+          "group": "edge@4"
+        },
+        {
+          "when": "resourceFilename == deployment.json",
+          "command": "azure-iot-edge.runSolution",
+          "group": "edge@0"
         },
         {
           "when": "explorerResourceIsFolder && resourceFilename == modules",
           "command": "azure-iot-edge.addModule"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "azure-iot-edge.setupIotedgehubdev",
+          "when": "view == iotHubDevices && viewItem == edge",
+          "group": "azure-iot-toolkit-edge@2"
         }
       ]
     },
@@ -99,6 +131,26 @@
         "category": "Azure IoT Edge"
       },
       {
+        "command": "azure-iot-edge.buildAndPushSolution",
+        "title": "Build and Push IoT Edge Solution",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.buildAndRunSolution",
+        "title": "Build and Run IoT Edge Solution",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.runSolution",
+        "title": "Run IoT Edge Solution",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.stopSolution",
+        "title": "Stop IoT Edge Simulator",
+        "category": "Azure IoT Edge"
+      },
+      {
         "command": "azure-iot-edge.generateDeployment",
         "title": "Generate IoT Edge Deployment Manifest",
         "category": "Azure IoT Edge"
@@ -106,6 +158,21 @@
       {
         "command": "azure-iot-edge.addModule",
         "title": "Add IoT Edge Module",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.setupIotedgehubdev",
+        "title": "Setup IoT Edge Simulator",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.startEdgeHubSingle",
+        "title": "Start IoT Edge Hub Simulator for Single Module",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.setModuleCred",
+        "title": "Set Module Credentials to User Settings",
         "category": "Azure IoT Edge"
       }
     ],
@@ -117,6 +184,16 @@
           "type": "string",
           "default": "",
           "description": "(Windows Only) Replace the Windows style drive letter in the command with a Unix style root when using a custom shell as the terminal, like Bash on Windows, Git Bash or Cgywin. Example: For Bash on Windows, setting this to '/mnt/' will replace 'C:\\foo\\bar' with '/mnt/c/foo/bar'"
+        },
+        "azure-iot-edge.EdgeHubConnectionString": {
+          "type": "string",
+          "default": "",
+          "description": "Module Connection String"
+        },
+        "azure-iot-edge.EdgeModuleCACertificateFile": {
+          "type": "string",
+          "default": "",
+          "description": "Edge Module CA path"
         }
       }
     },
@@ -147,11 +224,26 @@
               "/app": "${workspaceFolder}"
             },
             "justMyCode": true
+          },
+          {
+            "name": "Launch IoT Edge Module (.NET Core)",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceRoot}/bin/Debug/<target-framework>/<project-name.dll>",
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "internalConsoleOptions": "openOnSessionStart",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+              "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+              "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+            }
           }
         ],
         "configurationSnippets": [
           {
-            "label": "Edge: Debug IoT Edge Module (.NET Core)",
+            "label": ".NET: Remote Debug IoT Edge Module",
             "body": {
               "name": "Remote Debug IoT Edge Module (.NET Core)",
               "type": "coreclr",
@@ -175,6 +267,66 @@
               },
               "justMyCode": true
             }
+          },
+          {
+            "label": ".NET: Launch a local .NET Core IoT Edge Module",
+            "body": {
+              "name": "Launch IoT Edge Module (.NET Core)",
+              "type": "coreclr",
+              "request": "launch",
+              "program": "^\"\\${workspaceRoot}/bin/Debug/<target-framework>/<project-name.dll>\"",
+              "args": [],
+              "cwd": "^\"\\${workspaceRoot}\"",
+              "internalConsoleOptions": "openOnSessionStart",
+              "stopAtEntry": false,
+              "console": "internalConsole",
+              "env": {
+                "EdgeHubConnectionString": "^\"\\${config:azure-iot-edge.EdgeHubConnectionString}\"",
+                "EdgeModuleCACertificateFile": "^\"\\${config:azure-iot-edge.EdgeModuleCACertificateFile}\""
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "edge-node",
+        "label": "IoT Edge (Node.js)",
+        "initialConfigurations": [
+          {
+            "type": "node",
+            "request": "attach",
+            "name": "Remote Debug IoT Edge Module (Node.js)",
+            "address": "<TCP/IP address of the docker container process>",
+            "port": 9229,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "<Absolute path of the program in the docker container>"
+          },
+          {
+            "name": "Launch IoT Edge Module (Node.js)",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/app.js",
+            "console": "integratedTerminal",
+            "env": {
+              "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+              "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+            }
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "Node.js: Launch a local IoT Edge Module",
+            "body": {
+              "name": "Launch IoT Edge Module (Node.js)",
+              "type": "node",
+              "request": "launch",
+              "program": "^\"\\${workspaceRoot}/app.js\"",
+              "console": "integratedTerminal",
+              "env": {
+                "EdgeHubConnectionString": "^\"\\${config:azure-iot-edge.EdgeHubConnectionString}\"",
+                "EdgeModuleCACertificateFile": "^\"\\${config:azure-iot-edge.EdgeModuleCACertificateFile}\""
+              }
+            }
           }
         ]
       }
@@ -184,7 +336,7 @@
     "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "tslint": "tslint -t verbose src/**/*.ts --exclude src/**/*.d.ts",
+    "tslint": "tslint -t verbose src/**/*.ts",
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
@@ -202,6 +354,7 @@
   },
   "dependencies": {
     "azure-arm-containerregistry": "^2.2.0",
+    "azure-arm-streamanalytics": "^1.0.0-preview",
     "dotenv": "^5.0.1",
     "download-git-repo": "^1.0.2",
     "fs-extra": "^4.0.2",

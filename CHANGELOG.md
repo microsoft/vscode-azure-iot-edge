@@ -1,4 +1,8 @@
 # Change Log
+## 1.1.1 - 2018-08-01
+### Changed
+* Update vscode-extension-telemetry npm to latest version (0.0.18)
+
 ## 1.1.0 - 2018-07-30
 ### Added
 * Add support for C module 

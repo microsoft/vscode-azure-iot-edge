@@ -363,7 +363,7 @@
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "strip-json-comments": "^2.0.1",
-    "vscode-extension-telemetry": "0.0.8"
+    "vscode-extension-telemetry": "0.0.18"
   },
   "extensionDependencies": [
     "ms-vscode.azure-account",

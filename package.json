@@ -137,12 +137,12 @@
       },
       {
         "command": "azure-iot-edge.buildAndRunSolution",
-        "title": "Build and Run IoT Edge Solution",
+        "title": "Build and Run IoT Edge Solution in Simulator",
         "category": "Azure IoT Edge"
       },
       {
         "command": "azure-iot-edge.runSolution",
-        "title": "Run IoT Edge Solution",
+        "title": "Run IoT Edge Solution in Simulator",
         "category": "Azure IoT Edge"
       },
       {

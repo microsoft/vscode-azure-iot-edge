@@ -15,6 +15,10 @@
 ## Prerequisites
 
 - [Docker](https://www.docker.com/)
+- iotedgehubdev
+    ```
+    pip install --upgrade iotedgehubdev
+    ```
 - It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manage your IoT Edge Docker images, containers and registries. 
 
 ## Quickstart
@@ -35,12 +39,21 @@ Press `F1` or `Ctrl + Shift + P` to open command palette, type `Azure IoT Edge:`
 - **Azure IoT Edge: Add IoT Edge Module**: Add a new IoT Edge module to the IoT Edge solution.
 - **Azure IoT Edge: Build IoT Edge Module Image**: Containerize IoT Edge module from source code. 
 - **Azure IoT Edge: Build and Push IoT Edge Module Image**: Containerize and push IoT Edge module image to a Docker registry.
-- **Azure IoT Edge: Build IoT Edge Solution**: Build and push all the IoT Edge module image in the solution and expand deployment manifest. 
+- **Azure IoT Edge: Build IoT Edge Solution**: Build all the IoT Edge module image in the solution and expand deployment manifest. 
+- **Azure IoT Edge: Build and Push IoT Edge Solution**: Build and push all the IoT Edge module image in the solution and expand deployment manifest.
+- **Azure IoT Edge: Setup IoT Edge Simulator**: Setup IoT Edge Simulator with an edge device connection string.
+- **Azure IoT Edge: Build and Run IoT Edge Solution in Simulator**: Build all the IoT Edge module image in the solution and expand deployment manifest. Then run the solution in IoT Edge Simulator.
+- **Azure IoT Edge: Run IoT Edge Solution in Simulator**: Run the solution of the given deployment manifest in IoT Edge Simulator.
+- **Azure IoT Edge: Start IoT Edge Hub Simulator for Single Module**: Start the IoT Edge Simulator for testing single module. It will ask for the input names of the module.
+- **Azure IoT Edge: Stop IoT Edge Simulator**: Stop IoT Edge Simulator.
+- **Azure IoT Edge: Set Module Credentials to User Settings**: Set the module credential into "azure-iot-edge.EdgeHubConnectionString" and "azure-iot-edge.EdgeModuleCACertificateFile" in user settings. The credentials could be used to connect IoT Edge Simulator.
 - **Azure IoT Edge: Create deployment for Edge device**: Create and submit the deployment to your IoT Edge device with specified deployment manifest. 
 
 You can also trigger following frequently-used commands in context menu.
 - **Azure IoT Edge: Add IoT Edge Module**: The context menu of `deployment.template.json` file or `modules` folder in VS Code file explorer. A new module will be added to the `modules` folder.
 - **Azure IoT Edge: Build IoT Edge Solution**: The context menu of `deployment.template.json` file in VS Code file explorer.
+- **Azure IoT Edge: Build and Push IoT Edge Solution**: The context menu of `deployment.template.json` file in VS Code file explorer.
+- **Azure IoT Edge: Build and Run IoT Edge Solution in Simulator**: The context menu of `deployment.template.json` file in VS Code file explorer.
 - **Azure IoT Edge: Generate IoT Edge Deployment Manifest**: The context menu of `deployment.template.json` file in VS Code file explorer. The deployment manifest (deployment.json) will be expanded from deployment.template.json.
 - **Azure IoT Edge: Build IoT Edge Module Image**: The context menu of the `module.json` file in VS Code file explorer. With the input platform from user, it will build the image with the target Dockerfile.
 - **Azure IoT Edge: Build and Push IoT Edge Module Image**: The context menu of the `module.json` file in VS Code file explorer. With the input platform from user, it will build and push image with the target Dockerfile.

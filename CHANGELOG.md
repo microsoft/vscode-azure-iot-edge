@@ -1,4 +1,20 @@
 # Change Log
+## 1.2.0 - 2018-08-09
+### Changed
+* `Azure IoT Edge: Build IoT Edge Solution` does not push images anymore
+  
+### Added
+* Azure IoT Edge: Build and Push IoT Edge Solution
+* Azure IoT Edge: Setup IoT Edge Simulator
+* Azure IoT Edge: Build and Run IoT Edge Solution in Simulator
+* Azure IoT Edge: Run IoT Edge Solution in Simulator
+* Azure IoT Edge: Start IoT Edge Hub Simulator for Single Module
+* Azure IoT Edge: Stop IoT Edge Simulator
+* Azure IoT Edge: Set Module Credentials to User Settings
+* Add support for ASA module
+* Debugging configuration for "Launch IoT Edge Module (Node.js)"
+* Debugging configuration for "Launch IoT Edge Module (.Net Core)"
+
 ## 1.1.1 - 2018-08-01
 ### Changed
 * Update vscode-extension-telemetry npm to latest version (0.0.18)

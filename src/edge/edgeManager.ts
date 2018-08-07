@@ -111,7 +111,7 @@ export class EdgeManager {
         }
         await fse.ensureDir(storagePath);
         const outputFile = path.join(storagePath, "module.env");
-        await Executor.executeCMD(outputChannel, "iotedgehubdev", { shell: true }, `modulecred -o "${outputFile}"`);
+        await Executor.executeCMD(outputChannel, "iotedgehubdev", { shell: true }, `modulecred -l -o "${outputFile}"`);
 
         const moduleConfig = dotenv.parse(await fse.readFile(outputFile));
         await Utility.setGlobalConfigurationProperty("EdgeHubConnectionString", moduleConfig.EdgeHubConnectionString);

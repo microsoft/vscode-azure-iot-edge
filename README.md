@@ -12,10 +12,28 @@
 - Manage IoT Edge devices and modules in IoT Hub (with [Azure IoT Toolkit](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-toolkit))
 - Deploy IoT solutions to IoT Edge devices
 
+## What's New (v1.2.0)
+* Integerate with [iotedgehubdev](https://pypi.org/project/iotedgehubdev/) tool
+* Azure IoT Edge: Build and Push IoT Edge Solution
+* Azure IoT Edge: Setup IoT Edge Simulator
+* Azure IoT Edge: Build and Run IoT Edge Solution in Simulator
+* Azure IoT Edge: Run IoT Edge Solution in Simulator
+* Azure IoT Edge: Start IoT Edge Hub Simulator for Single Module
+* Azure IoT Edge: Stop IoT Edge Simulator
+* Azure IoT Edge: Set Module Credentials to User Settings
+* Support ASA module type in add module
+* Debugging configuration for "Launch IoT Edge Module (Node.js)"
+* Debugging configuration for "Launch IoT Edge Module (.Net Core)"
+
+## Known Issues
+* Cannot run C and Python module in IoT Edge Simulator
+* IoT Edge Simulator does not work on Windows Container
+* [ASA module may fail sending message](https://github.com/Microsoft/vscode-azure-iot-edge/issues/213)
+
 ## Prerequisites
 
 - [Docker](https://www.docker.com/)
-- iotedgehubdev
+- [iotedgehubdev](https://pypi.org/project/iotedgehubdev/)
     ```
     pip install --upgrade iotedgehubdev
     ```

@@ -5,6 +5,7 @@
 import * as fse from "fs-extra";
 import * as path from "path";
 import * as vscode from "vscode";
+import {BuildSettings} from "../common/buildSettings";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { Utility } from "../common/utility";
@@ -17,15 +18,14 @@ export class ContainerManager {
         if (moduleConfigFilePath) {
             const directory = path.dirname(moduleConfigFilePath);
             await Utility.loadEnv(path.join(directory, "..", "..", Constants.envFile));
-            const moduleConfig = await Utility.readJsonAndExpandEnv(moduleConfigFilePath, "$schema");
+            const moduleConfig = await Utility.readJsonAndExpandEnv(moduleConfigFilePath, "$schema-version");
             const platforms = moduleConfig.image.tag.platforms;
             const platform = await vscode.window.showQuickPick(Object.keys(platforms), { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
             if (platform) {
                 const dockerfilePath = path.join(directory, platforms[platform]);
                 const imageName = Utility.getImage(moduleConfig.image.repository, moduleConfig.image.tag.version, platform);
-                const options = moduleConfig.image.buildOptions;
-                const optionArray: string[] = options && options instanceof Array ? options : undefined;
-                const buildCommand = this.constructBuildCmd(dockerfilePath, imageName, directory, optionArray);
+                const buildSettings = Utility.getBuildSettings(directory, dockerfilePath, moduleConfig.image.buildOptions, moduleConfig.image.contextPath);
+                const buildCommand = this.constructBuildCmd(imageName, buildSettings);
                 if (pushImage) {
                     await Utility.initLocalRegistry([imageName]);
                     const pushCommand = this.constructPushCmd(imageName);
@@ -80,11 +80,10 @@ export class ContainerManager {
 
     private async createDeploymentFile(templateFile: string, build: boolean = true, push: boolean = true, run: boolean = false) {
         const moduleToImageMap: Map<string, string> = new Map();
-        const imageToDockerfileMap: Map<string, string> = new Map();
-        const imageToBuildOptions: Map<string, string[]> = new Map();
+        const imageToBuildSettings: Map<string, BuildSettings> = new Map();
         const slnPath: string = path.dirname(templateFile);
         await Utility.loadEnv(path.join(slnPath, Constants.envFile));
-        await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToDockerfileMap, imageToBuildOptions);
+        await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToBuildSettings);
         const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
         const dpManifest: any = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
 
@@ -93,12 +92,11 @@ export class ContainerManager {
         }
 
         // build docker images
-        const buildMap: Map<string, any> = this.getBuildMapFromDeployment(dpManifest, imageToDockerfileMap, imageToBuildOptions);
+        const buildMap: Map<string, any> = this.getBuildMapFromDeployment(dpManifest, imageToBuildSettings);
         const commands: string[] = [];
         await Utility.initLocalRegistry([...buildMap.keys()]);
-        buildMap.forEach((buildSetting, image) => {
-            const context = path.dirname(buildSetting.dockerFile);
-            commands.push(this.constructBuildCmd(buildSetting.dockerFile, image, context, buildSetting.buildOption));
+        buildMap.forEach((buildSettings, image) => {
+            commands.push(this.constructBuildCmd(image, buildSettings));
             if (push) {
                 commands.push(this.constructPushCmd(image));
             }
@@ -129,8 +127,7 @@ export class ContainerManager {
     }
 
     private getBuildMapFromDeployment(manifestObj: any,
-                                      imageToDockerfileMap: Map<string, string>,
-                                      imageToBuildOptions: Map<string, string[]>): Map<string, any> {
+                                      imageToBuildSettings: Map<string, BuildSettings>): Map<string, BuildSettings> {
         try {
             const buildMap: Map<string, any> = new Map<string, any>();
             const modules = manifestObj.modulesContent.$edgeAgent["properties.desired"].modules;
@@ -140,12 +137,8 @@ export class ContainerManager {
                     try {
                         image = modules[m].settings.image;
                     } catch (e) { }
-                    if (image && imageToDockerfileMap.get(image) !== undefined) {
-                        const buildSetting = {
-                            dockerFile: imageToDockerfileMap.get(image),
-                            buildOption: imageToBuildOptions.get(image),
-                        };
-                        buildMap.set(image, buildSetting);
+                    if (image && imageToBuildSettings.get(image) !== undefined) {
+                        buildMap.set(image, imageToBuildSettings.get(image));
                     }
                 }
             }
@@ -155,17 +148,17 @@ export class ContainerManager {
         }
     }
 
-    private constructBuildCmd(dockerfilePath: string, imageName: string, contextDir: string, extraOptions?: string[]): string {
+    private constructBuildCmd(imageName: string, buildSettings: BuildSettings): string {
         let optionString: string = "";
-        if (extraOptions !== undefined) {
-            const filteredOption = extraOptions.filter((value, index) => {
+        if (buildSettings.options !== undefined) {
+            const filteredOption = buildSettings.options.filter((value, index) => {
                 const trimmed = value.trim();
                 const parsedOption: string[] = trimmed.split(/\s+/g);
                 return parsedOption.length > 0 && ["--rm", "--tag", "-t", "--file", "-f"].indexOf(parsedOption[0]) < 0;
             });
             optionString = filteredOption.join(" ");
         }
-        return `docker build ${optionString} --rm -f \"${Utility.adjustFilePath(dockerfilePath)}\" -t ${imageName} \"${Utility.adjustFilePath(contextDir)}\"`;
+        return `docker build ${optionString} --rm -f \"${Utility.adjustFilePath(buildSettings.dockerFile)}\" -t ${imageName} \"${Utility.adjustFilePath(buildSettings.contextPath)}\"`;
     }
 
     private constructPushCmd(imageName: string): string {

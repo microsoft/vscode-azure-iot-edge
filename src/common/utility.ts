@@ -10,6 +10,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { AzureSession } from "../typings/azure-account.api";
 import { IDeviceItem } from "../typings/IDeviceItem";
+import { BuildSettings } from "./buildSettings";
 import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
@@ -256,8 +257,7 @@ export class Utility {
 
     public static async setSlnModulesMap(slnPath: string,
                                          moduleToImageMap: Map<string, string>,
-                                         imageToDockerfileMap: Map<string, string>,
-                                         imageToBuildOptions?: Map<string, string[]>): Promise<void> {
+                                         imageToBuildSettings?: Map<string, BuildSettings>): Promise<void> {
         const modulesPath: string = path.join(slnPath, Constants.moduleFolder);
         const stat: fse.Stats = await fse.lstat(modulesPath);
         if (!stat.isDirectory()) {
@@ -267,19 +267,28 @@ export class Utility {
         const moduleDirs: string[] = await Utility.getSubDirectories(modulesPath);
         await Promise.all(
             moduleDirs.map(async (module) => {
-                await this.setModuleMap(module, moduleToImageMap, imageToDockerfileMap, imageToBuildOptions);
+                await this.setModuleMap(module, moduleToImageMap, imageToBuildSettings);
             }),
         );
     }
 
+    public static getBuildSettings(
+        modulePath: string,
+        dockerFilePath: string,
+        buildOptions?: string[],
+        contextPath?: string): BuildSettings {
+        const optionArray = (buildOptions && buildOptions instanceof Array) ? buildOptions : undefined;
+        const context = contextPath ? path.join(modulePath, contextPath) : path.dirname(dockerFilePath);
+        return new BuildSettings(dockerFilePath, context, optionArray);
+    }
+
     public static async setModuleMap(modulePath: string,
                                      moduleToImageMap: Map<string, string>,
-                                     imageToDockerfileMap: Map<string, string>,
-                                     imageToBuildOptions?: Map<string, string[]>): Promise<void> {
+                                     imageToBuildSettings?: Map<string, BuildSettings>): Promise<void> {
         const moduleFile = path.join(modulePath, Constants.moduleManifest);
         const name: string = path.basename(modulePath);
         if (await fse.pathExists(moduleFile)) {
-            const module = await Utility.readJsonAndExpandEnv(moduleFile);
+            const module = await Utility.readJsonAndExpandEnv(moduleFile, "$schema-version");
             const platformKeys: string[] = Object.keys(module.image.tag.platforms);
             const repo: string = module.image.repository;
             const version: string = module.image.tag.version;
@@ -287,12 +296,12 @@ export class Utility {
                 const moduleKey: string = Utility.getModuleKey(name, platform);
                 const image: string = Utility.getImage(repo, version, platform);
                 moduleToImageMap.set(moduleKey, image);
-                imageToDockerfileMap.set(image, path.join(modulePath, module.image.tag.platforms[platform]));
-                if (imageToBuildOptions !== undefined) {
-                    const options = module.image.buildOptions;
-                    if (options !== undefined && options instanceof Array) {
-                        imageToBuildOptions.set(image, options);
-                    }
+                if (imageToBuildSettings !== undefined) {
+                    const dockerFilePath = path.join(modulePath, module.image.tag.platforms[platform]);
+                    imageToBuildSettings.set(
+                        image,
+                        Utility.getBuildSettings(modulePath,
+                            dockerFilePath, module.image.buildOptions, module.image.contextPath));
                 }
             });
         }

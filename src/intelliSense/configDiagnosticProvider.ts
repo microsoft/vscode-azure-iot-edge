@@ -31,10 +31,9 @@ export class ConfigDiagnosticProvider {
         const diags: vscode.Diagnostic[] = [];
 
         const moduleToImageMap: Map<string, string> = new Map();
-        const imageToDockerfileMap: Map<string, string> = new Map();
 
         try {
-            await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap, imageToDockerfileMap);
+            await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap);
 
             const rootNode: parser.Node = parser.parseTree(document.getText());
             const moduleJsonPath: string[] = Constants.moduleDeploymentManifestJsonPath.slice(0, - 1); // remove the trailing "*" element

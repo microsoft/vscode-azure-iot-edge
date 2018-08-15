@@ -288,7 +288,7 @@ export class Utility {
         const moduleFile = path.join(modulePath, Constants.moduleManifest);
         const name: string = path.basename(modulePath);
         if (await fse.pathExists(moduleFile)) {
-            const module = await Utility.readJsonAndExpandEnv(moduleFile, "$schema-version");
+            const module = await Utility.readJsonAndExpandEnv(moduleFile, Constants.moduleSchemaVersion);
             const platformKeys: string[] = Object.keys(module.image.tag.platforms);
             const repo: string = module.image.repository;
             const version: string = module.image.tag.version;

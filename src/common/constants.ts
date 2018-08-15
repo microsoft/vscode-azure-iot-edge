@@ -97,6 +97,7 @@ export class Constants {
     public static envFile = ".env";
     public static inputNamePrompt = "Provide the input names of the module to handle message";
     public static inputNamePattern = "input1,input2,input3";
+    public static moduleSchemaVersion = "$schema-version";
 }
 
 export enum ContainerState {

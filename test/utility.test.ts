@@ -3,6 +3,7 @@ import * as fse from "fs-extra";
 import * as path from "path";
 import { Constants } from "../src/common/constants";
 import { Utility } from "../src/common/utility";
+import { BuildSettings } from "../src/common/buildSettings";
 
 suite("utility tests", () => {
   test("expandEnv", async () => {
@@ -42,13 +43,11 @@ suite("utility tests", () => {
   test("setModuleMap", async () => {
     const moduleDir = path.resolve(__dirname, "../../testResources/module1");
     const moduleToImageMap: Map<string, string> = new Map();
-    const imageToDockerfileMap: Map<string, string> = new Map();
-    const imageToBuildOptions: Map<string, string[]> = new Map();
-    await Utility.setModuleMap(moduleDir, moduleToImageMap, imageToDockerfileMap, imageToBuildOptions);
+    const imageToBuildSettings: Map<string, BuildSettings> = new Map();
+    await Utility.setModuleMap(moduleDir, moduleToImageMap, imageToBuildSettings);
     assert.equal(moduleToImageMap.size, 4);
-    assert.equal(imageToDockerfileMap.size, 4);
-    assert.equal(imageToBuildOptions.size, 4);
-    assert.equal(imageToBuildOptions.get("localhost:5000/samplemodule:0.0.1-amd64").length, 8);
+    assert.equal(imageToBuildSettings.size, 4);
+    assert.equal(imageToBuildSettings.get("localhost:5000/samplemodule:0.0.1-amd64").options.length, 8);
   }).timeout(60 * 1000);
 
   test("replaceAll", async () => {

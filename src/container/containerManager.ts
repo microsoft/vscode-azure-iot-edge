@@ -5,7 +5,7 @@
 import * as fse from "fs-extra";
 import * as path from "path";
 import * as vscode from "vscode";
-import {BuildSettings} from "../common/buildSettings";
+import { BuildSettings } from "../common/buildSettings";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { Utility } from "../common/utility";
@@ -22,7 +22,7 @@ export class ContainerManager {
             const platforms = moduleConfig.image.tag.platforms;
             const platform = await vscode.window.showQuickPick(Object.keys(platforms), { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
             if (platform) {
-                const dockerfilePath = path.join(directory, platforms[platform]);
+                const dockerfilePath = path.resolve(directory, platforms[platform]);
                 const imageName = Utility.getImage(moduleConfig.image.repository, moduleConfig.image.tag.version, platform);
                 const buildSettings = Utility.getBuildSettings(directory, dockerfilePath, moduleConfig.image.buildOptions, moduleConfig.image.contextPath);
                 const buildCommand = this.constructBuildCmd(imageName, buildSettings);

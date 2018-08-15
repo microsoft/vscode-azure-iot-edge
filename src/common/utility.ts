@@ -278,7 +278,7 @@ export class Utility {
         buildOptions?: string[],
         contextPath?: string): BuildSettings {
         const optionArray = (buildOptions && buildOptions instanceof Array) ? buildOptions : undefined;
-        const context = contextPath ? path.join(modulePath, contextPath) : path.dirname(dockerFilePath);
+        const context = contextPath ? path.resolve(modulePath, contextPath) : path.dirname(dockerFilePath);
         return new BuildSettings(dockerFilePath, context, optionArray);
     }
 
@@ -297,7 +297,7 @@ export class Utility {
                 const image: string = Utility.getImage(repo, version, platform);
                 moduleToImageMap.set(moduleKey, image);
                 if (imageToBuildSettings !== undefined) {
-                    const dockerFilePath = path.join(modulePath, module.image.tag.platforms[platform]);
+                    const dockerFilePath = path.resolve(modulePath, module.image.tag.platforms[platform]);
                     imageToBuildSettings.set(
                         image,
                         Utility.getBuildSettings(modulePath,

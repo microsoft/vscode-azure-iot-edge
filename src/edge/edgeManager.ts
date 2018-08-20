@@ -174,7 +174,12 @@ export class EdgeManager {
 
     private async generateDebugSetting(srcSlnPath: string,
                                        language: string,
-                                       mapObj: Map<string, string>): Promise<any> {
+                                       moduleName: string,
+                                       extraProps: Map<string, string>): Promise<any> {
+
+        const mapObj: Map<string, string> = new Map<string, string>();
+        mapObj.set(Constants.moduleNamePlaceholder, moduleName);
+        mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
         // copy launch.json
         let launchFile: string;
         let isFunction: boolean = false;
@@ -194,6 +199,10 @@ export class EdgeManager {
             case Constants.LANGUAGE_C:
                 launchFile = Constants.launchC;
                 mapObj.set(Constants.appFolder, "/app");
+                break;
+            case Constants.LANGUAGE_JAVA:
+                launchFile = Constants.launchJava;
+                mapObj.set(Constants.groupIDPlaceholder, extraProps.get(Constants.groupId));
                 break;
             default:
                 break;
@@ -222,6 +231,12 @@ export class EdgeManager {
         const envFilePath = path.join(slnPath, Constants.envFile);
 
         const template = await this.selectModuleTemplate();
+        let extraProps: Map<string, string> = new Map<string, string>();
+        if (template === Constants.LANGUAGE_JAVA) {
+            const grpId = await this.inputJavaModuleGrpId();
+            extraProps.set(Constants.groupId, grpId);
+        }
+
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
         const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
         const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
@@ -244,7 +259,7 @@ export class EdgeManager {
             result = await this.updateRegistrySettings(address, registries, envFilePath);
         }
 
-        await this.addModuleProj(targetModulePath, moduleName, repositoryName, template, outputChannel);
+        await this.addModuleProj(targetModulePath, moduleName, repositoryName, template, outputChannel, extraProps);
 
         const newModuleSection = `{
             "version": "1.0",
@@ -266,10 +281,7 @@ export class EdgeManager {
         }
         await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
 
-        const mapObj: Map<string, string> = new Map<string, string>();
-        mapObj.set(Constants.moduleNamePlaceholder, moduleName);
-        mapObj.set(Constants.moduleFolderPlaceholder, moduleName);
-        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, mapObj);
+        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleName, extraProps);
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
@@ -294,7 +306,8 @@ export class EdgeManager {
 
     private async addModuleProj(parent: string, name: string,
                                 repositoryName: string, template: string,
-                                outputChannel: vscode.OutputChannel): Promise<void> {
+                                outputChannel: vscode.OutputChannel,
+                                extraProps?: Map<string, string>): Promise<void> {
         // TODO command to create module;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
@@ -330,6 +343,23 @@ export class EdgeManager {
                 const moduleJson = await fse.readJson(moduleFile);
                 moduleJson.image.repository = repositoryName;
                 await fse.writeFile(moduleFile, JSON.stringify(moduleJson, null, 2), { encoding: "utf8" });
+                break;
+            case Constants.LANGUAGE_JAVA:
+                const groupId = extraProps.get(Constants.groupId);
+                const packageName = groupId;
+                await Executor.executeCMD(outputChannel,
+                    "mvn",
+                    { cwd: `${parent}`, shell: true},
+                    "archetype:generate",
+                    '-DarchetypeGroupId="com.microsoft.azure"',
+                    '-DarchetypeArtifactId="azure-iot-edge-archetype"',
+                    `-DarchetypeVersion=1.0.0-SNAPSHOT`, // TODO: remove after archetype release
+                    `-DgroupId="${groupId}"`,
+                    `-DartifactId="${name}"`,
+                    `-Dversion="1.0.0-SNAPSHOT"`,
+                    `-Dpackage="${packageName}"`,
+                    `-Drepository="${repositoryName}"`,
+                    '-B');
                 break;
             default:
                 break;
@@ -402,6 +432,25 @@ export class EdgeManager {
         return await Utility.showInputBox(Constants.moduleName,
             Constants.moduleNamePrompt,
             validateFunc, Constants.moduleNameDft);
+    }
+
+    private async validateGroupId(input: string): Promise<string | undefined> {
+        if (!input) {
+            return "The input cannot be empty.";
+        }
+
+        const mavenCheckRegex: RegExp = /^[a-zA-Z\d_\-\.]+$/;
+        if (!mavenCheckRegex.test(input)) {
+            return "Only allow letters, digits, \'_\', \'-\' and \'.\'";
+        }
+
+        return undefined;
+    }
+
+    private async inputJavaModuleGrpId(): Promise<string> {
+        const dftValue = "com.edgemodule";
+        return await Utility.showInputBox("Group ID",
+                "Provide valaue for groupId", this.validateGroupId, dftValue);
     }
 
     private async inputRepository(module: string): Promise<string> {
@@ -553,6 +602,10 @@ export class EdgeManager {
             {
                 label: Constants.CSHARP_FUNCTION,
                 description: Constants.CSHARP_FUNCTION_DESCRIPTION,
+            },
+            {
+                label: Constants.LANGUAGE_JAVA,
+                description: Constants.LANGUAGE_JAVA_DESCRIPTION,
             },
             {
                 label: Constants.STREAM_ANALYTICS,

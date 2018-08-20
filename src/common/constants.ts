@@ -20,6 +20,7 @@ export class Constants {
     public static moduleImagePlaceholder = "%MODULE_IMAGE%";
     public static moduleFolderPlaceholder = "%MODULE_FOLDER%";
     public static appFolder = "%APP_FOLDER%";
+    public static groupIDPlaceholder = "%GROUP_ID%";
     public static repositoryPlaceholder = "%REPOSITORY%";
     public static dllPlaceholder = "%DLLNAME%";
     public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}/g);
@@ -29,6 +30,7 @@ export class Constants {
     public static LANGUAGE_NODE = "Node.js Module";
     public static LANGUAGE_PYTHON = "Python Module";
     public static LANGUAGE_C = "C Module";
+    public static LANGUAGE_JAVA = "Java Module";
     public static CSHARP_FUNCTION = "Azure Functions - C#";
     public static ACR_MODULE = "Existing Module (Import from ACR)";
     public static EXISTING_MODULE = "Existing Module (Enter Full Image URL)";
@@ -37,6 +39,7 @@ export class Constants {
     public static LANGUAGE_NODE_DESCRIPTION = "Use Azure IoT Node.js SDK to build a module";
     public static LANGUAGE_PYTHON_DESCRIPTION = "Use Azure IoT Python SDK to build a module";
     public static LANGUAGE_C_DESCRIPTION = "Use Azure IoT C SDK to build a module";
+    public static LANGUAGE_JAVA_DESCRIPTION = "Use Azure IoT Java SDK to build a module";
     public static CSHARP_FUNCTION_DESCRIPTION = "Create an Azure Function and deploy to IoT Edge";
     public static ACR_MODULE_DESCRIPTION = "Import an existing module image from your Azure Container Registry";
     public static EXISTING_MODULE_DESCRIPTION = "Import an existing module image from any container registry";
@@ -73,6 +76,7 @@ export class Constants {
     public static launchCSharp = "launch_csharp.json";
     public static launchNode = "launch_node.json";
     public static launchC = "launch_c.json";
+    public static launchJava = "launch_java.json";
     public static noSolutionFileWithModulesFolder = "No solution file for the selected modules folder can be found in workspace.";
     public static manifestGenerated = "Deployment manifest has been generated at config/deployment.json.";
     public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;
@@ -98,6 +102,7 @@ export class Constants {
     public static inputNamePrompt = "Provide the input names of the module to handle message";
     public static inputNamePattern = "input1,input2,input3";
     public static moduleSchemaVersion = "$schema-version";
+    public static groupId = "groupId";
 }
 
 export enum ContainerState {

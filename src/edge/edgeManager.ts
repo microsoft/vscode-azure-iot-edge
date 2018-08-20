@@ -231,7 +231,7 @@ export class EdgeManager {
         const envFilePath = path.join(slnPath, Constants.envFile);
 
         const template = await this.selectModuleTemplate();
-        let extraProps: Map<string, string> = new Map<string, string>();
+        const extraProps: Map<string, string> = new Map<string, string>();
         if (template === Constants.LANGUAGE_JAVA) {
             const grpId = await this.inputJavaModuleGrpId();
             extraProps.set(Constants.groupId, grpId);
@@ -359,7 +359,7 @@ export class EdgeManager {
                     `-Dversion="1.0.0-SNAPSHOT"`,
                     `-Dpackage="${packageName}"`,
                     `-Drepository="${repositoryName}"`,
-                    '-B');
+                    "-B");
                 break;
             default:
                 break;
@@ -441,7 +441,7 @@ export class EdgeManager {
 
         const mavenCheckRegex: RegExp = /^[a-zA-Z\d_\-\.]+$/;
         if (!mavenCheckRegex.test(input)) {
-            return "Only allow letters, digits, \'_\', \'-\' and \'.\'";
+            return "Only allow letters, digits, '_', '-' and '.'";
         }
 
         return undefined;

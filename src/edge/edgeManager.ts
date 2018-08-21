@@ -357,7 +357,7 @@ export class EdgeManager {
                     "archetype:generate",
                     '-DarchetypeGroupId="com.microsoft.azure"',
                     '-DarchetypeArtifactId="azure-iot-edge-archetype"',
-                    `-DarchetypeVersion=1.0.0-SNAPSHOT`, // TODO: remove after archetype release
+                    `-DarchetypeVersion=1.0.0`,
                     `-DgroupId="${groupId}"`,
                     `-DartifactId="${name}"`,
                     `-Dversion="1.0.0-SNAPSHOT"`,
@@ -454,7 +454,7 @@ export class EdgeManager {
     private async inputJavaModuleGrpId(): Promise<string> {
         const dftValue = "com.edgemodule";
         return await Utility.showInputBox("Group ID",
-                "Provide valaue for groupId", this.validateGroupId, dftValue);
+                "Provide value for groupId", this.validateGroupId, dftValue);
     }
 
     private async inputRepository(module: string): Promise<string> {

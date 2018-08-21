@@ -204,6 +204,10 @@ export class EdgeManager {
                 launchFile = Constants.launchJava;
                 mapObj.set(Constants.groupIDPlaceholder, extraProps.get(Constants.groupId));
                 break;
+            case Constants.LANGUAGE_PYTHON:
+                launchFile = Constants.launchPython;
+                mapObj.set(Constants.appFolder, "/app");
+                break;
             default:
                 break;
         }
@@ -320,7 +324,7 @@ export class EdgeManager {
                 break;
             case Constants.LANGUAGE_PYTHON:
                 const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
-                const branch = "master";
+                const branch = "develop"; // TODO: Change back to master before release
                 await Executor.executeCMD(outputChannel,
                     "cookiecutter",
                     { cwd: `${parent}`, shell: true },
@@ -353,7 +357,7 @@ export class EdgeManager {
                     "archetype:generate",
                     '-DarchetypeGroupId="com.microsoft.azure"',
                     '-DarchetypeArtifactId="azure-iot-edge-archetype"',
-                    `-DarchetypeVersion=1.0.0-SNAPSHOT`, // TODO: remove after archetype release
+                    `-DarchetypeVersion=1.0.0`,
                     `-DgroupId="${groupId}"`,
                     `-DartifactId="${name}"`,
                     `-Dversion="1.0.0-SNAPSHOT"`,
@@ -450,7 +454,7 @@ export class EdgeManager {
     private async inputJavaModuleGrpId(): Promise<string> {
         const dftValue = "com.edgemodule";
         return await Utility.showInputBox("Group ID",
-                "Provide valaue for groupId", this.validateGroupId, dftValue);
+                "Provide value for groupId", this.validateGroupId, dftValue);
     }
 
     private async inputRepository(module: string): Promise<string> {

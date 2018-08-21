@@ -77,6 +77,7 @@ export class Constants {
     public static launchNode = "launch_node.json";
     public static launchC = "launch_c.json";
     public static launchJava = "launch_java.json";
+    public static launchPython = "launch_python.json";
     public static noSolutionFileWithModulesFolder = "No solution file for the selected modules folder can be found in workspace.";
     public static manifestGenerated = "Deployment manifest has been generated at config/deployment.json.";
     public static manifestGeneratedWithBuild = `${Constants.manifestGenerated} Module images are being built.`;

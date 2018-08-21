@@ -204,6 +204,10 @@ export class EdgeManager {
                 launchFile = Constants.launchJava;
                 mapObj.set(Constants.groupIDPlaceholder, extraProps.get(Constants.groupId));
                 break;
+            case Constants.LANGUAGE_PYTHON:
+                launchFile = Constants.launchPython;
+                mapObj.set(Constants.appFolder, "/app");
+                break;
             default:
                 break;
         }

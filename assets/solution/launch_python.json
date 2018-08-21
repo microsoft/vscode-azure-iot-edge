@@ -4,7 +4,7 @@
         "name": "%MODULE% Remote Debug (Python)",
         "type": "pythonExperimental",
         "request": "attach",
-        "port": 3000,
+        "port": 5678,
         "host": "localhost",
         "logToFile": true,
         "redirectOutput": true,

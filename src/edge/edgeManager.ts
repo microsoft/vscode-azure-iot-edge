@@ -324,7 +324,7 @@ export class EdgeManager {
                 break;
             case Constants.LANGUAGE_PYTHON:
                 const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
-                const branch = "master";
+                const branch = "develop"; // TODO: Change back to master before release
                 await Executor.executeCMD(outputChannel,
                     "cookiecutter",
                     { cwd: `${parent}`, shell: true },

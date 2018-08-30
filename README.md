@@ -12,18 +12,9 @@
 - Manage IoT Edge devices and modules in IoT Hub (with [Azure IoT Toolkit](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-toolkit))
 - Deploy IoT solutions to IoT Edge devices
 
-## What's New (v1.2.0)
-* Integerate with [iotedgehubdev](https://pypi.org/project/iotedgehubdev/) tool
-* Azure IoT Edge: Build and Push IoT Edge Solution
-* Azure IoT Edge: Setup IoT Edge Simulator
-* Azure IoT Edge: Build and Run IoT Edge Solution in Simulator
-* Azure IoT Edge: Run IoT Edge Solution in Simulator
-* Azure IoT Edge: Start IoT Edge Hub Simulator for Single Module
-* Azure IoT Edge: Stop IoT Edge Simulator
-* Azure IoT Edge: Set Module Credentials to User Settings
-* Support ASA module type in add module
-* Debugging configuration for "Launch IoT Edge Module (Node.js)"
-* Debugging configuration for "Launch IoT Edge Module (.Net Core)"
+## What's New (v1.3.0)
+* Support Java module type in add module
+* Support debug Python module (amd64)
 
 ## Known Issues
 * Cannot run C and Python module in IoT Edge Simulator
@@ -47,6 +38,8 @@ For Python developers, you can develop and deploy [Python module](https://docs.m
 For Node.js developers, you can develop, debug and deploy [Node.js module](https://docs.microsoft.com/azure/iot-edge/tutorial-node-module)
 
 For C developers, you can develop, debug and deploy [C module](https://docs.microsoft.com/azure/iot-edge/tutorial-c-module)
+
+For Java developers, you can develop, debug and deploy [Java module](https://docs.microsoft.com/azure/iot-edge/tutorial-java-module)
 
 We will soon support other languages and more services on Azure IoT Edge.
 
@@ -95,6 +88,8 @@ You can also trigger following frequently-used commands in context menu.
 - [Deploy Azure IoT Edge modules](https://docs.microsoft.com/azure/iot-edge/how-to-deploy-modules-vscode)
 - [Debug C# module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-csharp-module)
 - [Debug Node.js module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-node-module)
+- [Debug Java module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-java-module)
+- [Debug Python module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-python-module)
 - [Debug C# Functions module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-csharp-function)
 - [CI/CD in VSTS](https://docs.microsoft.com/azure/iot-edge/how-to-ci-cd)
 

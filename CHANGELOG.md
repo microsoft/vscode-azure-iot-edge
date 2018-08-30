@@ -1,4 +1,9 @@
 # Change Log
+## 1.3.0 - 2018-08-30
+### Added
+* Support Java module type in add module
+* Support debug Python module (amd64)
+
 ## 1.2.0 - 2018-08-09
 ### Changed
 * `Azure IoT Edge: Build IoT Edge Solution` does not push images anymore

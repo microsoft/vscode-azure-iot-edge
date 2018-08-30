@@ -89,6 +89,7 @@ You can also trigger following frequently-used commands in context menu.
 - [Debug C# module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-csharp-module)
 - [Debug Node.js module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-node-module)
 - [Debug Java module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-java-module)
+- [Debug Python module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-python-module)
 - [Debug C# Functions module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-csharp-function)
 - [CI/CD in VSTS](https://docs.microsoft.com/azure/iot-edge/how-to-ci-cd)
 

@@ -1,0 +1,52 @@
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI";
+}
+
+h1,
+h2,
+h3 {
+    /* color: red; */
+}
+
+body {
+    background: #1E1E1E;
+    color: white;
+}
+
+#app {
+    margin-left: 50px;
+}
+
+#main-content {
+    width: 75%;
+    float: left;
+}
+
+.module {
+    float: left;
+    background-color: white;
+    width: 180px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.module-img img {
+    max-width: 100px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.module-title {
+    color: black;
+}
+
+.module-description {
+    color: gray;
+}
+
+#sidebar {
+    width: 20%;
+    float: left;
+}

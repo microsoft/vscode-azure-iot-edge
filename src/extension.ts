@@ -11,6 +11,7 @@ import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
+import { Marketplace } from "./edge/marketplace";
 import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionItemProvider";
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
@@ -22,6 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const edgeManager = new EdgeManager(context);
     const containerManager = new ContainerManager();
+    const marketplace = new Marketplace(context);
 
     Utility.registerDebugTelemetryListener();
 
@@ -125,6 +127,12 @@ export function activate(context: vscode.ExtensionContext) {
         "azure-iot-edge.setModuleCred",
         (): Promise<void> => {
             return edgeManager.setModuleCred(outputChannel);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.showMarketplace",
+        (): Promise<void> => {
+            return marketplace.show();
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

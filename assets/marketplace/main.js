@@ -11,6 +11,7 @@ var app = new Vue({
     el: '#app',
     data: {
         message: 'Hello Vue!',
+        searchInput: '',
         module: {},
         moduleName: '',
         modules: [{
@@ -39,9 +40,16 @@ var app = new Vue({
             };
         },
         importModule: function () {
-            alert(this.moduleName)
+            alert(this.moduleName);
         }
-    }
+    },
+    computed: {
+        filteredModules: function () {
+          return this.modules.filter(module => {
+            return module.title.toLowerCase().includes(this.searchInput.toLowerCase());
+          });
+        }
+      }
 });
 
 const vscode = acquireVsCodeApi();

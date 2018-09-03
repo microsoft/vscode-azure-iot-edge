@@ -40,10 +40,17 @@ body {
 
 .module-title {
     color: black;
+    text-align: center;
 }
 
 .module-description {
     color: gray;
+}
+
+#module-detail {
+    color: red;
+    position: absolute;
+    bottom: 0;
 }
 
 #sidebar {

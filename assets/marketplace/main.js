@@ -12,9 +12,15 @@ var app = new Vue({
     data: {
         message: 'Hello Vue!',
         searchInput: '',
-        module: {},
+        selectedModule: {},
         moduleName: '',
-        modules: [{
+        modules: [],
+        port: document.getElementById('app').getAttribute('data-port')
+    },
+    created: async function () {
+        // `this` points to the vm instance
+        console.log('a is: ' + this.port);
+        this.modules = [{
                 id: '1',
                 title: 'Temp Sensor',
                 description: 'For horizontal centering, you could either add text-align: center to .... '
@@ -24,16 +30,13 @@ var app = new Vue({
                 title: 'SQL Server',
                 description: 'For horizontal centering, you could either add text-align: center to .... '
             }
-        ],
-        port: document.getElementById('app').getAttribute('data-port')
-    },
-    created: function () {
-        // `this` points to the vm instance
-        console.log('a is: ' + this.port)
+        ];
+        const a = await axios.get('https://api.coindesk.com/v1/bpi/currentprice.json');
+        console.log(a.data.bpi);
     },
     methods: {
         showModule: function (id) {
-            this.module = {
+            this.selectedModule = {
                 id,
                 name: 'MySQL',
                 description: 'For horizontal centering, you could either add text-align: center to .... '
@@ -45,11 +48,11 @@ var app = new Vue({
     },
     computed: {
         filteredModules: function () {
-          return this.modules.filter(module => {
-            return module.title.toLowerCase().includes(this.searchInput.toLowerCase());
-          });
+            return this.modules.filter(module => {
+                return module.title.toLowerCase().includes(this.searchInput.toLowerCase());
+            });
         }
-      }
+    }
 });
 
 const vscode = acquireVsCodeApi();

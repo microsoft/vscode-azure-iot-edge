@@ -1,0 +1,64 @@
+{
+    "items": [
+        {
+            "name": "Simulated Temperature Sensor",
+            "id": "1",
+            "iconUri": "",
+            "specialArtifacts": [
+                {
+                    "name": "iot-edge-metadata.json",
+                    "uri": "/api/v1/metadata/1.json",
+                    "type": "custom"
+                }
+            ]
+        },
+        {
+            "name": "Modbus",
+            "id": "2",
+            "iconUri": "",
+            "specialArtifacts": [
+                {
+                    "name": "iot-edge-metadata.json",
+                    "uri": "/api/v1/metadata/2.json",
+                    "type": "custom"
+                }
+            ]
+        },
+        {
+            "name": "OPC Publisher",
+            "id": "3",
+            "iconUri": "",
+            "specialArtifacts": [
+                {
+                    "name": "iot-edge-metadata.json",
+                    "uri": "/api/v1/metadata/3.json",
+                    "type": "custom"
+                }
+            ]
+        },
+        {
+            "name": "OPC Reverse Proxy Module",
+            "id": "4",
+            "iconUri": "",
+            "specialArtifacts": [
+                {
+                    "name": "iot-edge-metadata.json",
+                    "uri": "/api/v1/metadata/4.json",
+                    "type": "custom"
+                }
+            ]
+        },
+        {
+            "name": "SQL Server",
+            "id": "5",
+            "iconUri": "",
+            "specialArtifacts": [
+                {
+                    "name": "iot-edge-metadata.json",
+                    "uri": "/api/v1/metadata/5.json",
+                    "type": "custom"
+                }
+            ]
+        }
+    ]
+}

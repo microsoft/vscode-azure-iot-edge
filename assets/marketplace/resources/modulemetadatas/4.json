@@ -1,0 +1,15 @@
+{
+    "containerUri": "microsoft/iot-edge-opc-proxy",
+    "tagsOrDigests": [
+        "1.0.4"
+    ],
+    "routes": [],
+    "twins": [],
+    "createOptions": {
+        "Hostname": "prx-test",
+        "Cmd": [
+            "-c",
+            "\"<your_iothubowner_connectionstring>\""
+        ]
+    }
+}

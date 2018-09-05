@@ -1,55 +1,39 @@
-Vue.component('button-counter', {
-    data: function () {
-        return {
-            count: 0
-        };
-    },
-    template: '<button v-on:click="count++">You clicked me {{ count }} times.</button>'
-});
-
-var app = new Vue({
+const app = new Vue({
     el: '#app',
     data: {
         message: 'Hello Vue!',
         searchInput: '',
         selectedModule: {},
+        selectedTag: "",
         moduleName: '',
         modules: [],
-        port: document.getElementById('app').getAttribute('data-port')
+        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:54092" : document.getElementById('app').getAttribute('data-endpoint')
     },
     created: async function () {
-        // `this` points to the vm instance
-        console.log('a is: ' + this.port);
-        this.modules = [{
-                id: '1',
-                title: 'Temp Sensor',
-                description: 'For horizontal centering, you could either add text-align: center to .... '
-            },
-            {
-                id: '222',
-                title: 'SQL Server',
-                description: 'For horizontal centering, you could either add text-align: center to .... '
-            }
-        ];
-        const a = await axios.get('https://api.coindesk.com/v1/bpi/currentprice.json');
-        console.log(a.data.bpi);
+        this.modules = await this.getModules();
     },
     methods: {
-        showModule: function (id) {
-            this.selectedModule = {
-                id,
-                name: 'MySQL',
-                description: 'For horizontal centering, you could either add text-align: center to .... '
-            };
+        getModules: async function () {
+            return (await axios.get(`${this.endpoint}/api/v1/modules`)).data.items;
+        },
+        getModuleMetadata: async function (module) {
+            return (await axios.get(`${this.endpoint}/api/v1/modules/${module.id}?uri=${encodeURIComponent(module.metaUri)}`)).data;
+        },
+        showModule: async function (module) {
+            // this.selectedModule.id = '';
+            const metadata = await this.getModuleMetadata(module);
+            this.selectedModule = Object.assign({}, module);
+            this.selectedModule.metadata = metadata;
+            this.selectedTag = this.selectedModule.metadata.tagsOrDigests[0];
         },
         importModule: function () {
-            alert(this.moduleName);
+            alert(this.moduleName + " ~ " + this.selectedModule.metadata.containerUri + " ~ " + this.selectedTag);
         }
     },
     computed: {
         filteredModules: function () {
             return this.modules.filter(module => {
-                return module.title.toLowerCase().includes(this.searchInput.toLowerCase());
+                return module.name.toLowerCase().includes(this.searchInput.toLowerCase());
             });
         }
     }

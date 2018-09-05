@@ -48,7 +48,10 @@ export class LocalServer {
 
     private initApp() {
         this.app = express();
-        this.app = express();
+        this.app.all("*", (req, res, next) => {
+            res.setHeader("Access-Control-Allow-Origin", "*");
+            next();
+        });
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: true}));
         this.app.use("/", this.router);

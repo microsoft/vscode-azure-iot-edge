@@ -11,11 +11,11 @@ import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
-import { Marketplace } from "./edge/marketplace";
 import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionItemProvider";
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
 import { ConfigHoverProvider } from "./intelliSense/configHoverProvider";
+import { Marketplace } from "./marketplace/marketplace";
 import { IDeviceItem } from "./typings/IDeviceItem";
 
 export function activate(context: vscode.ExtensionContext) {

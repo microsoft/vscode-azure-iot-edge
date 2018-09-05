@@ -11,22 +11,54 @@ var app = new Vue({
     el: '#app',
     data: {
         message: 'Hello Vue!',
-        modules: [{
-                title: 'Foo',
-                description: "aaa"
+        searchInput: '',
+        selectedModule: {},
+        moduleName: '',
+        modules: [],
+        port: document.getElementById('app').getAttribute('data-port')
+    },
+    created: async function () {
+        // `this` points to the vm instance
+        console.log('a is: ' + this.port);
+        this.modules = [{
+                id: '1',
+                title: 'Temp Sensor',
+                description: 'For horizontal centering, you could either add text-align: center to .... '
             },
             {
-                title: 'Bar',
-                description: "aaa"
+                id: '222',
+                title: 'SQL Server',
+                description: 'For horizontal centering, you could either add text-align: center to .... '
             }
-        ]
+        ];
+        const a = await axios.get('https://api.coindesk.com/v1/bpi/currentprice.json');
+        console.log(a.data.bpi);
+    },
+    methods: {
+        showModule: function (id) {
+            this.selectedModule = {
+                id,
+                name: 'MySQL',
+                description: 'For horizontal centering, you could either add text-align: center to .... '
+            };
+        },
+        importModule: function () {
+            alert(this.moduleName);
+        }
+    },
+    computed: {
+        filteredModules: function () {
+            return this.modules.filter(module => {
+                return module.title.toLowerCase().includes(this.searchInput.toLowerCase());
+            });
+        }
     }
 });
 
 const vscode = acquireVsCodeApi();
 
 async function getData(type, data) {
-    
+
     data.type = type;
     vscode.postMessage(data);
     return new Promise((resolve) => {
@@ -40,13 +72,13 @@ async function getData(type, data) {
 }
 
 async function f2() {
-    let data = await getData("aa", {
-        "aa": 1
+    let data = await getData('aa', {
+        'aa': 1
     });
     console.log(111)
     console.log(data);
-    let data2 = await getData("bb", {
-        "vv": 1
+    let data2 = await getData('bb', {
+        'vv': 1
     });
     console.log(data2);
     console.log(222)

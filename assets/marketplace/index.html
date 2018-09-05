@@ -7,32 +7,50 @@
 </head>
 
 <body class="vscode-dark">
-    <div id="app">
-        <header>
-            <div id="title-area">
-                <h1>You are importing modules from Marketplace</h1>
-
-            </div>
-        </header>
+    <div id="app" data-port="8009">
         <div id="content">
             <div id="main-content">
+                <header>
+                    <div id="title-area">
+                        <h1>You are importing modules from Marketplace</h1>
+                        <input id="search-box" v-model="searchInput" placeholder="Search">
+                    </div>
+                </header>
                 <div>
-                    <div v-for="module in modules" class="module" v-on:click="openLink(example.tutorial)">
-                        <div class="module-img"><img src="https://vsciot-vscode.gallerycdn.vsassets.io/extensions/vsciot-vscode/azure-iot-toolkit/1.3.0/1535443919116/Microsoft.VisualStudio.Services.Icons.Default"></div>
+                    <div v-for="module in filteredModules" class="module" :class="{selected:selectedModule.id == module.id}" v-on:click="showModule(module.id)">
+                        <div class="module-img">
+                            <img src="https://vsciot-vscode.gallerycdn.vsassets.io/extensions/vsciot-vscode/azure-iot-toolkit/1.3.0/1535443919116/Microsoft.VisualStudio.Services.Icons.Default">
+                        </div>
                         <div class="module-title">{{ module.title }}</div>
                         <div class="module-description">{{ module.description }}</div>
                     </div>
                 </div>
-                <footer>
-
-                </footer>
             </div>
-            <div id="sidebar">
-                aaaa
+            <div id="module-detail" v-if="selectedModule.id">
+                {{ selectedModule.id }}
+                <br/> {{ selectedModule.name }}
+                <br/> {{ selectedModule.description }}
+                <br/> aaaaccccccccccccccccccccccccccccccccccccc
+                <br/> aaaaccccccccccccccccccccccccccccccccccccc
+                <br/> aaaaccccccccccccccccccccccccccccccccccccc
+                <br/> aaaaccccccccccccccccccccccccccccccccccccc
+                <br/> aaaaccccccccccccccccccccccccccccccccccccc
+                <br/>
+                <span>Module Name: </span>
+                <input v-model="moduleName">
+                <div>
+                    By importing the {{ selectedModule.name }} Module, I agree!
+                    <button v-on:click="selectedModule.id=''">Cancel</button>
+                    <button v-on:click="importModule()">Import</button>
+                </div>
             </div>
+        </div>
+        <div id="sidebar">
+            aaaa
         </div>
     </div>
     <script type="text/javascript" src="https://unpkg.com/vue@2.5.17/dist/vue.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/marketplace/main.js"></script>
     <script type="text/javascript" src="./main.js"></script>
 </body>

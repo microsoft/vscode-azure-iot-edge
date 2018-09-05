@@ -78,6 +78,7 @@ export class LocalServer {
                     id: module.id,
                     iconUri: module.iconUri,
                     metaUri: uri,
+                    desc: module.desc,
                 };
                 resModuleList.push(moduleDesc);
             });

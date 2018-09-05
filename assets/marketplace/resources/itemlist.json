@@ -1,0 +1,69 @@
+{
+    "items": [
+        {
+            "name": "Simulated Temperature Sensor",
+            "id": "1",
+            "iconUri": "https://d5be.wpc.azureedge.net/80D5BE/gallery-df/cdn/2015-02-24/dogfood20161101-microsoft-windowsazure-gallery/storeubb.edge-simulated-temperature-sensorfree.1.0.0/Icons/Large.png",
+            "desc": "Edge module that simulates a temperature sensor.",
+            "specialArtifacts": [
+                {
+                    "name": "iot-edge-metadata.json",
+                    "uri": "/api/v1/metadata/1.json",
+                    "type": "custom"
+                }
+            ]
+        },
+        {
+            "name": "Modbus",
+            "id": "2",
+            "iconUri": "https://d5be.wpc.azureedge.net/80D5BE/gallery-df/cdn/2015-02-24/dogfood20161101-microsoft-windowsazure-gallery/storeubb.azureiotedge-modbus-tcpfree.1.0.0/Icons/Large.png",
+            "desc": "Edge module that reads data from Modbus devices and forwards it.",
+            "specialArtifacts": [
+                {
+                    "name": "iot-edge-metadata.json",
+                    "uri": "/api/v1/metadata/2.json",
+                    "type": "custom"
+                }
+            ]
+        },
+        {
+            "name": "OPC Publisher",
+            "id": "3",
+            "iconUri": "https://d5be.wpc.azureedge.net/80D5BE/gallery-df/cdn/2015-02-24/dogfood20161101-microsoft-windowsazure-gallery/storeubb.iot-edge-opc-publisherfree.1.0.0/Icons/Large.png",
+            "desc": "Edge module connects to existing OPC UA servers and publishes JSON encoded telemetry data from these.",
+            "specialArtifacts": [
+                {
+                    "name": "iot-edge-metadata.json",
+                    "uri": "/api/v1/metadata/3.json",
+                    "type": "custom"
+                }
+            ]
+        },
+        {
+            "name": "OPC Reverse Proxy Module",
+            "id": "4",
+            "iconUri": "https://d5be.wpc.azureedge.net/80D5BE/gallery-df/cdn/2015-02-24/dogfood20161101-microsoft-windowsazure-gallery/storeubb.iot-edge-opc-proxyfree.1.0.0/Icons/Large.png",
+            "desc": "Edge module that connects client applications and devices in the local gateway network, allowing dev",
+            "specialArtifacts": [
+                {
+                    "name": "iot-edge-metadata.json",
+                    "uri": "/api/v1/metadata/4.json",
+                    "type": "custom"
+                }
+            ]
+        },
+        {
+            "name": "SQL Server",
+            "id": "5",
+            "iconUri": "https://d5be.wpc.azureedge.net/80D5BE/gallery-df/cdn/2015-02-24/dogfood20161101-microsoft-windowsazure-gallery/storeubb.mssql-server-linuxlinux.1.0.0/Icons/Large.png",
+            "desc": "Microsoft SQL Server 2017 available as an Azure IoT Edge module",
+            "specialArtifacts": [
+                {
+                    "name": "iot-edge-metadata.json",
+                    "uri": "/api/v1/metadata/5.json",
+                    "type": "custom"
+                }
+            ]
+        }
+    ]
+}

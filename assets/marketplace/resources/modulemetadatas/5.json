@@ -1,0 +1,39 @@
+{
+    "containerUri": "microsoft/mssql-server-linux",
+    "tagsOrDigests": [
+        "2017-latest"
+    ],
+    "routes": [
+        {
+            "name": "input1",
+            "value": "input"
+        },
+        {
+            "name": "output1",
+            "value": "output"
+        }
+    ],
+    "twins": [],
+    "createOptions": {
+        "Env": [
+            "ACCEPT_EULA=Y",
+            "MSSQL_SA_PASSWORD=Strong!Passw0rd"
+        ],
+        "HostConfig": {
+            "Mounts": [
+                {
+                    "Target": "/var/opt/mssql",
+                    "Source": "sqlVolume",
+                    "Type": "volume"
+                }
+            ],
+            "PortBindings": {
+                "1433/tcp": [
+                    {
+                        "HostPort": "1401"
+                    }
+                ]
+            }
+        }
+    }
+}

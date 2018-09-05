@@ -356,7 +356,9 @@
     "mocha": "^5.1.1",
     "tslint": "^5.7.0",
     "typescript": "^2.0.3",
-    "vscode": "^1.1.17"
+    "vscode": "^1.1.17",
+    "@types/express": "^4.11.1",
+    "@types/body-parser": "^1.16.8"
   },
   "dependencies": {
     "azure-arm-containerregistry": "^2.2.0",
@@ -369,7 +371,9 @@
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "strip-json-comments": "^2.0.1",
-    "vscode-extension-telemetry": "0.0.18"
+    "vscode-extension-telemetry": "0.0.18",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3"
   },
   "extensionDependencies": [
     "ms-vscode.azure-account",

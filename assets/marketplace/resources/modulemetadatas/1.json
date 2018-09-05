@@ -1,0 +1,20 @@
+{
+    "containerUri": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor",
+    "tagsOrDigests": [
+        "1.0",
+        "1.0.1",
+        "1.0.0"
+    ],
+    "routes": [
+        {
+            "name": "input1",
+            "value": "input"
+        },
+        {
+            "name": "output1",
+            "value": "output"
+        }
+    ],
+    "twins": [],
+    "createOptions": null
+}

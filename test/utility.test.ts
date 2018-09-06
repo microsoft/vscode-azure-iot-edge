@@ -1,9 +1,9 @@
 import * as assert from "assert";
 import * as fse from "fs-extra";
 import * as path from "path";
+import { BuildSettings } from "../src/common/buildSettings";
 import { Constants } from "../src/common/constants";
 import { Utility } from "../src/common/utility";
-import { BuildSettings } from "../src/common/buildSettings";
 
 suite("utility tests", () => {
   test("expandEnv", async () => {
@@ -59,7 +59,7 @@ suite("utility tests", () => {
                               "restartPolicy": "always",\
                               "settings": {\
                                 "image": "%MODULE_IMAGE%",\
-                                "createOptions": ""\
+                                "createOptions": "{}"\
                               }\
                             }\
                           }';
@@ -75,7 +75,7 @@ suite("utility tests", () => {
                               "restartPolicy": "always",\
                               "settings": {\
                                 "image": "${MODULES.SampleModule.amd64}",\
-                                "createOptions": ""\
+                                "createOptions": "{}"\
                               }\
                             }\
                           }';

@@ -315,7 +315,8 @@ export class EdgeManager {
         // TODO command to create module;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
-                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Module");
+                // TODO: uncommment the followling line after template released.
+                // await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Module");
                 await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.CSHARP_FUNCTION:
@@ -468,7 +469,7 @@ export class EdgeManager {
         let repositoryName: string = "";
         let imageName: string = "";
         let moduleTwin: object;
-        let createOptions: string = "";
+        let createOptions: string = "{}";
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
             imageName = await acrManager.selectAcrImage();
@@ -482,7 +483,7 @@ export class EdgeManager {
             const JobInfo: any = await saManager.getJobInfo(job);
             imageName = JobInfo.settings.image;
             moduleTwin = JobInfo.twin.content;
-            createOptions = JobInfo.settings.createOptions ? JSON.stringify(JobInfo.settings.createOptions) : "";
+            createOptions = JobInfo.settings.createOptions ? JSON.stringify(JobInfo.settings.createOptions) : "{}";
         } else {
             repositoryName = await this.inputRepository(module);
             imageName = `\${${Utility.getModuleKey(module, "amd64")}}`;

@@ -384,6 +384,7 @@
   },
   "dependencies": {
     "azure-arm-containerregistry": "^2.2.0",
+    "azure-arm-machinelearningservices": "^1.0.0-preview",
     "azure-arm-streamanalytics": "^1.0.0-preview",
     "dotenv": "^5.0.1",
     "download-git-repo": "^1.0.2",

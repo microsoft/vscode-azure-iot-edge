@@ -13,7 +13,6 @@ export class ModuleInfo {
         this.repositoryName = repositoryName;
         this.imageName = imageName;
         this.moduleTwin = moduleTwin;
-        // TODO: Change to json object
         this.createOptions = createOptions ? createOptions : {};
         this.debugImageName = debugImageName;
         this.debugCreateOptions = debugCreateOptions ? debugCreateOptions : {};

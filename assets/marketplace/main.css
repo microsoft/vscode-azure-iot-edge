@@ -14,10 +14,22 @@ body {
     color: white;
 }
 
-html,body{height:100%;margin:0;padding:0}
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0
+}
+
+#app {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
 
 #content {
-    min-height:100%;
+    position: relative;
+    display: table-cell;
 }
 
 #title-area {
@@ -32,16 +44,13 @@ html,body{height:100%;margin:0;padding:0}
 
 #main-content {
     padding-left: 50px;
-    width: 75%;
-    min-height: 1px;
-    float: left;
 }
 
 .module {
     float: left;
     background-color: white;
-    width: 180px;
-    padding: 5px;
+    width: 200px;
+    padding: 10px;
     margin-right: 20px;
     margin-bottom: 20px;
     border-width: 5px;
@@ -52,24 +61,47 @@ html,body{height:100%;margin:0;padding:0}
     border-color: aquamarine;
 }
 
-.module-img img {
+.module img {
     max-width: 100px;
+    padding: 16px 0;
     display: block;
     margin-left: auto;
     margin-right: auto;
 }
 
-.module-title {
+.module .title {
+    position: relative;
     color: black;
     text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-.module-description {
+.module .title:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 20%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
+}
+
+.module .description {
+    margin-top: 16px;
+    font-size: 15px;
     color: gray;
+    display: -webkit-box;
+    height: 54px;
+    line-height: 1.2;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #module-detail {
-    width: 75%;
+    width: 100%;
     padding: 30px;
     background-color: #404040;
     color: white;
@@ -77,17 +109,62 @@ html,body{height:100%;margin:0;padding:0}
     bottom: 0;
 }
 
+#module-detail .title {
+    color: #D9D9D9;
+    font-size: 20px;
+}
+
+#module-detail .description {
+    color: #B6B6B6;
+    margin: 10px 0;
+    font-size: 15px;
+}
+
+#module-detail .inputs {
+    color: #D9D9D9
+}
+
+#module-detail .input {
+    margin: 5px 0;
+}
+
+#module-detail .input label {
+    display: block;
+    width: 200px;
+    float: left;
+}
+
+#module-detail input,
+#module-detail select  {
+    background-color: #868686;
+    border-color: #868686;
+    color: #BFBFBF;
+    border-style: none;
+}
+
+#module-detail .action {
+    color: #B6B6B6;
+    margin-top: 10px;
+}
+
+#module-detail a {
+    color: #3E9CD2;
+}
+
 #module-detail button {
     margin: 5px;
+    padding: 10px 30px;
     float: right;
+    color: white;
+    background-color: #1C4E7E;
+    border-style: none;
 }
 
 #sidebar {
     width: 25%;
-    float: left;
     background-color: #404040;
-    border-style: solid;
+    /* border-style: solid;
     border-width: 5px;
-    border-color: red;
-    height: 1000px;
+    border-color: red; */
+    display: table-cell;
 }

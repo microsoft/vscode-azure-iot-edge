@@ -7,7 +7,7 @@ const app = new Vue({
         selectedTag: "",
         moduleName: '',
         modules: [],
-        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:54092" : document.getElementById('app').getAttribute('data-endpoint')
+        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:63488" : document.getElementById('app').getAttribute('data-endpoint')
     },
     created: async function () {
         this.modules = await this.getModules();

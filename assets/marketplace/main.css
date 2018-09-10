@@ -3,12 +3,6 @@
     font-family: "Segoe UI";
 }
 
-h1,
-h2,
-h3 {
-    /* color: red; */
-}
-
 body {
     background: #1E1E1E;
     color: white;
@@ -105,19 +99,20 @@ body {
     padding: 30px;
     background-color: #404040;
     color: white;
-    position: absolute;
+    position: fixed;
     bottom: 0;
+    font-size: 20px;
 }
 
 #module-detail .title {
     color: #D9D9D9;
-    font-size: 20px;
+    font-size: 30px;
 }
 
 #module-detail .description {
     color: #B6B6B6;
     margin: 10px 0;
-    font-size: 15px;
+    font-size: 25px;
 }
 
 #module-detail .inputs {
@@ -135,10 +130,10 @@ body {
 }
 
 #module-detail input,
-#module-detail select  {
+#module-detail select {
     background-color: #868686;
     border-color: #868686;
-    color: #BFBFBF;
+    color: #D9D9D9;
     border-style: none;
 }
 
@@ -160,8 +155,15 @@ body {
     border-style: none;
 }
 
+#module-detail .error {
+    margin: 5px;
+    color: red;
+    float: right;
+    clear: both;
+}
+
 #sidebar {
-    width: 25%;
+    width: 0%;
     background-color: #404040;
     /* border-style: solid;
     border-width: 5px;

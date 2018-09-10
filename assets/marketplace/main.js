@@ -1,3 +1,10 @@
+let vscode;
+try {
+    vscode = acquireVsCodeApi();
+} catch (error) {
+    
+}
+
 const app = new Vue({
     el: '#app',
     data: {
@@ -7,7 +14,8 @@ const app = new Vue({
         selectedTag: "",
         moduleName: '',
         modules: [],
-        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:63488" : document.getElementById('app').getAttribute('data-endpoint')
+        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:57098" : document.getElementById('app').getAttribute('data-endpoint'),
+        errorMessage: "",
     },
     created: async function () {
         this.modules = await this.getModules();
@@ -21,13 +29,23 @@ const app = new Vue({
         },
         showModule: async function (module) {
             // this.selectedModule.id = '';
+            this.errorMessage = "";
             const metadata = await this.getModuleMetadata(module);
             this.selectedModule = Object.assign({}, module);
             this.selectedModule.metadata = metadata;
             this.selectedTag = this.selectedModule.metadata.tagsOrDigests[0];
         },
         importModule: function () {
-            alert(this.moduleName + " ~ " + this.selectedModule.metadata.containerUri + " ~ " + this.selectedTag);
+            this.errorMessage = "";
+            if (!this.moduleName) {
+                this.errorMessage = "Module name could not be empty";
+                return;
+            }
+            vscode.postMessage({
+                moduleName: this.moduleName,
+                imageName: this.selectedModule.metadata.containerUri + ":" + this.selectedTag,
+                createOptions: this.selectedModule.metadata.createOptions ? JSON.stringify(this.selectedModule.metadata.createOptions) : "",
+            });
         }
     },
     computed: {
@@ -39,12 +57,10 @@ const app = new Vue({
     }
 });
 
-const vscode = acquireVsCodeApi();
-
 async function getData(type, data) {
 
     data.type = type;
-    vscode.postMessage(data);
+    // vscode.postMessage(data);
     return new Promise((resolve) => {
         window.addEventListener('message', event => {
 

@@ -16,6 +16,7 @@ import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AcrManager } from "../container/acrManager";
 import { StreamAnalyticsManager } from "../container/streamAnalyticsManager";
+import { Marketplace } from "../marketplace/marketplace";
 import { IDeviceItem } from "../typings/IDeviceItem";
 
 export class EdgeManager {
@@ -244,8 +245,19 @@ export class EdgeManager {
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
         const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
         const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
-        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
-        const { repositoryName, imageName, moduleTwin, createOptions } = await this.inputImage(moduleName, template);
+
+        let moduleName: string = "";
+        let repositoryName: string = "";
+        let imageName: string = "";
+        let moduleTwin: object;
+        let createOptions: string = "";
+        if (template === Constants.MARKETPLACE_MODULE) {
+            const marketplace = new Marketplace(this.context);
+            ({ moduleName, imageName, createOptions } = await marketplace.importModule());
+        } else {
+            moduleName = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
+            ({ repositoryName, imageName, moduleTwin, createOptions } = await this.inputImage(moduleName, template));
+        }
 
         if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
             templateJson.modulesContent[moduleName] = moduleTwin;
@@ -258,7 +270,7 @@ export class EdgeManager {
             runtimeSettings.registryCredentials = registries;
         }
 
-        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
+        let result = { registries: {}, usernameEnv: undefined, passwordEnv: undefined };
         if (template !== Constants.STREAM_ANALYTICS) {
             result = await this.updateRegistrySettings(address, registries, envFilePath);
         }
@@ -272,7 +284,7 @@ export class EdgeManager {
             "restartPolicy": "always",
             "settings": {
               "image": "${imageName}",
-              "createOptions": "${createOptions.replace(/"/g, '\\"')}"
+              "createOptions": "${createOptions.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"
             }
           }`;
         modules[moduleName] = JSON.parse(newModuleSection);
@@ -353,7 +365,7 @@ export class EdgeManager {
                 const packageName = groupId;
                 await Executor.executeCMD(outputChannel,
                     "mvn",
-                    { cwd: `${parent}`, shell: true},
+                    { cwd: `${parent}`, shell: true },
                     "archetype:generate",
                     '-DarchetypeGroupId="com.microsoft.azure"',
                     '-DarchetypeArtifactId="azure-iot-edge-archetype"',
@@ -454,7 +466,7 @@ export class EdgeManager {
     private async inputJavaModuleGrpId(): Promise<string> {
         const dftValue = "com.edgemodule";
         return await Utility.showInputBox("Group ID",
-                "Provide value for groupId", this.validateGroupId, dftValue);
+            "Provide value for groupId", this.validateGroupId, dftValue);
     }
 
     private async inputRepository(module: string): Promise<string> {
@@ -622,6 +634,10 @@ export class EdgeManager {
             {
                 label: Constants.EXISTING_MODULE,
                 description: Constants.EXISTING_MODULE_DESCRIPTION,
+            },
+            {
+                label: Constants.MARKETPLACE_MODULE,
+                description: Constants.MARKETPLACE_MODULE_DESCRIPTION,
             },
         ];
         if (label === undefined) {

@@ -47,13 +47,18 @@
                     <button v-on:click="selectedModule.id=''">Cancel</button>
                     <button v-on:click="importModule()">Import</button>
                 </div>
+                <div class="error" v-if="errorMessage">
+                    {{ errorMessage }}
+                </div>
             </div>
         </div>
         <div id="sidebar">
         </div>
     </div>
-    <script type="text/javascript" src="https://unpkg.com/vue@2.5.17/dist/vue.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/marketplace/vue.min.js"></script>
+    <script type="text/javascript" src="./vue.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/marketplace/axios.min.js"></script>
+    <script type="text/javascript" src="./axios.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/marketplace/main.js"></script>
     <script type="text/javascript" src="./main.js"></script>
 </body>

@@ -12,6 +12,8 @@ const PROBABILITY = 0.15;
 const SESSION_COUNT_THRESHOLD = 2;
 const SESSION_COUNT_KEY = "nps/sessionCount";
 const LAST_SESSION_DATE_KEY = "nps/lastSessionDate";
+const TAKE_SURVEY_DATE_KEY = "nps/takeSurveyDate";
+const DONT_SHOW_DATE_KEY = "nps/dontShowDate";
 const SKIP_VERSION_KEY = "nps/skipVersion";
 const IS_CANDIDATE_KEY = "nps/isCandidate";
 
@@ -57,6 +59,7 @@ export class NPS {
                         `${NPS_SURVEY_URL}?o=${encodeURIComponent(process.platform)}&v=${encodeURIComponent(extensionVersion)}&m=${encodeURIComponent(env.machineId)}`));
                 await globalState.update(IS_CANDIDATE_KEY, false);
                 await globalState.update(SKIP_VERSION_KEY, extensionVersion);
+                await globalState.update(TAKE_SURVEY_DATE_KEY, date);
             },
         };
         const remind = {
@@ -72,6 +75,7 @@ export class NPS {
                 TelemetryClient.sendEvent("nps.survey/dontShowAgain");
                 await globalState.update(IS_CANDIDATE_KEY, false);
                 await globalState.update(SKIP_VERSION_KEY, extensionVersion);
+                await globalState.update(DONT_SHOW_DATE_KEY, date);
             },
         };
         TelemetryClient.sendEvent("nps.survey/userAsked");

@@ -7,17 +7,17 @@ import { commands, env, ExtensionContext, extensions, Uri, window } from "vscode
 import { Constants } from "./constants";
 import { TelemetryClient } from "./telemetryClient";
 
-const NPS_SURVEY_URL = "https://www.surveymonkey.com/r/JT2MQK5";
+const NSAT_SURVEY_URL = "https://www.surveymonkey.com/r/JT2MQK5";
 const PROBABILITY = 0.5;
 const SESSION_COUNT_THRESHOLD = 2;
-const SESSION_COUNT_KEY = "nps/sessionCount";
-const LAST_SESSION_DATE_KEY = "nps/lastSessionDate";
-const TAKE_SURVEY_DATE_KEY = "nps/takeSurveyDate";
-const DONT_SHOW_DATE_KEY = "nps/dontShowDate";
-const SKIP_VERSION_KEY = "nps/skipVersion";
-const IS_CANDIDATE_KEY = "nps/isCandidate";
+const SESSION_COUNT_KEY = "nsat/sessionCount";
+const LAST_SESSION_DATE_KEY = "nsat/lastSessionDate";
+const TAKE_SURVEY_DATE_KEY = "nsat/takeSurveyDate";
+const DONT_SHOW_DATE_KEY = "nsat/dontShowDate";
+const SKIP_VERSION_KEY = "nsat/skipVersion";
+const IS_CANDIDATE_KEY = "nsat/isCandidate";
 
-export class NPS {
+export class NSAT {
     public static async takeSurvey({ globalState }: ExtensionContext) {
         const skipVersion = globalState.get(SKIP_VERSION_KEY, "");
         if (skipVersion) {
@@ -53,10 +53,10 @@ export class NPS {
         const take = {
             title: "Take Survey",
             run: async () => {
-                TelemetryClient.sendEvent("nps.survey/takeShortSurvey");
+                TelemetryClient.sendEvent("nsat.survey/takeShortSurvey");
                 commands.executeCommand("vscode.open",
                     Uri.parse(
-                        `${NPS_SURVEY_URL}?o=${encodeURIComponent(process.platform)}&v=${encodeURIComponent(extensionVersion)}&m=${encodeURIComponent(env.machineId)}`));
+                        `${NSAT_SURVEY_URL}?o=${encodeURIComponent(process.platform)}&v=${encodeURIComponent(extensionVersion)}&m=${encodeURIComponent(env.machineId)}`));
                 await globalState.update(IS_CANDIDATE_KEY, false);
                 await globalState.update(SKIP_VERSION_KEY, extensionVersion);
                 await globalState.update(TAKE_SURVEY_DATE_KEY, date);
@@ -65,20 +65,20 @@ export class NPS {
         const remind = {
             title: "Remind Me Later",
             run: async () => {
-                TelemetryClient.sendEvent("nps.survey/remindMeLater");
+                TelemetryClient.sendEvent("nsat.survey/remindMeLater");
                 await globalState.update(SESSION_COUNT_KEY, 0);
             },
         };
         const never = {
             title: "Don't Show Again",
             run: async () => {
-                TelemetryClient.sendEvent("nps.survey/dontShowAgain");
+                TelemetryClient.sendEvent("nsat.survey/dontShowAgain");
                 await globalState.update(IS_CANDIDATE_KEY, false);
                 await globalState.update(SKIP_VERSION_KEY, extensionVersion);
                 await globalState.update(DONT_SHOW_DATE_KEY, date);
             },
         };
-        TelemetryClient.sendEvent("nps.survey/userAsked");
+        TelemetryClient.sendEvent("nsat.survey/userAsked");
         const button = await window.showInformationMessage("Do you mind taking a quick feedback survey about the Azure IoT Edge Extension for VS Code?", take, remind, never);
         await (button || remind).run();
     }

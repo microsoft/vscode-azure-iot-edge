@@ -6,7 +6,7 @@ import * as vscode from "vscode";
 import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
-import { NPS } from "./common/nps";
+import { NSAT } from "./common/nsat";
 import { TelemetryClient } from "./common/telemetryClient";
 import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
@@ -172,7 +172,7 @@ function initCommandAsync(context: vscode.ExtensionContext,
                 properties.errorMessage = errorData.message;
             }
             TelemetryClient.sendEvent(`${commandId}.end`, properties);
-            NPS.takeSurvey(context);
+            NSAT.takeSurvey(context);
         }
     }));
 }

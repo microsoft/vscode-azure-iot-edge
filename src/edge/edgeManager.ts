@@ -315,8 +315,7 @@ export class EdgeManager {
         // TODO command to create module;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
-                // TODO: uncommment the followling line after template released.
-                // await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Module");
+                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Module");
                 await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.CSHARP_FUNCTION:
@@ -358,7 +357,7 @@ export class EdgeManager {
                     "archetype:generate",
                     '-DarchetypeGroupId="com.microsoft.azure"',
                     '-DarchetypeArtifactId="azure-iot-edge-archetype"',
-                    `-DarchetypeVersion=1.0.0`,
+                    `-DarchetypeVersion=1.1.0`,
                     `-DgroupId="${groupId}"`,
                     `-DartifactId="${name}"`,
                     `-Dversion="1.0.0-SNAPSHOT"`,

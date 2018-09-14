@@ -12,6 +12,7 @@ import * as stripJsonComments from "strip-json-comments";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
+import { ModuleInfo } from "../common/moduleInfo";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AcrManager } from "../container/acrManager";
@@ -43,7 +44,9 @@ export class EdgeManager {
         await fse.copy(sourceGitIgnore, targetGitIgnore);
         await fse.mkdirs(targetModulePath);
         const templateFile = path.join(slnPath, Constants.deploymentTemplate);
+        const debugTemplateFile = path.join(slnPath, Constants.deploymentDebugTemplate);
         await fse.copy(path.join(sourceSolutionPath, Constants.deploymentTemplate), templateFile);
+        await fse.copy(path.join(sourceSolutionPath, Constants.deploymentTemplate), debugTemplateFile);
 
         await this.addModule(templateFile, outputChannel, true);
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
@@ -172,6 +175,44 @@ export class EdgeManager {
         Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
     }
 
+    public async selectDefaultPlatform(outputChannel: vscode.OutputChannel) {
+        const platforms: string[] = Utility.getConfiguration().get<string[]>("Platforms");
+        const defaultPlatform = await vscode.window.showQuickPick(platforms, { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
+        if (defaultPlatform) {
+            await Utility.setWorkspaceConfigurationProperty("DefaultPlatform", defaultPlatform);
+        }
+    }
+
+    private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: string }> {
+        let debugImageName = Utility.getModuleKeyNoPlatform(moduleName, true);
+        let debugCreateOptions = "";
+        switch (template) {
+            case Constants.LANGUAGE_CSHARP:
+                debugCreateOptions = "";
+                // check platform disable debug?
+                break;
+            case Constants.CSHARP_FUNCTION:
+                // check platform disable debug?
+                break;
+            case Constants.LANGUAGE_NODE:
+                debugCreateOptions = `{"ExposedPorts":{"9229/tcp":{}},"HostConfig":{"PortBindings":{"9229/tcp":[{"HostPort":"9229"}]}}}`;
+                break;
+            case Constants.LANGUAGE_C:
+                // check platform disable debug?
+                break;
+            case Constants.LANGUAGE_JAVA:
+                debugCreateOptions = `{"HostConfig":{"PortBindings":{"5005/tcp":[{"HostPort":"5005"}]}}}`;
+                break;
+            case Constants.LANGUAGE_PYTHON:
+                // check platform disable debug?
+                break;
+            default:
+                break;
+        }
+        debugImageName = Utility.getModuleKeyNoPlatform(moduleName, true);
+        return { debugImageName, debugCreateOptions };
+    }
+
     private async generateDebugSetting(srcSlnPath: string,
                                        language: string,
                                        moduleName: string,
@@ -230,6 +271,7 @@ export class EdgeManager {
                             isNewSolution: boolean): Promise<void> {
         const templateJson = Utility.updateSchema(await fse.readJson(templateFile));
         const slnPath: string = path.dirname(templateFile);
+
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
         const envFilePath = path.join(slnPath, Constants.envFile);
@@ -242,48 +284,19 @@ export class EdgeManager {
         }
 
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
-        const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
-        const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
-        const { repositoryName, imageName, moduleTwin, createOptions } = await this.inputImage(moduleName, template);
+        const moduleInfo: ModuleInfo = await this.inputImage(moduleName, template);
+        await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
+        const {usernameEnv, passwordEnv} = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, template, moduleInfo, isNewSolution);
 
-        if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
-            templateJson.modulesContent[moduleName] = moduleTwin;
+        const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
+        const debugTemplateEnv = {usernameEnv: undefined, passwordEnv: undefined};
+        if (templateDebugFile) {
+            const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
+            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, template, moduleInfo, isNewSolution, true);
+            debugTemplateEnv.usernameEnv = envs.usernameEnv;
+            debugTemplateEnv.passwordEnv = envs.passwordEnv;
         }
-
-        const address = await Utility.getRegistryAddress(repositoryName);
-        let registries = runtimeSettings.registryCredentials;
-        if (registries === undefined) {
-            registries = {};
-            runtimeSettings.registryCredentials = registries;
-        }
-
-        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
-        if (template !== Constants.STREAM_ANALYTICS) {
-            result = await this.updateRegistrySettings(address, registries, envFilePath);
-        }
-
-        await this.addModuleProj(targetModulePath, moduleName, repositoryName, template, outputChannel, extraProps);
-
-        const newModuleSection = `{
-            "version": "1.0",
-            "type": "docker",
-            "status": "running",
-            "restartPolicy": "always",
-            "settings": {
-              "image": "${imageName}",
-              "createOptions": "${createOptions.replace(/"/g, '\\"')}"
-            }
-          }`;
-        modules[moduleName] = JSON.parse(newModuleSection);
-        const newModuleToUpstream = `${moduleName}ToIoTHub`;
-        routes[newModuleToUpstream] = `FROM /messages/modules/${moduleName}/outputs/* INTO $upstream`;
-        if (isNewSolution) {
-            const tempSensorToModule = `sensorTo${moduleName}`;
-            routes[tempSensorToModule] =
-                `FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/${moduleName}/inputs/input1\")`;
-        }
-        await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
 
         const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleName, extraProps);
         if (debugGenerated) {
@@ -305,7 +318,60 @@ export class EdgeManager {
             const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
             vscode.window.showInformationMessage(`${moduleCreationMessage}'deployment.template.json' ${launchUpdated}`);
         }
-        await this.writeRegistryCredEnv(address, envFilePath, result.usernameEnv, result.passwordEnv);
+        const address = await Utility.getRegistryAddress(moduleInfo.repositoryName);
+        await this.writeRegistryCredEnv(address, envFilePath, usernameEnv, passwordEnv, debugTemplateEnv.usernameEnv, debugTemplateEnv.passwordEnv);
+    }
+
+    private async addModuleToDeploymentTemplate(templateJson: any, templateFile: string, envFilePath: string,
+                                                template: string, moduleInfo: ModuleInfo,
+                                                isNewSolution: boolean, isDebug: boolean = false): Promise<{usernameEnv: string, passwordEnv: string}> {
+        const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
+        const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
+        const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
+
+        if (template === Constants.STREAM_ANALYTICS && moduleInfo.moduleTwin) {
+            templateJson.modulesContent[moduleInfo.moduleName] = moduleInfo.moduleTwin;
+        }
+
+        const address = await Utility.getRegistryAddress(moduleInfo.repositoryName);
+        let registries = runtimeSettings.registryCredentials;
+        if (registries === undefined) {
+            registries = {};
+            runtimeSettings.registryCredentials = registries;
+        }
+
+        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
+        if (template !== Constants.STREAM_ANALYTICS) {
+            result = await this.updateRegistrySettings(address, registries, envFilePath);
+        }
+
+        // await this.addModuleProj(targetModulePath, moduleName, repositoryName, template, outputChannel, extraProps);
+
+        const imageName = isDebug ? moduleInfo.debugImageName : moduleInfo.imageName;
+        const createOptions = isDebug ? moduleInfo.debugCreateOptions : moduleInfo.createOptions;
+        const newModuleSection = `{
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${imageName}",
+              "createOptions": "${createOptions.replace(/"/g, '\\"')}"
+            }
+          }`;
+        modules[moduleInfo.moduleName] = JSON.parse(newModuleSection);
+        const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
+        routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
+        if (isNewSolution) {
+            const tempSensorToModule = `sensorTo${moduleInfo.moduleName}`;
+            routes[tempSensorToModule] =
+                `FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/${moduleInfo.moduleName}/inputs/input1\")`;
+        }
+        await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
+        return {
+            usernameEnv: result.usernameEnv,
+            passwordEnv: result.passwordEnv,
+        };
     }
 
     private async addModuleProj(parent: string, name: string,
@@ -464,11 +530,13 @@ export class EdgeManager {
             null, dftValue);
     }
 
-    private async inputImage(module: string, template: string): Promise<{ repositoryName: string, imageName: string, moduleTwin: object, createOptions }> {
+    private async inputImage(module: string, template: string): Promise<ModuleInfo> {
         let repositoryName: string = "";
         let imageName: string = "";
         let moduleTwin: object;
         let createOptions: string = "{}";
+        let debugImageName: string = "";
+        let debugCreateOptions: string = "{}";
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
             imageName = await acrManager.selectAcrImage();
@@ -485,9 +553,12 @@ export class EdgeManager {
             createOptions = JobInfo.settings.createOptions ? JSON.stringify(JobInfo.settings.createOptions) : "{}";
         } else {
             repositoryName = await this.inputRepository(module);
-            imageName = `\${${Utility.getModuleKey(module, "amd64")}}`;
+            imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;
+            const debugSettings = await this.generateDebugCreateOptions(module, template);
+            debugImageName = debugSettings.debugImageName;
+            debugCreateOptions = debugSettings.debugCreateOptions;
         }
-        return { repositoryName, imageName, moduleTwin, createOptions };
+        return new ModuleInfo(module, repositoryName, imageName, moduleTwin, createOptions, debugImageName, debugCreateOptions);
     }
 
     private async updateRegistrySettings(address: string, registries: any, envFile: string): Promise<{ registries: string, usernameEnv: string, passwordEnv: string }> {
@@ -517,26 +588,29 @@ export class EdgeManager {
         return { registries, usernameEnv, passwordEnv };
     }
 
-    private async writeRegistryCredEnv(address: string, envFile: string, usernameEnv: string, passwordEnv: string): Promise<void> {
+    private async writeRegistryCredEnv(address: string, envFile: string, usernameEnv: string, passwordEnv: string, debugUsernameEnv?: string, debugPasswordEnv?: string): Promise<void> {
         if (!usernameEnv) {
             return;
         }
 
         if (address.endsWith(".azurecr.io")) {
-            await this.populateACRCredential(address, envFile, usernameEnv, passwordEnv);
+            await this.populateACRCredential(address, envFile, usernameEnv, passwordEnv, debugUsernameEnv, debugPasswordEnv);
         } else {
-            await this.populateStaticEnv(envFile, usernameEnv, passwordEnv);
+            await this.populateStaticEnv(envFile, usernameEnv, passwordEnv, debugUsernameEnv, debugPasswordEnv);
         }
     }
 
-    private async populateStaticEnv(envFile: string, usernameEnv: string, passwordEnv: string): Promise<void> {
-        const envContent = `${usernameEnv}=\n${passwordEnv}=\n`;
+    private async populateStaticEnv(envFile: string, usernameEnv: string, passwordEnv: string, debugUsernameEnv?: string, debugPasswordEnv?: string): Promise<void> {
+        let envContent = `${usernameEnv}=\n${passwordEnv}=\n`;
+        if (debugUsernameEnv && debugUsernameEnv !== usernameEnv) {
+            envContent = `${envContent}${debugUsernameEnv}=\n${debugPasswordEnv}=\n`;
+        }
         await fse.ensureFile(envFile);
         await fse.appendFile(envFile, envContent, { encoding: "utf8" });
         this.askEditEnv(envFile);
     }
 
-    private async populateACRCredential(address: string, envFile: string, usernameEnv: string, passwordEnv: string): Promise<void> {
+    private async populateACRCredential(address: string, envFile: string, usernameEnv: string, passwordEnv: string, debugUsernameEnv?: string, debugPasswordEnv?: string): Promise<void> {
         const acrManager = new AcrManager();
         let cred;
         try {
@@ -546,12 +620,15 @@ export class EdgeManager {
             console.error(err);
         }
         if (cred && cred.username !== undefined) {
-            const envContent = `${usernameEnv}=${cred.username}\n${passwordEnv}=${cred.password}\n`;
+            let envContent = `${usernameEnv}=${cred.username}\n${passwordEnv}=${cred.password}\n`;
+            if (debugUsernameEnv && debugUsernameEnv !== usernameEnv) {
+                envContent = `${envContent}${debugUsernameEnv}=${cred.username}\n${debugPasswordEnv}=${cred.password}\n`;
+            }
             await fse.ensureFile(envFile);
             await fse.appendFile(envFile, envContent, { encoding: "utf8" });
             vscode.window.showInformationMessage(Constants.acrEnvSet);
         } else {
-            await this.populateStaticEnv(envFile, usernameEnv, passwordEnv);
+            await this.populateStaticEnv(envFile, usernameEnv, passwordEnv, debugUsernameEnv, debugPasswordEnv);
         }
     }
 

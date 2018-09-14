@@ -24,7 +24,20 @@ export function activate(context: vscode.ExtensionContext) {
     const containerManager = new ContainerManager();
 
     Utility.registerDebugTelemetryListener();
+    const statusBar: vscode.StatusBarItem = vscode.window.createStatusBarItem();
+    statusBar.command = "azure-iot-edge.setDefaultPlatform";
+    const defaultPlatform = Utility.getConfigurationProperty("DefaultPlatform");
+    statusBar.text = defaultPlatform ? defaultPlatform : "amd64";
+    statusBar.show();
 
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((e: vscode.ConfigurationChangeEvent) => {
+        const selectedPlatform = Utility.getConfigurationProperty("DefaultPlatform");
+        if (selectedPlatform) {
+            statusBar.text = selectedPlatform;
+        }
+    }));
+
+    context.subscriptions.push(statusBar);
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new ConfigCompletionItemProvider(), "\"", ".", ":"));
     context.subscriptions.push(vscode.languages.registerHoverProvider([{ language: "json" }, { language: "jsonc" }], new ConfigHoverProvider()));
     // Calling registerDefinitionProvider will add "Go to definition" and "Peek definition" context menus to documents matched with the filter.
@@ -125,6 +138,12 @@ export function activate(context: vscode.ExtensionContext) {
         "azure-iot-edge.setModuleCred",
         (): Promise<void> => {
             return edgeManager.setModuleCred(outputChannel);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.setDefaultPlatform",
+        (): Promise<void> => {
+            return edgeManager.selectDefaultPlatform(outputChannel);
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

@@ -47,6 +47,7 @@ export class Constants {
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";
+    public static deploymentDebugTemplate = "deployment.template.debug.json";
     public static userCancelled = "Cancelled by user";
     public static edgeDisplayName = "Azure IoT Edge";
     public static solutionName = "Solution Name";

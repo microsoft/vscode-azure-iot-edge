@@ -42,6 +42,10 @@ export class Utility {
         await Utility.getConfiguration().update(id, value, true);
     }
 
+    public static async setWorkspaceConfigurationProperty(id: string, value: string): Promise<void> {
+        await Utility.getConfiguration().update(id, value, false);
+    }
+
     public static adjustFilePath(filePath: string): string {
         if (os.platform() === "win32") {
             const windowsShell = vscode.workspace.getConfiguration("terminal").get<string>("integrated.shell.windows");
@@ -230,6 +234,10 @@ export class Utility {
         return `MODULES.${name}.${platform}`;
     }
 
+    public static getModuleKeyNoPlatform(name: string, isDebug: boolean): string {
+        return isDebug ? `MODULES.${name}.debug` : `MODULES.${name}`;
+    }
+
     public static getImage(repo: string, version: string, platform: string): string {
         return `${repo}:${version}-${platform}`;
     }
@@ -302,6 +310,13 @@ export class Utility {
                         image,
                         Utility.getBuildSettings(modulePath,
                             dockerFilePath, module.image.buildOptions, module.image.contextPath));
+                }
+
+                const defaultPlatform = Utility.getConfigurationProperty("DefaultPlatform");
+                if (platform === defaultPlatform) {
+                    moduleToImageMap.set(Utility.getModuleKeyNoPlatform(name, false), image);
+                } else if (platform === `${defaultPlatform}.debug`) {
+                    moduleToImageMap.set(Utility.getModuleKeyNoPlatform(name, true), image);
                 }
             });
         }

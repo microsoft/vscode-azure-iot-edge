@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [{
         "name": "%MODULE% Remote Debug (Python)",
-        "type": "pythonExperimental",
+        "type": "python",
         "request": "attach",
         "port": 5678,
         "host": "localhost",

@@ -7,8 +7,8 @@ import { commands, env, ExtensionContext, extensions, Uri, window } from "vscode
 import { Constants } from "./constants";
 import { TelemetryClient } from "./telemetryClient";
 
-const NPS_SURVEY_URL = "https://www.surveymonkey.com/r/SMQM3DH";
-const PROBABILITY = 0.15;
+const NPS_SURVEY_URL = "https://www.surveymonkey.com/r/JT2MQK5";
+const PROBABILITY = 0.5;
 const SESSION_COUNT_THRESHOLD = 2;
 const SESSION_COUNT_KEY = "nps/sessionCount";
 const LAST_SESSION_DATE_KEY = "nps/lastSessionDate";

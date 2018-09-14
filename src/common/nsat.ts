@@ -7,7 +7,7 @@ import { commands, env, ExtensionContext, extensions, Uri, window } from "vscode
 import { Constants } from "./constants";
 import { TelemetryClient } from "./telemetryClient";
 
-const NSAT_SURVEY_URL = "https://www.surveymonkey.com/r/JT2MQK5";
+const NSAT_SURVEY_URL = "https://aka.ms/vscode-iot-edge-survey";
 const PROBABILITY = 0.5;
 const SESSION_COUNT_THRESHOLD = 2;
 const SESSION_COUNT_KEY = "nsat/sessionCount";

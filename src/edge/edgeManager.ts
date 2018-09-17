@@ -171,8 +171,9 @@ export class EdgeManager {
 
     public async setupIotedgehubdev(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel) {
         deviceItem = await Utility.getInputDevice(deviceItem, outputChannel);
-
-        Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
+        if (deviceItem) {
+                Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
+        }
     }
 
     public async selectDefaultPlatform(outputChannel: vscode.OutputChannel) {
@@ -423,7 +424,7 @@ export class EdgeManager {
                     "archetype:generate",
                     '-DarchetypeGroupId="com.microsoft.azure"',
                     '-DarchetypeArtifactId="azure-iot-edge-archetype"',
-                    `-DarchetypeVersion=1.1.0`,
+                    `-DarchetypeVersion=1.0.0`,
                     `-DgroupId="${groupId}"`,
                     `-DartifactId="${name}"`,
                     `-Dversion="1.0.0-SNAPSHOT"`,
@@ -665,8 +666,16 @@ export class EdgeManager {
     private async selectModuleTemplate(label?: string): Promise<string> {
         const templatePicks: vscode.QuickPickItem[] = [
             {
+                label: Constants.LANGUAGE_C,
+                description: Constants.LANGUAGE_C_DESCRIPTION,
+            },
+            {
                 label: Constants.LANGUAGE_CSHARP,
                 description: Constants.LANGUAGE_CSHARP_DESCRIPTION,
+            },
+            {
+                label: Constants.LANGUAGE_JAVA,
+                description: Constants.LANGUAGE_JAVA_DESCRIPTION,
             },
             {
                 label: Constants.LANGUAGE_NODE,
@@ -677,16 +686,8 @@ export class EdgeManager {
                 description: Constants.LANGUAGE_PYTHON_DESCRIPTION,
             },
             {
-                label: Constants.LANGUAGE_C,
-                description: Constants.LANGUAGE_C_DESCRIPTION,
-            },
-            {
                 label: Constants.CSHARP_FUNCTION,
                 description: Constants.CSHARP_FUNCTION_DESCRIPTION,
-            },
-            {
-                label: Constants.LANGUAGE_JAVA,
-                description: Constants.LANGUAGE_JAVA_DESCRIPTION,
             },
             {
                 label: Constants.STREAM_ANALYTICS,

@@ -13,8 +13,8 @@
 - Deploy IoT solutions to IoT Edge devices
 
 ## What's New (v1.4.0)
-* Update CSharp module debug configuration to support nectoreapp2.1 target framework
-* Update Python moduel debug configuration to support released python debugger
+* Update CSharp module debug configuration to support netcoreapp2.1 target framework
+* Update Python module debug configuration to support released python debugger
 * Fix some bugs
 
 ## Known Issues

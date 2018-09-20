@@ -1,4 +1,10 @@
 # Change Log
+## 1.4.0 - 2018-09-20
+### Changed
+* Update CSharp module debug configuration to support nectoreapp2.1 target framework
+* Update Python moduel debug configuration to support released python debugger
+* Fix some bugs
+
 ## 1.3.0 - 2018-08-30
 ### Added
 * Support Java module type in add module

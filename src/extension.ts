@@ -25,17 +25,15 @@ export function activate(context: vscode.ExtensionContext) {
     const containerManager = new ContainerManager();
 
     Utility.registerDebugTelemetryListener();
-    const statusBar: vscode.StatusBarItem = vscode.window.createStatusBarItem();
+
+    const statusBar: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, -10000);
     statusBar.command = "azure-iot-edge.setDefaultPlatform";
-    const defaultPlatform = Utility.getConfigurationProperty("DefaultPlatform");
-    statusBar.text = defaultPlatform ? defaultPlatform : "amd64";
+    statusBar.text = formatStatusBarText(Utility.getDefaultPlatform());
+    statusBar.tooltip = "Default platform of IoT Edge Solution";
     statusBar.show();
 
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((e: vscode.ConfigurationChangeEvent) => {
-        const selectedPlatform = Utility.getConfigurationProperty("DefaultPlatform");
-        if (selectedPlatform) {
-            statusBar.text = selectedPlatform;
-        }
+        statusBar.text = formatStatusBarText(Utility.getDefaultPlatform());
     }));
 
     context.subscriptions.push(statusBar);
@@ -157,6 +155,10 @@ export function activate(context: vscode.ExtensionContext) {
     if (folders && folders.length > 0) {
         folders.forEach((value) => edgeManager.checkRegistryEnv(value));
     }
+}
+
+function formatStatusBarText(platform?: string): string {
+    return platform ? `$(circuit-board) ${platform}` : `$(circuit-board) amd64`;
 }
 
 function initCommand(context: vscode.ExtensionContext,

@@ -180,7 +180,7 @@ export class EdgeManager {
         const platforms: string[] = Utility.getConfiguration().get<string[]>("Platforms");
         const defaultPlatform = await vscode.window.showQuickPick(platforms, { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
         if (defaultPlatform) {
-            await Utility.setWorkspaceConfigurationProperty("DefaultPlatform", defaultPlatform);
+            await Utility.setWorkspaceConfigurationProperty(Constants.defPlatformConfig, defaultPlatform);
         }
     }
 
@@ -188,23 +188,18 @@ export class EdgeManager {
         let debugCreateOptions = "";
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
-                debugCreateOptions = "";
-                // check platform disable debug?
                 break;
             case Constants.CSHARP_FUNCTION:
-                // check platform disable debug?
                 break;
             case Constants.LANGUAGE_NODE:
                 debugCreateOptions = `{"ExposedPorts":{"9229/tcp":{}},"HostConfig":{"PortBindings":{"9229/tcp":[{"HostPort":"9229"}]}}}`;
                 break;
             case Constants.LANGUAGE_C:
-                // check platform disable debug?
                 break;
             case Constants.LANGUAGE_JAVA:
                 debugCreateOptions = `{"HostConfig":{"PortBindings":{"5005/tcp":[{"HostPort":"5005"}]}}}`;
                 break;
             case Constants.LANGUAGE_PYTHON:
-                // check platform disable debug?
                 break;
             default:
                 break;

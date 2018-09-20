@@ -105,6 +105,7 @@ export class Constants {
     public static inputNamePattern = "input1,input2,input3";
     public static moduleSchemaVersion = "$schema-version";
     public static groupId = "groupId";
+    public static defPlatformConfig = "DefaultPlatform";
 }
 
 export enum ContainerState {

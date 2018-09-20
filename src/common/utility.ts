@@ -35,7 +35,7 @@ export class Utility {
     }
 
     public static getDefaultPlatform(): string {
-        const defaultPlatform = Utility.getConfigurationProperty("DefaultPlatform");
+        const defaultPlatform = Utility.getConfigurationProperty(Constants.defPlatformConfig);
         return defaultPlatform ? defaultPlatform : "amd64";
     }
 
@@ -317,7 +317,7 @@ export class Utility {
                             dockerFilePath, module.image.buildOptions, module.image.contextPath));
                 }
 
-                const defaultPlatform = Utility.getConfigurationProperty("DefaultPlatform");
+                const defaultPlatform = Utility.getDefaultPlatform();
                 if (platform === defaultPlatform) {
                     moduleToImageMap.set(Utility.getModuleKeyNoPlatform(name, false), image);
                 } else if (platform === `${defaultPlatform}.debug`) {

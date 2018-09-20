@@ -34,6 +34,11 @@ export class Utility {
         return (os.platform() === "linux" || os.platform() === "darwin") ? `sudo ${command}` : command;
     }
 
+    public static getDefaultPlatform(): string {
+        const defaultPlatform = Utility.getConfigurationProperty("DefaultPlatform");
+        return defaultPlatform ? defaultPlatform : "amd64";
+    }
+
     public static getConfigurationProperty(id: string): string {
         return Utility.getConfiguration().get(id);
     }

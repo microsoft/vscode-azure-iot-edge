@@ -12,13 +12,15 @@ import { IntelliSenseUtility } from "./intelliSenseUtility";
 
 export class ConfigDiagnosticProvider {
     public async updateDiagnostics(document: vscode.TextDocument, diagCollection: vscode.DiagnosticCollection) {
-        if (!document && path.basename(document.uri.fsPath) !== Constants.deploymentTemplate && path.basename(document.uri.fsPath) !== Constants.moduleManifest) {
+        if (!document && path.basename(document.uri.fsPath) !== Constants.deploymentTemplate
+            && path.basename(document.uri.fsPath) !== Constants.deploymentDebugTemplate
+            && path.basename(document.uri.fsPath) !== Constants.moduleManifest) {
             return;
         }
 
         diagCollection.delete(document.uri);
         let diags: vscode.Diagnostic[] = [];
-        if (path.basename(document.uri.fsPath) === Constants.deploymentTemplate) {
+        if (path.basename(document.uri.fsPath) === Constants.deploymentTemplate || path.basename(document.uri.fsPath) === Constants.deploymentDebugTemplate) {
             diags = await this.provideDeploymentTemplateDiagnostics(document);
         } else if (path.basename(document.uri.fsPath) === Constants.moduleManifest) {
             diags = await this.provideModuleManifestDiagnostics(document);

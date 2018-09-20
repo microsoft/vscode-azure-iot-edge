@@ -185,7 +185,6 @@ export class EdgeManager {
     }
 
     private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: string }> {
-        let debugImageName = Utility.getModuleKeyNoPlatform(moduleName, true);
         let debugCreateOptions = "";
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
@@ -210,7 +209,7 @@ export class EdgeManager {
             default:
                 break;
         }
-        debugImageName = Utility.getModuleKeyNoPlatform(moduleName, true);
+        const debugImageName = `\${${Utility.getModuleKeyNoPlatform(moduleName, true)}}`;
         return { debugImageName, debugCreateOptions };
     }
 
@@ -288,16 +287,6 @@ export class EdgeManager {
         const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
         const moduleInfo: ModuleInfo = await this.inputImage(moduleName, template);
         await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
-        const {usernameEnv, passwordEnv} = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, template, moduleInfo, isNewSolution);
-
-        const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
-        const debugTemplateEnv = {usernameEnv: undefined, passwordEnv: undefined};
-        if (templateDebugFile) {
-            const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
-            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, template, moduleInfo, isNewSolution, true);
-            debugTemplateEnv.usernameEnv = envs.usernameEnv;
-            debugTemplateEnv.passwordEnv = envs.passwordEnv;
-        }
 
         const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleName, extraProps);
         if (debugGenerated) {
@@ -312,6 +301,17 @@ export class EdgeManager {
             } else {
                 await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });
             }
+        }
+
+        const {usernameEnv, passwordEnv} = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, template, moduleInfo, isNewSolution);
+
+        const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
+        const debugTemplateEnv = {usernameEnv: undefined, passwordEnv: undefined};
+        if (templateDebugFile) {
+            const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
+            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, template, moduleInfo, isNewSolution, true);
+            debugTemplateEnv.usernameEnv = envs.usernameEnv;
+            debugTemplateEnv.passwordEnv = envs.passwordEnv;
         }
 
         if (!isNewSolution) {

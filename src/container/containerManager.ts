@@ -50,12 +50,13 @@ export class ContainerManager {
     }
 
     public async runSolution(deployFileUri?: vscode.Uri, commands: string[] = []): Promise<void> {
-        // const pattern = "**/deployment(_[a-z,0-9]+)*(\.debug)?.json";
-        const pattern = "{**/deployment_*.json,**/deployment.json,**/deployment_*.debug.json}";
+        const pattern = "{**/deployment.*.json,**/deployment.json,**/deployment.*.debug.json}";
+        const excludePattern = "{**/deployment.template.json,**/deployment.template.debug.json}";
         const deployFile: string = await Utility.getInputFilePath(deployFileUri,
             pattern,
             Constants.deploymentFileDesc,
-            `${Constants.runSolutionEvent}.selectDeploymentFile`);
+            `${Constants.runSolutionEvent}.selectDeploymentFile`,
+            excludePattern);
         if (!deployFile) {
             return;
         }
@@ -88,7 +89,7 @@ export class ContainerManager {
         await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToBuildSettings);
         const templateFileName = path.basename(templateFile);
         const debug = (templateFileName === Constants.deploymentDebugTemplate) ? ".debug" : "";
-        const deploymentFileName = `deployment_${Utility.getDefaultPlatform()}${debug}.json`;
+        const deploymentFileName = `deployment.${Utility.getDefaultPlatform()}${debug}.json`;
         const deployFile: string = path.join(slnPath, Constants.outputConfig, deploymentFileName);
         const dpManifest: any = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
 

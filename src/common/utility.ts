@@ -113,7 +113,7 @@ export class Utility {
         });
     }
 
-    public static async getInputFilePath(inputFileFromContextMenu: vscode.Uri, filePattern: string, fileDescription: string, eventName: string): Promise<string> {
+    public static async getInputFilePath(inputFileFromContextMenu: vscode.Uri, filePattern: string, fileDescription: string, eventName: string, excludeFilePattern?: string | null): Promise<string> {
         if (!Utility.checkWorkspace()) {
             return null;
         }
@@ -123,7 +123,7 @@ export class Utility {
             return inputFileFromContextMenu.fsPath;
         } else {
             TelemetryClient.sendEvent(eventName, { entry: "commandPalette" });
-            const fileList: vscode.Uri[] = await vscode.workspace.findFiles(filePattern);
+            const fileList: vscode.Uri[] = await vscode.workspace.findFiles(filePattern, excludeFilePattern);
             if (!fileList || fileList.length === 0) {
                 vscode.window.showErrorMessage(`No ${fileDescription} can be found under this workspace.`);
                 return null;

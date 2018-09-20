@@ -112,7 +112,32 @@
           "group": "edge@4"
         },
         {
-          "when": "resourceFilename == deployment.json",
+          "when": "resourceFilename == deployment.amd64.json",
+          "command": "azure-iot-edge.runSolution",
+          "group": "edge@0"
+        },
+        {
+          "when": "resourceFilename == deployment.amd64.debug.json",
+          "command": "azure-iot-edge.runSolution",
+          "group": "edge@0"
+        },
+        {
+          "when": "resourceFilename == deployment.arm32v7.json",
+          "command": "azure-iot-edge.runSolution",
+          "group": "edge@0"
+        },
+        {
+          "when": "resourceFilename == deployment.arm32v7.debug.json",
+          "command": "azure-iot-edge.runSolution",
+          "group": "edge@0"
+        },
+        {
+          "when": "resourceFilename == deployment.windows-amd64.json",
+          "command": "azure-iot-edge.runSolution",
+          "group": "edge@0"
+        },
+        {
+          "when": "resourceFilename == deployment.windows-amd64.debug.json",
           "command": "azure-iot-edge.runSolution",
           "group": "edge@0"
         },

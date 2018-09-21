@@ -26,7 +26,12 @@ export class Constants {
     public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}/g);
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
+    public static configFolder = "config";
+    public static templatesFile = "templates.json";
+    public static ADD_3RD_PARTY_TEMPLATE = "Add a 3rd party te module template..";
     public static LANGUAGE_CSHARP = "C# Module";
+    public static CSHARP = "C#";
+    public static THIRD_PARTY_MODULE_SUFFIX = " (3rd party)";
     public static LANGUAGE_NODE = "Node.js Module";
     public static LANGUAGE_PYTHON = "Python Module";
     public static LANGUAGE_C = "C Module";
@@ -43,6 +48,7 @@ export class Constants {
     public static CSHARP_FUNCTION_DESCRIPTION = "Create an Azure Function and deploy to IoT Edge";
     public static ACR_MODULE_DESCRIPTION = "Import an existing module image from your Azure Container Registry";
     public static EXISTING_MODULE_DESCRIPTION = "Import an existing module image from any container registry";
+    public static ADD_3RD_PARTY_TEMPLATE_DESCRIPTION = "Add a 3rd party template to use when creating a new module";
     public static STREAM_ANALYTICS_DESCRIPTION = "Deploy Azure Stream Analytics to Azure IoT Edge";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";

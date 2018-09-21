@@ -169,7 +169,7 @@ export class EdgeManager {
     public async setupIotedgehubdev(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel) {
         deviceItem = await Utility.getInputDevice(deviceItem, outputChannel);
         if (deviceItem) {
-                Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
+            Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
         }
     }
 
@@ -210,6 +210,17 @@ export class EdgeManager {
                 mapObj.set(Constants.appFolder, "/app");
                 break;
             default:
+                const templates = await this.getTemplatesConfigData();
+                templates.forEach((configTemplate) => {
+                    if (configTemplate.name + Constants.THIRD_PARTY_MODULE_SUFFIX === language) {
+                        switch (configTemplate.language) {
+                            case Constants.CSHARP:
+                                launchFile = Constants.launchCSharp;
+                                mapObj.set(Constants.appFolder, "/app");
+                                break;
+                        }
+                    }
+                });
                 break;
         }
 
@@ -226,6 +237,14 @@ export class EdgeManager {
         }
     }
 
+    private async getTemplatesConfigData() {
+        const templatesFile = this.context.asAbsolutePath(path.join(path.join(Constants.assetsFolder, Constants.configFolder), Constants.templatesFile));
+        if (await fse.pathExists(templatesFile)) {
+            const templatesData = await fse.readJson(templatesFile);
+            return templatesData.templates as any[];
+        }
+    }
+
     private async addModule(templateFile: string,
                             outputChannel: vscode.OutputChannel,
                             isNewSolution: boolean): Promise<void> {
@@ -236,6 +255,12 @@ export class EdgeManager {
         const envFilePath = path.join(slnPath, Constants.envFile);
 
         const template = await this.selectModuleTemplate();
+
+        if (template === Constants.ADD_3RD_PARTY_TEMPLATE) {
+                const templatesFile = this.context.asAbsolutePath(path.join(path.join(Constants.assetsFolder, Constants.configFolder), Constants.templatesFile));
+                await vscode.commands.executeCommand("vscode.open", vscode.Uri.file(templatesFile));
+                return;
+        }
         const extraProps: Map<string, string> = new Map<string, string>();
         if (template === Constants.LANGUAGE_JAVA) {
             const grpId = await this.inputJavaModuleGrpId();
@@ -259,7 +284,7 @@ export class EdgeManager {
             runtimeSettings.registryCredentials = registries;
         }
 
-        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
+        let result = { registries: {}, usernameEnv: undefined, passwordEnv: undefined };
         if (template !== Constants.STREAM_ANALYTICS) {
             result = await this.updateRegistrySettings(address, registries, envFilePath);
         }
@@ -354,7 +379,7 @@ export class EdgeManager {
                 const packageName = groupId;
                 await Executor.executeCMD(outputChannel,
                     "mvn",
-                    { cwd: `${parent}`, shell: true},
+                    { cwd: `${parent}`, shell: true },
                     "archetype:generate",
                     '-DarchetypeGroupId="com.microsoft.azure"',
                     '-DarchetypeArtifactId="azure-iot-edge-archetype"',
@@ -367,6 +392,13 @@ export class EdgeManager {
                     "-B");
                 break;
             default:
+                const templates = await this.getTemplatesConfigData();
+                const configTemplate = templates.find( (t) => t.name + Constants.THIRD_PARTY_MODULE_SUFFIX === template);
+                switch (configTemplate.language) {
+                    case Constants.CSHARP:
+                        await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, `new -i ${configTemplate.templateName}`);
+                        await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new ${configTemplate.templateShortName} -n "${name}" -r ${repositoryName}`);
+                }
                 break;
         }
     }
@@ -455,7 +487,7 @@ export class EdgeManager {
     private async inputJavaModuleGrpId(): Promise<string> {
         const dftValue = "com.edgemodule";
         return await Utility.showInputBox("Group ID",
-                "Provide value for groupId", this.validateGroupId, dftValue);
+            "Provide value for groupId", this.validateGroupId, dftValue);
     }
 
     private async inputRepository(module: string): Promise<string> {
@@ -625,6 +657,23 @@ export class EdgeManager {
                 description: Constants.EXISTING_MODULE_DESCRIPTION,
             },
         ];
+
+        const templates = await this.getTemplatesConfigData();
+        templates.forEach((configTemplate) => {
+            switch (configTemplate.language) {
+                case Constants.CSHARP:
+                templatePicks.push({
+                    label: configTemplate.name + Constants.THIRD_PARTY_MODULE_SUFFIX,
+                    description: configTemplate.description,
+                });
+            }
+        });
+
+        templatePicks.push({
+            label: Constants.ADD_3RD_PARTY_TEMPLATE,
+            description: Constants.ADD_3RD_PARTY_TEMPLATE_DESCRIPTION,
+        });
+
         if (label === undefined) {
             label = Constants.selectTemplate;
         }

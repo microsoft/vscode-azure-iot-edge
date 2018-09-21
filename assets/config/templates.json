@@ -1,0 +1,11 @@
+{
+    "templates": [       
+        {
+            "name": "C# TypeEdge Module",
+            "language": "C#",
+            "description": "Use TypeEdge C# library to build a module",
+            "templateName": "TypeEdge.Module.VsCode",
+            "templateShortName": "typeedgemodulevscode"
+        }
+    ]
+}

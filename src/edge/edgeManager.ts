@@ -195,11 +195,13 @@ export class EdgeManager {
                 debugCreateOptions = `{"ExposedPorts":{"9229/tcp":{}},"HostConfig":{"PortBindings":{"9229/tcp":[{"HostPort":"9229"}]}}}`;
                 break;
             case Constants.LANGUAGE_C:
+                debugCreateOptions = `{"HostConfig": {"Privileged": true}}"`;
                 break;
             case Constants.LANGUAGE_JAVA:
                 debugCreateOptions = `{"HostConfig":{"PortBindings":{"5005/tcp":[{"HostPort":"5005"}]}}}`;
                 break;
             case Constants.LANGUAGE_PYTHON:
+                debugCreateOptions = `{"ExposedPorts":{"5678/tcp":{}},"HostConfig":{"PortBindings":{"5678/tcp":[{"HostPort":"5678"}]}}}`;
                 break;
             default:
                 break;
@@ -302,7 +304,7 @@ export class EdgeManager {
 
         const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
         const debugTemplateEnv = {usernameEnv: undefined, passwordEnv: undefined};
-        if (templateDebugFile) {
+        if (await fse.exists(templateDebugFile)) {
             const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
             const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, template, moduleInfo, isNewSolution, true);
             debugTemplateEnv.usernameEnv = envs.usernameEnv;
@@ -340,8 +342,6 @@ export class EdgeManager {
         if (template !== Constants.STREAM_ANALYTICS) {
             result = await this.updateRegistrySettings(address, registries, envFilePath);
         }
-
-        // await this.addModuleProj(targetModulePath, moduleName, repositoryName, template, outputChannel, extraProps);
 
         const imageName = isDebug ? moduleInfo.debugImageName : moduleInfo.imageName;
         const createOptions = isDebug ? moduleInfo.debugCreateOptions : moduleInfo.createOptions;

@@ -211,16 +211,22 @@ export class EdgeManager {
                 break;
             default:
                 const templates = await this.getTemplatesConfigData();
-                templates.forEach((configTemplate) => {
-                    if (configTemplate.name + Constants.THIRD_PARTY_MODULE_SUFFIX === language) {
-                        switch (configTemplate.language) {
-                            case Constants.CSHARP:
-                                launchFile = Constants.launchCSharp;
-                                mapObj.set(Constants.appFolder, "/app");
-                                break;
+                if (templates != null) {
+                    templates.forEach((configTemplate) => {
+                        try {
+                            if (configTemplate.name + Constants.THIRD_PARTY_MODULE_SUFFIX === language) {
+                                switch (configTemplate.language) {
+                                    case Constants.CSHARP:
+                                        launchFile = Constants.launchCSharp;
+                                        mapObj.set(Constants.appFolder, "/app");
+                                        break;
+                                }
+                            }
+                        } catch (err) {
+                            vscode.window.showErrorMessage("Cannot parse the 3rd party modules configuration");
                         }
-                    }
-                });
+                    });
+                }
                 break;
         }
 
@@ -238,10 +244,14 @@ export class EdgeManager {
     }
 
     private async getTemplatesConfigData() {
-        const templatesFile = this.context.asAbsolutePath(path.join(path.join(Constants.assetsFolder, Constants.configFolder), Constants.templatesFile));
-        if (await fse.pathExists(templatesFile)) {
-            const templatesData = await fse.readJson(templatesFile);
-            return templatesData.templates as any[];
+        try {
+                const templatesFile = this.context.asAbsolutePath(path.join(path.join(Constants.assetsFolder, Constants.configFolder), Constants.templatesFile));
+                if (await fse.pathExists(templatesFile)) {
+                    const templatesData = await fse.readJson(templatesFile);
+                    return templatesData.templates as any[];
+                }
+            } catch (err) {
+            return undefined;
         }
     }
 
@@ -393,11 +403,17 @@ export class EdgeManager {
                 break;
             default:
                 const templates = await this.getTemplatesConfigData();
-                const configTemplate = templates.find( (t) => t.name + Constants.THIRD_PARTY_MODULE_SUFFIX === template);
-                switch (configTemplate.language) {
-                    case Constants.CSHARP:
-                        await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, `new -i ${configTemplate.templateName}`);
-                        await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new ${configTemplate.templateShortName} -n "${name}" -r ${repositoryName}`);
+                if (templates != null) {
+                    try {
+                        const configTemplate = templates.find( (t) => t.name + Constants.THIRD_PARTY_MODULE_SUFFIX === template);
+                        switch (configTemplate.language) {
+                            case Constants.CSHARP:
+                                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, `new -i ${configTemplate.templateName}`);
+                                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new ${configTemplate.templateShortName} -n "${name}" -r ${repositoryName}`);
+                        }
+                    } catch (err) {
+                        vscode.window.showErrorMessage("Cannot create the project using the 3rd party module template");
+                    }
                 }
                 break;
         }
@@ -659,15 +675,23 @@ export class EdgeManager {
         ];
 
         const templates = await this.getTemplatesConfigData();
-        templates.forEach((configTemplate) => {
-            switch (configTemplate.language) {
-                case Constants.CSHARP:
-                templatePicks.push({
-                    label: configTemplate.name + Constants.THIRD_PARTY_MODULE_SUFFIX,
-                    description: configTemplate.description,
+        if (templates != null) {
+            try {
+                templates.forEach((configTemplate) => {
+                    switch (configTemplate.language) {
+                        case Constants.CSHARP:
+                        if (configTemplate.name !=  null && configTemplate.description != null) {
+                            templatePicks.push({
+                                label: configTemplate.name + Constants.THIRD_PARTY_MODULE_SUFFIX,
+                                description: configTemplate.description,
+                            });
+                        }
+                    }
                 });
+            } catch (err) {
+                vscode.window.showErrorMessage("Cannot parse the 3rd party modules configuration");
             }
-        });
+        }
 
         templatePicks.push({
             label: Constants.ADD_3RD_PARTY_TEMPLATE,

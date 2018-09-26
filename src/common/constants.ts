@@ -28,7 +28,7 @@ export class Constants {
     public static solutionFolder = "solution";
     public static configFolder = "config";
     public static templatesFile = "templates.json";
-    public static ADD_3RD_PARTY_TEMPLATE = "Add a 3rd party te module template..";
+    public static ADD_3RD_PARTY_TEMPLATE = "Add a 3rd party module template..";
     public static LANGUAGE_CSHARP = "C# Module";
     public static CSHARP = "C#";
     public static THIRD_PARTY_MODULE_SUFFIX = " (3rd party)";

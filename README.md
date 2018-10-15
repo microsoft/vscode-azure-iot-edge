@@ -13,7 +13,7 @@
 - Deploy IoT solutions to IoT Edge devices
 
 ## What's New (v1.5.0)
-* Support Java module with windows container
+* Support Java module with Windows container
   
 ## Known Issues
 * Cannot run C and Python module in IoT Edge Simulator

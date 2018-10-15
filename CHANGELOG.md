@@ -1,7 +1,7 @@
 # Change Log
 ## 1.5.0 - 2018-10-15
 ### Added
-* Support Java module with windows container
+* Support Java module with Windows container
 
 ## 1.4.0 - 2018-09-20
 ### Changed

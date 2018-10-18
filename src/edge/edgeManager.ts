@@ -12,6 +12,7 @@ import * as stripJsonComments from "strip-json-comments";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
+import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AcrManager } from "../container/acrManager";
@@ -632,6 +633,9 @@ export class EdgeManager {
         if (!templatePick) {
             throw new UserCancelledError();
         }
+        TelemetryClient.sendEvent( `${Constants.addModuleEvent}.selectModuleTemplate`, {
+            template: templatePick.label,
+        });
         return templatePick.label;
     }
 }

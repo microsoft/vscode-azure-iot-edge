@@ -62,7 +62,7 @@ export class EdgeManager {
         if (path.basename(templateFile) === Constants.moduleFolder) {
             templateFile = path.join(path.dirname(templateFile), Constants.deploymentTemplate);
             const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(templateFile));
-            if (!workspaceFolder || !await fse.exists(templateFile)) {
+            if (!workspaceFolder || !await fse.pathExists(templateFile)) {
                 vscode.window.showInformationMessage(Constants.noSolutionFileWithModulesFolder);
                 return;
             }
@@ -81,7 +81,7 @@ export class EdgeManager {
             if (folder) {
                 const deploymentTemplate = path.join(folderPath, Constants.deploymentTemplate);
                 const envFile = path.join(folderPath, Constants.envFile);
-                if (await fse.exists(deploymentTemplate)) {
+                if (await fse.pathExists(deploymentTemplate)) {
                     const templateJson = Utility.updateSchema(await fse.readJson(deploymentTemplate));
                     const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
                     const registries = runtimeSettings.registryCredentials;

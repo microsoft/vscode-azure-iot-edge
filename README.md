@@ -41,13 +41,16 @@ Click the links below to learn how to develop, debug and deploy IoT Edge modules
 
 ## FAQ
 
-Q: All too often, I forget to save a config file, and when I build the docker image. Can we auto-save files before build?
-A: By default, VS Code requires an explicit action to save your changes to disk, `Ctrl+S`. However, it's easy to turn on [Auto Save](https://code.visualstudio.com/docs/editor/codebasics#_save-auto-save)
+**Q:** All too often, I forget to save a config file, and when I build the docker image. Can we auto-save files before build?
 
-Q: How to work with Python virtual environment?
+**A:** By default, VS Code requires an explicit action to save your changes to disk, `Ctrl+S`. However, it's easy to turn on [Auto Save](https://code.visualstudio.com/docs/editor/codebasics#_save-auto-save)
 
-Q: Help me understand IoT Edge deployment manifest.
-A: [Learn how to use deployment manifests to deploy modules and establish routes](https://docs.microsoft.com/azure/iot-edge/module-composition)
+**Q:** How to work with Python virtual environment?
+
+
+**Q:** Help me understand IoT Edge deployment manifest.
+
+**A:** [Learn how to use deployment manifests to deploy modules and establish routes](https://docs.microsoft.com/azure/iot-edge/module-composition)
 
 ## Commands
 

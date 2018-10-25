@@ -32,7 +32,7 @@
 ## Quickstart
 Click the links below to learn how to develop, debug and deploy IoT Edge modules.
 
-- [C# module](https://docs.microsoft.com/azure/iot-edge/tutorial-csharp-module) --
+- [C# module](https://docs.microsoft.com/azure/iot-edge/tutorial-csharp-module)
 - [C# Functions on IoT Edge](https://docs.microsoft.com/azure/iot-edge/tutorial-deploy-function)
 - [Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Node.js module](https://docs.microsoft.com/azure/iot-edge/tutorial-node-module)

@@ -30,17 +30,24 @@
 - It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manage your IoT Edge Docker images, containers and registries. 
 
 ## Quickstart
-For C# developers, you can develop, debug and deploy [C# modules](https://docs.microsoft.com/azure/iot-edge/tutorial-csharp-module) and [C# Functions on IoT Edge](https://docs.microsoft.com/azure/iot-edge/tutorial-deploy-function)
+Click the links below to learn how to develop, debug and deploy IoT Edge modules.
 
-For Python developers, you can develop and deploy [Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
+- [C# module](https://docs.microsoft.com/azure/iot-edge/tutorial-csharp-module) --
+- [C# Functions on IoT Edge](https://docs.microsoft.com/azure/iot-edge/tutorial-deploy-function)
+- [Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
+- [Node.js module](https://docs.microsoft.com/azure/iot-edge/tutorial-node-module)
+- [Java module](https://docs.microsoft.com/azure/iot-edge/tutorial-java-module)
+- [C module](https://docs.microsoft.com/azure/iot-edge/tutorial-c-module)
 
-For Node.js developers, you can develop, debug and deploy [Node.js module](https://docs.microsoft.com/azure/iot-edge/tutorial-node-module)
+## FAQ
 
-For C developers, you can develop, debug and deploy [C module](https://docs.microsoft.com/azure/iot-edge/tutorial-c-module)
+Q: All too often, I forget to save a config file, and when I build the docker image. Can we auto-save files before build?
+A: By default, VS Code requires an explicit action to save your changes to disk, `Ctrl+S`. However, it's easy to turn on [Auto Save](https://code.visualstudio.com/docs/editor/codebasics#_save-auto-save)
 
-For Java developers, you can develop, debug and deploy [Java module](https://docs.microsoft.com/azure/iot-edge/tutorial-java-module)
+Q: How to work with Python virtual environment?
 
-We will soon support other languages and more services on Azure IoT Edge.
+Q: Help me understand IoT Edge deployment manifest.
+A: [Learn how to use deployment manifests to deploy modules and establish routes](https://docs.microsoft.com/azure/iot-edge/module-composition)
 
 ## Commands
 

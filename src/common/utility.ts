@@ -449,6 +449,22 @@ export class Utility {
         });
     }
 
+    public static convertCreateOptions(deployment: any): any {
+        if (deployment) {
+            const moduleProperties = deployment.modulesContent.$edgeAgent["properties.desired"];
+            const systemModules = moduleProperties.systemModules;
+            if (systemModules) {
+                moduleProperties.systemModules = Utility.serializeCreateOptionsForEachModule(systemModules);
+            }
+            const modules = moduleProperties.modules;
+            if (modules) {
+                moduleProperties.modules = Utility.serializeCreateOptionsForEachModule(modules);
+            }
+        }
+
+        return deployment;
+    }
+
     // Temp utility to sovle the compatibale issue because of the schema change in IoT Hub Service.
     // moduleContent -> modulesContent
     public static updateSchema(deployment: any): any {
@@ -457,6 +473,42 @@ export class Utility {
             delete deployment.moduleContent;
         }
         return deployment;
+    }
+
+    public static serializeCreateOptions(settings: any, createOptions: any): any {
+        let optionStr: string;
+        if (typeof settings.createOptions === "string") {
+            optionStr = settings.createOptions;
+        } else {
+            optionStr = JSON.stringify(settings.createOptions);
+        }
+        const re = new RegExp(`.{1,${Constants.TwinValueMaxSize}}`, "g");
+        const options = optionStr.match(re);
+        if (options.length > Constants.TwinValueMaxChunks) {
+            throw new Error("Size of createOptions too big.");
+        }
+        options.map((value, index) => {
+            if (index === 0) {
+                settings.createOptions = value;
+            } else {
+                const formattedNumber = (`0${index}`).slice(-2);
+                settings[`createOptions${formattedNumber}`] = value;
+            }
+        });
+
+        return settings;
+    }
+
+    private static serializeCreateOptionsForEachModule(modules: any): any {
+        for (const key in modules) {
+            if (modules.hasOwnProperty(key)) {
+                const moduleVar = modules[key];
+                if (moduleVar.settings && moduleVar.settings.createOptions) {
+                    moduleVar.settings = Utility.serializeCreateOptions(moduleVar.settings, moduleVar.settings.createOptions);
+                }
+            }
+        }
+        return modules;
     }
 
     private static getLocalRegistryState(): ContainerState {

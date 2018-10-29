@@ -104,6 +104,9 @@ export class Constants {
     public static inputNamePattern = "input1,input2,input3";
     public static moduleSchemaVersion = "$schema-version";
     public static groupId = "groupId";
+
+    public static TwinValueMaxSize = 512;
+    public static TwinValueMaxChunks = 100;   // The chunks sequence number is two bytes, which allows 100 chunks [0, 100)
 }
 
 export enum ContainerState {

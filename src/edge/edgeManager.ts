@@ -273,10 +273,10 @@ export class EdgeManager {
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-                "image": "${imageName}",
-                "createOptions": "${createOptions.replace(/"/g, '\\"')}"
+              "image": "${imageName}",
+              "createOptions": "${createOptions.replace(/"/g, '\\"')}"
             }
-        }`;
+          }`;
         modules[moduleName] = JSON.parse(newModuleSection);
         const newModuleToUpstream = `${moduleName}ToIoTHub`;
         routes[newModuleToUpstream] = `FROM /messages/modules/${moduleName}/outputs/* INTO $upstream`;

@@ -106,7 +106,7 @@ export class Constants {
     public static groupId = "groupId";
 
     public static TwinValueMaxSize = 512;
-    public static TwinValueMaxChunks = 100;   // The chunks sequence number is two bytes, which allows 100 chunks [0, 100)
+    public static TwinValueMaxChunks = 8;
 }
 
 export enum ContainerState {

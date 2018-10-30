@@ -267,17 +267,17 @@ export class EdgeManager {
 
         await this.addModuleProj(targetModulePath, moduleName, repositoryName, template, outputChannel, extraProps);
 
-        const newModuleSection = {
-            version: "1.0",
-            type: "docker",
-            status: "running",
-            restartPolicy: "always",
-            settings: {
-                image: imageName,
-                createOptions,
-            },
-        };
-        modules[moduleName] = newModuleSection;
+        const newModuleSection = `{
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+                "image": "${imageName}",
+                "createOptions": "${createOptions.replace(/"/g, '\\"')}"
+            }
+        }`;
+        modules[moduleName] = JSON.parse(newModuleSection);
         const newModuleToUpstream = `${moduleName}ToIoTHub`;
         routes[newModuleToUpstream] = `FROM /messages/modules/${moduleName}/outputs/* INTO $upstream`;
         if (isNewSolution) {
@@ -466,11 +466,11 @@ export class EdgeManager {
             null, dftValue);
     }
 
-    private async inputImage(module: string, template: string): Promise<{ repositoryName: string, imageName: string, moduleTwin: object, createOptions: object }> {
+    private async inputImage(module: string, template: string): Promise<{ repositoryName: string, imageName: string, moduleTwin: object, createOptions }> {
         let repositoryName: string = "";
         let imageName: string = "";
         let moduleTwin: object;
-        let createOptions = {};
+        let createOptions: string = "{}";
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
             imageName = await acrManager.selectAcrImage();
@@ -484,7 +484,7 @@ export class EdgeManager {
             const JobInfo: any = await saManager.getJobInfo(job);
             imageName = JobInfo.settings.image;
             moduleTwin = JobInfo.twin.content;
-            createOptions = JobInfo.settings.createOptions ? JobInfo.settings.createOptions : {};
+            createOptions = JobInfo.settings.createOptions ? JSON.stringify(JobInfo.settings.createOptions) : "{}";
         } else {
             repositoryName = await this.inputRepository(module);
             imageName = `\${${Utility.getModuleKey(module, "amd64")}}`;

@@ -477,10 +477,10 @@ export class Utility {
 
     public static serializeCreateOptions(settings: any, createOptions: any): any {
         let optionStr: string;
-        if (typeof settings.createOptions === "string") {
-            optionStr = settings.createOptions;
+        if (typeof createOptions === "string") {
+            optionStr = createOptions;
         } else {
-            optionStr = JSON.stringify(settings.createOptions);
+            optionStr = JSON.stringify(createOptions);
         }
         const re = new RegExp(`.{1,${Constants.TwinValueMaxSize}}`, "g");
         const options = optionStr.match(re);

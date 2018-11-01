@@ -12,8 +12,9 @@
 - Manage IoT Edge devices and modules in IoT Hub (with [Azure IoT Toolkit](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-toolkit))
 - Deploy IoT solutions to IoT Edge devices
 
-## What's New (v1.5.0)
-* Support Java module with Windows container
+## What's New (v1.5.1)
+* Support createOptions in deployment.template.json configuration up to 4K
+* Fix some bugs
   
 ## Known Issues
 * Cannot run C and Python module in IoT Edge Simulator

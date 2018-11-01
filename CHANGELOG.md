@@ -1,4 +1,9 @@
 # Change Log
+## 1.5.1 - 2018-11-02
+### Changed
+* Support createOptions in deployment.template.json configuration up to 4K
+* Fix some bugs
+
 ## 1.5.0 - 2018-10-15
 ### Added
 * Support Java module with Windows container

@@ -1,4 +1,8 @@
 # Change Log
+## 1.5.0 - 2018-10-15
+### Added
+* Support Java module with Windows container
+
 ## 1.4.0 - 2018-09-20
 ### Changed
 * Update CSharp module debug configuration to support netcoreapp2.1 target framework

@@ -13,6 +13,7 @@ import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { ModuleInfo } from "../common/moduleInfo";
+import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AcrManager } from "../container/acrManager";
@@ -64,7 +65,7 @@ export class EdgeManager {
         if (path.basename(templateFile) === Constants.moduleFolder) {
             templateFile = path.join(path.dirname(templateFile), Constants.deploymentTemplate);
             const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(templateFile));
-            if (!workspaceFolder || !await fse.exists(templateFile)) {
+            if (!workspaceFolder || !await fse.pathExists(templateFile)) {
                 vscode.window.showInformationMessage(Constants.noSolutionFileWithModulesFolder);
                 return;
             }
@@ -83,7 +84,7 @@ export class EdgeManager {
             if (folder) {
                 const deploymentTemplate = path.join(folderPath, Constants.deploymentTemplate);
                 const envFile = path.join(folderPath, Constants.envFile);
-                if (await fse.exists(deploymentTemplate)) {
+                if (await fse.pathExists(deploymentTemplate)) {
                     const templateJson = Utility.updateSchema(await fse.readJson(deploymentTemplate));
                     const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
                     const registries = runtimeSettings.registryCredentials;
@@ -419,7 +420,7 @@ export class EdgeManager {
                     "archetype:generate",
                     '-DarchetypeGroupId="com.microsoft.azure"',
                     '-DarchetypeArtifactId="azure-iot-edge-archetype"',
-                    `-DarchetypeVersion=1.0.0`,
+                    `-DarchetypeVersion=1.1.0`,
                     `-DgroupId="${groupId}"`,
                     `-DartifactId="${name}"`,
                     `-Dversion="1.0.0-SNAPSHOT"`,
@@ -704,6 +705,9 @@ export class EdgeManager {
         if (!templatePick) {
             throw new UserCancelledError();
         }
+        TelemetryClient.sendEvent( `${Constants.addModuleEvent}.selectModuleTemplate`, {
+            template: templatePick.label,
+        });
         return templatePick.label;
     }
 }

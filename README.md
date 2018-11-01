@@ -116,6 +116,7 @@ You can find Azure IoT Edge support [here](https://docs.microsoft.com/azure/iot-
 
 ## TypeEdge (Experimental)
 The Azure IoT TypeEdge introduces a **strongly-typed** flavor of the inherently loosely coupled vanilla Azure IoT Edge. We would like to invite you to try TypeEdge out and give us any feedback or recommendations you might have here. TypeEdge is still an experimental project that we don’t recommend to use it in production IoT Edge project.
+
 To get started, please visit the [project repo](https://aka.ms/typeedge) and give us feedback via [Github Issues](https://github.com/Azure/TypeEdge/issues).
 
 ## Data/Telemetry

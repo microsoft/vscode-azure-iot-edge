@@ -41,16 +41,14 @@ Click the links below to learn how to develop, debug and deploy IoT Edge modules
 
 ## FAQ
 
-**Q:** All too often, I forget to save a config file, and when I build the docker image. Can we auto-save files before build?
+> **Q:** All too often, I forget to save a config file, and when I build the docker image. Can we auto-save files before build?
+> **A:** By default, VS Code requires an explicit action to save your changes to disk, `Ctrl+S`. However, it's easy to turn on [Auto Save](https://code.visualstudio.com/docs/editor/codebasics#_save-auto-save)
 
-**A:** By default, VS Code requires an explicit action to save your changes to disk, `Ctrl+S`. However, it's easy to turn on [Auto Save](https://code.visualstudio.com/docs/editor/codebasics#_save-auto-save)
+> **Q:** How to work with Python virtual environment?
+> **A:** The Python extension manages your virtual environments in the workspace folder. Please refer to [Environments](https://code.visualstudio.com/docs/languages/python#_environments) and [Automatic Activation of Environments in the Terminal](https://blogs.msdn.microsoft.com/pythonengineering/2018/10/09/python-in-visual-studio-code-september-2018-release/) for details.
 
-**Q:** How to work with Python virtual environment?
-
-
-**Q:** Help me understand IoT Edge deployment manifest.
-
-**A:** [Learn how to use deployment manifests to deploy modules and establish routes](https://docs.microsoft.com/azure/iot-edge/module-composition)
+> **Q:** Help me understand IoT Edge deployment manifest.
+> **A:** [Learn how to use deployment manifests to deploy modules and establish routes](https://docs.microsoft.com/azure/iot-edge/module-composition)
 
 ## Commands
 
@@ -110,6 +108,10 @@ Currently this extension supports the following operating systems:
 
 The extension might work on other Linux distros as some users have reported, but be aware that Microsoft provides no guarantee or support for such installations.
 You can find Azure IoT Edge support [here](https://docs.microsoft.com/azure/iot-edge/support).
+
+## TypeEdge (Experimental)
+The Azure IoT TypeEdge introduces a **strongly-typed** flavor of the inherently loosely coupled vanilla Azure IoT Edge. We would like to invite you to try TypeEdge out and give us any feedback or recommendations you might have here. TypeEdge is still an experimental project that we don’t recommend to use it in production IoT Edge project.
+To get started, please visit the [project repo](https://aka.ms/typeedge) and give us feedback via [Github Issues](https://github.com/Azure/TypeEdge/issues).
 
 ## Data/Telemetry
 This project collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](http://go.microsoft.com/fwlink/?LinkId=521839) to learn more. 

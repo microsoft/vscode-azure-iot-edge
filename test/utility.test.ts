@@ -32,6 +32,92 @@ suite("utility tests", () => {
                   .modules.samplemodule.settings.image, "test.az.io/filter:0.0.1-amd64");
   }).timeout(60 * 1000);
 
+  test("convertCreateOptions", async () => {
+    const input: string = await fse.readFile(path.resolve(__dirname, "../../testResources/deployment.template.json"), "utf8");
+    let deployment = JSON.parse(input);
+    const oldOptionObj = deployment.modulesContent.$edgeAgent["properties.desired"].modules.tempSensor.settings.createOptions;
+    deployment = Utility.convertCreateOptions(deployment);
+    const depStr = JSON.stringify(deployment, null, 2);
+    assert.equal(
+      deployment.modulesContent.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.createOptions,
+      deployment.modulesContent.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions,
+    );
+
+    const settings = deployment.modulesContent.$edgeAgent["properties.desired"].modules.tempSensor.settings;
+    assert.equal(settings.hasOwnProperty("createOptions"), true);
+    assert.equal(settings.hasOwnProperty("createOptions01"), true);
+    assert.equal(settings.hasOwnProperty("createOptions02"), true);
+
+    const optionString = settings.createOptions + settings.createOptions01 + settings.createOptions02;
+    const optionObj = JSON.parse(optionString);
+    for (const key in oldOptionObj) {
+      if (oldOptionObj.hasOwnProperty(key)) {
+        assert.equal(optionObj.hasOwnProperty(key), true);
+      }
+    }
+    assert.equal(optionObj.Env.length, oldOptionObj.Env.length);
+    assert.equal(JSON.stringify(optionObj.Env), JSON.stringify(oldOptionObj.Env));
+  }).timeout(60 * 1000);
+
+  test("serializeCreateOptions", async () => {
+    const hostPort: any = {
+      HostPort: "43",
+    };
+
+    const hostPorts50: any[] = Array(50).fill(hostPort);
+    const PortBindingsVal = {
+      "43/udp": hostPorts50,
+      "42/tcp": [{
+        HostPort: "42",
+      }],
+    };
+
+    const createOptionsVal = {
+      Env: ["k1=v1", "k2=v2", "k3=v3"],
+      HostConfig: {
+        PortBindings: PortBindingsVal,
+      },
+    };
+
+    let settings = {
+      image: "test",
+      createOptions: createOptionsVal,
+    };
+
+    settings = Utility.serializeCreateOptions(settings, createOptionsVal);
+    const outStr = JSON.stringify(settings);
+
+    const expected = "{\"image\":\"test\",\"createOptions\":\"{\\\"Env\\\":[\\\"k1=v1\\\",\\\"k2=v2\\\",\\\"k3=v3\\\"],"
+    + "\\\"HostConfig\\\":{\\\"PortBindings\\\":{\\\"43/udp\\\":[{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostP\",\"createOptions01\":\"ort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"}],\\\"42/tcp\\\":[{\\\"HostPort\\\":\\\"42\\\"}]}}}\"}";
+    assert.equal(outStr, expected);
+  }).timeout(60 * 1000);
+
+  test("serializeCreateOptionsShort", async () => {
+    const createOptionsVal = {
+      Env: ["k1=v1", "k2=v2", "k3=v3"],
+    };
+
+    let settings = {
+      image: "test",
+      createOptions: createOptionsVal,
+    };
+
+    settings = Utility.serializeCreateOptions(settings, createOptionsVal);
+    const outStr = JSON.stringify(settings);
+    const expected = "{\"image\":\"test\",\"createOptions\":\"{\\\"Env\\\":[\\\"k1=v1\\\",\\\"k2=v2\\\",\\\"k3=v3\\\"]}\"}";
+    assert.equal(outStr, expected);
+  }).timeout(60 * 1000);
+
   test("getValidModuleName", () => {
     let valid: string = Utility.getValidModuleName("test Space");
     assert.equal(valid, "test_Space");

@@ -15,6 +15,7 @@ import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
 import { UserCancelledError } from "./UserCancelledError";
+import { create } from "domain";
 
 export class Utility {
     public static getConfiguration(): vscode.WorkspaceConfiguration {
@@ -475,17 +476,18 @@ export class Utility {
         return deployment;
     }
 
-    public static serializeCreateOptions(settings: any, createOptions: any): any {
+    public static serializeCreateOptions(moduleKey: string, settings: any, createOptions: any): any {
         let optionStr: string;
         if (typeof createOptions === "string") {
-            optionStr = createOptions;
+            // remove line breaks and extra spaces
+            optionStr = JSON.stringify(JSON.parse(createOptions), null, 0);
         } else {
             optionStr = JSON.stringify(createOptions);
         }
         const re = new RegExp(`.{1,${Constants.TwinValueMaxSize}}`, "g");
         const options = optionStr.match(re);
         if (options.length > Constants.TwinValueMaxChunks) {
-            throw new Error("Size of createOptions too big. The maxium size of createOptions is 4K");
+            throw new Error(`Size of createOptions too big in module ${moduleKey}. The maximum size of createOptions is 4K`);
         }
         options.map((value, index) => {
             if (index === 0) {
@@ -504,7 +506,7 @@ export class Utility {
             if (modules.hasOwnProperty(key)) {
                 const moduleVar = modules[key];
                 if (moduleVar.settings && moduleVar.settings.createOptions) {
-                    moduleVar.settings = Utility.serializeCreateOptions(moduleVar.settings, moduleVar.settings.createOptions);
+                    moduleVar.settings = Utility.serializeCreateOptions(key, moduleVar.settings, moduleVar.settings.createOptions);
                 }
             }
         }

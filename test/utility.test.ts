@@ -84,7 +84,7 @@ suite("utility tests", () => {
       createOptions: createOptionsVal,
     };
 
-    settings = Utility.serializeCreateOptions(settings, createOptionsVal);
+    settings = Utility.serializeCreateOptions("testModule", settings, createOptionsVal);
     const outStr = JSON.stringify(settings);
 
     const expected = "{\"image\":\"test\",\"createOptions\":\"{\\\"Env\\\":[\\\"k1=v1\\\",\\\"k2=v2\\\",\\\"k3=v3\\\"],"
@@ -112,9 +112,23 @@ suite("utility tests", () => {
       createOptions: createOptionsVal,
     };
 
-    settings = Utility.serializeCreateOptions(settings, createOptionsVal);
+    settings = Utility.serializeCreateOptions("testModule", settings, createOptionsVal);
     const outStr = JSON.stringify(settings);
     const expected = "{\"image\":\"test\",\"createOptions\":\"{\\\"Env\\\":[\\\"k1=v1\\\",\\\"k2=v2\\\",\\\"k3=v3\\\"]}\"}";
+    assert.equal(outStr, expected);
+  }).timeout(60 * 1000);
+
+  test("serializeCreateOptionsStringWithLinesBreaks", async() => {
+    const createOptionsVal =  "{\r\n  \"ExposedPorts\": {\r\n    \"1680/udp\": {}\r\n  },\r\n  \"HostConfig\": {\r\n    \"PortBindings\": {\r\n      \"1680/udp\": [\r\n        {\r\n          \"HostPort\": \"1680\",\r\n          \"HostIp\":\"172.17.0.1\"\r\n        }\r\n      ]\r\n    }\r\n  }\r\n}\r\n\r\n";
+
+    let settings = {
+      image: "test",
+      createOptions: createOptionsVal,
+    };
+
+    settings = Utility.serializeCreateOptions("testModule", settings, createOptionsVal);
+    const outStr = JSON.stringify(settings);
+    const expected = "{\"image\":\"test\",\"createOptions\":\"{\\\"ExposedPorts\\\":{\\\"1680/udp\\\":{}},\\\"HostConfig\\\":{\\\"PortBindings\\\":{\\\"1680/udp\\\":[{\\\"HostPort\\\":\\\"1680\\\",\\\"HostIp\\\":\\\"172.17.0.1\\\"}]}}}\"}";
     assert.equal(outStr, expected);
   }).timeout(60 * 1000);
 

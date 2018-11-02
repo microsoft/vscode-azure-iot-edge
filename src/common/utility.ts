@@ -15,7 +15,6 @@ import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
 import { TelemetryClient } from "./telemetryClient";
 import { UserCancelledError } from "./UserCancelledError";
-import { create } from "domain";
 
 export class Utility {
     public static getConfiguration(): vscode.WorkspaceConfiguration {

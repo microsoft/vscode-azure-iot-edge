@@ -199,6 +199,7 @@ export class EdgeManager {
         }
     }
 
+    // TODO: Change createOptions to json Object
     private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: string }> {
         let debugCreateOptions = "";
         switch (template) {
@@ -315,13 +316,15 @@ export class EdgeManager {
             }
         }
 
-        const {usernameEnv, passwordEnv} = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, template, moduleInfo, isNewSolution);
+        const needUpdateRegistry: boolean = template !== Constants.STREAM_ANALYTICS;
+
+        const {usernameEnv, passwordEnv} = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, needUpdateRegistry, isNewSolution);
 
         const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
         const debugTemplateEnv = {usernameEnv: undefined, passwordEnv: undefined};
         if (await fse.exists(templateDebugFile)) {
             const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
-            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, template, moduleInfo, isNewSolution, true);
+            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, needUpdateRegistry, isNewSolution, true);
             debugTemplateEnv.usernameEnv = envs.usernameEnv;
             debugTemplateEnv.passwordEnv = envs.passwordEnv;
         }
@@ -336,13 +339,13 @@ export class EdgeManager {
     }
 
     private async addModuleToDeploymentTemplate(templateJson: any, templateFile: string, envFilePath: string,
-                                                template: string, moduleInfo: ModuleInfo,
+                                                moduleInfo: ModuleInfo, updateRegistry: boolean,
                                                 isNewSolution: boolean, isDebug: boolean = false): Promise<{usernameEnv: string, passwordEnv: string}> {
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
         const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
         const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
 
-        if (template === Constants.STREAM_ANALYTICS && moduleInfo.moduleTwin) {
+        if (moduleInfo.moduleTwin) {
             templateJson.modulesContent[moduleInfo.moduleName] = moduleInfo.moduleTwin;
         }
 
@@ -354,7 +357,7 @@ export class EdgeManager {
         }
 
         let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
-        if (template !== Constants.STREAM_ANALYTICS) {
+        if (updateRegistry) {
             result = await this.updateRegistrySettings(address, registries, envFilePath);
         }
 

@@ -12,9 +12,7 @@ export class Platform {
     }
 
     public static getDefaultPlatformStr(): string {
-        const defaultPlatform = Platform.getDefaultPlatform();
-        const alias = defaultPlatform.alias;
-        return alias ? `${alias}(${defaultPlatform.platform})` : defaultPlatform.platform;
+        return Platform.getDefaultPlatform().getDisplayName();
     }
 
     public static getPlatformsSetting(): Platform[] {
@@ -40,7 +38,7 @@ export class Platform {
     public readonly alias: string;
 
     constructor(platform: string, alias: string) {
-        this.platform = platform;
+        this.platform = platform ? platform : "amd64";
         this.alias = alias;
     }
 

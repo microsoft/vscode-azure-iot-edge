@@ -106,8 +106,11 @@ export class Constants {
     public static moduleSchemaVersion = "$schema-version";
     public static groupId = "groupId";
     public static defPlatformConfig = "DefaultPlatform";
+    public static platformKey = "platform";
+    public static aliasKey = "alias";
     public static TwinValueMaxSize = 512;
     public static TwinValueMaxChunks = 8;
+    public static SchemaTemplate = "$schema-template";
 }
 
 export enum ContainerState {

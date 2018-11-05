@@ -13,6 +13,7 @@ import { IDeviceItem } from "../typings/IDeviceItem";
 import { BuildSettings } from "./buildSettings";
 import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
+import { Platform } from "./platform";
 import { TelemetryClient } from "./telemetryClient";
 import { UserCancelledError } from "./UserCancelledError";
 
@@ -34,20 +35,15 @@ export class Utility {
         return (os.platform() === "linux" || os.platform() === "darwin") ? `sudo ${command}` : command;
     }
 
-    public static getDefaultPlatform(): string {
-        const defaultPlatform = Utility.getConfigurationProperty(Constants.defPlatformConfig);
-        return defaultPlatform ? defaultPlatform : "amd64";
-    }
-
-    public static getConfigurationProperty(id: string): string {
+    public static getConfigurationProperty(id: string): any {
         return Utility.getConfiguration().get(id);
     }
 
-    public static async setGlobalConfigurationProperty(id: string, value: string): Promise<void> {
+    public static async setGlobalConfigurationProperty(id: string, value: any): Promise<void> {
         await Utility.getConfiguration().update(id, value, true);
     }
 
-    public static async setWorkspaceConfigurationProperty(id: string, value: string): Promise<void> {
+    public static async setWorkspaceConfigurationProperty(id: string, value: any): Promise<void> {
         await Utility.getConfiguration().update(id, value, false);
     }
 
@@ -317,10 +313,10 @@ export class Utility {
                             dockerFilePath, module.image.buildOptions, module.image.contextPath));
                 }
 
-                const defaultPlatform = Utility.getDefaultPlatform();
-                if (platform === defaultPlatform) {
+                const defaultPlatform: Platform = Platform.getDefaultPlatform();
+                if (platform === defaultPlatform.platform) {
                     moduleToImageMap.set(Utility.getModuleKeyNoPlatform(name, false), image);
-                } else if (platform === `${defaultPlatform}.debug`) {
+                } else if (platform === `${defaultPlatform.platform}.debug`) {
                     moduleToImageMap.set(Utility.getModuleKeyNoPlatform(name, true), image);
                 }
             });

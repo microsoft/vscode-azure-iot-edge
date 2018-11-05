@@ -13,6 +13,7 @@ import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { ModuleInfo } from "../common/moduleInfo";
+import { Platform } from "../common/platform";
 import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
@@ -178,10 +179,23 @@ export class EdgeManager {
     }
 
     public async selectDefaultPlatform(outputChannel: vscode.OutputChannel) {
-        const platforms: string[] = Utility.getConfiguration().get<string[]>("Platforms");
-        const defaultPlatform = await vscode.window.showQuickPick(platforms, { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
+        const platforms: Platform[] = Platform.getPlatformsSetting();
+        const keyWithAlias: string[] = [];
+        const defaultKeys: string[] = [];
+        const platformMap: Map<string, any> = new Map();
+        platforms.forEach((value: Platform) => {
+            const displayName: string = value.getDisplayName();
+            if (!value.alias) {
+                defaultKeys.push(displayName);
+            } else {
+                keyWithAlias.push(displayName);
+            }
+            platformMap.set(displayName, value);
+        });
+        const platformNames: string[] = (keyWithAlias.sort()).concat(defaultKeys.sort());
+        const defaultPlatform = await vscode.window.showQuickPick(platformNames, { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
         if (defaultPlatform) {
-            await Utility.setWorkspaceConfigurationProperty(Constants.defPlatformConfig, defaultPlatform);
+            await Utility.setWorkspaceConfigurationProperty(Constants.defPlatformConfig, platformMap.get(defaultPlatform));
         }
     }
 

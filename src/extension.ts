@@ -7,6 +7,7 @@ import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
 import { NSAT } from "./common/nsat";
+import { Platform } from "./common/platform";
 import { TelemetryClient } from "./common/telemetryClient";
 import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
@@ -28,12 +29,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     const statusBar: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, -10000);
     statusBar.command = "azure-iot-edge.setDefaultPlatform";
-    statusBar.text = formatStatusBarText(Utility.getDefaultPlatform());
+    statusBar.text = formatStatusBarText(Platform.getDefaultPlatformStr());
     statusBar.tooltip = "Default platform of IoT Edge Solution";
     statusBar.show();
 
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((e: vscode.ConfigurationChangeEvent) => {
-        statusBar.text = formatStatusBarText(Utility.getDefaultPlatform());
+        statusBar.text = formatStatusBarText(Platform.getDefaultPlatformStr());
     }));
 
     context.subscriptions.push(statusBar);

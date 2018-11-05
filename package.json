@@ -246,13 +246,20 @@
           "description": "Edge Module CA path"
         },
         "azure-iot-edge.Platforms": {
-          "type": "array",
-          "default": ["amd64", "arm32v7", "windows-amd64"],
+          "type": "object",
+          "default": {
+            "amd64": [],
+            "arm32v7": [], 
+            "windows-amd64": []
+          },
           "description": "Edge Module target platforms"
         },
         "azure-iot-edge.DefaultPlatform": {
-          "type": "string",
-          "default": "amd64",
+          "type": "object",
+          "default": {
+            "platform": "amd64",
+            "alias": null
+          },
           "description": "Current default target platform for Edge Module"
         }
       }

@@ -220,7 +220,7 @@
         "title": "Set Module Credentials to User Settings",
         "category": "Azure IoT Edge"
       },
-      { 
+      {
         "command": "azure-iot-edge.setDefaultPlatform",
         "title": "Set Default Target Platform for Edge Solution",
         "category": "Azure IoT Edge"
@@ -249,7 +249,7 @@
           "type": "object",
           "default": {
             "amd64": [],
-            "arm32v7": [], 
+            "arm32v7": [],
             "windows-amd64": []
           },
           "description": "Edge Module target platforms"
@@ -413,11 +413,13 @@
     "@types/node": "^6.0.40",
     "@types/request-promise": "^4.1.41",
     "@types/strip-json-comments": "0.0.30",
+    "@types/sinon": "^5.0.5",
     "azure-arm-resource": "^3.1.1-preview",
     "mocha": "^5.1.1",
     "tslint": "^5.7.0",
     "typescript": "^2.0.3",
-    "vscode": "^1.1.17"
+    "vscode": "^1.1.17",
+    "sinon": "^7.1.1"
   },
   "dependencies": {
     "azure-arm-containerregistry": "^2.2.0",

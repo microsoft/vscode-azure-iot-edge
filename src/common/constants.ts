@@ -12,6 +12,7 @@ export class Constants {
     public static moduleConfigFileNamePattern = "**/module.json";
     public static moduleConfigFile = "Module Config file";
     public static deploymentTemplatePattern = "**/deployment.template.json";
+    public static debugDeploymentTemplatePattern = "**/deployment.template.debug.json";
     public static deploymentTemplateDesc = "Deployment Template file";
     public static deploymentFilePattern = "**/deployment.json";
     public static deploymentFileDesc = "Deployment Manifest file";
@@ -111,7 +112,7 @@ export class Constants {
     public static TwinValueMaxSize = 512;
     public static TwinValueMaxChunks = 8;
     public static SchemaTemplate = "$schema-template";
-    public static platformStatusBarTooltip = "Default platform of IoT Edge Solution";
+    public static platformStatusBarTooltip = "Default Platform of IoT Edge Solution";
 }
 
 export enum ContainerState {

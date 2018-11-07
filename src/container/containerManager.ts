@@ -39,8 +39,9 @@ export class ContainerManager {
     }
 
     public async buildSolution(templateUri?: vscode.Uri, push: boolean = true, run: boolean = false): Promise<void> {
+        const pattern = `{${Constants.deploymentTemplatePattern},${Constants.debugDeploymentTemplatePattern}}`;
         const templateFile: string = await Utility.getInputFilePath(templateUri,
-            Constants.deploymentTemplatePattern,
+            pattern,
             Constants.deploymentTemplateDesc,
             `${Constants.buildSolutionEvent}.selectTemplate`);
         if (!templateFile) {
@@ -71,30 +72,31 @@ export class ContainerManager {
     }
 
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {
+        const pattern = `{${Constants.deploymentTemplatePattern},${Constants.debugDeploymentTemplatePattern}}`;
         const templateFile: string = await Utility.getInputFilePath(templateUri,
-            Constants.deploymentTemplatePattern,
+            pattern,
             Constants.deploymentTemplateDesc,
             `${Constants.generateDeploymentEvent}.selectTemplate`);
         if (!templateFile) {
             return;
         }
-        await this.createDeploymentFile(templateFile, false);
-        vscode.window.showInformationMessage(Constants.manifestGenerated);
+        const deployFile = await this.createDeploymentFile(templateFile, false);
+        vscode.window.showInformationMessage(`Deployment manifest generated at ${deployFile}.`);
     }
 
-    private async createDeploymentFile(templateFile: string, build: boolean = true, push: boolean = true, run: boolean = false) {
+    private async createDeploymentFile(templateFile: string, build: boolean = true, push: boolean = true, run: boolean = false): Promise<string> {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToBuildSettings: Map<string, BuildSettings> = new Map();
         const slnPath: string = path.dirname(templateFile);
         await Utility.loadEnv(path.join(slnPath, Constants.envFile));
         await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToBuildSettings);
         const configPath: string = path.join(slnPath, Constants.outputConfig);
-        const deployment: any = await this.generateDeploymentString(templateFile, configPath, moduleToImageMap);
+        const deployment: any = await this.generateDeploymentInfo(templateFile, configPath, moduleToImageMap);
         const dpManifest: any = deployment.manifestObj;
         const deployFile: string = deployment.manifestFile;
 
         if (!build) {
-            return;
+            return deployFile;
         }
 
         // build docker images
@@ -109,15 +111,17 @@ export class ContainerManager {
         });
 
         if (run) {
-            return this.runSolution(vscode.Uri.file(deployFile), commands);
+            await this.runSolution(vscode.Uri.file(deployFile), commands);
+            return deployFile;
         }
 
         Executor.runInTerminal(Utility.combineCommands(commands));
+        return deployFile;
     }
 
-    private async generateDeploymentString(templateFile: string,
-                                           configPath: string,
-                                           moduleToImageMap: Map<string, string>): Promise<any> {
+    private async generateDeploymentInfo(templateFile: string,
+                                         configPath: string,
+                                         moduleToImageMap: Map<string, string>): Promise<any> {
         const data: string = await fse.readFile(templateFile, "utf8");
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
         const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream", Constants.SchemaTemplate];

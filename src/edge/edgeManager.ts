@@ -196,6 +196,7 @@ export class EdgeManager {
         const defaultPlatform = await vscode.window.showQuickPick(platformNames, { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
         if (defaultPlatform) {
             await Utility.setWorkspaceConfigurationProperty(Constants.defPlatformConfig, platformMap.get(defaultPlatform));
+            outputChannel.appendLine(`Default platform is ${defaultPlatform} now.`);
         }
     }
 
@@ -322,7 +323,7 @@ export class EdgeManager {
 
         const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
         const debugTemplateEnv = {usernameEnv: undefined, passwordEnv: undefined};
-        if (await fse.exists(templateDebugFile)) {
+        if (await fse.pathExists(templateDebugFile)) {
             const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
             const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, needUpdateRegistry, isNewSolution, true);
             debugTemplateEnv.usernameEnv = envs.usernameEnv;

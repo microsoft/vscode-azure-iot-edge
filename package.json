@@ -46,6 +46,7 @@
     "onCommand:azure-iot-edge.setupIotedgehubdev",
     "onCommand:azure-iot-edge.startEdgeHubSingle",
     "onCommand:azure-iot-edge.setModuleCred",
+    "onCommand:azure-iot-edge.setDefaultPlatform",
     "workspaceContains:**/deployment.template.json"
   ],
   "main": "./out/src/extension",
@@ -72,72 +73,27 @@
           "group": "edge@0"
         },
         {
-          "when": "resourceFilename == deployment.template.json",
+          "when": "resourceFilename =~ /deployment.template(\\.debug)?.json/",
           "command": "azure-iot-edge.buildSolution",
           "group": "edge@1"
         },
         {
-          "when": "resourceFilename == deployment.template.debug.json",
-          "command": "azure-iot-edge.buildSolution",
-          "group": "edge@1"
-        },
-        {
-          "when": "resourceFilename == deployment.template.json",
+          "when": "resourceFilename =~ /deployment.template(\\.debug)?.json/",
           "command": "azure-iot-edge.buildAndPushSolution",
           "group": "edge@2"
         },
         {
-          "when": "resourceFilename == deployment.template.debug.json",
-          "command": "azure-iot-edge.buildAndPushSolution",
-          "group": "edge@2"
-        },
-        {
-          "when": "resourceFilename == deployment.template.json",
+          "when": "resourceFilename =~ /deployment.template(\\.debug)?.json/",
           "command": "azure-iot-edge.buildAndRunSolution",
           "group": "edge@3"
         },
         {
-          "when": "resourceFilename == deployment.template.debug.json",
-          "command": "azure-iot-edge.buildAndRunSolution",
-          "group": "edge@3"
-        },
-        {
-          "when": "resourceFilename == deployment.template.json",
+          "when": "resourceFilename =~ /deployment.template(\\.debug)?.json/",
           "command": "azure-iot-edge.generateDeployment",
           "group": "edge@4"
         },
         {
-          "when": "resourceFilename == deployment.template.debug.json",
-          "command": "azure-iot-edge.generateDeployment",
-          "group": "edge@4"
-        },
-        {
-          "when": "resourceFilename == deployment.amd64.json",
-          "command": "azure-iot-edge.runSolution",
-          "group": "edge@0"
-        },
-        {
-          "when": "resourceFilename == deployment.amd64.debug.json",
-          "command": "azure-iot-edge.runSolution",
-          "group": "edge@0"
-        },
-        {
-          "when": "resourceFilename == deployment.arm32v7.json",
-          "command": "azure-iot-edge.runSolution",
-          "group": "edge@0"
-        },
-        {
-          "when": "resourceFilename == deployment.arm32v7.debug.json",
-          "command": "azure-iot-edge.runSolution",
-          "group": "edge@0"
-        },
-        {
-          "when": "resourceFilename == deployment.windows-amd64.json",
-          "command": "azure-iot-edge.runSolution",
-          "group": "edge@0"
-        },
-        {
-          "when": "resourceFilename == deployment.windows-amd64.debug.json",
+          "when": "resourceFilename =~ /deployment(?!\\.template\\.)(\\.([a-z,0-9]+)*)?(\\.debug)?.json/",
           "command": "azure-iot-edge.runSolution",
           "group": "edge@0"
         },

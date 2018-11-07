@@ -43,6 +43,6 @@ export class Platform {
     }
 
     public getDisplayName() {
-        return this.alias ? `${this.alias}(${this.platform})` : this.platform;
+        return this.alias ? `${this.alias} (${this.platform})` : this.platform;
     }
 }

@@ -148,7 +148,7 @@ suite("utility tests", () => {
     assert.equal("amd64", platform1.getDisplayName());
 
     const platform2 = new Platform("arm32v7", "test");
-    assert.equal("test(arm32v7)", platform2.getDisplayName());
+    assert.equal("test (arm32v7)", platform2.getDisplayName());
   });
 
   test("getPlatformsSetting", () => {

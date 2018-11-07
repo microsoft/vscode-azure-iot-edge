@@ -106,7 +106,8 @@ export class Constants {
     public static inputNamePattern = "input1,input2,input3";
     public static moduleSchemaVersion = "$schema-version";
     public static groupId = "groupId";
-    public static defPlatformConfig = "DefaultPlatform";
+    public static defPlatformConfig = "defaultPlatform";
+    public static platformsConfig = "platforms";
     public static platformKey = "platform";
     public static aliasKey = "alias";
     public static TwinValueMaxSize = 512;

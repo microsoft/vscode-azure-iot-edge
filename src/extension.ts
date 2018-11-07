@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
     statusBar.show();
 
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((e: vscode.ConfigurationChangeEvent) => {
-        if (e.affectsConfiguration("azure-iot-edge.DefaultPlatform")) {
+        if (e.affectsConfiguration("azure-iot-edge.defaultPlatform")) {
             statusBar.text = formatStatusBarText(Platform.getDefaultPlatformStr());
         }
     }));

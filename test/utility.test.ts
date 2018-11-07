@@ -154,7 +154,7 @@ suite("utility tests", () => {
   test("getPlatformsSetting", () => {
     sinon.stub(Utility, "getConfiguration").callsFake(() => {
       const stubMap = new Map();
-      stubMap.set("Platforms", {
+      stubMap.set(Constants.platformsConfig, {
         arm32v7 : [],
         amd64 : ["t1", "t2"],
         windows: null,

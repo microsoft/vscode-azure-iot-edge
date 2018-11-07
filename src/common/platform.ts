@@ -16,7 +16,7 @@ export class Platform {
     }
 
     public static getPlatformsSetting(): Platform[] {
-        const platformObjs = Utility.getConfiguration().get<any>("Platforms");
+        const platformObjs = Utility.getConfiguration().get<any>(Constants.platformsConfig);
         const platforms: Platform[]  = [];
         for (const key in platformObjs) {
             if (platformObjs.hasOwnProperty(key)) {

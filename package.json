@@ -93,7 +93,7 @@
           "group": "edge@4"
         },
         {
-          "when": "resourceFilename =~ /deployment(?!\\.template\\.)(\\.([a-z,0-9]+)*)?(\\.debug)?.json/",
+          "when": "resourceFilename =~ /deployment(?!\\.template\\.)(\\.[a-z0-9]+)*(\\.debug)?.json/",
           "command": "azure-iot-edge.runSolution",
           "group": "edge@0"
         },
@@ -201,7 +201,7 @@
           "default": "",
           "description": "Edge Module CA path"
         },
-        "azure-iot-edge.Platforms": {
+        "azure-iot-edge.platforms": {
           "type": "object",
           "default": {
             "amd64": [],
@@ -210,7 +210,7 @@
           },
           "description": "Edge Module target platforms"
         },
-        "azure-iot-edge.DefaultPlatform": {
+        "azure-iot-edge.defaultPlatform": {
           "type": "object",
           "default": {
             "platform": "amd64",

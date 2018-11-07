@@ -7,6 +7,7 @@ import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
 import { NSAT } from "./common/nsat";
+import { Platform } from "./common/platform";
 import { TelemetryClient } from "./common/telemetryClient";
 import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
@@ -26,11 +27,25 @@ export function activate(context: vscode.ExtensionContext) {
 
     Utility.registerDebugTelemetryListener();
 
+    const statusBar: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, -10000);
+    statusBar.command = "azure-iot-edge.setDefaultPlatform";
+    statusBar.text = formatStatusBarText(Platform.getDefaultPlatformStr());
+    statusBar.tooltip = Constants.platformStatusBarTooltip;
+    statusBar.show();
+
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((e: vscode.ConfigurationChangeEvent) => {
+        if (e.affectsConfiguration("azure-iot-edge.defaultPlatform")) {
+            statusBar.text = formatStatusBarText(Platform.getDefaultPlatformStr());
+        }
+    }));
+
+    context.subscriptions.push(statusBar);
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new ConfigCompletionItemProvider(), "\"", ".", ":"));
     context.subscriptions.push(vscode.languages.registerHoverProvider([{ language: "json" }, { language: "jsonc" }], new ConfigHoverProvider()));
     // Calling registerDefinitionProvider will add "Go to definition" and "Peek definition" context menus to documents matched with the filter.
     // Use the strict { pattern: "**/deployment.template.json" } instead of { language: "json" }, { language: "jsonc" } to avoid polluting the context menu of non-config JSON files.
-    context.subscriptions.push(vscode.languages.registerDefinitionProvider([{ pattern: "**/deployment.template.json" }], new ConfigDefinitionProvider()));
+    context.subscriptions.push(vscode.languages.registerDefinitionProvider(
+        [{ pattern: "**/deployment.template.json" }, { pattern: "**/deployment.template.debug.json" }], new ConfigDefinitionProvider()));
 
     const diagCollection: vscode.DiagnosticCollection = vscode.languages.createDiagnosticCollection(Constants.edgeDisplayName);
     const configDiagnosticProvider: ConfigDiagnosticProvider = new ConfigDiagnosticProvider();
@@ -128,6 +143,13 @@ export function activate(context: vscode.ExtensionContext) {
             return edgeManager.setModuleCred(outputChannel);
         });
 
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.setDefaultPlatform",
+        async (): Promise<void> => {
+            await edgeManager.selectDefaultPlatform(outputChannel);
+            return configDiagnosticProvider.updateDiagnostics(vscode.window.activeTextEditor.document, diagCollection);
+        });
+
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {
         Executor.onDidCloseTerminal(closedTerminal);
     }));
@@ -136,6 +158,10 @@ export function activate(context: vscode.ExtensionContext) {
     if (folders && folders.length > 0) {
         folders.forEach((value) => edgeManager.checkRegistryEnv(value));
     }
+}
+
+function formatStatusBarText(platform?: string): string {
+    return platform ? `$(circuit-board) ${platform}` : `$(circuit-board) amd64`;
 }
 
 function initCommand(context: vscode.ExtensionContext,

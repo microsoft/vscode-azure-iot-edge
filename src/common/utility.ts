@@ -13,6 +13,7 @@ import { IDeviceItem } from "../typings/IDeviceItem";
 import { BuildSettings } from "./buildSettings";
 import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
+import { Platform } from "./platform";
 import { TelemetryClient } from "./telemetryClient";
 import { UserCancelledError } from "./UserCancelledError";
 
@@ -34,12 +35,16 @@ export class Utility {
         return (os.platform() === "linux" || os.platform() === "darwin") ? `sudo ${command}` : command;
     }
 
-    public static getConfigurationProperty(id: string): string {
+    public static getConfigurationProperty(id: string): any {
         return Utility.getConfiguration().get(id);
     }
 
-    public static async setGlobalConfigurationProperty(id: string, value: string): Promise<void> {
+    public static async setGlobalConfigurationProperty(id: string, value: any): Promise<void> {
         await Utility.getConfiguration().update(id, value, true);
+    }
+
+    public static async setWorkspaceConfigurationProperty(id: string, value: any): Promise<void> {
+        await Utility.getConfiguration().update(id, value, false);
     }
 
     public static adjustFilePath(filePath: string): string {
@@ -104,7 +109,7 @@ export class Utility {
         });
     }
 
-    public static async getInputFilePath(inputFileFromContextMenu: vscode.Uri, filePattern: string, fileDescription: string, eventName: string): Promise<string> {
+    public static async getInputFilePath(inputFileFromContextMenu: vscode.Uri, filePattern: string, fileDescription: string, eventName: string, excludeFilePattern?: string | null): Promise<string> {
         if (!Utility.checkWorkspace()) {
             return null;
         }
@@ -114,7 +119,7 @@ export class Utility {
             return inputFileFromContextMenu.fsPath;
         } else {
             TelemetryClient.sendEvent(eventName, { entry: "commandPalette" });
-            const fileList: vscode.Uri[] = await vscode.workspace.findFiles(filePattern);
+            const fileList: vscode.Uri[] = await vscode.workspace.findFiles(filePattern, excludeFilePattern);
             if (!fileList || fileList.length === 0) {
                 vscode.window.showErrorMessage(`No ${fileDescription} can be found under this workspace.`);
                 return null;
@@ -230,6 +235,10 @@ export class Utility {
         return `MODULES.${name}.${platform}`;
     }
 
+    public static getModuleKeyNoPlatform(name: string, isDebug: boolean): string {
+        return isDebug ? `MODULES.${name}.debug` : `MODULES.${name}`;
+    }
+
     public static getImage(repo: string, version: string, platform: string): string {
         return `${repo}:${version}-${platform}`;
     }
@@ -302,6 +311,13 @@ export class Utility {
                         image,
                         Utility.getBuildSettings(modulePath,
                             dockerFilePath, module.image.buildOptions, module.image.contextPath));
+                }
+
+                const defaultPlatform: Platform = Platform.getDefaultPlatform();
+                if (platform === defaultPlatform.platform) {
+                    moduleToImageMap.set(Utility.getModuleKeyNoPlatform(name, false), image);
+                } else if (platform === `${defaultPlatform.platform}.debug`) {
+                    moduleToImageMap.set(Utility.getModuleKeyNoPlatform(name, true), image);
                 }
             });
         }
@@ -482,10 +498,10 @@ export class Utility {
         } else {
             optionStr = JSON.stringify(createOptions);
         }
-        const re = new RegExp(`.{1,${Constants.TwinValueMaxSize}}`, "g");
+        const re = new RegExp(`(.|[\r\n]){1,${Constants.TwinValueMaxSize}}`, "g");
         const options = optionStr.match(re);
         if (options.length > Constants.TwinValueMaxChunks) {
-            throw new Error("Size of createOptions too big. The maxium size of createOptions is 4K");
+            throw new Error(`Size of createOptions of ${settings.image} is too big. The maxium size of createOptions is 4K`);
         }
         options.map((value, index) => {
             if (index === 0) {

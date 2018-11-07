@@ -8,6 +8,7 @@ import * as vscode from "vscode";
 import { BuildSettings } from "../common/buildSettings";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
+import { Platform } from "../common/platform";
 import { Utility } from "../common/utility";
 
 export class ContainerManager {
@@ -38,8 +39,9 @@ export class ContainerManager {
     }
 
     public async buildSolution(templateUri?: vscode.Uri, push: boolean = true, run: boolean = false): Promise<void> {
+        const pattern = `{${Constants.deploymentTemplatePattern},${Constants.debugDeploymentTemplatePattern}}`;
         const templateFile: string = await Utility.getInputFilePath(templateUri,
-            Constants.deploymentTemplatePattern,
+            pattern,
             Constants.deploymentTemplateDesc,
             `${Constants.buildSolutionEvent}.selectTemplate`);
         if (!templateFile) {
@@ -50,10 +52,13 @@ export class ContainerManager {
     }
 
     public async runSolution(deployFileUri?: vscode.Uri, commands: string[] = []): Promise<void> {
+        const pattern = "{**/deployment.*.json,**/deployment.json,**/deployment.*.debug.json}";
+        const excludePattern = "{**/deployment.template.json,**/deployment.template.debug.json}";
         const deployFile: string = await Utility.getInputFilePath(deployFileUri,
-            Constants.deploymentFilePattern,
+            pattern,
             Constants.deploymentFileDesc,
-            `${Constants.runSolutionEvent}.selectDeploymentFile`);
+            `${Constants.runSolutionEvent}.selectDeploymentFile`,
+            excludePattern);
         if (!deployFile) {
             return;
         }
@@ -67,28 +72,31 @@ export class ContainerManager {
     }
 
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {
+        const pattern = `{${Constants.deploymentTemplatePattern},${Constants.debugDeploymentTemplatePattern}}`;
         const templateFile: string = await Utility.getInputFilePath(templateUri,
-            Constants.deploymentTemplatePattern,
+            pattern,
             Constants.deploymentTemplateDesc,
             `${Constants.generateDeploymentEvent}.selectTemplate`);
         if (!templateFile) {
             return;
         }
-        await this.createDeploymentFile(templateFile, false);
-        vscode.window.showInformationMessage(Constants.manifestGenerated);
+        const deployFile = await this.createDeploymentFile(templateFile, false);
+        vscode.window.showInformationMessage(`Deployment manifest generated at ${deployFile}.`);
     }
 
-    private async createDeploymentFile(templateFile: string, build: boolean = true, push: boolean = true, run: boolean = false) {
+    private async createDeploymentFile(templateFile: string, build: boolean = true, push: boolean = true, run: boolean = false): Promise<string> {
         const moduleToImageMap: Map<string, string> = new Map();
         const imageToBuildSettings: Map<string, BuildSettings> = new Map();
         const slnPath: string = path.dirname(templateFile);
         await Utility.loadEnv(path.join(slnPath, Constants.envFile));
         await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToBuildSettings);
-        const deployFile: string = path.join(slnPath, Constants.outputConfig, Constants.deploymentFile);
-        const dpManifest: any = await this.generateDeploymentString(templateFile, deployFile, moduleToImageMap);
+        const configPath: string = path.join(slnPath, Constants.outputConfig);
+        const deployment: any = await this.generateDeploymentInfo(templateFile, configPath, moduleToImageMap);
+        const dpManifest: any = deployment.manifestObj;
+        const deployFile: string = deployment.manifestFile;
 
         if (!build) {
-            return;
+            return deployFile;
         }
 
         // build docker images
@@ -103,27 +111,36 @@ export class ContainerManager {
         });
 
         if (run) {
-            return this.runSolution(vscode.Uri.file(deployFile), commands);
+            await this.runSolution(vscode.Uri.file(deployFile), commands);
+            return deployFile;
         }
 
         Executor.runInTerminal(Utility.combineCommands(commands));
+        return deployFile;
     }
 
-    private async generateDeploymentString(templateFile: string,
-                                           deployFile: string,
-                                           moduleToImageMap: Map<string, string>): Promise<any> {
-        const configPath = path.dirname(deployFile);
-        await fse.remove(deployFile);
-
+    private async generateDeploymentInfo(templateFile: string,
+                                         configPath: string,
+                                         moduleToImageMap: Map<string, string>): Promise<any> {
         const data: string = await fse.readFile(templateFile, "utf8");
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
-        const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream"];
+        const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream", Constants.SchemaTemplate];
         const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, ...exceptStr);
         const dpManifest = Utility.convertCreateOptions(Utility.updateSchema(JSON.parse(generatedDeployFile)));
+        const templateSchemaVersion = dpManifest[Constants.SchemaTemplate];
+        delete dpManifest[Constants.SchemaTemplate];
         // generate config file
         await fse.ensureDir(configPath);
+        const templateFileName = path.basename(templateFile);
+        const debug = (templateFileName === Constants.deploymentDebugTemplate) ? ".debug" : "";
+        const deploymentFileName = templateSchemaVersion > "0.0.1" ? `deployment.${Platform.getDefaultPlatform().platform}${debug}.json` : `deployment${debug}.json`;
+        const deployFile = path.join(configPath, deploymentFileName);
+        await fse.remove(deployFile);
         await fse.writeFile(deployFile, JSON.stringify(dpManifest, null, 2), { encoding: "utf8" });
-        return dpManifest;
+        return {
+            manifestObj: dpManifest,
+            manifestFile: deployFile,
+        };
     }
 
     private getBuildMapFromDeployment(manifestObj: any,

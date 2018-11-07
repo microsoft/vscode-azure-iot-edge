@@ -12,6 +12,7 @@ export class Constants {
     public static moduleConfigFileNamePattern = "**/module.json";
     public static moduleConfigFile = "Module Config file";
     public static deploymentTemplatePattern = "**/deployment.template.json";
+    public static debugDeploymentTemplatePattern = "**/deployment.template.debug.json";
     public static deploymentTemplateDesc = "Deployment Template file";
     public static deploymentFilePattern = "**/deployment.json";
     public static deploymentFileDesc = "Deployment Manifest file";
@@ -47,6 +48,7 @@ export class Constants {
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";
+    public static deploymentDebugTemplate = "deployment.template.debug.json";
     public static userCancelled = "Cancelled by user";
     public static edgeDisplayName = "Azure IoT Edge";
     public static solutionName = "Solution Name";
@@ -104,9 +106,14 @@ export class Constants {
     public static inputNamePattern = "input1,input2,input3";
     public static moduleSchemaVersion = "$schema-version";
     public static groupId = "groupId";
-
+    public static defPlatformConfig = "defaultPlatform";
+    public static platformsConfig = "platforms";
+    public static platformKey = "platform";
+    public static aliasKey = "alias";
     public static TwinValueMaxSize = 512;
     public static TwinValueMaxChunks = 8;
+    public static SchemaTemplate = "$schema-template";
+    public static platformStatusBarTooltip = "Default Platform of IoT Edge Solution";
 }
 
 export enum ContainerState {

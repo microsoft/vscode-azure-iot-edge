@@ -1,8 +1,10 @@
 import * as assert from "assert";
 import * as fse from "fs-extra";
 import * as path from "path";
+import * as sinon from "sinon";
 import { BuildSettings } from "../src/common/buildSettings";
 import { Constants } from "../src/common/constants";
+import { Platform } from "../src/common/platform";
 import { Utility } from "../src/common/utility";
 
 suite("utility tests", () => {
@@ -127,14 +129,42 @@ suite("utility tests", () => {
   });
 
   test("setModuleMap", async () => {
+    sinon.stub(Platform, "getDefaultPlatform").callsFake(() => {
+      return new Platform("arm32v7", "camera");
+    });
     const moduleDir = path.resolve(__dirname, "../../testResources/module1");
     const moduleToImageMap: Map<string, string> = new Map();
     const imageToBuildSettings: Map<string, BuildSettings> = new Map();
     await Utility.setModuleMap(moduleDir, moduleToImageMap, imageToBuildSettings);
-    assert.equal(moduleToImageMap.size, 4);
-    assert.equal(imageToBuildSettings.size, 4);
+    assert.equal(moduleToImageMap.size, 7);
+    assert.equal(moduleToImageMap.get("MODULES.module1"), "localhost:5000/samplemodule:0.0.1-arm32v7");
+    assert.equal(moduleToImageMap.get("MODULES.module1.debug"), "localhost:5000/samplemodule:0.0.1-arm32v7.debug");
+    assert.equal(imageToBuildSettings.size, 5);
     assert.equal(imageToBuildSettings.get("localhost:5000/samplemodule:0.0.1-amd64").options.length, 8);
   }).timeout(60 * 1000);
+
+  test("getDisplayName", () => {
+    const platform1 = new Platform("amd64", null);
+    assert.equal("amd64", platform1.getDisplayName());
+
+    const platform2 = new Platform("arm32v7", "test");
+    assert.equal("test (arm32v7)", platform2.getDisplayName());
+  });
+
+  test("getPlatformsSetting", () => {
+    sinon.stub(Utility, "getConfiguration").callsFake(() => {
+      const stubMap = new Map();
+      stubMap.set(Constants.platformsConfig, {
+        arm32v7 : [],
+        amd64 : ["t1", "t2"],
+        windows: null,
+        test: ["test"],
+      });
+      return stubMap;
+    });
+    const platforms: Platform[] = Platform.getPlatformsSetting();
+    assert.equal(platforms.length, 6);
+  });
 
   test("replaceAll", async () => {
     // tslint:disable-next-line:quotemark

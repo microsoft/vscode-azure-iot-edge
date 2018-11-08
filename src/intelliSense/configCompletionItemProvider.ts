@@ -50,8 +50,9 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
         // }
 
         if (IntelliSenseUtility.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
-            const images: string[] = await this.getSlnImgPlaceholders(document.uri);
-            return this.getCompletionItems(images, document, position, location);
+            const moduleToImageMap: Map<string, string> = new Map();
+            await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap);
+            return this.getCompletionItems(Array.from(moduleToImageMap.keys()), document, position, location);
         }
 
         if (IntelliSenseUtility.locationMatch(location, Constants.routeDeploymentManifestJsonPath)) {
@@ -66,18 +67,6 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
             routeCompletionItem.range = document.getWordRangeAtPosition(position);
             routeCompletionItem.insertText = new vscode.SnippetString(this.getRouteSnippetString(moduleIds));
             return [routeCompletionItem];
-        }
-    }
-
-    private async getSlnImgPlaceholders(templateUri: vscode.Uri): Promise<string[]> {
-        const moduleToImageMap: Map<string, string> = new Map();
-
-        try {
-            await Utility.setSlnModulesMap(path.dirname(templateUri.fsPath), moduleToImageMap);
-
-            return Array.from(moduleToImageMap.keys());
-        } catch {
-            return;
         }
     }
 

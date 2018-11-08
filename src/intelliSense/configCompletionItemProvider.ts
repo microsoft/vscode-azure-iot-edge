@@ -75,12 +75,7 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
         try {
             await Utility.setSlnModulesMap(path.dirname(templateUri.fsPath), moduleToImageMap);
 
-            const placeholders: string[] = [];
-            for (const module of moduleToImageMap.keys()) {
-                placeholders.push(module);
-            }
-
-            return placeholders;
+            return Array.from(moduleToImageMap.keys());
         } catch {
             return;
         }

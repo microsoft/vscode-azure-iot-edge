@@ -27,7 +27,7 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
                 "\t\"restartPolicy\": \"${4|" + Constants.moduleRestartPolicies.join(",") + "|}\",",
                 "\t\"settings\": {",
                 "\t\t\"image\": \"${5:" + Constants.registryPlaceholder + "}/${6:" + Constants.repoNamePlaceholder + "}:${7:" + Constants.tagPlaceholder + "}\",",
-                "\t\t\"createOptions\": \"${8:{}}\"",
+                "\t\t\"createOptions\": ${8:{}}",
                 "\t}",
                 "}",
             ].join("\n"));

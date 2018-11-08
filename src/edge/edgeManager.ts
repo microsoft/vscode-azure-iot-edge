@@ -201,24 +201,29 @@ export class EdgeManager {
     }
 
     // TODO: Change createOptions to json Object
-    private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: string }> {
-        let debugCreateOptions = "";
+    private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: any }> {
+        let debugCreateOptions = {};
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
                 break;
             case Constants.CSHARP_FUNCTION:
                 break;
             case Constants.LANGUAGE_NODE:
-                debugCreateOptions = `{"ExposedPorts":{"9229/tcp":{}},"HostConfig":{"PortBindings":{"9229/tcp":[{"HostPort":"9229"}]}}}`;
+                debugCreateOptions = {
+                    ExposedPorts: { "9229/tcp": {}},
+                    HostConfig: {PortBindings: {"9229/tcp": [{HostPort: "9229"}]}}};
                 break;
             case Constants.LANGUAGE_C:
-                debugCreateOptions = `{"HostConfig": {"Privileged": true}}"`;
+                debugCreateOptions = {HostConfig: {Privileged: true}};
                 break;
             case Constants.LANGUAGE_JAVA:
-                debugCreateOptions = `{"HostConfig":{"PortBindings":{"5005/tcp":[{"HostPort":"5005"}]}}}`;
+                debugCreateOptions = {
+                    HostConfig: {PortBindings: {"5005/tcp": [{HostPort: "5005"}]}}};
                 break;
             case Constants.LANGUAGE_PYTHON:
-                debugCreateOptions = `{"ExposedPorts":{"5678/tcp":{}},"HostConfig":{"PortBindings":{"5678/tcp":[{"HostPort":"5678"}]}}}`;
+                debugCreateOptions = {
+                    ExposedPorts: {"5678/tcp": {}},
+                    HostConfig: {PortBindings: {"5678/tcp": [{HostPort: "5678"}]}}};
                 break;
             default:
                 break;
@@ -364,17 +369,17 @@ export class EdgeManager {
 
         const imageName = isDebug ? moduleInfo.debugImageName : moduleInfo.imageName;
         const createOptions = isDebug ? moduleInfo.debugCreateOptions : moduleInfo.createOptions;
-        const newModuleSection = `{
-            "version": "1.0",
-            "type": "docker",
-            "status": "running",
-            "restartPolicy": "always",
-            "settings": {
-              "image": "${imageName}",
-              "createOptions": "${createOptions.replace(/"/g, '\\"')}"
-            }
-          }`;
-        modules[moduleInfo.moduleName] = JSON.parse(newModuleSection);
+        const newModuleSection = {
+            version: "1.0",
+            type: "docker",
+            status: "running",
+            restartPolicy: "always",
+            settings: {
+              image: imageName,
+              createOptions,
+            },
+          };
+        modules[moduleInfo.moduleName] = newModuleSection;
         const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
         routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
         if (isNewSolution) {
@@ -549,9 +554,9 @@ export class EdgeManager {
         let repositoryName: string = "";
         let imageName: string = "";
         let moduleTwin: object;
-        let createOptions: string = "{}";
+        let createOptions: any = {};
         let debugImageName: string = "";
-        let debugCreateOptions: string = "{}";
+        let debugCreateOptions: any = {};
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
             imageName = await acrManager.selectAcrImage();
@@ -565,7 +570,7 @@ export class EdgeManager {
             const JobInfo: any = await saManager.getJobInfo(job);
             imageName = JobInfo.settings.image;
             moduleTwin = JobInfo.twin.content;
-            createOptions = JobInfo.settings.createOptions ? JSON.stringify(JobInfo.settings.createOptions) : "{}";
+            createOptions = JobInfo.settings.createOptions ? JobInfo.settings.createOptions : {};
         } else {
             repositoryName = await this.inputRepository(module);
             imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;

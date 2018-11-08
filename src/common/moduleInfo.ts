@@ -7,15 +7,15 @@ export class ModuleInfo {
     public readonly createOptions: string;
     public readonly debugCreateOptions: string;
 
-    constructor(moduleName: string, repositoryName: string, imageName: string, moduleTwin: object, createOptions: string,
-                debugImageName: string, debugCreateOptions: string) {
+    constructor(moduleName: string, repositoryName: string, imageName: string, moduleTwin: object, createOptions: any,
+                debugImageName: string, debugCreateOptions: any) {
         this.moduleName = moduleName;
         this.repositoryName = repositoryName;
         this.imageName = imageName;
         this.moduleTwin = moduleTwin;
         // TODO: Change to json object
-        this.createOptions = createOptions ? createOptions : "{}";
+        this.createOptions = createOptions ? createOptions : {};
         this.debugImageName = debugImageName;
-        this.debugCreateOptions = debugCreateOptions ? debugCreateOptions : "{}";
+        this.debugCreateOptions = debugCreateOptions ? debugCreateOptions : {};
     }
 }

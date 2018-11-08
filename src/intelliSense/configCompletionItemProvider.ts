@@ -91,7 +91,7 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
         const node: parser.Node = location.previousNode;
 
         const overwriteRange: vscode.Range = this.getOverwriteRange(document, position, offset, node);
-        const separator: string = this.evaluateSeparaterAfter(document, position, offset, node);
+        const separator: string = this.evaluateSeparatorAfter(document, position, offset, node);
 
         const completionItems: vscode.CompletionItem[] = [];
         for (let value of values) {
@@ -100,6 +100,14 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
             completionItem.range = overwriteRange;
             completionItem.insertText = value + separator;
             completionItem.kind = vscode.CompletionItemKind.Value;
+
+            // Deprioritize image placeholders with platform (e.g., ${MODULES.SampleModule.amd64}) in completion item list
+            if (value.split(".").length > 2) {
+                completionItem.sortText = "zzz";
+            } else {
+                completionItem.sortText = value;
+            }
+
             completionItems.push(completionItem);
         }
 
@@ -132,7 +140,7 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
     }
 
     // this method evaluates whether to append a comma at the end of the completion text
-    private evaluateSeparaterAfter(document: vscode.TextDocument, position: vscode.Position, offset: number, node: parser.Node) {
+    private evaluateSeparatorAfter(document: vscode.TextDocument, position: vscode.Position, offset: number, node: parser.Node) {
         // when the cursor is placed in a node, set the scanner location to the end of the node
         if (node && (node.type === "string" || node.type === "number" || node.type === "boolean" || node.type === "null")) {
             offset = node.offset + node.length;

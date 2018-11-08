@@ -77,7 +77,7 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
 
             const placeholders: string[] = [];
             for (const module of moduleToImageMap.keys()) {
-                placeholders.push("${" + module + "}");
+                placeholders.push(module);
             }
 
             return placeholders;
@@ -94,19 +94,13 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
         const separator: string = this.evaluateSeparatorAfter(document, position, offset, node);
 
         const completionItems: vscode.CompletionItem[] = [];
-        for (let value of values) {
-            value = "\"" + value + "\"";
-            const completionItem: vscode.CompletionItem = new vscode.CompletionItem(value);
+        for (const value of values) {
+            const label = "\"${" + value + "}\"";
+            const completionItem: vscode.CompletionItem = new vscode.CompletionItem(label);
             completionItem.range = overwriteRange;
-            completionItem.insertText = value + separator;
+            completionItem.insertText = label + separator;
             completionItem.kind = vscode.CompletionItemKind.Value;
-
-            // Deprioritize image placeholders with platform (e.g., ${MODULES.SampleModule.amd64}) in completion item list
-            if (value.split(".").length > 2) {
-                completionItem.sortText = "zzz";
-            } else {
-                completionItem.sortText = value;
-            }
+            completionItem.sortText = value;
 
             completionItems.push(completionItem);
         }

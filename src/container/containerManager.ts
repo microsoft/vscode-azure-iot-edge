@@ -47,8 +47,8 @@ export class ContainerManager {
         if (!templateFile) {
             return;
         }
-        await this.createDeploymentFile(templateFile, true, push, run);
-        vscode.window.showInformationMessage(Constants.manifestGeneratedWithBuild);
+        const deployFile = await this.createDeploymentFile(templateFile, true, push, run);
+        vscode.window.showInformationMessage(`Deployment manifest generated at ${deployFile}. Module images are being built`);
     }
 
     public async runSolution(deployFileUri?: vscode.Uri, commands: string[] = []): Promise<void> {

@@ -50,8 +50,9 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
         // }
 
         if (IntelliSenseUtility.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
-            const images: string[] = await this.getSlnImgPlaceholders(document.uri);
-            return this.getCompletionItems(images, document, position, location);
+            const moduleToImageMap: Map<string, string> = new Map();
+            await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap);
+            return this.getCompletionItems(Array.from(moduleToImageMap.keys()), document, position, location);
         }
 
         if (IntelliSenseUtility.locationMatch(location, Constants.routeDeploymentManifestJsonPath)) {
@@ -69,37 +70,22 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
         }
     }
 
-    private async getSlnImgPlaceholders(templateUri: vscode.Uri): Promise<string[]> {
-        const moduleToImageMap: Map<string, string> = new Map();
-
-        try {
-            await Utility.setSlnModulesMap(path.dirname(templateUri.fsPath), moduleToImageMap);
-
-            const placeholders: string[] = [];
-            for (const module of moduleToImageMap.keys()) {
-                placeholders.push("${" + module + "}");
-            }
-
-            return placeholders;
-        } catch {
-            return;
-        }
-    }
-
     private getCompletionItems(values: string[], document: vscode.TextDocument, position: vscode.Position, location: parser.Location): vscode.CompletionItem[] {
         const offset: number = document.offsetAt(position);
         const node: parser.Node = location.previousNode;
 
         const overwriteRange: vscode.Range = this.getOverwriteRange(document, position, offset, node);
-        const separator: string = this.evaluateSeparaterAfter(document, position, offset, node);
+        const separator: string = this.evaluateSeparatorAfter(document, position, offset, node);
 
         const completionItems: vscode.CompletionItem[] = [];
-        for (let value of values) {
-            value = "\"" + value + "\"";
-            const completionItem: vscode.CompletionItem = new vscode.CompletionItem(value);
+        for (const value of values) {
+            const label = "\"${" + value + "}\"";
+            const completionItem: vscode.CompletionItem = new vscode.CompletionItem(label);
             completionItem.range = overwriteRange;
-            completionItem.insertText = value + separator;
+            completionItem.insertText = label + separator;
             completionItem.kind = vscode.CompletionItemKind.Value;
+            completionItem.sortText = value;
+
             completionItems.push(completionItem);
         }
 
@@ -132,7 +118,7 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
     }
 
     // this method evaluates whether to append a comma at the end of the completion text
-    private evaluateSeparaterAfter(document: vscode.TextDocument, position: vscode.Position, offset: number, node: parser.Node) {
+    private evaluateSeparatorAfter(document: vscode.TextDocument, position: vscode.Position, offset: number, node: parser.Node) {
         // when the cursor is placed in a node, set the scanner location to the end of the node
         if (node && (node.type === "string" || node.type === "number" || node.type === "boolean" || node.type === "null")) {
             offset = node.offset + node.length;

@@ -73,27 +73,27 @@
           "group": "edge@0"
         },
         {
-          "when": "resourceFilename =~ /deployment.template(\\.debug)?.json/",
+          "when": "resourceFilename =~ /deployment\\.template(\\.debug)?\\.json/",
           "command": "azure-iot-edge.buildSolution",
           "group": "edge@1"
         },
         {
-          "when": "resourceFilename =~ /deployment.template(\\.debug)?.json/",
+          "when": "resourceFilename =~ /deployment\\.template(\\.debug)?\\.json/",
           "command": "azure-iot-edge.buildAndPushSolution",
           "group": "edge@2"
         },
         {
-          "when": "resourceFilename =~ /deployment.template(\\.debug)?.json/",
+          "when": "resourceFilename =~ /deployment\\.template(\\.debug)?\\.json/",
           "command": "azure-iot-edge.buildAndRunSolution",
           "group": "edge@3"
         },
         {
-          "when": "resourceFilename =~ /deployment.template(\\.debug)?.json/",
+          "when": "resourceFilename =~ /deployment\\.template(\\.debug)?\\.json/",
           "command": "azure-iot-edge.generateDeployment",
           "group": "edge@4"
         },
         {
-          "when": "resourceFilename =~ /deployment(?!\\.template\\.)(\\.[a-z0-9]+)*(\\.debug)?.json/",
+          "when": "resourceFilename =~ /deployment(?!\\.template\\.)(\\.[-a-z0-9]+)*(\\.debug)?\\.json/",
           "command": "azure-iot-edge.runSolution",
           "group": "edge@0"
         },

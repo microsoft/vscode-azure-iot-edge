@@ -108,6 +108,7 @@ export class Constants {
     public static groupId = "groupId";
     public static defPlatformConfig = "defaultPlatform";
     public static platformsConfig = "platforms";
+    public static thirdPartyModuleTemplatesConfig = "3rdPartyModuleTemplates";
     public static platformKey = "platform";
     public static aliasKey = "alias";
     public static TwinValueMaxSize = 512;

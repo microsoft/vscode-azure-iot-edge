@@ -452,6 +452,11 @@ export class EdgeManager {
                     "-B");
                 break;
             default:
+                const thirdPartyModuleTemplate = this.get3rdPartyModuleTemplateByName(template);
+                if (thirdPartyModuleTemplate) {
+                    const command = thirdPartyModuleTemplate.command.replace(/\${moduleName}/g, name).replace(/\${repositoryName}/g, repositoryName);
+                    await Executor.executeCMD(outputChannel, command, { cwd: `${parent}`, shell: true }, "");
+                }
                 break;
         }
     }
@@ -721,6 +726,17 @@ export class EdgeManager {
                 description: Constants.EXISTING_MODULE_DESCRIPTION,
             },
         ];
+        const templates = this.get3rdPartyModuleTemplates();
+        if (templates) {
+            templates.forEach((template) => {
+                if (template.name) {
+                    templatePicks.push({
+                        label: template.name,
+                        description: template.description,
+                    });
+                }
+            });
+        }
         if (label === undefined) {
             label = Constants.selectTemplate;
         }
@@ -732,5 +748,15 @@ export class EdgeManager {
             template: templatePick.label,
         });
         return templatePick.label;
+    }
+
+    private get3rdPartyModuleTemplates() {
+        const themplatesConfig = Utility.getConfiguration().get<any>(Constants.thirdPartyModuleTemplatesConfig);
+        return themplatesConfig ? themplatesConfig.templates as any[] : undefined;
+    }
+
+    private get3rdPartyModuleTemplateByName(name: string) {
+        const templates = this.get3rdPartyModuleTemplates();
+        return templates.find((template) => template.name === name);
     }
 }

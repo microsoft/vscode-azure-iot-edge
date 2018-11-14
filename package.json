@@ -93,7 +93,7 @@
           "group": "edge@4"
         },
         {
-          "when": "resourceFilename =~ /^deployment(?!.*\\.template\\.json)(\\.[-a-z0-9]+)*(\\.debug)?\\.json$/",
+          "when": "resourceFilename =~ /^deployment(?!.*\\.template\\.json)(\\.debug)?(\\.[-a-z0-9]+)*\\.json$/",
           "command": "azure-iot-edge.runSolution",
           "group": "edge@0"
         },

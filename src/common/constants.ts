@@ -115,6 +115,8 @@ export class Constants {
     public static TwinValueMaxChunks = 8;
     public static SchemaTemplate = "$schema-template";
     public static platformStatusBarTooltip = "Default Platform of IoT Edge Solution";
+    public static moduleNameSubstitution = "${moduleName}";
+    public static repositoryNameSubstitution = "${repositoryName}";
 }
 
 export enum ContainerState {

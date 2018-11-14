@@ -454,7 +454,9 @@ export class EdgeManager {
             default:
                 const thirdPartyModuleTemplate = this.get3rdPartyModuleTemplateByName(template);
                 if (thirdPartyModuleTemplate) {
-                    const command = thirdPartyModuleTemplate.command.replace(/\${moduleName}/g, name).replace(/\${repositoryName}/g, repositoryName);
+                    const command = thirdPartyModuleTemplate.command
+                        .replace(new RegExp(`\\${Constants.moduleNameSubstitution}`, "g"), name)
+                        .replace(new RegExp(`\\${Constants.repositoryNameSubstitution}`, "g"), repositoryName);
                     await Executor.executeCMD(outputChannel, command, { cwd: `${parent}`, shell: true }, "");
                 }
                 break;
@@ -562,6 +564,7 @@ export class EdgeManager {
         let createOptions: any = {};
         let debugImageName: string = "";
         let debugCreateOptions: any = {};
+        const thirdPartyModuleTemplate = this.get3rdPartyModuleTemplateByName(template);
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
             imageName = await acrManager.selectAcrImage();
@@ -576,6 +579,11 @@ export class EdgeManager {
             imageName = JobInfo.settings.image;
             moduleTwin = JobInfo.twin.content;
             createOptions = JobInfo.settings.createOptions ? JobInfo.settings.createOptions : {};
+        } else if (thirdPartyModuleTemplate) {
+            if (thirdPartyModuleTemplate.command && thirdPartyModuleTemplate.command.includes(Constants.repositoryNameSubstitution)) {
+                repositoryName = await this.inputRepository(module);
+            }
+            imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;
         } else {
             repositoryName = await this.inputRepository(module);
             imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;

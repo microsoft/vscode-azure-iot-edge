@@ -39,7 +39,7 @@ export class ContainerManager {
     }
 
     public async buildSolution(templateUri?: vscode.Uri, push: boolean = true, run: boolean = false): Promise<void> {
-        const pattern = `{${Constants.deploymentTemplatePattern},${Constants.debugDeploymentTemplatePattern}}`;
+        const pattern = `{${Constants.tsonPattern}}`;
         const templateFile: string = await Utility.getInputFilePath(templateUri,
             pattern,
             Constants.deploymentTemplateDesc,
@@ -52,8 +52,8 @@ export class ContainerManager {
     }
 
     public async runSolution(deployFileUri?: vscode.Uri, commands: string[] = []): Promise<void> {
-        const pattern = "{**/deployment.*.json,**/deployment.json,**/deployment.*.debug.json}";
-        const excludePattern = "{**/deployment.template.json,**/deployment.template.debug.json}";
+        const pattern = "{**/deployment.*.json,**/deployment.json,**/deployment.*.debug.json,**/config/*.json}";
+        const excludePattern = `{${Constants.tsonPattern}}`;
         const deployFile: string = await Utility.getInputFilePath(deployFileUri,
             pattern,
             Constants.deploymentFileDesc,
@@ -72,7 +72,7 @@ export class ContainerManager {
     }
 
     public async generateDeployment(templateUri?: vscode.Uri): Promise<void> {
-        const pattern = `{${Constants.deploymentTemplatePattern},${Constants.debugDeploymentTemplatePattern}}`;
+        const pattern = `{${Constants.tsonPattern}}`;
         const templateFile: string = await Utility.getInputFilePath(templateUri,
             pattern,
             Constants.deploymentTemplateDesc,
@@ -132,8 +132,7 @@ export class ContainerManager {
         // generate config file
         await fse.ensureDir(configPath);
         const templateFileName = path.basename(templateFile);
-        const debug = (templateFileName === Constants.deploymentDebugTemplate) ? ".debug" : "";
-        const deploymentFileName = templateSchemaVersion > "0.0.1" ? `deployment.${Platform.getDefaultPlatform().platform}${debug}.json` : `deployment${debug}.json`;
+        const deploymentFileName = this.getDeployFileName(templateFileName, templateSchemaVersion);
         const deployFile = path.join(configPath, deploymentFileName);
         await fse.remove(deployFile);
         await fse.writeFile(deployFile, JSON.stringify(dpManifest, null, 2), { encoding: "utf8" });
@@ -141,6 +140,18 @@ export class ContainerManager {
             manifestObj: dpManifest,
             manifestFile: deployFile,
         };
+    }
+
+    private getDeployFileName(templateFileName: string, templateSchemaVersion: string): string {
+        const platform = templateSchemaVersion > "0.0.1" ? `.${Platform.getDefaultPlatform().platform}` : "";
+        let name: string = templateFileName;
+        const tempLength = templateFileName.length;
+        if (templateFileName.endsWith(Constants.tson)) {
+            name = templateFileName.substr(0, tempLength - Constants.tson.length);
+        } else if (templateFileName.endsWith(".json")) {
+            name = templateFileName.substr(0, tempLength - ".json".length);
+        }
+        return `${name}${platform}.json`;
     }
 
     private getBuildMapFromDeployment(manifestObj: any,

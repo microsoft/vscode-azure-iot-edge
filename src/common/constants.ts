@@ -12,7 +12,9 @@ export class Constants {
     public static moduleConfigFileNamePattern = "**/module.json";
     public static moduleConfigFile = "Module Config file";
     public static deploymentTemplatePattern = "**/deployment.template.json";
-    public static debugDeploymentTemplatePattern = "**/deployment.template.debug.json";
+    public static debugDeploymentTemplatePattern = "**/deployment.debug.template.json";
+    public static tsonPattern = "**/*.template.json";
+    public static tson = ".template.json";
     public static deploymentTemplateDesc = "Deployment Template file";
     public static deploymentFilePattern = "**/deployment.json";
     public static deploymentFileDesc = "Deployment Manifest file";
@@ -48,7 +50,7 @@ export class Constants {
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";
-    public static deploymentDebugTemplate = "deployment.template.debug.json";
+    public static deploymentDebugTemplate = "deployment.debug.template.json";
     public static userCancelled = "Cancelled by user";
     public static edgeDisplayName = "Azure IoT Edge";
     public static solutionName = "Solution Name";

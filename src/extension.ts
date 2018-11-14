@@ -45,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Calling registerDefinitionProvider will add "Go to definition" and "Peek definition" context menus to documents matched with the filter.
     // Use the strict { pattern: "**/deployment.template.json" } instead of { language: "json" }, { language: "jsonc" } to avoid polluting the context menu of non-config JSON files.
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(
-        [{ pattern: "**/deployment.template.json" }, { pattern: "**/deployment.template.debug.json" }], new ConfigDefinitionProvider()));
+        [{ pattern: Constants.deploymentTemplatePattern }, { pattern: Constants.debugDeploymentTemplatePattern }], new ConfigDefinitionProvider()));
 
     const diagCollection: vscode.DiagnosticCollection = vscode.languages.createDiagnosticCollection(Constants.edgeDisplayName);
     const configDiagnosticProvider: ConfigDiagnosticProvider = new ConfigDiagnosticProvider();

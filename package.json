@@ -220,19 +220,8 @@
         },
         "azure-iot-edge.3rdPartyModuleTemplates": {
           "type": "object",
-          "default": {
-            "version": "1.0.0",
-            "templates": [{
-              "name": "C# TypeEdge Module",
-              "description": "Use TypeEdge C# library to build a module",
-              "command": "dotnet new -i TypeEdge.Module.VsCode && dotnet new typeedgemodulevscode -n ${moduleName} -r ${repositoryName} && echo 222"
-            },{
-              "name": "C# TypeEdge Module 2",
-              "description": "Use TypeEdge C# library to build a module",
-              "command": "echo 222 && dotnet new -i TypeEdge.Module.VsCode && dotnet new typeedgemodulevscode -n ${moduleName} -r ${repositoryName} && echo 222"
-            }]
-          },
-          "description": "3rd party modules"
+          "default": {},
+          "description": "Templates for third party modules"
         }
       }
     },

@@ -759,12 +759,12 @@ export class EdgeManager {
     }
 
     private get3rdPartyModuleTemplates() {
-        const themplatesConfig = Utility.getConfiguration().get<any>(Constants.thirdPartyModuleTemplatesConfig);
-        return themplatesConfig ? themplatesConfig.templates as any[] : undefined;
+        const templatesConfig = Utility.getConfiguration().get<any>(Constants.thirdPartyModuleTemplatesConfig);
+        return templatesConfig ? templatesConfig.templates as any[] : undefined;
     }
 
     private get3rdPartyModuleTemplateByName(name: string) {
         const templates = this.get3rdPartyModuleTemplates();
-        return templates.find((template) => template.name === name);
+        return templates ? templates.find((template) => template.name === name) : undefined;
     }
 }

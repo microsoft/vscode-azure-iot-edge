@@ -737,7 +737,7 @@ export class EdgeManager {
         const templates = this.get3rdPartyModuleTemplates();
         if (templates) {
             templates.forEach((template) => {
-                if (template.name) {
+                if (template.name && template.command) {
                     templatePicks.push({
                         label: template.name,
                         description: template.description,

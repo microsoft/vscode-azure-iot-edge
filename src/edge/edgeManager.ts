@@ -452,6 +452,13 @@ export class EdgeManager {
                     "-B");
                 break;
             default:
+                const thirdPartyModuleTemplate = this.get3rdPartyModuleTemplateByName(template);
+                if (thirdPartyModuleTemplate) {
+                    const command = thirdPartyModuleTemplate.command
+                        .replace(new RegExp(`\\${Constants.moduleNameSubstitution}`, "g"), name)
+                        .replace(new RegExp(`\\${Constants.repositoryNameSubstitution}`, "g"), repositoryName);
+                    await Executor.executeCMD(outputChannel, command, { cwd: `${parent}`, shell: true }, "");
+                }
                 break;
         }
     }
@@ -557,6 +564,7 @@ export class EdgeManager {
         let createOptions: any = {};
         let debugImageName: string = "";
         let debugCreateOptions: any = {};
+        const thirdPartyModuleTemplate = this.get3rdPartyModuleTemplateByName(template);
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
             imageName = await acrManager.selectAcrImage();
@@ -571,6 +579,11 @@ export class EdgeManager {
             imageName = JobInfo.settings.image;
             moduleTwin = JobInfo.twin.content;
             createOptions = JobInfo.settings.createOptions ? JobInfo.settings.createOptions : {};
+        } else if (thirdPartyModuleTemplate) {
+            if (thirdPartyModuleTemplate.command && thirdPartyModuleTemplate.command.includes(Constants.repositoryNameSubstitution)) {
+                repositoryName = await this.inputRepository(module);
+            }
+            imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;
         } else {
             repositoryName = await this.inputRepository(module);
             imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;
@@ -721,6 +734,17 @@ export class EdgeManager {
                 description: Constants.EXISTING_MODULE_DESCRIPTION,
             },
         ];
+        const templates = this.get3rdPartyModuleTemplates();
+        if (templates) {
+            templates.forEach((template) => {
+                if (template.name && template.command) {
+                    templatePicks.push({
+                        label: template.name,
+                        description: template.description,
+                    });
+                }
+            });
+        }
         if (label === undefined) {
             label = Constants.selectTemplate;
         }
@@ -732,5 +756,15 @@ export class EdgeManager {
             template: templatePick.label,
         });
         return templatePick.label;
+    }
+
+    private get3rdPartyModuleTemplates() {
+        const templatesConfig = Utility.getConfiguration().get<any>(Constants.thirdPartyModuleTemplatesConfig);
+        return templatesConfig ? templatesConfig.templates as any[] : undefined;
+    }
+
+    private get3rdPartyModuleTemplateByName(name: string) {
+        const templates = this.get3rdPartyModuleTemplates();
+        return templates ? templates.find((template) => template.name === name) : undefined;
     }
 }

@@ -217,6 +217,11 @@
             "alias": null
           },
           "description": "Current default target platform for Edge Module"
+        },
+        "azure-iot-edge.3rdPartyModuleTemplates": {
+          "type": "object",
+          "default": {},
+          "description": "Templates for third party modules"
         }
       }
     },

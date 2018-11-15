@@ -108,12 +108,15 @@ export class Constants {
     public static groupId = "groupId";
     public static defPlatformConfig = "defaultPlatform";
     public static platformsConfig = "platforms";
+    public static thirdPartyModuleTemplatesConfig = "3rdPartyModuleTemplates";
     public static platformKey = "platform";
     public static aliasKey = "alias";
     public static TwinValueMaxSize = 512;
     public static TwinValueMaxChunks = 8;
     public static SchemaTemplate = "$schema-template";
     public static platformStatusBarTooltip = "Default Platform of IoT Edge Solution";
+    public static moduleNameSubstitution = "${moduleName}";
+    public static repositoryNameSubstitution = "${repositoryName}";
 }
 
 export enum ContainerState {

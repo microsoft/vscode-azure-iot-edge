@@ -549,9 +549,13 @@ export class Utility {
         return all;
     }
 
-    public static async awaitPromiseArray<T extends vscode.QuickPickItem>(promises: Array<Promise<T[]>>): Promise<T[]> {
+    public static async awaitPromiseArray<T extends vscode.QuickPickItem>(promises: Array<Promise<T[]>>, description: string): Promise<T[]> {
         const items: T[] = ([] as T[]).concat(...(await Promise.all(promises)));
         items.sort((a, b) => a.label.localeCompare(b.label));
+
+        if (items.length === 0) {
+            throw new Error(`No ${description} can be found in all selected subscriptions.`);
+        }
 
         return items;
     }

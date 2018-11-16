@@ -55,6 +55,7 @@ export class AmlManager {
                 workspacePromises.push(
                     Utility.listAzureResources<Workspace>(client.listBySubscription(), client.listBySubscriptionNext)
                         .then((workspaces: Workspace[]) => {
+                            // More than one workspace can have the same name as long as they are in the different resource group.
                             const counts: Map<string, number> = this.getWorkspaceNameCounts(workspaces);
                             return workspaces.map((workspace: Workspace) => {
                                 const label: string = counts.get(workspace.name) === 1 ? workspace.name : `${workspace.name} (${Utility.getResourceGroupFromId(workspace.id)})`;
@@ -64,7 +65,7 @@ export class AmlManager {
                 );
             }
 
-            const workspaceItems: AmlWorkspaceQuickPickItem[] = await Utility.awaitPromiseArray<AmlWorkspaceQuickPickItem>(workspacePromises);
+            const workspaceItems: AmlWorkspaceQuickPickItem[] = await Utility.awaitPromiseArray<AmlWorkspaceQuickPickItem>(workspacePromises, "Azure Machine Learning Workspace");
             return workspaceItems;
         } catch (error) {
             error.message = `Error fetching workspace list: ${error.message}`;
@@ -91,6 +92,10 @@ export class AmlManager {
                 serializationMapper: undefined,
                 deserializationMapper: undefined,
             });
+
+            if (result.body.value === undefined || result.body.value.length === 0) {
+                throw new Error("No image can be found in the workspace.");
+            }
 
             return result.body.value.map((image: IImage) => {
                 return { label: image.name, description: image.imageLocation };

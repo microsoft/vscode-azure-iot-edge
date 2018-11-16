@@ -93,7 +93,7 @@ export class AcrManager {
                 );
             }
 
-            const registryItems: AcrRegistryQuickPickItem[] = await Utility.awaitPromiseArray<AcrRegistryQuickPickItem>(registryPromises);
+            const registryItems: AcrRegistryQuickPickItem[] = await Utility.awaitPromiseArray<AcrRegistryQuickPickItem>(registryPromises, "Azure Container Registry");
             return registryItems;
         } catch (error) {
             error.message = `Error fetching registry list: ${error.message}`;

@@ -55,7 +55,7 @@ export class AmlManager {
                 workspacePromises.push(
                     Utility.listAzureResources<Workspace>(client.listBySubscription(), client.listBySubscriptionNext)
                         .then((workspaces: Workspace[]) => {
-                            // More than one workspace can have the same name as long as they are in the different resource group.
+                            // More than one workspace can have the same name as long as they are in different resource groups.
                             const counts: Map<string, number> = this.getWorkspaceNameCounts(workspaces);
                             return workspaces.map((workspace: Workspace) => {
                                 const label: string = counts.get(workspace.name) === 1 ? workspace.name : `${workspace.name} (${Utility.getResourceGroupFromId(workspace.id)})`;

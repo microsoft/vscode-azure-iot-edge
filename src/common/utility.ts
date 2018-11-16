@@ -475,7 +475,7 @@ export class Utility {
         });
     }
 
-    public static getResourceGroupFromId(id: string): string {
+    public static getResourceGroupFromId(id: string): string | undefined {
         if (id === undefined || id === "") {
             return undefined;
         }

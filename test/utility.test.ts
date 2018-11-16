@@ -240,5 +240,8 @@ suite("utility tests", () => {
     assert.equal(Utility.getResourceGroupFromId("/subscriptions/00000000-0000-0000-0000-000000000000/"
       + "resourceGroups/fangzh-aml/providers/Microsoft.MachineLearningServices/workspaces/fangzh-aml"),
       "fangzh-aml");
+    assert.equal(Utility.getResourceGroupFromId("/subscriptions/00000000-0000-0000-0000-000000000000/"
+      + "resourcegroups/fangzh-AML/providers/Microsoft.MachineLearningServices/workspaces/fangzh-aml"),
+      "fangzh-AML");
   });
 });

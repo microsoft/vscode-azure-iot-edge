@@ -480,7 +480,7 @@ export class Utility {
             return undefined;
         }
 
-        const res: string[] = id.match(/\/resourceGroups\/([^\/]+)(\/)?/);
+        const res: string[] = id.match(/\/resourceGroups\/([^\/]+)(\/)?/i);
         if (res.length < 2) {
             return undefined;
         } else {

@@ -501,7 +501,7 @@ export class Utility {
         const re = new RegExp(`(.|[\r\n]){1,${Constants.TwinValueMaxSize}}`, "g");
         const options = optionStr.match(re);
         if (options.length > Constants.TwinValueMaxChunks) {
-            throw new Error(`Size of createOptions of ${settings.image} is too big. The maxium size of createOptions is 4K`);
+            throw new Error(`Size of createOptions of ${settings.image} is too big. The maximum size of createOptions is 4K`);
         }
         options.map((value, index) => {
             if (index === 0) {

@@ -6,6 +6,7 @@ import { StreamingJob } from "azure-arm-streamanalytics/lib/models";
 import { StreamingJobs } from "azure-arm-streamanalytics/lib/operations";
 import * as request from "request-promise";
 import * as vscode from "vscode";
+import { Constants } from "../common/constants";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AzureAccount } from "../typings/azure-account.api";
@@ -21,7 +22,7 @@ export class StreamAnalyticsManager {
     public async selectStreamingJob(): Promise<StreamAnalyticsPickItem> {
         await Utility.waitForAzLogin(this.azureAccount);
 
-        const job: StreamAnalyticsPickItem = await vscode.window.showQuickPick(this.loadAllStreamingJobs(), { placeHolder: "Select Azure Stream Analytics Job", ignoreFocusOut: true });
+        const job: StreamAnalyticsPickItem = await vscode.window.showQuickPick(this.loadAllStreamingJobs(), { placeHolder: `Select ${Constants.asaJobDesc}`, ignoreFocusOut: true });
         if (!job) {
             throw new UserCancelledError();
         }
@@ -78,7 +79,7 @@ export class StreamAnalyticsManager {
                 );
             }
 
-            const jobItems: StreamAnalyticsPickItem[] = await Utility.awaitPromiseArray<StreamAnalyticsPickItem>(jobPromises, "Azure Stream Analytics Job");
+            const jobItems: StreamAnalyticsPickItem[] = await Utility.awaitPromiseArray<StreamAnalyticsPickItem>(jobPromises, Constants.asaJobDesc);
             return jobItems;
         } catch (error) {
             error.message = `Error fetching streaming job list: ${error.message}`;

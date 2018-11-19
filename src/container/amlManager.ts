@@ -37,7 +37,7 @@ export class AmlManager {
         await Utility.waitForAzLogin(this.azureAccount);
 
         const workspaceItem: AmlWorkspaceQuickPickItem =
-            await vscode.window.showQuickPick(this.loadWorkspaceItems(), { placeHolder: "Select Azure Machine Learning Workspace", ignoreFocusOut: true });
+            await vscode.window.showQuickPick(this.loadWorkspaceItems(), { placeHolder: `Select ${Constants.amlWorkspaceDesc}`, ignoreFocusOut: true });
 
         return workspaceItem;
     }
@@ -65,7 +65,7 @@ export class AmlManager {
                 );
             }
 
-            const workspaceItems: AmlWorkspaceQuickPickItem[] = await Utility.awaitPromiseArray<AmlWorkspaceQuickPickItem>(workspacePromises, "Azure Machine Learning Workspace");
+            const workspaceItems: AmlWorkspaceQuickPickItem[] = await Utility.awaitPromiseArray<AmlWorkspaceQuickPickItem>(workspacePromises, Constants.amlWorkspaceDesc);
             return workspaceItems;
         } catch (error) {
             error.message = `Error fetching workspace list: ${error.message}`;

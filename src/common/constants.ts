@@ -119,6 +119,9 @@ export class Constants {
     public static platformStatusBarTooltip = "Default Platform of IoT Edge Solution";
     public static moduleNameSubstitution = "${moduleName}";
     public static repositoryNameSubstitution = "${repositoryName}";
+    public static acrRegistryDesc = "Azure Container Registry";
+    public static amlWorkspaceDesc = "Azure Machine Learning Workspace";
+    public static asaJobDesc = "Azure Stream Analytics Job";
     public static amlApiVersion: string = "2018-03-01-preview";
 }
 

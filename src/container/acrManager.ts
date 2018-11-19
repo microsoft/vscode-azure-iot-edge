@@ -7,6 +7,7 @@ import { Registry, RegistryListCredentialsResult } from "azure-arm-containerregi
 import { Registries } from "azure-arm-containerregistry/lib/operations";
 import * as request from "request-promise";
 import * as vscode from "vscode";
+import { Constants } from "../common/constants";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { AzureAccount, AzureSession } from "../typings/azure-account.api";
@@ -71,7 +72,7 @@ export class AcrManager {
     private async selectAcrRegistry(): Promise<AcrRegistryQuickPickItem> {
         await Utility.waitForAzLogin(this.azureAccount);
 
-        const acrRegistryItem: AcrRegistryQuickPickItem = await vscode.window.showQuickPick(this.loadAcrRegistryItems(), { placeHolder: "Select Azure Container Registry", ignoreFocusOut: true });
+        const acrRegistryItem: AcrRegistryQuickPickItem = await vscode.window.showQuickPick(this.loadAcrRegistryItems(), { placeHolder: `Select ${Constants.acrRegistryDesc}`, ignoreFocusOut: true });
         return acrRegistryItem;
     }
 

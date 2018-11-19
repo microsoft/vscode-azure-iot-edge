@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 "use strict";
+import * as tls from "tls";
 import * as vscode from "vscode";
 import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
@@ -18,6 +19,10 @@ import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvide
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
 import { ConfigHoverProvider } from "./intelliSense/configHoverProvider";
 import { IDeviceItem } from "./typings/IDeviceItem";
+
+// Work around TLS issue in Node.js >= 8.6.0
+// https://github.com/nodejs/node/issues/16196
+(tls as any).DEFAULT_ECDH_CURVE = "auto";
 
 export function activate(context: vscode.ExtensionContext) {
     TelemetryClient.sendEvent("extensionActivated");

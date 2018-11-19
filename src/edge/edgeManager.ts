@@ -584,6 +584,7 @@ export class EdgeManager {
                 repositoryName = await this.inputRepository(module);
             }
             imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;
+            debugImageName = `\${${Utility.getModuleKeyNoPlatform(module, true)}}`;
         } else {
             repositoryName = await this.inputRepository(module);
             imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;

@@ -328,7 +328,9 @@ export class EdgeManager {
 
         const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
         const debugTemplateEnv = {usernameEnv: undefined, passwordEnv: undefined};
+        let debugExist = false;
         if (await fse.pathExists(templateDebugFile)) {
+            debugExist = true;
             const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
             const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, needUpdateRegistry, isNewSolution, true);
             debugTemplateEnv.usernameEnv = envs.usernameEnv;
@@ -336,9 +338,10 @@ export class EdgeManager {
         }
 
         if (!isNewSolution) {
-            const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "is updated.";
+            const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "are updated.";
             const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
-            vscode.window.showInformationMessage(`${moduleCreationMessage}'deployment.template.json' ${launchUpdated}`);
+            const deploymentTemlateMessage = debugExist ? "deployment.template.json, deployment.debug.template.json" : "deployment.template.json";
+            vscode.window.showInformationMessage(`${moduleCreationMessage} ${deploymentTemlateMessage} ${launchUpdated}`);
         }
         const address = await Utility.getRegistryAddress(moduleInfo.repositoryName);
         await this.writeRegistryCredEnv(address, envFilePath, usernameEnv, passwordEnv, debugTemplateEnv.usernameEnv, debugTemplateEnv.passwordEnv);
@@ -567,18 +570,18 @@ export class EdgeManager {
         const thirdPartyModuleTemplate = this.get3rdPartyModuleTemplateByName(template);
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
-            imageName = await acrManager.selectAcrImage();
+            debugImageName = imageName = await acrManager.selectAcrImage();
             repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else if (template === Constants.EXISTING_MODULE) {
-            imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt);
+            debugImageName = imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt);
             repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else if (template === Constants.STREAM_ANALYTICS) {
             const saManager = new StreamAnalyticsManager();
             const job = await saManager.selectStreamingJob();
             const JobInfo: any = await saManager.getJobInfo(job);
-            imageName = JobInfo.settings.image;
+            debugImageName = imageName = JobInfo.settings.image;
             moduleTwin = JobInfo.twin.content;
-            createOptions = JobInfo.settings.createOptions ? JobInfo.settings.createOptions : {};
+            debugCreateOptions = createOptions = JobInfo.settings.createOptions ? JobInfo.settings.createOptions : {};
         } else if (thirdPartyModuleTemplate) {
             if (thirdPartyModuleTemplate.command && thirdPartyModuleTemplate.command.includes(Constants.repositoryNameSubstitution)) {
                 repositoryName = await this.inputRepository(module);

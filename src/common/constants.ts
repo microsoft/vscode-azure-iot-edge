@@ -117,6 +117,7 @@ export class Constants {
     public static platformStatusBarTooltip = "Default Platform of IoT Edge Solution";
     public static moduleNameSubstitution = "${moduleName}";
     public static repositoryNameSubstitution = "${repositoryName}";
+    public static selectDefaultPlatform = "Select Azure IoT Edge Solution Default Platform";
 }
 
 export enum ContainerState {

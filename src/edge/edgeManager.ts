@@ -193,7 +193,7 @@ export class EdgeManager {
             platformMap.set(displayName, value);
         });
         const platformNames: string[] = (keyWithAlias.sort()).concat(defaultKeys.sort());
-        const defaultPlatform = await vscode.window.showQuickPick(platformNames, { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
+        const defaultPlatform = await vscode.window.showQuickPick(platformNames, { placeHolder: Constants.selectDefaultPlatform, ignoreFocusOut: true });
         if (defaultPlatform) {
             await Utility.setWorkspaceConfigurationProperty(Constants.defPlatformConfig, platformMap.get(defaultPlatform));
             outputChannel.appendLine(`Default platform is ${defaultPlatform} now.`);

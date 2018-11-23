@@ -12,11 +12,20 @@
 - Manage IoT Edge devices and modules in IoT Hub (with [Azure IoT Toolkit](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-toolkit))
 - Deploy IoT solutions to IoT Edge devices
 
-## What's New (v1.5.1)
-* Support createOptions in deployment.template.json configuration up to 4K
-* Fix some bugs
+## What's New (v1.6.0)
+### Added
+* Add **deployment.debug.template.json** when creating new solution. The template refer to the debug flavour image of the modules and has debug createOptions populated automatically.
+* Enable switch between different platforms for Azure IoT Edge Solution. User could switch the platform through status bar. Now the image reference parameter in deployment template could be platform neutral. And platform setted will be used when build the solution. For example, to reference the module "SampleModule" in deployment template, the parameter could be **"${MODULES.SampleModule}"** which does not have the platfrom suffix like ".amd64".
+* Add third party module template support. User can define custom module scaffolding command in the user setting. And when add new module, the command could be triggered in the workflow.
+
+![Added](images/multipleplatform.gif)
+
+### Changed
+* Change default type of "createOptions" in deloyment.template.json/deployment.debug.template.json to json object.
+* Support build/generate/run template files which has **.template.json** suffix through command palette
   
 ## Known Issues
+* [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)
 * Cannot run C and Python module in IoT Edge Simulator
 * IoT Edge Simulator does not work on Windows Container
 * [ASA module may fail sending message](https://github.com/Microsoft/vscode-azure-iot-edge/issues/213)

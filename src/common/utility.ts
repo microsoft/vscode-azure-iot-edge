@@ -200,15 +200,11 @@ export class Utility {
     }
 
     public static expandModules(input: string, moduleMap: Map<string, string>): string {
-        return input.replace(Constants.imagePlaceholderPattern, (matched) => {
-            const key: string = matched.replace(/\$|{|}/g, "");
-            if (moduleMap.has(key)) {
-                const value: string = moduleMap.get(key);
-                return value;
-            } else {
-                return matched;
-            }
-        });
+        return Utility.expandPlacesHolders(Constants.imagePlaceholderPattern, input, moduleMap);
+    }
+
+    public static expandVersions(input: string, versionMap: Map<string, string>): string {
+        return Utility.expandPlacesHolders(Constants.versionPlaceholderPattern, input, versionMap);
     }
 
     public static async getSubDirectories(parentPath: string): Promise<string[]> {
@@ -513,6 +509,18 @@ export class Utility {
         });
 
         return settings;
+    }
+
+    private static expandPlacesHolders(pattern: RegExp, input: string, valMap: Map<string, string>): string {
+        return input.replace(pattern, (matched) => {
+            const key: string = matched.replace(/\$|{|}/g, "");
+            if (valMap.has(key)) {
+                const value: string = valMap.get(key);
+                return value;
+            } else {
+                return matched;
+            }
+        });
     }
 
     private static serializeCreateOptionsForEachModule(modules: any): any {

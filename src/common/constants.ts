@@ -27,6 +27,7 @@ export class Constants {
     public static repositoryPlaceholder = "%REPOSITORY%";
     public static dllPlaceholder = "%DLLNAME%";
     public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}/g);
+    public static versionPlaceholderPattern: RegExp = new RegExp(/\${VERSION\..+}/g);
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
     public static LANGUAGE_CSHARP = "C# Module";
@@ -118,6 +119,23 @@ export class Constants {
     public static moduleNameSubstitution = "${moduleName}";
     public static repositoryNameSubstitution = "${repositoryName}";
     public static selectDefaultPlatform = "Select Azure IoT Edge Solution Default Platform";
+
+    public static versionEdgeAgent = "version.edgeAgent";
+    public static versionEdgeHub = "version.edgeHub";
+    public static versionTempSensor = "version.tempSensor";
+    public static versionCModule = "version.cmodule";
+    public static versionPythonModule = "version.pythonmodule";
+    public static versionCSharpModule = "version.csharpmodule";
+    public static versionFunctionModule = "version.csfunctionmodule";
+    public static versionJavaModule = "version.javamodule";
+    public static versionNodeModule = "version.nodemodule";
+
+    public static installCSharpModule = "templateInstall.csharpmodule";
+    public static installCSFunctionModule = "templateInstall.csfunctionmodule";
+
+    public static edgeAgentVerPlaceHolder = "VERSION.edgeAgent";
+    public static edgeHubVerPlaceHolder = "VERSION.edgeHub";
+    public static tempSensorVerPlaceHolder = "VERSION.tempSensor";
 }
 
 export enum ContainerState {

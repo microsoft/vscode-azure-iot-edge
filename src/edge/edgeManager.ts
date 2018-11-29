@@ -17,6 +17,7 @@ import { Platform } from "../common/platform";
 import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
+import { Versions } from "../common/version";
 import { AcrManager } from "../container/acrManager";
 import { StreamAnalyticsManager } from "../container/streamAnalyticsManager";
 import { IDeviceItem } from "../typings/IDeviceItem";
@@ -47,8 +48,11 @@ export class EdgeManager {
         await fse.mkdirs(targetModulePath);
         const templateFile = path.join(slnPath, Constants.deploymentTemplate);
         const debugTemplateFile = path.join(slnPath, Constants.deploymentDebugTemplate);
-        await fse.copy(path.join(sourceSolutionPath, Constants.deploymentTemplate), templateFile);
-        await fse.copy(path.join(sourceSolutionPath, Constants.deploymentTemplate), debugTemplateFile);
+        let templateContent = await fse.readFile(path.join(sourceSolutionPath, Constants.deploymentTemplate), "utf8");
+        const versionMap = Versions.getRunTimeVersionMap();
+        templateContent = Utility.expandVersions(templateContent, versionMap);
+        await fse.writeFile(templateFile, templateContent, { encoding: "utf8" });
+        await fse.writeFile(debugTemplateFile, templateContent, { encoding: "utf8" });
 
         await this.addModule(templateFile, outputChannel, true);
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
@@ -404,16 +408,24 @@ export class EdgeManager {
         // TODO command to create module;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
-                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Module");
+                if (Versions.installCSharpTemplate()) {
+                    const version = Versions.csTemplateVersion();
+                    const installCmd = version != null ? `new -i Microsoft.Azure.IoT.Edge.Module::${version}` : "new -i Microsoft.Azure.IoT.Edge.Module";
+                    await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, installCmd);
+                }
                 await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.CSHARP_FUNCTION:
-                await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, "new -i Microsoft.Azure.IoT.Edge.Function");
+                if (Versions.installCSFunctionTemplate()) {
+                    const version = Versions.csFunctionTemplateVersion();
+                    const installCmd = version != null ? `new -i Microsoft.Azure.IoT.Edge.Function::${version}` : "new -i Microsoft.Azure.IoT.Edge.Function";
+                    await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, installCmd);
+                }
                 await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.LANGUAGE_PYTHON:
                 const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
-                const branch = "master";
+                const branch = Versions.pythonTemplateVersion();
                 await Executor.executeCMD(outputChannel,
                     "cookiecutter",
                     { cwd: `${parent}`, shell: true },
@@ -424,7 +436,7 @@ export class EdgeManager {
                 break;
             case Constants.LANGUAGE_C:
                 await new Promise((resolve, reject) => {
-                    download("github:Azure/azure-iot-edge-c-module#master", path.join(parent, name), (err) => {
+                    download(`github:Azure/azure-iot-edge-c-module#${Versions.cTemplateVersion()}`, path.join(parent, name), (err) => {
                         if (err) {
                             reject(err);
                         } else {
@@ -446,7 +458,7 @@ export class EdgeManager {
                     "archetype:generate",
                     '-DarchetypeGroupId="com.microsoft.azure"',
                     '-DarchetypeArtifactId="azure-iot-edge-archetype"',
-                    `-DarchetypeVersion=1.1.0`,
+                    `-DarchetypeVersion=${Versions.javaTemplateVersion()}`,
                     `-DgroupId="${groupId}"`,
                     `-DartifactId="${name}"`,
                     `-Dversion="1.0.0-SNAPSHOT"`,

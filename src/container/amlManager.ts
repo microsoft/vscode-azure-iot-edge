@@ -116,9 +116,9 @@ export class AmlManager {
     }
 
     private async getModelMgmtEndpoint(workspace: Workspace): Promise<string> {
-        const historyEndpoint: string = await this.getHistoryEndpoint(workspace);
+        const experimentationEndpoint: string = await this.getExperimentationEndpoint(workspace);
         let location: string;
-        const res: string[] = historyEndpoint.match(/\/\/(.*?)\./);
+        const res: string[] = experimentationEndpoint.match(/\/\/(.*?)\./);
         if (res.length < 2) {
             throw new Error("No available endpoint");
         } else {
@@ -128,7 +128,7 @@ export class AmlManager {
         return `https://${location}.modelmanagement.azureml.net`;
     }
 
-    private async getHistoryEndpoint(workspace: Workspace): Promise<string> {
+    private async getExperimentationEndpoint(workspace: Workspace): Promise<string> {
         const client: ServiceClient = new ServiceClient();
         const result: HttpOperationResponse<IEndPoints> = await client.sendRequestWithHttpOperationResponse<IEndPoints>({
             method: "GET",
@@ -137,7 +137,7 @@ export class AmlManager {
             deserializationMapper: undefined,
         });
         if (result.response.statusCode === 200) {
-            return result.body.history;
+            return result.body.experimentation;
         } else {
             throw new Error("API end points not found."); // TODO: return defaults by region
         }

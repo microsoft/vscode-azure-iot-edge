@@ -19,8 +19,8 @@ suite("utility tests", () => {
     const generated: string = Utility.expandEnv(input, ...exceptStr);
     const generatedObj = JSON.parse(generated);
     assert.equal(generatedObj.modulesContent
-                  .$edgeAgent["properties.desired"]
-                  .modules.tempSensor.settings.image, imageString);
+      .$edgeAgent["properties.desired"]
+      .modules.tempSensor.settings.image, imageString);
   }).timeout(60 * 1000);
 
   test("expandModules", async () => {
@@ -30,8 +30,8 @@ suite("utility tests", () => {
     const generated: string = Utility.expandModules(input, mapObj);
     const generatedObj = JSON.parse(generated);
     assert.equal(generatedObj.modulesContent
-                  .$edgeAgent["properties.desired"]
-                  .modules.samplemodule.settings.image, "test.az.io/filter:0.0.1-amd64");
+      .$edgeAgent["properties.desired"]
+      .modules.samplemodule.settings.image, "test.az.io/filter:0.0.1-amd64");
   }).timeout(60 * 1000);
 
   test("convertCreateOptions", async () => {
@@ -90,17 +90,17 @@ suite("utility tests", () => {
     const outStr = JSON.stringify(settings);
 
     const expected = "{\"image\":\"test\",\"createOptions\":\"{\\\"Env\\\":[\\\"k1=v1\\\",\\\"k2=v2\\\",\\\"k3=v3\\\"],"
-    + "\\\"HostConfig\\\":{\\\"PortBindings\\\":{\\\"43/udp\\\":[{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
-    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
-    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
-    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
-    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
-    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostP\",\"createOptions01\":\"ort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
-    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
-    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
-    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
-    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
-    + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"}],\\\"42/tcp\\\":[{\\\"HostPort\\\":\\\"42\\\"}]}}}\"}";
+      + "\\\"HostConfig\\\":{\\\"PortBindings\\\":{\\\"43/udp\\\":[{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+      + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+      + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+      + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+      + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+      + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostP\",\"createOptions01\":\"ort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+      + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+      + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+      + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+      + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},"
+      + "{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"},{\\\"HostPort\\\":\\\"43\\\"}],\\\"42/tcp\\\":[{\\\"HostPort\\\":\\\"42\\\"}]}}}\"}";
     assert.equal(outStr, expected);
   }).timeout(60 * 1000);
 
@@ -155,8 +155,8 @@ suite("utility tests", () => {
     sinon.stub(Utility, "getConfiguration").callsFake(() => {
       const stubMap = new Map();
       stubMap.set(Constants.platformsConfig, {
-        arm32v7 : [],
-        amd64 : ["t1", "t2"],
+        arm32v7: [],
+        amd64: ["t1", "t2"],
         windows: null,
         test: ["test"],
       });
@@ -233,5 +233,15 @@ suite("utility tests", () => {
 
     registry = Utility.getRegistryAddress("python");
     assert.equal(registry, "docker.io");
+  });
+
+  test("getResourceGroupFromId", () => {
+    assert.equal(Utility.getResourceGroupFromId(""), undefined);
+    assert.equal(Utility.getResourceGroupFromId("/subscriptions/00000000-0000-0000-0000-000000000000/"
+      + "resourceGroups/fangzh-aml/providers/Microsoft.MachineLearningServices/workspaces/fangzh-aml"),
+      "fangzh-aml");
+    assert.equal(Utility.getResourceGroupFromId("/subscriptions/00000000-0000-0000-0000-000000000000/"
+      + "resourcegroups/fangzh-AML/providers/Microsoft.MachineLearningServices/workspaces/fangzh-aml"),
+      "fangzh-AML");
   });
 });

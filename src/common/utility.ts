@@ -8,7 +8,7 @@ import * as isPortReachable from "is-port-reachable";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
-import { AzureSession } from "../typings/azure-account.api";
+import { AzureAccount, AzureSession } from "../typings/azure-account.api";
 import { IDeviceItem } from "../typings/IDeviceItem";
 import { BuildSettings } from "./buildSettings";
 import { Constants, ContainerState } from "./constants";
@@ -448,6 +448,16 @@ export class Utility {
         return deviceItem;
     }
 
+    public static async waitForAzLogin(azureAccount: AzureAccount): Promise<void> {
+        if (!(await azureAccount.waitForLogin())) {
+            await vscode.commands.executeCommand("azure-account.askForLogin");
+            // If the promise returned the by above command execution is fulfilled and the user is still not logged in, it means the user cancels.
+            if (!(await azureAccount.waitForLogin())) {
+                throw new UserCancelledError();
+            }
+        }
+    }
+
     public static async acquireAadToken(session: AzureSession): Promise<{ aadAccessToken: string, aadRefreshToken: string }> {
         return new Promise<{ aadAccessToken: string, aadRefreshToken: string }>((resolve, reject) => {
             const credentials: any = session.credentials;
@@ -463,6 +473,19 @@ export class Utility {
                 }
             });
         });
+    }
+
+    public static getResourceGroupFromId(id: string): string | undefined {
+        if (id === undefined || id === "") {
+            return undefined;
+        }
+
+        const res: string[] = id.match(/\/resourceGroups\/([^\/]+)(\/)?/i);
+        if (res.length < 2) {
+            return undefined;
+        } else {
+            return res[1];
+        }
     }
 
     public static convertCreateOptions(deployment: any): any {
@@ -481,7 +504,7 @@ export class Utility {
         return deployment;
     }
 
-    // Temp utility to sovle the compatibale issue because of the schema change in IoT Hub Service.
+    // Temp utility to solve the compatible issue because of the schema change in IoT Hub Service.
     // moduleContent -> modulesContent
     public static updateSchema(deployment: any): any {
         if (deployment && deployment.moduleContent) {
@@ -515,6 +538,28 @@ export class Utility {
         return settings;
     }
 
+    // The Azure API of listing resources is paginated. This method will follow the links and return all resources
+    public static async listAzureResources<T>(first: Promise<IAzureResourceListResult<T>>,
+                                              listNext: (nextPageLink: string, options?: { customHeaders?: { [headerName: string]: string; } }) => Promise<IAzureResourceListResult<T>>): Promise<T[]> {
+        const all: T[] = [];
+        for (let list = await first; list !== undefined; list = list.nextLink ? await listNext(list.nextLink) : undefined) {
+            all.push(...list);
+        }
+
+        return all;
+    }
+
+    public static async awaitPromiseArray<T extends vscode.QuickPickItem>(promises: Array<Promise<T[]>>, description: string): Promise<T[]> {
+        const items: T[] = ([] as T[]).concat(...(await Promise.all(promises)));
+        items.sort((a, b) => a.label.localeCompare(b.label));
+
+        if (items.length === 0) {
+            throw new Error(`No ${description} can be found in all selected subscriptions.`);
+        }
+
+        return items;
+    }
+
     private static serializeCreateOptionsForEachModule(modules: any): any {
         for (const key in modules) {
             if (modules.hasOwnProperty(key)) {
@@ -535,4 +580,8 @@ export class Utility {
             return ContainerState.NotFound;
         }
     }
+}
+
+interface IAzureResourceListResult<T> extends Array<T> {
+    nextLink?: string;
 }

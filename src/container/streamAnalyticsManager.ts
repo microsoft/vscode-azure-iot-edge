@@ -2,12 +2,15 @@
 // Licensed under the MIT license.
 
 import StreamAnalyticsManagementClient = require("azure-arm-streamanalytics");
+import { StreamingJob } from "azure-arm-streamanalytics/lib/models";
+import { StreamingJobs } from "azure-arm-streamanalytics/lib/operations";
 import * as request from "request-promise";
 import * as vscode from "vscode";
+import { Constants } from "../common/constants";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
-import { StreamAnalyticsPicItem } from "../container/models/streamAnalyticsPickItem";
 import { AzureAccount } from "../typings/azure-account.api";
+import { StreamAnalyticsPickItem } from "./models/streamAnalyticsPickItem";
 
 export class StreamAnalyticsManager {
     private readonly azureAccount: AzureAccount;
@@ -16,23 +19,17 @@ export class StreamAnalyticsManager {
         this.azureAccount = vscode.extensions.getExtension<AzureAccount>("ms-vscode.azure-account")!.exports;
     }
 
-    public async selectStreamingJob(): Promise<StreamAnalyticsPicItem> {
-        if (!(await this.azureAccount.waitForLogin())) {
-            await vscode.commands.executeCommand("azure-account.askForLogin");
-            // If the promise returned the by above command execution is fulfilled and the user is still not logged in, it means the user cancels.
-            if (!(await this.azureAccount.waitForLogin())) {
-                throw new UserCancelledError();
-            }
-        }
+    public async selectStreamingJob(): Promise<StreamAnalyticsPickItem> {
+        await Utility.waitForAzLogin(this.azureAccount);
 
-        const job: StreamAnalyticsPicItem = await vscode.window.showQuickPick(this.loadAllStreamingJobs(), { placeHolder: "Select Azure Stream Analytics Jobs", ignoreFocusOut: true });
+        const job: StreamAnalyticsPickItem = await vscode.window.showQuickPick(this.loadAllStreamingJobs(), { placeHolder: `Select ${Constants.asaJobDesc}`, ignoreFocusOut: true });
         if (!job) {
             throw new UserCancelledError();
         }
         return job;
     }
 
-    public async getJobInfo(streamingJob: StreamAnalyticsPicItem): Promise<object> {
+    public async getJobInfo(streamingJob: StreamAnalyticsPickItem): Promise<object> {
         try {
             const id: string = streamingJob.job.id;
             const publishJobUrl: string = `https://management.azure.com${id}/publishedgepackage?api-version=2017-04-01-preview`;
@@ -64,25 +61,28 @@ export class StreamAnalyticsManager {
         }
     }
 
-    private async loadAllStreamingJobs(): Promise<StreamAnalyticsPicItem[]> {
+    private async loadAllStreamingJobs(): Promise<StreamAnalyticsPickItem[]> {
         try {
             await this.azureAccount.waitForFilters();
-            const items: StreamAnalyticsPicItem[] = [];
-
+            const jobPromises: Array<Promise<StreamAnalyticsPickItem[]>> = [];
             for (const azureSubscription of this.azureAccount.filters) {
-                const client = new StreamAnalyticsManagementClient(
+                const client: StreamingJobs = new StreamAnalyticsManagementClient(
                     azureSubscription.session.credentials,
                     azureSubscription.subscription.subscriptionId!,
-                );
+                ).streamingJobs;
 
-                const streamingJobs = await client.streamingJobs.list();
-                streamingJobs.forEach((job) => {
-                    items.push(new StreamAnalyticsPicItem(job, azureSubscription));
-                });
+                jobPromises.push(
+                    Utility.listAzureResources<StreamingJob>(client.list(), client.listNext)
+                        .then((jobs: StreamingJob[]) => jobs.map((job: StreamingJob) => {
+                            return new StreamAnalyticsPickItem(job, azureSubscription);
+                        })),
+                );
             }
-            return items;
+
+            const jobItems: StreamAnalyticsPickItem[] = await Utility.awaitPromiseArray<StreamAnalyticsPickItem>(jobPromises, Constants.asaJobDesc);
+            return jobItems;
         } catch (error) {
-            error.message = `Error fetching streaming jobs list: ${error.message}`;
+            error.message = `Error fetching streaming job list: ${error.message}`;
             throw error;
         }
     }

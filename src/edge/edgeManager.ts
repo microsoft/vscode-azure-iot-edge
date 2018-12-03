@@ -19,6 +19,7 @@ import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { Versions } from "../common/version";
 import { AcrManager } from "../container/acrManager";
+import { AmlManager } from "../container/amlManager";
 import { StreamAnalyticsManager } from "../container/streamAnalyticsManager";
 import { IDeviceItem } from "../typings/IDeviceItem";
 
@@ -127,7 +128,7 @@ export class EdgeManager {
         await Utility.setGlobalConfigurationProperty("EdgeModuleCACertificateFile", moduleConfig.EdgeModuleCACertificateFile);
     }
 
-    // TODO: The command is temperory for migration stage, will be removed later.
+    // TODO: The command is temporary for migration stage, will be removed later.
     public async convertModule(fileUri?: vscode.Uri): Promise<void> {
         const filePath = fileUri ? fileUri.fsPath : undefined;
         if (filePath) {
@@ -204,7 +205,6 @@ export class EdgeManager {
         }
     }
 
-    // TODO: Change createOptions to json Object
     private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: any }> {
         let debugCreateOptions = {};
         switch (template) {
@@ -454,7 +454,7 @@ export class EdgeManager {
                 const packageName = groupId;
                 await Executor.executeCMD(outputChannel,
                     "mvn",
-                    { cwd: `${parent}`, shell: true},
+                    { cwd: `${parent}`, shell: true },
                     "archetype:generate",
                     '-DarchetypeGroupId="com.microsoft.azure"',
                     '-DarchetypeArtifactId="azure-iot-edge-archetype"',
@@ -562,7 +562,7 @@ export class EdgeManager {
     private async inputJavaModuleGrpId(): Promise<string> {
         const dftValue = "com.edgemodule";
         return await Utility.showInputBox("Group ID",
-                "Provide value for groupId", this.validateGroupId, dftValue);
+            "Provide value for groupId", this.validateGroupId, dftValue);
     }
 
     private async inputRepository(module: string): Promise<string> {
@@ -586,6 +586,10 @@ export class EdgeManager {
             repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else if (template === Constants.EXISTING_MODULE) {
             debugImageName = imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt);
+            repositoryName = Utility.getRepositoryNameFromImageName(imageName);
+        } else if (template === Constants.MACHINE_LEARNING) {
+            const amlManager = new AmlManager();
+            debugImageName = imageName = await amlManager.selectAmlImage();
             repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else if (template === Constants.STREAM_ANALYTICS) {
             const saManager = new StreamAnalyticsManager();
@@ -736,6 +740,10 @@ export class EdgeManager {
             {
                 label: Constants.CSHARP_FUNCTION,
                 description: Constants.CSHARP_FUNCTION_DESCRIPTION,
+            },
+            {
+                label: Constants.MACHINE_LEARNING,
+                description: Constants.MACHINE_LEARNING_DESCRIPTION,
             },
             {
                 label: Constants.STREAM_ANALYTICS,

@@ -11,58 +11,50 @@ export class Versions {
     }
 
     public static installCSharpTemplate(): boolean {
-        return Versions.getInstall(Constants.installCSharpModule, true);
+        return Versions.getValue(Constants.installCSharpModule, true) as boolean;
     }
 
     public static installCSFunctionTemplate(): boolean {
-        return Versions.getInstall(Constants.installCSFunctionModule, true);
+        return Versions.getValue(Constants.installCSFunctionModule, true) as boolean;
     }
 
     public static csTemplateVersion(): string {
-        return Versions.getVersion(Constants.versionCSharpModule);
+        return Versions.getValue(Constants.versionCSharpModule) as string;
     }
 
     public static csFunctionTemplateVersion(): string {
-        return Versions.getVersion(Constants.versionFunctionModule);
+        return Versions.getValue(Constants.versionFunctionModule) as string;
     }
 
     public static pythonTemplateVersion(): string {
-        return Versions.getVersion(Constants.versionPythonModule, "master");
+        return Versions.getValue(Constants.versionPythonModule, "master") as string;
     }
 
     public static cTemplateVersion(): string {
-        return Versions.getVersion(Constants.versionCModule, "master");
+        return Versions.getValue(Constants.versionCModule, "master") as string;
     }
 
     public static javaTemplateVersion(): string {
-        return Versions.getVersion(Constants.versionJavaModule, "1.1.0");
+        return Versions.getValue(Constants.versionJavaModule, "1.1.0") as string;
     }
 
     private static edgeAgentVersion(): string {
-        return Versions.getVersion(Constants.versionEdgeAgent, "1.0");
+        return Versions.getValue(Constants.versionEdgeAgent) as string;
     }
 
     private static edgeHubVersion(): string {
-        return Versions.getVersion(Constants.versionEdgeHub, "1.0");
+        return Versions.getValue(Constants.versionEdgeHub, "1.0") as string;
     }
 
     private static tempSensorVersion(): string {
-        return Versions.getVersion(Constants.versionTempSensor, "1.0");
+        return Versions.getValue(Constants.versionTempSensor, "1.0") as string;
     }
 
-    private static getVersion(key: string, defaultVal: string = null): string {
-        const version = Utility.getConfigurationProperty(key);
-        if (!version) {
+    private static getValue(key: string, defaultVal: string|boolean = null): string | boolean {
+        const value = Utility.getConfigurationProperty(key);
+        if (value === undefined) {
             return defaultVal;
         }
-        return version;
-    }
-
-    private static getInstall(key: string, defaultVal: boolean): boolean {
-        const val: boolean = Utility.getConfigurationProperty(key);
-        if (val === undefined) {
-            return defaultVal;
-        }
-        return val;
+        return value;
     }
 }

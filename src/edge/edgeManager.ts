@@ -452,13 +452,15 @@ export class EdgeManager {
             case Constants.LANGUAGE_JAVA:
                 const groupId = extraProps.get(Constants.groupId);
                 const packageName = groupId;
+                const version = Versions.javaTemplateVersion();
+                const javaTemplateVersionConfig = version != null ? `-DarchetypeVersion=${version}` : "";
                 await Executor.executeCMD(outputChannel,
                     "mvn",
                     { cwd: `${parent}`, shell: true },
                     "archetype:generate",
                     '-DarchetypeGroupId="com.microsoft.azure"',
                     '-DarchetypeArtifactId="azure-iot-edge-archetype"',
-                    `-DarchetypeVersion=${Versions.javaTemplateVersion()}`,
+                    `${javaTemplateVersionConfig}`,
                     `-DgroupId="${groupId}"`,
                     `-DartifactId="${name}"`,
                     `-Dversion="1.0.0-SNAPSHOT"`,

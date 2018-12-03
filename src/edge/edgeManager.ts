@@ -409,16 +409,16 @@ export class EdgeManager {
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
                 if (Versions.installCSharpTemplate()) {
-                    const version = Versions.csTemplateVersion();
-                    const installCmd = version != null ? `new -i Microsoft.Azure.IoT.Edge.Module::${version}` : "new -i Microsoft.Azure.IoT.Edge.Module";
+                    const csversion = Versions.csTemplateVersion();
+                    const installCmd = csversion != null ? `new -i Microsoft.Azure.IoT.Edge.Module::${csversion}` : "new -i Microsoft.Azure.IoT.Edge.Module";
                     await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, installCmd);
                 }
                 await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.CSHARP_FUNCTION:
                 if (Versions.installCSFunctionTemplate()) {
-                    const version = Versions.csFunctionTemplateVersion();
-                    const installCmd = version != null ? `new -i Microsoft.Azure.IoT.Edge.Function::${version}` : "new -i Microsoft.Azure.IoT.Edge.Function";
+                    const csfuncversion = Versions.csFunctionTemplateVersion();
+                    const installCmd = csfuncversion != null ? `new -i Microsoft.Azure.IoT.Edge.Function::${csfuncversion}` : "new -i Microsoft.Azure.IoT.Edge.Function";
                     await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, installCmd);
                 }
                 await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
@@ -452,8 +452,8 @@ export class EdgeManager {
             case Constants.LANGUAGE_JAVA:
                 const groupId = extraProps.get(Constants.groupId);
                 const packageName = groupId;
-                const version = Versions.javaTemplateVersion();
-                const javaTemplateVersionConfig = version != null ? `-DarchetypeVersion=${version}` : "";
+                const javaversion = Versions.javaTemplateVersion();
+                const javaTemplateVersionConfig = javaversion != null ? `-DarchetypeVersion=${javaversion}` : "";
                 await Executor.executeCMD(outputChannel,
                     "mvn",
                     { cwd: `${parent}`, shell: true },

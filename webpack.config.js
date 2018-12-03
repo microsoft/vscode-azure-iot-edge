@@ -28,15 +28,9 @@ const config = {
         extensions: ['.ts', '.js', '.json']
     },
     module: {
-        // require
-        unknownContextRegExp: /$^/,
-        unknownContextCritical: false,
         // require(expr)
         exprContextRegExp: /$^/,
         exprContextCritical: false,
-        // require("prefix" + expr + "suffix")
-        wrappedContextRegExp: /$^/,
-        wrappedContextCritical: false,
         rules: [{
             test: /\.ts$/,
             exclude: /node_modules/,

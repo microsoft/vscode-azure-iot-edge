@@ -16,3 +16,6 @@ CONTRIBUTING.md
 package-lock.json
 tslint.json
 scripts/**
+out/**
+webpack.config.js
+node_modules

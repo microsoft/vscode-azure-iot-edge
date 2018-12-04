@@ -15,7 +15,7 @@ script:
 - npm run tslint
 - node scripts/genAiKey.js
 - echo "y" | vsce package
-- tsc -p ./
+- npm run compile
 - npm test --silent
 deploy:
 - provider: releases

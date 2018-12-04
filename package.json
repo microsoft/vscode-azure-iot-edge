@@ -412,7 +412,7 @@
   },
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
-    "compile": "tsc -watch -p ./",
+    "compile": "tsc -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "tslint": "tslint -t verbose src/**/*.ts",
     "test": "node ./node_modules/vscode/bin/test",

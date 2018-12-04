@@ -12,16 +12,6 @@
             "protocol": "inspector"
         },
         {
-          "name": "%MODULE% Remote Debug (Node.js in Windows Container)",
-          "type": "node",
-          "request": "attach",
-          "port": 9229,
-          "address": "localhost",
-          "localRoot": "${workspaceRoot}/modules/%MODULE_FOLDER%",
-          "remoteRoot": "C:\\app",
-          "protocol": "inspector"
-        },
-        {
             "name": "%MODULE% Local Debug (Node.js)",
             "type": "node",
             "request": "launch",
@@ -33,4 +23,4 @@
             }
         }
     ]
-  }
+}

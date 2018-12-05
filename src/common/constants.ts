@@ -134,6 +134,7 @@ export class Constants {
 
     public static installCSharpModule = "templateInstall.csharpmodule";
     public static installCSFunctionModule = "templateInstall.csfunctionmodule";
+    public static installNodeModule = "templateInstall.nodemodule";
 
     public static edgeAgentVerPlaceHolder = "VERSION.edgeAgent";
     public static edgeHubVerPlaceHolder = "VERSION.edgeHub";

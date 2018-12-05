@@ -435,8 +435,14 @@ export class EdgeManager {
                     `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`);
                 break;
             case Constants.LANGUAGE_NODE:
-                await Executor.executeCMD(outputChannel, "npx", { cwd: `${parent}`, shell: true },
-                    `-p yo -p generator-azure-iot-edge-module -- yo azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                if (Versions.installNodeTemplate()) {
+                    const nodeModuleVersion = Versions.nodeTemplateVersion();
+                    const nodeVersionConfig = nodeModuleVersion != null ? `@${nodeModuleVersion}` : "";
+                    await Executor.executeCMD(outputChannel, "npx", { cwd: `${parent}`, shell: true },
+                        `-p yo -p generator-azure-iot-edge-module${nodeVersionConfig} -- yo azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                } else {
+                    await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                }
                 break;
             case Constants.LANGUAGE_C:
                 await new Promise((resolve, reject) => {

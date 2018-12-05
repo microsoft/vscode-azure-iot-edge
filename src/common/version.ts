@@ -18,6 +18,10 @@ export class Versions {
         return Versions.getValue(Constants.installCSFunctionModule, true) as boolean;
     }
 
+    public static installNodeTemplate(): boolean {
+        return Versions.getValue(Constants.installNodeModule, true) as boolean;
+    }
+
     public static csTemplateVersion(): string {
         return Versions.getValue(Constants.versionCSharpModule) as string;
     }
@@ -36,6 +40,10 @@ export class Versions {
 
     public static javaTemplateVersion(): string {
         return Versions.getValue(Constants.versionJavaModule) as string;
+    }
+
+    public static nodeTemplateVersion(): string {
+        return Versions.getValue(Constants.versionNodeModule) as string;
     }
 
     private static edgeAgentVersion(): string {

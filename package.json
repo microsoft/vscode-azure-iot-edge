@@ -226,6 +226,11 @@
           "default": true,
           "description": "Switch to install C# function module template before scaffolding. Default is true."
         },
+        "azure-iot-edge.templateInstall.nodemodule": {
+          "type": "boolean",
+          "default": true,
+          "description": "Switch to install Node.js module template before scaffolding. Default is true."
+        },
         "azure-iot-edge.version.csfunctionmodule": {
           "type": "string",
           "default": null,

@@ -203,12 +203,12 @@
         },
         "azure-iot-edge.version.cmodule": {
           "type": "string",
-          "default": null,
+          "default": "master",
           "description": "Set the C module template version, which will be refernced during scaffolding C module. null for latest."
         },
         "azure-iot-edge.version.pythonmodule": {
           "type": "string",
-          "default": null,
+          "default": "master",
           "description": "Set the Python module template version, which will be refernced during scaffolding Python module. null for latest."
         },
         "azure-iot-edge.version.csharpmodule": {

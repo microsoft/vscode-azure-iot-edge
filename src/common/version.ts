@@ -35,7 +35,7 @@ export class Versions {
     }
 
     public static javaTemplateVersion(): string {
-        return Versions.getValue(Constants.versionJavaModule, "1.1.0") as string;
+        return Versions.getValue(Constants.versionJavaModule) as string;
     }
 
     private static edgeAgentVersion(): string {
@@ -52,7 +52,7 @@ export class Versions {
 
     private static getValue(key: string, defaultVal: string|boolean = null): string | boolean {
         const value = Utility.getConfigurationProperty(key);
-        if (value === undefined) {
+        if (value === undefined || value === null) {
             return defaultVal;
         }
         return value;

@@ -236,11 +236,6 @@
           "default": null,
           "description": "Set the Java module template version, which will be refernced during scaffolding Java module."
         },
-        "azure-iot-edge.version.nodemodule": {
-          "type": "string",
-          "default": null,
-          "description": "Set the Node.js module template version, which will be refernced during scaffolding Node.js module."
-        },
         "azure-iot-edge.terminalRoot": {
           "type": "string",
           "default": "",

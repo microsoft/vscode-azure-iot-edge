@@ -18,12 +18,12 @@
 ## What's New (v1.7.0)
 ### Added
 * Support adding Azure Machine Learning modules.
-* Support setting the template versions to be used during new Azure IoT Edge solution or add module.
-    * [Released CSharp module template versions](https://www.nuget.org/packages/Microsoft.Azure.IoT.Edge.Module)
-    * [Released CSharp function module template versions](https://www.nuget.org/packages/Microsoft.Azure.IoT.Edge.function)
+* Support setting the template versions to be used by "New IoT Edge Solution" or "Add IoT Edge Module" commands.
+    * [Released CSharp module template versions](https://github.com/Azure/dotnet-template-azure-iot-edge-module/blob/master/CHANGELOG.md)
+    * [Released CSharp function module template versions](https://github.com/Azure/dotnet-template-azure-iot-edge-function/blob/master/CHANGELOG.md)
     * [Released Java module template versions](https://mvnrepository.com/artifact/com.microsoft.azure/azure-iot-edge-archetype)
     * [Released Python module template versions](https://github.com/Azure/cookiecutter-azure-iot-edge-module/releases)
-    * [Released C module tempalte versions](https://github.com/Azure/azure-iot-edge-c-module/releases)
+    * [Released C module template versions](https://github.com/Azure/azure-iot-edge-c-module/releases)
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

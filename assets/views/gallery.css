@@ -12,43 +12,56 @@
 [v-cloak] { display: none }
 
 * {
-  box-sizing: border-box;
   font-family: "Segoe UI",-apple-system,".SFNSText-Regular","San Francisco","Helvetica Neue","Lucida Grande",Arial,sans-serif;
+}
+
+html {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
 }
 
 body {
   margin: 20px;
-  background: white;
   min-width: 700px;
   cursor: default;
 }
 
+#example {
+  height: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+}
+
 #main {
-  width: 1700px;
-  display: inline-block;
-  vertical-align: top;
+  display: flex;
+  flex: 3 3 70%;
+  flex-flow: column nowrap;
+  align-items: flex-start;
   padding-right: 20px;
 }
 
-ul.example-list {
-  padding: 0;
-  margin: 0;
-  margin-right: -20px;
-  margin-bottom: -20px;
+#filter {
+  display: inline-block;
+  flex: 0 0 35px;
 }
 
-ul.example-list:after {
-  content: "";
-  display: block;
-  clear: both;
+ul.example-list {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  padding-inline-start: 0;
+  position: relative;
 }
 
 ul.example-list > li {
-  list-style: none;
+  display: flex;
   width: 320px;
   margin-right: 20px;
   margin-bottom: 20px;
-  float: left;
   text-align: left;
   box-shadow: 0px 1px 3px 0 rgba(0, 0, 0, 0.15);
 }
@@ -188,8 +201,9 @@ ul.example-list > li > .body > .buttons > button:hover {
 }
 
 aside {
-  width: 300px;
-  display: inline-block;
+  display: flex;
+  flex-flow: column nowrap;
+  flex: 1 1 30%;
   vertical-align: top;
   color: #333;
   text-align: left;
@@ -387,24 +401,33 @@ ul.example-list > li:hover > .header > img,
 
 #filter {
   margin-bottom: 30px;
-}
-
-/* .elist-move {
-  transition: transform 1s;
-} */
-
-/* .elist-enter, .elist-leave-to {
-  opacity: 0;
-  transform: translate(100px, 100px);
-}
-
-.elist-leave-active {
-  position: absolute;
+  min-width: 660px;
 }
 
 .elist-item {
-  transition: all 1s;
-} */
+  transition: all 15s;
+  display: flex;
+  flex-flow: column;
+  flex: 0 0 320px;
+}
+
+.elist-enter, .elist-leave-to {
+  opacity: 0;
+  /* width: 0; */
+  transform: translateX(-320px);
+  /* position: absolute */
+}
+
+.elist-enter-to {
+  /* position: absolute; */
+}
+
+.elist-leave-active {
+  /* position: absolute; */
+  opacity: 0;
+}
+
+
 
 @media (min-width: 4096px) {
   body:after {

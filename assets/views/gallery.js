@@ -50,7 +50,7 @@ var example = new Vue({
   created: function() {
     const query = parseQuery(location.href);
     const url = query.url ||
-        'https://raw.githubusercontent.com/michaeljqzq/edge-sample-gallery/master/sample-gallery.json';
+        'https://raw.githubusercontent.com/michaeljqzq/edge-sample-gallery/test/sample-gallery.json';
     this.boardId = query.board || '';
     httpRequest(url, function(data) {
       var examples = [];
@@ -150,12 +150,17 @@ var example = new Vue({
       }, delay)
     },
     leave: function (el, done) {
-      var delay = DELAY * 3;
+      var delay = DELAY * 2;
       Velocity(
         el,
-        { opacity: 0, width: 0 },
+        { opacity: 0, translateX: -320 },
         { duration: delay, complete: done }
       )
+    },
+    beforeLeave(el) {
+      el.style.left = `${el.offsetLeft}px`;
+      el.style.top = `${el.offsetTop}px`;
+      el.style.position = 'absolute';
     }
   },
   computed: {

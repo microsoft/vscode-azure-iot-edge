@@ -47,6 +47,7 @@
     "onCommand:azure-iot-edge.startEdgeHubSingle",
     "onCommand:azure-iot-edge.setModuleCred",
     "onCommand:azure-iot-edge.setDefaultPlatform",
+    "onCommand:azure-iot-edge.showGallery",
     "workspaceContains:**/deployment.template.json"
   ],
   "main": "./out/src/extension",
@@ -179,6 +180,11 @@
       {
         "command": "azure-iot-edge.setDefaultPlatform",
         "title": "Set Default Target Platform for Edge Solution",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.showGallery",
+        "title": "Show Sample Gallery",
         "category": "Azure IoT Edge"
       }
     ],

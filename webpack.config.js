@@ -29,8 +29,8 @@ const config = {
     },
     module: {
         // require(expr)
-        exprContextRegExp: /$^/,
-        exprContextCritical: false,
+        // exprContextRegExp: /$^/,
+        // exprContextCritical: false,
         rules: [{
             test: /\.ts$/,
             exclude: /node_modules/,

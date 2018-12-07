@@ -4,6 +4,7 @@
 <link href="gallery.css" rel="stylesheet">
 <script src="vue.js"></script>
 <script src="vue-select.js"></script>
+<script src="velocity.min.js"></script>
 </head>
 <body>
 <div id="example">
@@ -23,8 +24,11 @@
       </div>
     </div>
   </div>
-  <ul class="example-list">
-    <li v-for="example in selectedExamples" :key="example.name" v-on:click="openLink(example.tutorial)">
+  <transition-group name="elist" tag="ul" class="example-list" v-bind:css="false"
+  v-on:before-enter="beforeEnter"
+  v-on:enter="enter"
+  v-on:leave="leave">
+    <li v-for="(example, index) in selectedExamples" v-bind:data-index="index" :key="example.name" v-on:click="openLink(example.tutorial)" class="elist-item">
       <div class="header">
         <span v-if="example.difficulty" v-bind:class="'difficulty ' + example.difficulty"></span>
         <img v-bind:src="example.image || '/images/no-image.jpg'">
@@ -39,7 +43,7 @@
         </div>
       </div>
     </li>
-  </ul>
+  </transition-group>
 </div>
 <aside id="aside"></aside>
 </div>

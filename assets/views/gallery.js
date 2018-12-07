@@ -134,7 +134,29 @@ var example = new Vue({
       // release the focus. Or when press enter in "set sample name", the enter event will be passed to the webview and trigger the focused element again
       document.activeElement.blur();
     },
-    openLink: openLink
+    openLink: openLink,
+    beforeEnter: function (el) {
+      el.style.opacity = 0
+      el.style.width = 0
+    },
+    enter: function (el, done) {
+      var delay = el.dataset.index * DELAY
+      setTimeout(function () {
+        Velocity(
+          el,
+          { opacity: 1, width: '320px' },
+          { complete: done }
+        )
+      }, delay)
+    },
+    leave: function (el, done) {
+      var delay = DELAY * 3;
+      Velocity(
+        el,
+        { opacity: 0, width: 0 },
+        { duration: delay, complete: done }
+      )
+    }
   },
   computed: {
     logicalDeviceOptions: {
@@ -160,6 +182,8 @@ var example = new Vue({
     }
   }
 });
+
+const DELAY = 100;
 
 function openLink(url) {
   if (!url) {

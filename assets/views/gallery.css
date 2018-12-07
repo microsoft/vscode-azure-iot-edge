@@ -344,6 +344,7 @@ ul.example-list > li:hover > .header > img,
 #featured > .body > .description {
   margin-bottom: 20px;
   max-width: 500px;
+  max-height: 58px;
 }
 
 .github:before,
@@ -387,6 +388,23 @@ ul.example-list > li:hover > .header > img,
 #filter {
   margin-bottom: 30px;
 }
+
+/* .elist-move {
+  transition: transform 1s;
+} */
+
+/* .elist-enter, .elist-leave-to {
+  opacity: 0;
+  transform: translate(100px, 100px);
+}
+
+.elist-leave-active {
+  position: absolute;
+}
+
+.elist-item {
+  transition: all 1s;
+} */
 
 @media (min-width: 4096px) {
   body:after {

@@ -16,7 +16,7 @@ export class IntelliSenseUtility {
         return location.matches(jsonPath) && location.path.length === jsonPath.length;
     }
 
-    public static async getImageDockerfileAtLocation(document: vscode.TextDocument, position: vscode.Position): Promise<{dockerfile: string, range: vscode.Range}> {
+    public static async getImageDockerfileAtLocation(document: vscode.TextDocument, position: vscode.Position): Promise<{ dockerfile: string, range: vscode.Range }> {
         const location: parser.Location = parser.getLocation(document.getText(), document.offsetAt(position));
 
         if (IntelliSenseUtility.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
@@ -32,7 +32,7 @@ export class IntelliSenseUtility {
                 if (image) {
                     const dockerfile: string = imageToBuildSettingsMap.get(image).dockerFile;
                     const range: vscode.Range = IntelliSenseUtility.getNodeRange(document, node);
-                    return {dockerfile, range};
+                    return { dockerfile, range };
                 }
             } catch {
                 return undefined;

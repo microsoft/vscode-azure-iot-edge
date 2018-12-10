@@ -45,12 +45,17 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 
     context.subscriptions.push(statusBar);
-    context.subscriptions.push(vscode.languages.registerCompletionItemProvider([{ language: "json" }, { language: "jsonc" }], new ConfigCompletionItemProvider(), "\"", ".", ":"));
-    context.subscriptions.push(vscode.languages.registerHoverProvider([{ language: "json" }, { language: "jsonc" }], new ConfigHoverProvider()));
+    context.subscriptions.push(
+        vscode.languages.registerCompletionItemProvider([{ scheme: "file", language: "json" }, { scheme: "file", language: "jsonc" }],
+            new ConfigCompletionItemProvider(), "\"", ".", ":"));
+    context.subscriptions.push(
+        vscode.languages.registerHoverProvider([{ scheme: "file", language: "json" }, { scheme: "file", language: "jsonc" }],
+            new ConfigHoverProvider()));
     // Calling registerDefinitionProvider will add "Go to definition" and "Peek definition" context menus to documents matched with the filter.
     // Use the strict { pattern: "**/deployment.template.json" } instead of { language: "json" }, { language: "jsonc" } to avoid polluting the context menu of non-config JSON files.
-    context.subscriptions.push(vscode.languages.registerDefinitionProvider(
-        [{ pattern: Constants.deploymentTemplatePattern }, { pattern: Constants.debugDeploymentTemplatePattern }], new ConfigDefinitionProvider()));
+    context.subscriptions.push(
+        vscode.languages.registerDefinitionProvider([{ scheme: "file", pattern: Constants.deploymentTemplatePattern }, { scheme: "file", pattern: Constants.debugDeploymentTemplatePattern }],
+            new ConfigDefinitionProvider()));
 
     const diagCollection: vscode.DiagnosticCollection = vscode.languages.createDiagnosticCollection(Constants.edgeDisplayName);
     const configDiagnosticProvider: ConfigDiagnosticProvider = new ConfigDiagnosticProvider();
@@ -58,7 +63,9 @@ export function activate(context: vscode.ExtensionContext) {
         configDiagnosticProvider.updateDiagnostics(vscode.window.activeTextEditor.document, diagCollection);
     }
     context.subscriptions.push(diagCollection);
-    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => configDiagnosticProvider.updateDiagnostics(event.document, diagCollection)));
+    // For files that are over 5MB in size, an undefined event will be created
+    // https://github.com/Microsoft/vscode/issues/27100
+    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => { if (event) { configDiagnosticProvider.updateDiagnostics(event.document, diagCollection); } }));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => configDiagnosticProvider.updateDiagnostics(document, diagCollection)));
 
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);

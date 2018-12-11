@@ -135,33 +135,33 @@ var example = new Vue({
       document.activeElement.blur();
     },
     openLink: openLink,
-    beforeEnter: function (el) {
-      el.style.opacity = 0
-      el.style.width = 0
-    },
-    enter: function (el, done) {
-      var delay = el.dataset.index * DELAY
-      setTimeout(function () {
-        Velocity(
-          el,
-          { opacity: 1, width: '320px' },
-          { complete: done }
-        )
-      }, delay)
-    },
-    leave: function (el, done) {
-      var delay = DELAY * 2;
-      Velocity(
-        el,
-        { opacity: 0, translateX: -320 },
-        { duration: delay, complete: done }
-      )
-    },
-    beforeLeave(el) {
-      el.style.left = `${el.offsetLeft}px`;
-      el.style.top = `${el.offsetTop}px`;
-      el.style.position = 'absolute';
-    }
+    // beforeEnter: function (el) {
+    //   el.style.opacity = 0
+    //   el.style.width = 0
+    // },
+    // enter: function (el, done) {
+    //   var delay = el.dataset.index * DELAY
+    //   setTimeout(function () {
+    //     Velocity(
+    //       el,
+    //       { opacity: 1, width: '320px' },
+    //       { complete: done }
+    //     )
+    //   }, delay)
+    // },
+    // leave: function (el, done) {
+    //   var delay = DELAY * 2;
+    //   Velocity(
+    //     el,
+    //     { opacity: 0, translateX: -320 },
+    //     { duration: delay, complete: done }
+    //   )
+    // },
+    // beforeLeave(el) {
+    //   el.style.left = `${el.offsetLeft}px`;
+    //   el.style.top = `${el.offsetTop}px`;
+    //   el.style.position = 'absolute';
+    // }
   },
   computed: {
     logicalDeviceOptions: {

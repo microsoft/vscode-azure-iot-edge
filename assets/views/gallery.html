@@ -24,7 +24,7 @@
       </div>
     </div>
   </div>
-  <transition-group name="elist" tag="ul" class="example-list" v-on:before-leave="beforeLeave">
+  <transition-group name="elist" tag="ul" class="example-list">
     <li v-for="(example, index) in selectedExamples" v-bind:data-index="index" :key="example.name" v-on:click="openLink(example.tutorial)" class="elist-item">
       <div class="header">
         <span v-if="example.difficulty" v-bind:class="'difficulty ' + example.difficulty"></span>

@@ -27,6 +27,7 @@ body {
   margin: 20px;
   min-width: 700px;
   cursor: default;
+  background: white;
 }
 
 #example {
@@ -53,6 +54,7 @@ ul.example-list {
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
+  -webkit-padding-start: 0 !important;
   padding-inline-start: 0;
   position: relative;
 }
@@ -405,7 +407,7 @@ ul.example-list > li:hover > .header > img,
 }
 
 .elist-item {
-  transition: all 15s;
+  transition: all .5s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-flow: column;
   flex: 0 0 320px;
@@ -413,21 +415,13 @@ ul.example-list > li:hover > .header > img,
 
 .elist-enter, .elist-leave-to {
   opacity: 0;
-  /* width: 0; */
   transform: translateX(-320px);
-  /* position: absolute */
-}
-
-.elist-enter-to {
-  /* position: absolute; */
 }
 
 .elist-leave-active {
-  /* position: absolute; */
+  position: absolute;
   opacity: 0;
 }
-
-
 
 @media (min-width: 4096px) {
   body:after {

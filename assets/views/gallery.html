@@ -10,7 +10,7 @@
 <div id="example">
 <div id="main" v-cloak>
   <div id="filter">
-    <v-select multiple placeholder="Filter Devices" v-model="selectedLogicalDevices" :options="logicalDeviceOptions"></v-select>
+    <v-select multiple ref="filter" placeholder="Filter Devices" v-model="selectedLogicalDevices" :options="logicalDeviceOptions"></v-select>
   </div>
   <div id="featured" v-if="featuredExample">
     <span v-if="featuredExample.difficulty" v-bind:class="'difficulty ' + featuredExample.difficulty"></span>
@@ -24,7 +24,7 @@
       </div>
     </div>
   </div>
-  <transition-group name="elist" tag="ul" class="example-list">
+  <transition-group name="elist" ref="elist" tag="ul" class="example-list">
     <li v-for="(example, index) in selectedExamples" v-bind:data-index="index" :key="example.name" v-on:click="openLink(example.tutorial)" class="elist-item">
       <div class="header">
         <span v-if="example.difficulty" v-bind:class="'difficulty ' + example.difficulty"></span>

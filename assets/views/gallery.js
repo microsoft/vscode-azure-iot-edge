@@ -52,6 +52,9 @@ var example = new Vue({
     const url = query.url ||
         'https://raw.githubusercontent.com/michaeljqzq/edge-sample-gallery/test/sample-gallery.json';
     this.boardId = query.board || '';
+    window.addEventListener('resize', () => {
+      this.adjustFilterWidth();
+    });
     httpRequest(url, function(data) {
       var examples = [];
       var aside = [];
@@ -97,6 +100,10 @@ var example = new Vue({
         }
       }
       this.examples = examples;
+     
+      this.$nextTick(function () {
+        this.adjustFilterWidth();
+      })
     }.bind(this));
   },
   methods: {
@@ -135,6 +142,13 @@ var example = new Vue({
       document.activeElement.blur();
     },
     openLink: openLink,
+    adjustFilterWidth: function() {
+      // Code that will run only after the
+      // entire view has been re-rendered
+      let num = Math.floor(this.$refs.elist.$el.offsetWidth / (320+20));
+      console.log(this)
+      this.$refs.filter.$el.style.width = `${num * (320+20) -20}px`;
+    }
     // beforeEnter: function (el) {
     //   el.style.opacity = 0
     //   el.style.width = 0

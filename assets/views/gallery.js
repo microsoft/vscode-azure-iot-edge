@@ -45,7 +45,7 @@ var example = new Vue({
     blogs: [],
     boardId: '',
     logicalDevices: [],
-    selectedLogicalDevices: [],
+    selectedLogicalDevice: null,
   },
   created: function() {
     const query = parseQuery(location.href);
@@ -123,8 +123,8 @@ var example = new Vue({
       let platform = null;
       // If user has a device filter, then it will set the platform as the first device filter match the sample
       // else it will set the platform as the first support devices platform in the sample
-      if(this.selectedLogicalDevices.length !== 0) {
-        platform = this.selectedLogicalDevices.find(ld => sample.supportDevices.find(s => s.equals(ld.value))).value.platform;
+      if(this.selectedLogicalDevice) {
+        platform = this.selectedLogicalDevice.value.platform;
       }else {
         platform = sample.supportDevices[0].platform;
       }
@@ -188,12 +188,10 @@ var example = new Vue({
     },
     selectedExamples: {
       get: function() {
-        if(this.selectedLogicalDevices.length === 0) return this.examples;
+        if(!this.selectedLogicalDevice) return this.examples;
         return this.examples.filter(e => {
           for(let device of e.supportDevices) {
-            if(this.selectedLogicalDevices.find(selected => device.equals(selected.value))) {
-              return true;
-            }
+            if(device.equals(this.selectedLogicalDevice.value)) return true;
           }
           return false;
         })

@@ -8,6 +8,7 @@
 'use strict';
 
 const path = require('path');
+const webpack = require('webpack');
 
 /**@type {import('webpack').Configuration}*/
 const config = {
@@ -39,6 +40,11 @@ const config = {
             }]
         }]
     },
+    plugins: [
+        // Ignore all locale files of moment.js, which can save 50KB
+        // https://webpack.js.org/plugins/ignore-plugin/#ignore-moment-locales
+        new webpack.IgnorePlugin(/^\.\/locale$/, /[\/\\]moment$/),
+    ]
 }
 
 module.exports = config;

@@ -7,6 +7,7 @@
 
 'use strict';
 
+const failOnErrorsPlugin = require('fail-on-errors-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
 
@@ -58,7 +59,12 @@ const config = {
             __dirname,
             false,
             /package\.json/
-        )
+        ),
+        // Fail on warnings so that CI can report new warnings which requires attention
+        new failOnErrorsPlugin({
+            failOnErrors: true,
+            failOnWarnings: true,
+        })
     ]
 }
 

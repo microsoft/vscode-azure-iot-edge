@@ -30,17 +30,6 @@ const config = {
         extensions: ['.ts', '.js', '.json']
     },
     module: {
-        // // require
-        // unknownContextRegExp: /$^/,
-        // unknownContextCritical: false,
-
-        // // require(expr)
-        // exprContextRegExp: /$^/,
-        // exprContextCritical: false,
-
-        // // require("prefix" + expr + "suffix")
-        // wrappedContextRegExp: /$^/,
-        // wrappedContextCritical: false,
         rules: [{
             test: /\.ts$/,
             exclude: /node_modules/,
@@ -53,12 +42,21 @@ const config = {
         // Ignore all locale files of moment.js, which can save 50KB
         // https://webpack.js.org/plugins/ignore-plugin/#ignore-moment-locales
         new webpack.IgnorePlugin(/^\.\/locale$/, /[\/\\]moment$/),
-        // Fix warning from AI by packing extension's package.json and AI can track applicationVersion correctly
+        // Suppress warnings of known dynamic require
         new webpack.ContextReplacementPlugin(
             /applicationinsights[\/\\]out[\/\\]Library/,
-            __dirname,
             false,
-            /package\.json/
+            /$^/
+        ),
+        new webpack.ContextReplacementPlugin(
+            /ms-rest[\/\\]lib/,
+            false,
+            /$^/
+        ),
+        new webpack.ContextReplacementPlugin(
+            /applicationinsights[\/\\]out[\/\\]AutoCollection/,
+            false,
+            /$^/
         ),
         // Fail on warnings so that CI can report new warnings which requires attention
         new failOnErrorsPlugin({

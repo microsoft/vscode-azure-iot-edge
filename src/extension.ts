@@ -14,6 +14,7 @@ import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
+import { Simulator } from "./edge/simulator";
 import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionItemProvider";
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
@@ -26,9 +27,11 @@ import { IDeviceItem } from "./typings/IDeviceItem";
 
 export function activate(context: vscode.ExtensionContext) {
     TelemetryClient.sendEvent("extensionActivated");
-
+    const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
+    Simulator.validateSimulatorUpdated();
     const edgeManager = new EdgeManager(context);
     const containerManager = new ContainerManager();
+    const simulator = new Simulator(context);
 
     Utility.registerDebugTelemetryListener();
 
@@ -60,8 +63,6 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(diagCollection);
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => configDiagnosticProvider.updateDiagnostics(event.document, diagCollection)));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => configDiagnosticProvider.updateDiagnostics(document, diagCollection)));
-
-    const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     context.subscriptions.push(outputChannel);
 
     initCommandAsync(context, outputChannel,
@@ -133,19 +134,19 @@ export function activate(context: vscode.ExtensionContext) {
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.setupIotedgehubdev",
         (deviceItem?: IDeviceItem): Promise<void> => {
-            return edgeManager.setupIotedgehubdev(deviceItem, outputChannel);
+            return simulator.setupIotedgehubdev(deviceItem, outputChannel);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.startEdgeHubSingle",
         (): Promise<void> => {
-            return edgeManager.startEdgeHubSingleModule(outputChannel);
+            return simulator.startEdgeHubSingleModule(outputChannel);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.setModuleCred",
         (): Promise<void> => {
-            return edgeManager.setModuleCred(outputChannel);
+            return simulator.setModuleCred(outputChannel);
         });
 
     initCommandAsync(context, outputChannel,

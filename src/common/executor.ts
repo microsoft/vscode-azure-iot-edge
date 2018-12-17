@@ -28,26 +28,37 @@ export class Executor {
     }
 
     public static async executeCMD(outputPane: vscode.OutputChannel, command: string,
-                                   options: SpawnOptions, ...args: string[]): Promise<void> {
-        await new Promise((resolve: () => void, reject: (e: Error) => void): void => {
-            outputPane.show();
-            outputPane.appendLine(`Executing ${command} ${args.join(" ")}`);
+                                   options: SpawnOptions, ...args: string[]): Promise<string> {
+        return await new Promise((resolve: (output: string) => void, reject: (e: Error) => void): void => {
+            if (outputPane) {
+                outputPane.show();
+                outputPane.appendLine(`Executing ${command} ${args.join(" ")}`);
+            }
             let stderr: string = "";
+            let stdOutput: string = "";
             const p: ChildProcess = spawn(command, args, options);
-            p.stdout.on("data", (data: string | Buffer): void =>
-                outputPane.append(data.toString()));
+            p.stdout.on("data", (data: string | Buffer): void => {
+                const dataStr = data.toString();
+                stdOutput = stdOutput.concat(dataStr);
+                if (outputPane) {
+                    outputPane.append(dataStr);
+                }
+            });
             p.stderr.on("data", (data: string | Buffer) => {
-                stderr = stderr.concat(data.toString());
-                outputPane.append(data.toString());
+                const dataStr = data.toString();
+                stderr = stderr.concat(dataStr);
+                if (outputPane) {
+                    outputPane.append(dataStr);
+                }
             });
             p.on("error", (err: Error) => {
                 reject(new Error(err.toString()));
             });
             p.on("exit", (code: number, signal: string) => {
                 if (code !== 0) {
-                    reject (new Error((`Command failed with exit code ${code}`)));
+                    reject (new Error((`Command failed with exit code ${code}.`)));
                 } else {
-                    resolve();
+                    resolve(stdOutput);
                 }
             });
         });

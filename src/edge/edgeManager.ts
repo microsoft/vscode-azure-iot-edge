@@ -493,12 +493,6 @@ export class EdgeManager {
         return selectedUri[0].fsPath;
     }
 
-    // private async inputInputNames(): Promise<string> {
-    //     return await Utility.showInputBox(
-    //         Constants.inputNamePattern,
-    //         Constants.inputNamePrompt, null, "input1,input2");
-    // }
-
     private async inputSolutionName(parentPath: string): Promise<string> {
         const validateFunc = async (name: string): Promise<string> => {
             return await this.validateInputName(name, parentPath);

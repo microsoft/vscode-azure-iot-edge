@@ -143,14 +143,12 @@ export class Constants {
     public static asaJobDesc = "Azure Stream Analytics Job";
     public static amlApiVersion: string = "2018-03-01-preview";
 
-    public static needSimulatorInstalledMsg = "You must have the iotedgehubdev tool installed for Edge Hub simulation.";
-    public static updateSimulatorMsg = "Update your iotedgehubdev tool to the latest for the best experience.";
-    public static failedInstallSimulator = "Failed to install iotedgehubdev because of error:";
-    public static iotedgehubdevVersionUrl = "https://pypi.org/pypi/iotedgehubdev/json";
-    public static simulatorLearnMoreUrl = "https://github.com/Microsoft/vscode-azure-iot-edge#prerequisites";
-    public static outputNoSimulatorMsg = "Cannot execute command since there is no iotedgehubdev installed. Please install it first.";
-    public static pipNotFoundMsg = "'pip' not found. Cannot install iotedgehubdev and will have to be installed manually.";
-    public static installFailedMsg = "iotedgehubdev installation has been failed and  will have to be installed manually.";
+    public static needSimulatorInstalledMsg = "You must have the 'iotedgehubdev' tool installed for Edge Hub simulation.";
+    public static updateSimulatorMsg = "Update your 'iotedgehubdev' tool to the latest for the best experience.";
+    public static failedInstallSimulator = "Failed to install 'iotedgehubdev' tool because of error:";
+    public static outputNoSimulatorMsg = "Cannot execute command since there is no 'iotedgehubdev' installed. Please install it first.";
+    public static pipNotFoundMsg = "'pip' not found. Cannot install 'iotedgehubdev' tool and will have to be installed manually.";
+    public static installFailedMsg = "'iotedgehubdev' tool installation has been failed and  will have to be installed manually.";
     public static skipForNow = "Skip for Now";
     public static learnMore = "Learn More";
     public static install = "Install";

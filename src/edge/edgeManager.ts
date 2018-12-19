@@ -436,10 +436,18 @@ export class EdgeManager {
                 break;
             case Constants.LANGUAGE_NODE:
                 if (Versions.installNodeTemplate()) {
+                    // Have to install Node.js module template and Yeoman in the same space (either global or npx environment)
+                    // https://github.com/Microsoft/vscode-azure-iot-edge/issues/326
                     const nodeModuleVersion = Versions.nodeTemplateVersion();
                     const nodeVersionConfig = nodeModuleVersion != null ? `@${nodeModuleVersion}` : "";
-                    await Executor.executeCMD(outputChannel, "npx", { cwd: `${parent}`, shell: true },
-                        `-p yo -p generator-azure-iot-edge-module${nodeVersionConfig} -- yo azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                    if (os.platform() === "win32") {
+                        await Executor.executeCMD(outputChannel, "npm", { cwd: `${parent}`, shell: true },
+                            `i -g generator-azure-iot-edge-module${nodeVersionConfig}`);
+                        await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                    } else {
+                        await Executor.executeCMD(outputChannel, "npx", { cwd: `${parent}`, shell: true },
+                            `-p yo -p generator-azure-iot-edge-module${nodeVersionConfig} -- yo azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                    }
                 } else {
                     await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
                 }

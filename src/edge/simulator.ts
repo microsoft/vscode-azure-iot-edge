@@ -7,32 +7,46 @@ import * as semver from "semver";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
+import { LearnMoreError } from "../common/LearnMoreError";
+import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { IDeviceItem } from "../typings/IDeviceItem";
 
+enum InstallReturn {
+    Success = 0,
+    Failed,
+    Canceled,
+    NoPip,
+}
+
 export class Simulator {
-    public static async validateSimulatorInstalled(force: boolean = false, outputChannel: vscode.OutputChannel = null): Promise<boolean> {
+    public static async validateSimulatorInstalled(force: boolean = false, outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
         if (await Simulator.simulatorInstalled()) {
-            return true;
+            return InstallReturn.Success;
         } else {
-            return await Simulator.installSimulatorWithPip(force, "You must have the iotedgehubdev tool installed for simulation.", outputChannel);
+            return await Simulator.installSimulatorWithPip(force, Constants.needSimulatorInstalledMsg, outputChannel);
         }
     }
 
     public static async validateSimulatorUpdated(outputChannel: vscode.OutputChannel = null): Promise<void> {
+        let message: string;
         try {
             const output = await Executor.executeCMD(undefined, "iotedgehubdev", { shell: true }, "--version");
             const version: string | null = Simulator.extractVersion(output);
-
-            if (!version) {
-                return;
-            }
-            const latestVersion: string | undefined = await Simulator.getLatestSimulatorVersion();
-            if (latestVersion && semver.gt(latestVersion, version)) {
-                await Simulator.installSimulatorWithPip(false, `Update your iotedgehubdev tool (${version}) to the latest (${latestVersion}) for the best experience.`, outputChannel);
+            if (version) {
+                const latestVersion: string | undefined = await Simulator.getLatestSimulatorVersion();
+                if (latestVersion && semver.gt(latestVersion, version)) {
+                    message = `${Constants.updateSimulatorMsg} (${version} to ${latestVersion})`;
+                }
+            } else {
+                message = Constants.updateSimulatorMsg;
             }
         } catch (error) {
-            await Simulator.installSimulatorWithPip(false, "You must have the iotedgehubdev tool installed for simulation.", outputChannel);
+            message =  Constants.needSimulatorInstalledMsg;
+        }
+
+        if (message) {
+            await Simulator.installSimulatorWithPip(false, message, outputChannel);
         }
     }
 
@@ -50,20 +64,20 @@ export class Simulator {
 
     private static async getLatestSimulatorVersion(): Promise<string | undefined> {
         try {
-            const pipResponse = await request.get("https://pypi.org/pypi/iotedgehubdev/json");
+            const pipResponse = await request.get(Constants.iotedgehubdevVersionUrl);
             return JSON.parse(pipResponse).info.version;
         } catch (error) {
             return undefined;
         }
     }
 
-    private static async installSimulatorWithPip(force: boolean, message: string, outputChannel: vscode.OutputChannel = null): Promise<boolean> {
-        let ret: boolean = false;
+    private static async installSimulatorWithPip(force: boolean, message: string, outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
+        let ret: InstallReturn = InstallReturn.Success;
         if (await this.checkPipInstalled()) {
-            const install: vscode.MessageItem = { title: "Install" };
+            const install: vscode.MessageItem = { title: Constants.install };
             const items: vscode.MessageItem[] = [ install ];
             if (!force) {
-                items.push({ title: "Skip for now" });
+                items.push({ title: Constants.skipForNow });
             }
 
             let input: vscode.MessageItem | undefined;
@@ -76,30 +90,32 @@ export class Simulator {
             if (input === install) {
                 try {
                     await Executor.executeCMD(outputChannel, "pip", {shell: true}, "install --upgrade iotedgehubdev");
-                    ret =  true;
                 } catch (error) {
                     if (outputChannel) {
-                        outputChannel.appendLine(`Failed to install iotedgehubdev because of error: ${error.message}`);
+                        outputChannel.appendLine(`${Constants.failedInstallSimulator} ${error.message}`);
                     }
-                    ret =  false;
+                    ret =  InstallReturn.Failed;
                 }
+            } else {
+                ret = InstallReturn.Canceled;
             }
+        } else {
+            ret = InstallReturn.NoPip;
         }
         return ret;
     }
 
     private static async simulatorInstalled(): Promise<boolean> {
-        try {
-            await Executor.executeCMD(undefined, "iotedgehubdev", { shell: true }, "--version");
-            return true;
-        } catch (error) {
-            return false;
-        }
+        return await Simulator.checkCmdExist("iotedgehubdev");
     }
 
     private static async checkPipInstalled(): Promise<boolean> {
+        return await Simulator.checkCmdExist("pip");
+    }
+
+    private static async checkCmdExist(cmd: string): Promise<boolean> {
         try {
-            await Executor.executeCMD(undefined, "pip", { shell: true }, "--version");
+            await Executor.executeCMD(undefined, cmd, { shell: true }, "--version");
             return true;
         } catch (error) {
             return false;
@@ -149,12 +165,20 @@ export class Simulator {
     }
 
     private async callWithInstallationCheck(outputChannel: vscode.OutputChannel, callback: () => Promise<any>): Promise<any> {
-        if (await Simulator.validateSimulatorInstalled(true, outputChannel)) {
-            return await callback();
-        } else {
-            // TODO: show wiki page
-            outputChannel.appendLine("Cannot execute command since there is no iotedgehubdev please install it first");
+        const installReturn = await Simulator.validateSimulatorInstalled(true, outputChannel);
+
+        switch (installReturn) {
+            case InstallReturn.Success:
+                return await callback();
+            case InstallReturn.NoPip:
+                outputChannel.appendLine(Constants.outputNoSimulatorMsg);
+                throw new LearnMoreError(Constants.pipNotFoundMsg, Constants.simulatorLearnMoreUrl);
+            case InstallReturn.Failed:
+                outputChannel.appendLine(Constants.outputNoSimulatorMsg);
+                throw new LearnMoreError(Constants.failedInstallSimulator, Constants.simulatorLearnMoreUrl);
+            case InstallReturn.Canceled:
+            default:
+                throw new UserCancelledError();
         }
     }
-
 }

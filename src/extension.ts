@@ -2,11 +2,13 @@
 // Licensed under the MIT license.
 
 "use strict";
+import opn = require("opn");
 import * as tls from "tls";
 import * as vscode from "vscode";
 import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
+import { LearnMoreError } from "./common/LearnMoreError";
 import { NSAT } from "./common/nsat";
 import { Platform } from "./common/platform";
 import { TelemetryClient } from "./common/telemetryClient";
@@ -28,7 +30,7 @@ import { IDeviceItem } from "./typings/IDeviceItem";
 export function activate(context: vscode.ExtensionContext) {
     TelemetryClient.sendEvent("extensionActivated");
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
-    Simulator.validateSimulatorUpdated();
+    Simulator.validateSimulatorUpdated(outputChannel);
     const edgeManager = new EdgeManager(context);
     const containerManager = new ContainerManager();
     const simulator = new Simulator(context);
@@ -192,16 +194,27 @@ function initCommandAsync(context: vscode.ExtensionContext,
         const properties: { [key: string]: string; } = {};
         properties.result = "Succeeded";
         TelemetryClient.sendEvent(`${commandId}.start`);
+        outputChannel.appendLine(`${commandId}: `);
         try {
             return await callback(...args);
         } catch (error) {
             if (error instanceof UserCancelledError) {
                 properties.result = "Cancelled";
+                outputChannel.appendLine(Constants.userCancelled);
             } else {
                 properties.result = "Failed";
-                errorData = new ErrorData(error);
-                outputChannel.appendLine(`Error: ${errorData.message}`);
-                vscode.window.showErrorMessage(errorData.message);
+                if (error instanceof LearnMoreError) {
+                    const learnMore: vscode.MessageItem = { title: Constants.learnMore };
+                    const items: vscode.MessageItem[] = [ learnMore ];
+                    outputChannel.appendLine(`Error: ${error.message}`);
+                    if (await vscode.window.showErrorMessage(error.message, ...items) === learnMore) {
+                        await opn(error.url);
+                    }
+                } else {
+                    errorData = new ErrorData(error);
+                    outputChannel.appendLine(`Error: ${errorData.message}`);
+                    vscode.window.showErrorMessage(errorData.message);
+                }
             }
         } finally {
             const end: number = Date.now();

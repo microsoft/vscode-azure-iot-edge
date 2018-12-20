@@ -51,7 +51,7 @@ export class Simulator {
     }
 
     private static iotedgehubdevVersionUrl = "https://pypi.org/pypi/iotedgehubdev/json";
-    private static learnMoreUrl = "https://github.com/Microsoft/vscode-azure-iot-edge#prerequisites";
+    private static learnMoreUrl = "https://github.com/Azure/iotedgehubdev#installing";
 
     private static extractVersion(output: string): string | null {
         if (!output) {
@@ -178,7 +178,7 @@ export class Simulator {
                 throw new LearnMoreError(Constants.pipNotFoundMsg, Simulator.learnMoreUrl);
             case InstallReturn.Failed:
                 outputChannel.appendLine(Constants.outputNoSimulatorMsg);
-                throw new LearnMoreError(Constants.failedInstallSimulator, Simulator.learnMoreUrl);
+                throw new LearnMoreError(Constants.installFailedMsg, Simulator.learnMoreUrl);
             case InstallReturn.Canceled:
             default:
                 throw new UserCancelledError();

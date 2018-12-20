@@ -8,7 +8,7 @@ import { Constants } from "./constants";
 
 export class Executor {
     public static runInTerminal(command: string, terminal: string = Constants.edgeDisplayName): void {
-        if (this.terminals[terminal] === undefined ) {
+        if (this.terminals[terminal] === undefined) {
             this.terminals[terminal] = vscode.window.createTerminal(terminal);
         }
         this.terminals[terminal].show();

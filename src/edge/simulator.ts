@@ -85,7 +85,7 @@ export class Simulator {
     }
 
     private static async installSimulatorWithPip(force: boolean, message: string, outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
-        // auto install only supported on windows. For linux/max ask user install manually.
+        // auto install only supported on windows. For linux/macOS ask user install manually.
         if (os.platform() !== "win32") {
             return InstallReturn.NotSupported;
         }

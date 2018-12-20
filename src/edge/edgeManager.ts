@@ -2,8 +2,6 @@
 // Licensed under the MIT license.
 
 "use strict";
-
-import * as dotenv from "dotenv";
 import * as download from "download-git-repo";
 import * as fse from "fs-extra";
 import * as os from "os";
@@ -21,7 +19,6 @@ import { Versions } from "../common/version";
 import { AcrManager } from "../container/acrManager";
 import { AmlManager } from "../container/amlManager";
 import { StreamAnalyticsManager } from "../container/streamAnalyticsManager";
-import { IDeviceItem } from "../typings/IDeviceItem";
 
 export class EdgeManager {
 
@@ -108,26 +105,6 @@ export class EdgeManager {
         } catch (err) { }
     }
 
-    public async startEdgeHubSingleModule(outputChannel: vscode.OutputChannel): Promise<void> {
-        const inputs = await this.inputInputNames();
-        await this.setModuleCred(outputChannel);
-        await Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev start -i "${inputs}"`));
-    }
-
-    public async setModuleCred(outputChannel: vscode.OutputChannel): Promise<void> {
-        let storagePath = this.context.storagePath;
-        if (!storagePath) {
-            storagePath = path.resolve(os.tmpdir(), "vscodeedge");
-        }
-        await fse.ensureDir(storagePath);
-        const outputFile = path.join(storagePath, "module.env");
-        await Executor.executeCMD(outputChannel, "iotedgehubdev", { shell: true }, `modulecred -l -o "${outputFile}"`);
-
-        const moduleConfig = dotenv.parse(await fse.readFile(outputFile));
-        await Utility.setGlobalConfigurationProperty("EdgeHubConnectionString", moduleConfig.EdgeHubConnectionString);
-        await Utility.setGlobalConfigurationProperty("EdgeModuleCACertificateFile", moduleConfig.EdgeModuleCACertificateFile);
-    }
-
     // TODO: The command is temporary for migration stage, will be removed later.
     public async convertModule(fileUri?: vscode.Uri): Promise<void> {
         const filePath = fileUri ? fileUri.fsPath : undefined;
@@ -173,13 +150,6 @@ export class EdgeManager {
             }
         } else {
             throw new Error("No file is selected");
-        }
-    }
-
-    public async setupIotedgehubdev(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel) {
-        deviceItem = await Utility.getInputDevice(deviceItem, outputChannel);
-        if (deviceItem) {
-            Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
         }
     }
 
@@ -540,12 +510,6 @@ export class EdgeManager {
         }
 
         return selectedUri[0].fsPath;
-    }
-
-    private async inputInputNames(): Promise<string> {
-        return await Utility.showInputBox(
-            Constants.inputNamePattern,
-            Constants.inputNamePrompt, null, "input1,input2");
     }
 
     private async inputSolutionName(parentPath: string): Promise<string> {

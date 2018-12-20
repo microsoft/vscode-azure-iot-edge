@@ -143,6 +143,17 @@ export class Constants {
     public static amlWorkspaceDesc = "Azure Machine Learning Workspace";
     public static asaJobDesc = "Azure Stream Analytics Job";
     public static amlApiVersion: string = "2018-03-01-preview";
+
+    public static needSimulatorInstalledMsg = "You must have the 'iotedgehubdev' tool installed for IoT Edge Simulator.";
+    public static updateSimulatorMsg = "Update your 'iotedgehubdev' tool to the latest for the best experience.";
+    public static failedInstallSimulator = "Failed to install 'iotedgehubdev' tool because of error:";
+    public static outputNoSimulatorMsg = "Cannot execute command since 'iotedgehubdev' is not installed. Please install it first.";
+    public static pipNotFoundMsg = "'pip' not found. Cannot install 'iotedgehubdev' tool. Please install it manually.";
+    public static installFailedMsg = "'iotedgehubdev' tool installation has failed. Please install it manually.";
+    public static installManuallyMsg = "Please install 'iotedgehubdev' tool first for IoT Edge Simulator.";
+    public static skipForNow = "Skip for Now";
+    public static learnMore = "Learn More";
+    public static install = "Install";
 }
 
 export enum ContainerState {

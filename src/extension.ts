@@ -7,6 +7,7 @@ import * as vscode from "vscode";
 import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
+import { LearnMoreError } from "./common/LearnMoreError";
 import { NSAT } from "./common/nsat";
 import { Platform } from "./common/platform";
 import { TelemetryClient } from "./common/telemetryClient";
@@ -14,6 +15,7 @@ import { UserCancelledError } from "./common/UserCancelledError";
 import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
+import { Simulator } from "./edge/simulator";
 import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionItemProvider";
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
@@ -26,9 +28,11 @@ import { IDeviceItem } from "./typings/IDeviceItem";
 
 export function activate(context: vscode.ExtensionContext) {
     TelemetryClient.sendEvent("extensionActivated");
-
+    const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
+    Simulator.validateSimulatorUpdated(outputChannel);
     const edgeManager = new EdgeManager(context);
     const containerManager = new ContainerManager();
+    const simulator = new Simulator(context);
 
     Utility.registerDebugTelemetryListener();
 
@@ -67,8 +71,6 @@ export function activate(context: vscode.ExtensionContext) {
     // https://github.com/Microsoft/vscode/issues/27100
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => { if (event) { configDiagnosticProvider.updateDiagnostics(event.document, diagCollection); } }));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => configDiagnosticProvider.updateDiagnostics(document, diagCollection)));
-
-    const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     context.subscriptions.push(outputChannel);
 
     initCommandAsync(context, outputChannel,
@@ -140,19 +142,19 @@ export function activate(context: vscode.ExtensionContext) {
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.setupIotedgehubdev",
         (deviceItem?: IDeviceItem): Promise<void> => {
-            return edgeManager.setupIotedgehubdev(deviceItem, outputChannel);
+            return simulator.setupIotedgehubdev(deviceItem, outputChannel);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.startEdgeHubSingle",
         (): Promise<void> => {
-            return edgeManager.startEdgeHubSingleModule(outputChannel);
+            return simulator.startEdgeHubSingleModule(outputChannel);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.setModuleCred",
         (): Promise<void> => {
-            return edgeManager.setModuleCred(outputChannel);
+            return simulator.setModuleCred(outputChannel);
         });
 
     initCommandAsync(context, outputChannel,
@@ -191,16 +193,27 @@ function initCommandAsync(context: vscode.ExtensionContext,
         const properties: { [key: string]: string; } = {};
         properties.result = "Succeeded";
         TelemetryClient.sendEvent(`${commandId}.start`);
+        outputChannel.appendLine(`${commandId}: `);
         try {
             return await callback(...args);
         } catch (error) {
             if (error instanceof UserCancelledError) {
                 properties.result = "Cancelled";
+                outputChannel.appendLine(Constants.userCancelled);
             } else {
                 properties.result = "Failed";
-                errorData = new ErrorData(error);
-                outputChannel.appendLine(`Error: ${errorData.message}`);
-                vscode.window.showErrorMessage(errorData.message);
+                if (error instanceof LearnMoreError) {
+                    const learnMore: vscode.MessageItem = { title: Constants.learnMore };
+                    const items: vscode.MessageItem[] = [ learnMore ];
+                    outputChannel.appendLine(`Error: ${error.message}`);
+                    if (await vscode.window.showErrorMessage(error.message, ...items) === learnMore) {
+                        await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(error.url));
+                    }
+                } else {
+                    errorData = new ErrorData(error);
+                    outputChannel.appendLine(`Error: ${errorData.message}`);
+                    vscode.window.showErrorMessage(errorData.message);
+                }
             }
         } finally {
             const end: number = Date.now();

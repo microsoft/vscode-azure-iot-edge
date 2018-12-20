@@ -1,3 +1,7 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
+"use strict";
 import * as dotenv from "dotenv";
 import * as fse from "fs-extra";
 import * as os from "os";
@@ -20,14 +24,6 @@ enum InstallReturn {
 }
 
 export class Simulator {
-    public static async validateSimulatorInstalled(force: boolean = false, outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
-        if (await Simulator.simulatorInstalled()) {
-            return InstallReturn.Success;
-        } else {
-            return await Simulator.installSimulatorWithPip(force, Constants.needSimulatorInstalledMsg, outputChannel);
-        }
-    }
-
     public static async validateSimulatorUpdated(outputChannel: vscode.OutputChannel = null): Promise<void> {
         let message: string;
         try {
@@ -52,6 +48,14 @@ export class Simulator {
 
     private static iotedgehubdevVersionUrl = "https://pypi.org/pypi/iotedgehubdev/json";
     private static learnMoreUrl = "https://github.com/Azure/iotedgehubdev#installing";
+
+    private static async validateSimulatorInstalled(outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
+        if (await Simulator.simulatorInstalled()) {
+            return InstallReturn.Success;
+        } else {
+            return await Simulator.installSimulatorWithPip(true, Constants.needSimulatorInstalledMsg, outputChannel);
+        }
+    }
 
     private static extractVersion(output: string): string | null {
         if (!output) {
@@ -118,7 +122,7 @@ export class Simulator {
 
     private static async checkCmdExist(cmd: string): Promise<boolean> {
         try {
-            await Executor.executeCMD(undefined, cmd, { shell: true }, "--version");
+            await Executor.executeCMD(null, cmd, { shell: true }, "--version");
             return true;
         } catch (error) {
             return false;
@@ -168,7 +172,7 @@ export class Simulator {
     }
 
     private async callWithInstallationCheck(outputChannel: vscode.OutputChannel, callback: () => Promise<any>): Promise<any> {
-        const installReturn = await Simulator.validateSimulatorInstalled(true, outputChannel);
+        const installReturn = await Simulator.validateSimulatorInstalled(outputChannel);
 
         switch (installReturn) {
             case InstallReturn.Success:

@@ -21,6 +21,7 @@ enum InstallReturn {
     Failed,
     Canceled,
     NoPip,
+    NotSupported,
 }
 
 export class Simulator {
@@ -42,12 +43,17 @@ export class Simulator {
         }
 
         if (message) {
-            await Simulator.installSimulatorWithPip(false, message, outputChannel);
+            try {
+                const installRes = await Simulator.installSimulatorWithPip(false, message, outputChannel);
+                if (InstallReturn.NotSupported === installRes) {
+                    vscode.window.showWarningMessage(message);
+                }
+            } catch (err) {}
         }
     }
 
     private static iotedgehubdevVersionUrl = "https://pypi.org/pypi/iotedgehubdev/json";
-    private static learnMoreUrl = "https://github.com/Azure/iotedgehubdev#installing";
+    private static learnMoreUrl = "https://aka.ms/AA3nuw8";
 
     private static async validateSimulatorInstalled(outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
         if (await Simulator.simulatorInstalled()) {
@@ -79,6 +85,10 @@ export class Simulator {
     }
 
     private static async installSimulatorWithPip(force: boolean, message: string, outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
+        // auto install only supported on windows. For linux/max ask user install manually.
+        if (os.platform() !== "win32") {
+            return InstallReturn.NotSupported;
+        }
         let ret: InstallReturn = InstallReturn.Success;
         if (await this.checkPipInstalled()) {
             const install: vscode.MessageItem = { title: Constants.install };
@@ -183,6 +193,9 @@ export class Simulator {
             case InstallReturn.Failed:
                 outputChannel.appendLine(Constants.outputNoSimulatorMsg);
                 throw new LearnMoreError(Constants.installFailedMsg, Simulator.learnMoreUrl);
+            case InstallReturn.NotSupported:
+                outputChannel.appendLine(Constants.outputNoSimulatorMsg);
+                throw new LearnMoreError(Constants.installManuallyMsg, Simulator.learnMoreUrl);
             case InstallReturn.Canceled:
             default:
                 throw new UserCancelledError();

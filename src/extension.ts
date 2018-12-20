@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 "use strict";
-import opn = require("opn");
 import * as tls from "tls";
 import * as vscode from "vscode";
 import { Constants } from "./common/constants";
@@ -208,7 +207,7 @@ function initCommandAsync(context: vscode.ExtensionContext,
                     const items: vscode.MessageItem[] = [ learnMore ];
                     outputChannel.appendLine(`Error: ${error.message}`);
                     if (await vscode.window.showErrorMessage(error.message, ...items) === learnMore) {
-                        await opn(error.url);
+                        await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(error.url));
                     }
                 } else {
                     errorData = new ErrorData(error);

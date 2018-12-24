@@ -51,10 +51,13 @@ export class Simulator {
             TelemetryClient.sendEvent(`${telemetryName}.${type}`);
             try {
                 const installRes = await Simulator.installSimulatorWithPip(false, message, outputChannel);
-                if (InstallReturn.NotSupported === installRes) {
-                    vscode.window.showWarningMessage(message);
-                }
                 TelemetryClient.sendEvent(`${telemetryName}.${type}.${InstallReturn[installRes]}`);
+                if (InstallReturn.NotSupported === installRes) {
+                    const learnMore: vscode.MessageItem = { title: Constants.learnMore };
+                    if (await vscode.window.showWarningMessage(message, ...[learnMore]) === learnMore) {
+                        await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(Simulator.learnMoreUrl));
+                    }
+                }
             } catch (err) {}
         }
     }

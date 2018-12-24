@@ -12,6 +12,7 @@ import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { LearnMoreError } from "../common/LearnMoreError";
+import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { IDeviceItem } from "../typings/IDeviceItem";
@@ -27,6 +28,8 @@ enum InstallReturn {
 export class Simulator {
     public static async validateSimulatorUpdated(outputChannel: vscode.OutputChannel = null): Promise<void> {
         let message: string;
+        let type: string = "";
+        const telemetryName = "simulatorUpdated";
         try {
             const output = await Executor.executeCMD(undefined, "iotedgehubdev", { shell: true }, "--version");
             const version: string | null = Simulator.extractVersion(output);
@@ -38,16 +41,20 @@ export class Simulator {
             } else {
                 message = Constants.updateSimulatorMsg;
             }
+            type = "upgrade";
         } catch (error) {
             message =  Constants.needSimulatorInstalledMsg;
+            type = "install";
         }
 
         if (message) {
+            TelemetryClient.sendEvent(`${telemetryName}.${type}`);
             try {
                 const installRes = await Simulator.installSimulatorWithPip(false, message, outputChannel);
                 if (InstallReturn.NotSupported === installRes) {
                     vscode.window.showWarningMessage(message);
                 }
+                TelemetryClient.sendEvent(`${telemetryName}.${type}.${InstallReturn[installRes]}`);
             } catch (err) {}
         }
     }
@@ -56,10 +63,14 @@ export class Simulator {
     private static learnMoreUrl = "https://aka.ms/AA3nuw8";
 
     private static async validateSimulatorInstalled(outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
+        const telemetryName = "simulatorInstalled";
         if (await Simulator.simulatorInstalled()) {
             return InstallReturn.Success;
         } else {
-            return await Simulator.installSimulatorWithPip(true, Constants.needSimulatorInstalledMsg, outputChannel);
+            TelemetryClient.sendEvent(`${telemetryName}.install`);
+            const installRes = await Simulator.installSimulatorWithPip(true, Constants.needSimulatorInstalledMsg, outputChannel);
+            TelemetryClient.sendEvent(`${telemetryName}.install.${InstallReturn[installRes]}`);
+            return installRes;
         }
     }
 

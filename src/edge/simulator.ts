@@ -28,7 +28,7 @@ enum InstallReturn {
 export class Simulator {
     public static async validateSimulatorUpdated(outputChannel: vscode.OutputChannel = null): Promise<void> {
         let message: string;
-        let type: string;
+        let type: string = "";
         const telemetryName = "simulatorUpdated";
         try {
             const output = await Executor.executeCMD(undefined, "iotedgehubdev", { shell: true }, "--version");
@@ -69,7 +69,7 @@ export class Simulator {
         } else {
             TelemetryClient.sendEvent(`${telemetryName}.install`);
             const installRes = await Simulator.installSimulatorWithPip(true, Constants.needSimulatorInstalledMsg, outputChannel);
-            TelemetryClient.sendEvent(`${telemetryName}.${InstallReturn[installRes]}`);
+            TelemetryClient.sendEvent(`${telemetryName}.install.${InstallReturn[installRes]}`);
             return installRes;
         }
     }

@@ -2,7 +2,7 @@
 ## 1.8.0 - 2019-01-07
 ### Added
 * Autodetect/install/update iotedgehubdev
-* Allow users to specify whether to install Node.js template
+* Install Azure IoT Edge Node.js Module Generator automatically before new Node.js module
 
 ### Changed
 * Use Webpack to improve extension performance ⚡

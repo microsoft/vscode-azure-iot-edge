@@ -1,4 +1,13 @@
 # Change Log
+## 1.8.0 - 2019-01-07
+### Added
+* Autodetect/install/update iotedgehubdev
+* Allow users to specify whether to install Node.js template
+
+### Changed
+* Use Webpack to improve extension performance ⚡
+* Use git download instead of cookiecutter to add Python module
+
 ## 1.7.0 - 2018-12-06
 ### Added
 * Support adding Azure Machine Learning modules.

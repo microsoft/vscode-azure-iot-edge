@@ -7,6 +7,7 @@ import * as fse from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import * as stripJsonComments from "strip-json-comments";
+import * as tmp from "tmp";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
@@ -397,12 +398,30 @@ export class EdgeManager {
                 await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.LANGUAGE_PYTHON:
-                const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
-                const branch = Versions.pythonTemplateVersion();
-                await Executor.executeCMD(outputChannel,
-                    "cookiecutter",
-                    { cwd: `${parent}`, shell: true },
-                    `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`);
+                await new Promise((resolve, reject) => {
+                    tmp.dir({ unsafeCleanup: true }, (err, tmpDir, cleanupCallback) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            const moduleContentDirName = "{{cookiecutter.module_name}}";
+                            const moduleContentDir = path.join(tmpDir, moduleContentDirName);
+                            download(`github:Azure/cookiecutter-azure-iot-edge-module#${Versions.pythonTemplateVersion()}`, tmpDir, async (downloadErr) => {
+                                if (downloadErr) {
+                                    reject(downloadErr);
+                                } else {
+                                    try {
+                                        await this.updateRepositoryName(tmpDir, moduleContentDirName, repositoryName);
+                                        await fse.move(moduleContentDir, path.join(parent, name));
+                                        resolve();
+                                    } catch (error) {
+                                        reject(error);
+                                    }
+                                }
+                                cleanupCallback();
+                            });
+                        }
+                    });
+                });
                 break;
             case Constants.LANGUAGE_NODE:
                 if (Versions.installNodeTemplate()) {
@@ -432,10 +451,7 @@ export class EdgeManager {
                         }
                     });
                 });
-                const moduleFile = path.join(parent, name, Constants.moduleManifest);
-                const moduleJson = await fse.readJson(moduleFile);
-                moduleJson.image.repository = repositoryName;
-                await fse.writeFile(moduleFile, JSON.stringify(moduleJson, null, 2), { encoding: "utf8" });
+                await this.updateRepositoryName(parent, name, repositoryName);
                 break;
             case Constants.LANGUAGE_JAVA:
                 const groupId = extraProps.get(Constants.groupId);
@@ -466,6 +482,13 @@ export class EdgeManager {
                 }
                 break;
         }
+    }
+
+    private async updateRepositoryName(parent: string, name: string, repositoryName: string) {
+        const moduleFile = path.join(parent, name, Constants.moduleManifest);
+        const moduleJson = await fse.readJson(moduleFile);
+        moduleJson.image.repository = repositoryName;
+        await fse.writeFile(moduleFile, JSON.stringify(moduleJson, null, 2), { encoding: "utf8" });
     }
 
     private async validateInputName(name: string, parentPath?: string): Promise<string | undefined> {

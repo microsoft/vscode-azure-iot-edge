@@ -435,9 +435,10 @@
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
     "@types/request-promise": "^4.1.41",
+    "@types/semver": "^5.5.0",
     "@types/sinon": "^5.0.5",
     "@types/strip-json-comments": "0.0.30",
-    "@types/semver": "^5.5.0",
+    "@types/tmp": "0.0.33",
     "azure-arm-resource": "^3.1.1-preview",
     "fail-on-errors-webpack-plugin": "^3.0.0",
     "mocha": "^5.1.1",
@@ -460,8 +461,9 @@
     "jsonc-parser": "^1.0.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "strip-json-comments": "^2.0.1",
     "semver": "^5.6.0",
+    "strip-json-comments": "^2.0.1",
+    "tmp": "0.0.33",
     "vscode-extension-telemetry": "0.0.18"
   },
   "extensionDependencies": [

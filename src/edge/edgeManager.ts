@@ -410,11 +410,11 @@ export class EdgeManager {
                                     reject(downloadErr);
                                 } else {
                                     try {
-                                        await this.updateRepositoryName(tmpDir, moduleContentDirName, repositoryName);
+                                        await this.updateRepositoryName(tmpDir, moduleContentDirName + "22", repositoryName);
                                         await fse.move(moduleContentDir, path.join(parent, name));
                                         resolve();
                                     } catch (error) {
-                                        reject(err);
+                                        reject(error);
                                     }
                                 }
                                 cleanupCallback();

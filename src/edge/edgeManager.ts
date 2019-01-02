@@ -403,20 +403,25 @@ export class EdgeManager {
                         if (err) {
                             reject(err);
                         } else {
-                            const moduleContentDir = path.join(tmpDir, "{{cookiecutter.module_name}}");
+                            const moduleContentDirName = "{{cookiecutter.module_name}}";
+                            const moduleContentDir = path.join(tmpDir, moduleContentDirName);
                             download(`github:Azure/cookiecutter-azure-iot-edge-module#${Versions.pythonTemplateVersion()}`, tmpDir, async (downloadErr) => {
                                 if (downloadErr) {
                                     reject(downloadErr);
                                 } else {
-                                    await fse.move(moduleContentDir, path.join(parent, name));
-                                    resolve();
+                                    try {
+                                        await this.updateRepositoryName(tmpDir, moduleContentDirName, repositoryName);
+                                        await fse.move(moduleContentDir, path.join(parent, name));
+                                        resolve();
+                                    } catch (error) {
+                                        reject(err);
+                                    }
                                 }
                                 cleanupCallback();
                             });
                         }
                     });
                 });
-                await this.updateRepositoryName(parent, name, repositoryName);
                 break;
             case Constants.LANGUAGE_NODE:
                 if (Versions.installNodeTemplate()) {

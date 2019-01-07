@@ -189,6 +189,40 @@ export class Simulator {
         });
     }
 
+    public async stopSolution(outputChannel: vscode.OutputChannel): Promise<void> {
+        return await this.callWithInstallationCheck(outputChannel, async () => {
+            Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev stop`));
+            return;
+        });
+    }
+
+    public async runSolution(outputChannel: vscode.OutputChannel, deployFileUri?: vscode.Uri, commands: string[] = []): Promise<void> {
+        return await this.callWithInstallationCheck(outputChannel, async () => {
+            const pattern = "{**/deployment.*.json,**/deployment.json,**/deployment.*.debug.json,**/config/*.json}";
+            const excludePattern = `{${Constants.tsonPattern}}`;
+            const deployFile: string = await Utility.getInputFilePath(deployFileUri,
+                pattern,
+                Constants.deploymentFileDesc,
+                `${Constants.runSolutionEvent}.selectDeploymentFile`,
+                excludePattern);
+            if (!deployFile) {
+                return;
+            }
+
+            commands.push(this.constructRunCmd(deployFile));
+            Executor.runInTerminal(Utility.combineCommands(commands), this.getRunCmdTerminalTitle());
+            return;
+        });
+    }
+
+    private constructRunCmd(deployFile: string): string {
+        return Utility.adjustTerminalCommand(`iotedgehubdev start -d "${deployFile}" -v`);
+    }
+
+    private getRunCmdTerminalTitle(): string {
+        return Constants.edgeDisplayName + " Solution Status";
+    }
+
     private async inputInputNames(): Promise<string> {
         return await Utility.showInputBox(
             Constants.inputNamePattern,

@@ -31,8 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     Simulator.validateSimulatorUpdated(outputChannel);
     const edgeManager = new EdgeManager(context);
-    const containerManager = new ContainerManager();
+
     const simulator = new Simulator(context);
+    const containerManager = new ContainerManager(simulator);
 
     Utility.registerDebugTelemetryListener();
 
@@ -94,37 +95,37 @@ export function activate(context: vscode.ExtensionContext) {
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildSolution",
         (templateUri?: vscode.Uri): Promise<void> => {
-            return containerManager.buildSolution(templateUri, false, false);
+            return containerManager.buildSolution(outputChannel, templateUri, false, false);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildAndPushSolution",
         (templateUri?: vscode.Uri): Promise<void> => {
-            return containerManager.buildSolution(templateUri, true, false);
+            return containerManager.buildSolution(outputChannel, templateUri, true, false);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildAndRunSolution",
         (templateUri?: vscode.Uri): Promise<void> => {
-            return containerManager.buildSolution(templateUri, false, true);
+            return containerManager.buildSolution(outputChannel, templateUri, false, true);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.runSolution",
         (deployFileUri?: vscode.Uri): Promise<void> => {
-            return containerManager.runSolution(deployFileUri);
+            return simulator.runSolution(outputChannel, deployFileUri);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.stopSolution",
         (): Promise<void> => {
-            return containerManager.stopSolution();
+            return simulator.stopSolution(outputChannel);
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.generateDeployment",
         (templateUri?: vscode.Uri): Promise<void> => {
-            return containerManager.generateDeployment(templateUri);
+            return containerManager.generateDeployment(outputChannel, templateUri);
         });
 
     initCommandAsync(context, outputChannel,

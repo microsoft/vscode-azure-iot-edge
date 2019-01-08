@@ -33,7 +33,7 @@ export class Simulator {
         try {
             const output = await Executor.executeCMD(undefined, "iotedgehubdev", { shell: true }, "--version");
             const version: string | null = Simulator.extractVersion(output);
-            if (version) {
+            if (version && semver.valid(version)) {
                 const latestVersion: string | undefined = await Simulator.getLatestSimulatorVersion();
                 if (latestVersion && semver.gt(latestVersion, version)) {
                     message = `${Constants.updateSimulatorMsg} (${version} to ${latestVersion})`;

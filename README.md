@@ -15,22 +15,22 @@
 
 ![Added](images/multipleplatform.gif)
 
-## What's New (v1.7.0)
+## What's New (v1.8.0)
 ### Added
-* Support adding Azure Machine Learning modules.
-* Support setting the template versions to be used by "New IoT Edge Solution" or "Add IoT Edge Module" commands.
-    * [Released CSharp module template versions](https://github.com/Azure/dotnet-template-azure-iot-edge-module/blob/master/CHANGELOG.md)
-    * [Released CSharp function module template versions](https://github.com/Azure/dotnet-template-azure-iot-edge-function/blob/master/CHANGELOG.md)
-    * [Released Java module template versions](https://mvnrepository.com/artifact/com.microsoft.azure/azure-iot-edge-archetype)
-    * [Released Python module template versions](https://github.com/Azure/cookiecutter-azure-iot-edge-module/releases)
-    * [Released C module template versions](https://github.com/Azure/azure-iot-edge-c-module/releases)
+* Autodetect/install/update iotedgehubdev
+* Install Azure IoT Edge Node.js Module Generator automatically before new Node.js module
+
+### Changed
+* Use Webpack to improve extension performance ⚡
+* Use git download instead of cookiecutter to add Python module
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)
 * Cannot run C and Python module in IoT Edge Simulator
 * IoT Edge Simulator does not work on Windows Container
 * [ASA module may fail sending message](https://github.com/Microsoft/vscode-azure-iot-edge/issues/213)
-* [#161 "Entry not found in cache" error when importing ACR and ASA modules](https://github.com/Microsoft/vscode-azure-iot-edge/issues/161)
+* ["Entry not found in cache" error when importing ACR and ASA modules](https://github.com/Microsoft/vscode-azure-iot-edge/issues/161)
+* [Node.js module template version is not applied when another version is installed globally](https://github.com/Microsoft/vscode-azure-iot-edge/issues/340)
 
 ## Prerequisites
 

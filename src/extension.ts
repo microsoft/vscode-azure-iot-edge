@@ -162,7 +162,8 @@ export function activate(context: vscode.ExtensionContext) {
         "azure-iot-edge.setDefaultPlatform",
         async (): Promise<void> => {
             await edgeManager.selectDefaultPlatform(outputChannel);
-            return configDiagnosticProvider.updateDiagnostics(vscode.window.activeTextEditor.document, diagCollection);
+            const document = vscode.window && vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document : null;
+            return configDiagnosticProvider.updateDiagnostics(document, diagCollection);
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

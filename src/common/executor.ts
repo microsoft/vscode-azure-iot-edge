@@ -2,25 +2,27 @@
 // Licensed under the MIT license.
 
 "use strict";
-import { ChildProcess, exec, execSync, spawn, SpawnOptions } from "child_process";
+import { ChildProcess, exec, execSync, ExecSyncOptions, spawn, SpawnOptions } from "child_process";
 import * as vscode from "vscode";
+import { Configuration } from "./configuration";
 import { Constants } from "./constants";
 
 export class Executor {
     public static runInTerminal(command: string, terminal: string = Constants.edgeDisplayName): void {
         if (this.terminals[terminal] === undefined) {
-            this.terminals[terminal] = vscode.window.createTerminal(terminal);
+            this.terminals[terminal] = Executor.createTerminal(terminal);
         }
         this.terminals[terminal].show();
         this.terminals[terminal].sendText(command);
     }
 
-    public static exec(command: string) {
-        return exec(command);
-    }
-
     public static execSync(command: string) {
-        return execSync(command, { encoding: "utf8" });
+        const envVars = Executor.getEnvFromConfig();
+        const options: ExecSyncOptions = { encoding: "utf8" };
+        if (envVars) {
+            options.env = Executor.mergeEnvs(envVars, process.env);
+        }
+        return execSync(command, options);
     }
 
     public static onDidCloseTerminal(closedTerminal: vscode.Terminal): void {
@@ -35,6 +37,13 @@ export class Executor {
 
             let stderr: string = "";
             let stdOutput: string = "";
+            const envVars = Executor.getEnvFromConfig();
+            if (envVars) {
+                options = options || {};
+                const processEnvs = Executor.mergeEnvs(envVars, process.env);
+                options.env = Executor.mergeEnvs(options.env, processEnvs);
+            }
+
             const p: ChildProcess = spawn(command, args, options);
             p.stdout.on("data", (data: string | Buffer): void => {
                 const dataStr = data.toString();
@@ -76,6 +85,36 @@ export class Executor {
     private static appendLine(value: string, outputPane: vscode.OutputChannel): void {
         if (outputPane) {
             outputPane.appendLine(value);
+        }
+    }
+
+    private static createTerminal(terminal: string): vscode.Terminal {
+        const envVars  = Executor.getEnvFromConfig();
+        const options: vscode.TerminalOptions = { name: terminal };
+        if (envVars) {
+            options.env = envVars;
+        }
+        return vscode.window.createTerminal(options);
+    }
+
+    private static mergeEnvs(overrideEnv, envs) {
+        if (!overrideEnv) {
+            return envs;
+        }
+
+        envs = envs || {};
+        for (const key of Object.keys(overrideEnv)) {
+            envs[key] = overrideEnv[key];
+        }
+        return envs;
+    }
+
+    private static getEnvFromConfig() {
+        const envVars = Configuration.getConfigurationProperty("executor.env");
+        if (envVars && Object.keys(envVars).length > 0) {
+            return envVars;
+        } else {
+            return undefined;
         }
     }
 }

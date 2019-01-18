@@ -1,9 +1,9 @@
+import { Configuration } from "./configuration";
 import { Constants } from "./constants";
-import { Utility } from "./utility";
 
 export class Platform {
     public static getDefaultPlatform(): Platform {
-        const defaultPlatform = Utility.getConfigurationProperty(Constants.defPlatformConfig);
+        const defaultPlatform = Configuration.getConfigurationProperty(Constants.defPlatformConfig);
         if (!defaultPlatform) {
             return new Platform("amd64", null);
         }
@@ -16,7 +16,7 @@ export class Platform {
     }
 
     public static getPlatformsSetting(): Platform[] {
-        const platformObjs = Utility.getConfiguration().get<any>(Constants.platformsConfig);
+        const platformObjs = Configuration.getConfiguration().get<any>(Constants.platformsConfig);
         const platforms: Platform[]  = [];
         for (const key in platformObjs) {
             if (platformObjs.hasOwnProperty(key)) {

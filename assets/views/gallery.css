@@ -27,7 +27,6 @@ body {
   margin: 20px;
   min-width: 700px;
   cursor: default;
-  background: white;
 }
 
 #example {
@@ -485,4 +484,91 @@ ul.example-list > li:hover > .header > img,
   #main:not(.no-aside) {
     width: 340px;
   }
+}
+
+/* Dark Theme */
+.vscode-dark input{
+  color: white;
+}
+
+.vscode-dark h2 {
+  color: #999999;
+}
+
+.vscode-dark aside h1 {
+  color: #D4D4D4;
+}
+
+.vscode-dark aside {
+  color: #22a7ff;;
+}
+
+.vscode-dark .v-select .dropdown-toggle{
+  border: 1px solid #999999;
+}
+
+.vscode-dark input::placeholder { 
+  color: #999999; 
+}
+
+.vscode-dark .v-select .selected-tag{
+  color: white;
+}
+
+.vscode-dark .v-select .dropdown-toggle .clear {
+  color: #999999; 
+}
+
+.vscode-dark .v-select .dropdown-menu{
+  background-color: #333333;
+}
+
+.vscode-dark  .v-select .dropdown-menu .active>a {
+  color: white;
+  background-color: #636363;
+}
+
+.vscode-dark  .v-select li>a {
+  color:  #999999;
+}
+
+.vscode-dark ::-webkit-scrollbar {
+  background: #999999;
+}
+
+.vscode-dark .v-select .open-indicator:before
+{
+  border-color:  #999999;
+}
+
+.vscode-dark ul.example-list > li > .body > h2 {
+  color: #d4d4d4
+}
+
+.vscode-dark ul.example-list > li > .body > .buttons  > button {
+  background:  #069;
+  color: white;
+  border: 1px solid  #069;
+}
+
+.vscode-dark ul.example-list > li > .body > .buttons  > button:hover {
+  background: white;
+  color: #069;
+  border: 1px solid #069;
+}
+
+.vscode-dark .github:before {
+  content: url(images/github.dark.svg);
+}
+
+.vscode-dark .feed:before {
+  content: url(images/feed.dark.svg);
+}
+
+.vscode-dark .tutorial {
+  color:#22a7ff;
+}
+
+.vscode-dark ul.example-list > li > .body > .description {
+  color: #999999;
 }

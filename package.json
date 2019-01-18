@@ -32,7 +32,6 @@
     "multi-root ready"
   ],
   "activationEvents": [
-    "onDebug",
     "onCommand:azure-iot-edge.buildSolution",
     "onCommand:azure-iot-edge.buildAndPushSolution",
     "onCommand:azure-iot-edge.buildAndRunSolution",

@@ -101,14 +101,6 @@ export class Utility {
         }
     }
 
-    public static registerDebugTelemetryListener() {
-        vscode.debug.onDidStartDebugSession((session) => {
-            if (session.name.startsWith(Constants.EdgeDebugSessionPrefix)) {
-                TelemetryClient.sendEvent("startDebugSession");
-            }
-        });
-    }
-
     public static async getInputFilePath(inputFileFromContextMenu: vscode.Uri, filePattern: string, fileDescription: string, eventName: string, excludeFilePattern?: string | null): Promise<string> {
         if (!Utility.checkWorkspace()) {
             return null;

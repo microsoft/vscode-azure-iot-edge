@@ -10,7 +10,7 @@
 <div id="example">
 <div id="main" v-cloak>
   <div id="filter">
-    <v-select ref="filter" placeholder="Filter Devices" v-model="selectedLogicalDevice" :options="logicalDeviceOptions"></v-select>
+    <v-select ref="filter" placeholder="Choose a Device" v-model="selectedLogicalDevice" :options="logicalDeviceOptions"></v-select>
   </div>
   <div id="featured" v-if="featuredExample">
     <span v-if="featuredExample.difficulty" v-bind:class="'difficulty ' + featuredExample.difficulty"></span>

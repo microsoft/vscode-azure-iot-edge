@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 "use strict";
-import { ChildProcess, exec, execSync, ExecSyncOptions, spawn, SpawnOptions } from "child_process";
+import { ChildProcess, execSync, ExecSyncOptions, spawn, SpawnOptions } from "child_process";
 import * as vscode from "vscode";
 import { Configuration } from "./configuration";
 import { Constants } from "./constants";

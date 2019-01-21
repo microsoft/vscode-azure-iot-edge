@@ -18,7 +18,6 @@ export class Constants {
     public static deploymentTemplateDesc = "Deployment Template file";
     public static deploymentFilePattern = "**/deployment.json";
     public static deploymentFileDesc = "Deployment Manifest file";
-    public static EdgeDebugSessionPrefix = "Debug IoT Edge";
     public static moduleNamePlaceholder = "%MODULE%";
     public static moduleImagePlaceholder = "%MODULE_IMAGE%";
     public static moduleFolderPlaceholder = "%MODULE_FOLDER%";

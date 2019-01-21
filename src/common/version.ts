@@ -1,5 +1,5 @@
+import { Configuration } from "./configuration";
 import { Constants } from "./constants";
-import { Utility } from "./utility";
 
 export class Versions {
     public static getRunTimeVersionMap(): Map<string, string> {
@@ -59,7 +59,7 @@ export class Versions {
     }
 
     private static getValue(key: string, defaultVal: string|boolean = null): string | boolean {
-        const value = Utility.getConfigurationProperty(key);
+        const value = Configuration.getConfigurationProperty(key);
         if (value === undefined || value === null) {
             return defaultVal;
         }

@@ -281,6 +281,10 @@
           "type": "object",
           "default": {},
           "description": "Templates for third party modules"
+        },
+        "azure-iot-edge.executor.env": {
+          "type": "object",
+          "description": "Environment variables for the command executor and Azure IoT Edge terminals"
         }
       }
     },

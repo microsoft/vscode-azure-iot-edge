@@ -9,6 +9,7 @@ import * as path from "path";
 import * as request from "request-promise";
 import * as semver from "semver";
 import * as vscode from "vscode";
+import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { LearnMoreError } from "../common/LearnMoreError";
@@ -184,8 +185,8 @@ export class Simulator {
             await Executor.executeCMD(outputChannel, "iotedgehubdev", { shell: true }, `modulecred -l -o "${outputFile}"`);
 
             const moduleConfig = dotenv.parse(await fse.readFile(outputFile));
-            await Utility.setGlobalConfigurationProperty("EdgeHubConnectionString", moduleConfig.EdgeHubConnectionString);
-            await Utility.setGlobalConfigurationProperty("EdgeModuleCACertificateFile", moduleConfig.EdgeModuleCACertificateFile);
+            await Configuration.setGlobalConfigurationProperty("EdgeHubConnectionString", moduleConfig.EdgeHubConnectionString);
+            await Configuration.setGlobalConfigurationProperty("EdgeModuleCACertificateFile", moduleConfig.EdgeModuleCACertificateFile);
         });
     }
 

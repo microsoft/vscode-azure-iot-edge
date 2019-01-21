@@ -12,9 +12,10 @@ import { IntelliSenseUtility } from "./intelliSenseUtility";
 
 export class ConfigDiagnosticProvider {
     public async updateDiagnostics(document: vscode.TextDocument, diagCollection: vscode.DiagnosticCollection) {
-        if (!document && path.basename(document.uri.fsPath) !== Constants.deploymentTemplate
+        if (!document ||
+            (path.basename(document.uri.fsPath) !== Constants.deploymentTemplate
             && path.basename(document.uri.fsPath) !== Constants.deploymentDebugTemplate
-            && path.basename(document.uri.fsPath) !== Constants.moduleManifest) {
+            && path.basename(document.uri.fsPath) !== Constants.moduleManifest)) {
             return;
         }
 

@@ -9,6 +9,7 @@ import * as path from "path";
 import * as stripJsonComments from "strip-json-comments";
 import * as tmp from "tmp";
 import * as vscode from "vscode";
+import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { ModuleInfo } from "../common/moduleInfo";
@@ -171,7 +172,7 @@ export class EdgeManager {
         const platformNames: string[] = (keyWithAlias.sort()).concat(defaultKeys.sort());
         const defaultPlatform = await vscode.window.showQuickPick(platformNames, { placeHolder: Constants.selectDefaultPlatform, ignoreFocusOut: true });
         if (defaultPlatform) {
-            await Utility.setWorkspaceConfigurationProperty(Constants.defPlatformConfig, platformMap.get(defaultPlatform));
+            await Configuration.setWorkspaceConfigurationProperty(Constants.defPlatformConfig, platformMap.get(defaultPlatform));
             outputChannel.appendLine(`Default platform is ${defaultPlatform} now.`);
         }
     }
@@ -790,7 +791,7 @@ export class EdgeManager {
     }
 
     private get3rdPartyModuleTemplates() {
-        const templatesConfig = Utility.getConfiguration().get<any>(Constants.thirdPartyModuleTemplatesConfig);
+        const templatesConfig = Configuration.getConfiguration().get<any>(Constants.thirdPartyModuleTemplatesConfig);
         return templatesConfig ? templatesConfig.templates as any[] : undefined;
     }
 

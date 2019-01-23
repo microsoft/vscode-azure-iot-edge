@@ -1,4 +1,11 @@
 # Change Log
+## 1.9.0 - 2019-01-XX
+### Added
+* Add configuration "azure-iot-edge.executor.env" which can be configured to  inject environment variables into terminals created by VSCode Azure IoT Edge extension.
+
+### Changed
+* Change the extension activation condition. It will not be actived by a debug session.
+
 ## 1.8.0 - 2019-01-07
 ### Added
 * Autodetect/install/update iotedgehubdev

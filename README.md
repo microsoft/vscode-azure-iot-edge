@@ -15,14 +15,12 @@
 
 ![Added](images/multipleplatform.gif)
 
-## What's New (v1.8.0)
+## What's New (v1.9.0)
 ### Added
-* Autodetect/install/update iotedgehubdev
-* Install Azure IoT Edge Node.js Module Generator automatically before new Node.js module
+* Add configuration "azure-iot-edge.executor.env" which can be configured to  inject environment variables into terminals created by VSCode Azure IoT Edge extension.
 
 ### Changed
-* Use Webpack to improve extension performance ⚡
-* Use git download instead of cookiecutter to add Python module
+* Change the extension activation condition. It will not be actived by a debug session.
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

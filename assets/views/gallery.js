@@ -23,7 +23,7 @@ class LogicalDevice {
   }
 
   toString() {
-    return `${this.deviceName} (${this.platform})`; 
+    return `${this.deviceName} (${this.platform})`;
   }
 }
 
@@ -50,7 +50,7 @@ var example = new Vue({
   created: function() {
     const query = parseQuery(location.href);
     const url = query.url ||
-        'https://raw.githubusercontent.com/michaeljqzq/edge-sample-gallery/test/sample-gallery.json';
+        'https://raw.githubusercontent.com/Azure-Samples/vscode-azure-iot-edge-sample-gallery/master/sample-gallery.json';
     this.boardId = query.board || '';
     window.addEventListener('resize', () => {
       this.adjustFilterWidth();
@@ -77,7 +77,7 @@ var example = new Vue({
       } else {
         document.getElementById('main').className = 'no-aside';
       }
-      
+
       for (var i = 0; i < examples.length; i++) {
         for (let j = 0; j < examples[i].supportDevices.length; j++) {
           let device = examples[i].supportDevices[j];
@@ -100,7 +100,7 @@ var example = new Vue({
         }
       }
       this.examples = examples;
-     
+
       this.$nextTick(function () {
         this.adjustFilterWidth();
       })
@@ -111,12 +111,12 @@ var example = new Vue({
       if (example.project_name) {
         return example.project_name;
       }
-    
+
       if (example.name) {
         let project_name = example.name.replace(/[^a-z0-9]/ig, '_').toLowerCase();
         return project_name;
       }
-    
+
       return 'example_' + new Date().getTime();
     },
     openSample: function(sample, url, boardId, event) {
@@ -128,7 +128,7 @@ var example = new Vue({
       }else {
         platform = sample.supportDevices[0].platform;
       }
-      
+
       let name = this.getProjectName(sample);
       if(!vscode) vscode = acquireVsCodeApi();
       vscode.postMessage({

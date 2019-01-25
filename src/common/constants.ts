@@ -156,6 +156,10 @@ export class Constants {
     public static skipForNow = "Skip for Now";
     public static learnMore = "Learn More";
     public static install = "Install";
+
+    public static showSampleGalleryEvent = "showSampleGallery";
+    public static openSampleEvent = "openSample";
+    public static openSampleUrlEvent = "openSampeUrl";
 }
 
 export enum ContainerState {

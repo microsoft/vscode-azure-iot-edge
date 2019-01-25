@@ -172,7 +172,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     initCommandAsync(context, outputChannel,
       "azure-iot-edge.initializeSample",
-      async (name:string, url:string, platform: string): Promise<void> => {
+      async (name: string, url: string, platform: string): Promise<void> => {
         return edgeManager.initializeSample(name, url, platform, outputChannel);
       });
 

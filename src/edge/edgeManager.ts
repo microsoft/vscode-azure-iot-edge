@@ -183,7 +183,7 @@ export class EdgeManager {
         retainContextWhenHidden: true,
       });
       panel.webview.html = this.getWebViewContent("./assets/views/gallery.html");
-
+      TelemetryClient.sendEvent(Constants.showSampleGalleryEvent);
       // Handle messages from the webview
       panel.webview.onDidReceiveMessage(async (message) => {
         switch (message.command) {
@@ -194,6 +194,7 @@ export class EdgeManager {
             break;
           case "openLink":
             if (message.url) {
+              TelemetryClient.sendEvent(Constants.openSampleUrlEvent, {Url: message.url});
               await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(message.url));
             }
             break;
@@ -243,10 +244,12 @@ export class EdgeManager {
         await fse.outputJson(vscodeSettingPath, vscodeSettingJson, { spaces: 2 });
 
         channel.appendLine(`Sample project successfully downloaded and opened in another window.`);
+        TelemetryClient.sendEvent(Constants.openSampleEvent, {Result: "Success"});
         await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(samplePath), true);
       } catch (error) {
         if (!(error instanceof UserCancelledError)) {
           channel.appendLine("Unable to load sample. Please check output window for detailed information.");
+          TelemetryClient.sendEvent(Constants.openSampleEvent, {Result: "Fail", Message: error.message});
         }
         throw error;
       }

@@ -178,40 +178,40 @@ export class EdgeManager {
     }
 
     public async loadWebView(outputChannel: vscode.OutputChannel) {
-      const panel = vscode.window.createWebviewPanel('IoTEdgeSamples', "Azure IoT Edge Samples", vscode.ViewColumn.One, {
+      const panel = vscode.window.createWebviewPanel("IoTEdgeSamples", "Azure IoT Edge Samples", vscode.ViewColumn.One, {
         enableScripts: true,
         retainContextWhenHidden: true,
       });
-      panel.webview.html = this.getWebViewContent('./assets/views/gallery.html');
-  
+      panel.webview.html = this.getWebViewContent("./assets/views/gallery.html");
+
       // Handle messages from the webview
       panel.webview.onDidReceiveMessage(async (message) => {
         switch (message.command) {
-          case 'openSample':
-            if(message.name && message.url) {
-              await vscode.commands.executeCommand('azure-iot-edge.initializeSample', message.name, message.url, message.platform);
+          case "openSample":
+            if (message.name && message.url) {
+              await vscode.commands.executeCommand("azure-iot-edge.initializeSample", message.name, message.url, message.platform);
             }
             break;
-          case 'openLink':
-            if(message.url) {
-              await vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(message.url));
+          case "openLink":
+            if (message.url) {
+              await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(message.url));
             }
             break;
         }
       }, undefined, this.context.subscriptions);
     }
-  
+
     public getWebViewContent(templatePath: string): string {
       const resourcePath = path.join(this.context.extensionPath, templatePath);
       const dirPath = path.dirname(resourcePath);
-      let html = fse.readFileSync(resourcePath, 'utf-8');
-      
+      let html = fse.readFileSync(resourcePath, "utf-8");
+
       html = html.replace(/(<link.*?\shref="|<script.*?\ssrc="|<img.*?\ssrc=")(.+?)"/g, (m, $1, $2) => {
-          return $1 + vscode.Uri.file(path.join(dirPath, $2)).with({ scheme: 'vscode-resource' }).toString(true) + '"';
+          return $1 + vscode.Uri.file(path.join(dirPath, $2)).with({ scheme: "vscode-resource" }).toString(true) + "\"";
       });
       return html;
     }
-  
+
     public async initializeSample(name: string, url: string, platform: string, channel: vscode.OutputChannel) {
       try {
         const parentPath = await this.getSolutionParentFolder();
@@ -229,24 +229,24 @@ export class EdgeManager {
         await this.downloadSamplePackage(url, samplePath);
         channel.appendLine(`Setting default platform to ${platform}...`);
         await fse.mkdirp(path.join(samplePath, Constants.vscodeFolder));
-        let vscodeSettingPath = path.join(samplePath, Constants.vscodeFolder, Constants.vscodeSettingsFile);
+        const vscodeSettingPath = path.join(samplePath, Constants.vscodeFolder, Constants.vscodeSettingsFile);
         let vscodeSettingJson = {};
-        if(fse.existsSync(vscodeSettingPath)) {
+        if (fse.existsSync(vscodeSettingPath)) {
           vscodeSettingJson = await fse.readJson(vscodeSettingPath);
         }
 
-        let defaultPlatformKey = `${Constants.ExtensionId.substring(Constants.ExtensionId.indexOf('.') + 1)}.${Constants.defPlatformConfig}`;
+        const defaultPlatformKey = `${Constants.ExtensionId.substring(Constants.ExtensionId.indexOf(".") + 1)}.${Constants.defPlatformConfig}`;
         vscodeSettingJson[defaultPlatformKey] = {
           platform,
-          alias: null
+          alias: null,
         };
         await fse.outputJson(vscodeSettingPath, vscodeSettingJson, { spaces: 2 });
 
         channel.appendLine(`Sample project successfully downloaded and opened in another window.`);
-        await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(samplePath), true);
+        await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(samplePath), true);
       } catch (error) {
         if (!(error instanceof UserCancelledError)) {
-          channel.appendLine('Unable to load sample. Please check output window for detailed information.');
+          channel.appendLine("Unable to load sample. Please check output window for detailed information.");
         }
         throw error;
       }
@@ -874,7 +874,7 @@ export class EdgeManager {
         const templates = this.get3rdPartyModuleTemplates();
         return templates ? templates.find((template) => template.name === name) : undefined;
     }
-  
+
     private async inputSampleName(parentPath: string, defaultName: string): Promise<string> {
       const validateFunc = async (name: string): Promise<string> => {
           return await this.validateInputName(name, parentPath);
@@ -887,9 +887,9 @@ export class EdgeManager {
     private async downloadSamplePackage(url: string, fsPath: string): Promise<void> {
       await new Promise((resolve, reject) => {
         download(url, fsPath, (err) => {
-          if(err) {
+          if (err) {
             reject(err);
-          }else {
+          } else {
             resolve();
           }
         });

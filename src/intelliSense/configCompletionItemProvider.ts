@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 "use strict";
-import * as parser from "jsonc-parser/lib/umd/main";
+import * as parser from "jsonc-parser";
 import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";

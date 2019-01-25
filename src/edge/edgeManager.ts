@@ -2,14 +2,14 @@
 // Licensed under the MIT license.
 
 "use strict";
-
-import * as dotenv from "dotenv";
 import * as download from "download-git-repo";
 import * as fse from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import * as stripJsonComments from "strip-json-comments";
+import * as tmp from "tmp";
 import * as vscode from "vscode";
+import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { ModuleInfo } from "../common/moduleInfo";
@@ -21,7 +21,6 @@ import { Versions } from "../common/version";
 import { AcrManager } from "../container/acrManager";
 import { AmlManager } from "../container/amlManager";
 import { StreamAnalyticsManager } from "../container/streamAnalyticsManager";
-import { IDeviceItem } from "../typings/IDeviceItem";
 
 export class EdgeManager {
 
@@ -108,26 +107,6 @@ export class EdgeManager {
         } catch (err) { }
     }
 
-    public async startEdgeHubSingleModule(outputChannel: vscode.OutputChannel): Promise<void> {
-        const inputs = await this.inputInputNames();
-        await this.setModuleCred(outputChannel);
-        await Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev start -i "${inputs}"`));
-    }
-
-    public async setModuleCred(outputChannel: vscode.OutputChannel): Promise<void> {
-        let storagePath = this.context.storagePath;
-        if (!storagePath) {
-            storagePath = path.resolve(os.tmpdir(), "vscodeedge");
-        }
-        await fse.ensureDir(storagePath);
-        const outputFile = path.join(storagePath, "module.env");
-        await Executor.executeCMD(outputChannel, "iotedgehubdev", { shell: true }, `modulecred -l -o "${outputFile}"`);
-
-        const moduleConfig = dotenv.parse(await fse.readFile(outputFile));
-        await Utility.setGlobalConfigurationProperty("EdgeHubConnectionString", moduleConfig.EdgeHubConnectionString);
-        await Utility.setGlobalConfigurationProperty("EdgeModuleCACertificateFile", moduleConfig.EdgeModuleCACertificateFile);
-    }
-
     // TODO: The command is temporary for migration stage, will be removed later.
     public async convertModule(fileUri?: vscode.Uri): Promise<void> {
         const filePath = fileUri ? fileUri.fsPath : undefined;
@@ -176,13 +155,6 @@ export class EdgeManager {
         }
     }
 
-    public async setupIotedgehubdev(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel) {
-        deviceItem = await Utility.getInputDevice(deviceItem, outputChannel);
-        if (deviceItem) {
-                Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
-        }
-    }
-
     public async selectDefaultPlatform(outputChannel: vscode.OutputChannel) {
         const platforms: Platform[] = Platform.getPlatformsSetting();
         const keyWithAlias: string[] = [];
@@ -200,7 +172,7 @@ export class EdgeManager {
         const platformNames: string[] = (keyWithAlias.sort()).concat(defaultKeys.sort());
         const defaultPlatform = await vscode.window.showQuickPick(platformNames, { placeHolder: Constants.selectDefaultPlatform, ignoreFocusOut: true });
         if (defaultPlatform) {
-            await Utility.setWorkspaceConfigurationProperty(Constants.defPlatformConfig, platformMap.get(defaultPlatform));
+            await Configuration.setWorkspaceConfigurationProperty(Constants.defPlatformConfig, platformMap.get(defaultPlatform));
             outputChannel.appendLine(`Default platform is ${defaultPlatform} now.`);
         }
     }
@@ -289,20 +261,23 @@ export class EdgeManager {
                 break;
             case Constants.LANGUAGE_NODE:
                 debugCreateOptions = {
-                    ExposedPorts: { "9229/tcp": {}},
-                    HostConfig: {PortBindings: {"9229/tcp": [{HostPort: "9229"}]}}};
+                    ExposedPorts: { "9229/tcp": {} },
+                    HostConfig: { PortBindings: { "9229/tcp": [{ HostPort: "9229" }] } },
+                };
                 break;
             case Constants.LANGUAGE_C:
-                debugCreateOptions = {HostConfig: {Privileged: true}};
+                debugCreateOptions = { HostConfig: { Privileged: true } };
                 break;
             case Constants.LANGUAGE_JAVA:
                 debugCreateOptions = {
-                    HostConfig: {PortBindings: {"5005/tcp": [{HostPort: "5005"}]}}};
+                    HostConfig: { PortBindings: { "5005/tcp": [{ HostPort: "5005" }] } },
+                };
                 break;
             case Constants.LANGUAGE_PYTHON:
                 debugCreateOptions = {
-                    ExposedPorts: {"5678/tcp": {}},
-                    HostConfig: {PortBindings: {"5678/tcp": [{HostPort: "5678"}]}}};
+                    ExposedPorts: { "5678/tcp": {} },
+                    HostConfig: { PortBindings: { "5678/tcp": [{ HostPort: "5678" }] } },
+                };
                 break;
             default:
                 break;
@@ -403,10 +378,10 @@ export class EdgeManager {
 
         const needUpdateRegistry: boolean = template !== Constants.STREAM_ANALYTICS;
 
-        const {usernameEnv, passwordEnv} = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, needUpdateRegistry, isNewSolution);
+        const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, needUpdateRegistry, isNewSolution);
 
         const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
-        const debugTemplateEnv = {usernameEnv: undefined, passwordEnv: undefined};
+        const debugTemplateEnv = { usernameEnv: undefined, passwordEnv: undefined };
         let debugExist = false;
         if (await fse.pathExists(templateDebugFile)) {
             debugExist = true;
@@ -428,7 +403,7 @@ export class EdgeManager {
 
     private async addModuleToDeploymentTemplate(templateJson: any, templateFile: string, envFilePath: string,
                                                 moduleInfo: ModuleInfo, updateRegistry: boolean,
-                                                isNewSolution: boolean, isDebug: boolean = false): Promise<{usernameEnv: string, passwordEnv: string}> {
+                                                isNewSolution: boolean, isDebug: boolean = false): Promise<{ usernameEnv: string, passwordEnv: string }> {
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
         const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
         const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
@@ -444,7 +419,7 @@ export class EdgeManager {
             runtimeSettings.registryCredentials = registries;
         }
 
-        let result = {registries: {}, usernameEnv: undefined, passwordEnv: undefined};
+        let result = { registries: {}, usernameEnv: undefined, passwordEnv: undefined };
         if (updateRegistry) {
             result = await this.updateRegistrySettings(address, registries, envFilePath);
         }
@@ -457,10 +432,10 @@ export class EdgeManager {
             status: "running",
             restartPolicy: "always",
             settings: {
-              image: imageName,
-              createOptions,
+                image: imageName,
+                createOptions,
             },
-          };
+        };
         modules[moduleInfo.moduleName] = newModuleSection;
         const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
         routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
@@ -499,15 +474,48 @@ export class EdgeManager {
                 await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
                 break;
             case Constants.LANGUAGE_PYTHON:
-                const gitHubSource = "https://github.com/Azure/cookiecutter-azure-iot-edge-module";
-                const branch = Versions.pythonTemplateVersion();
-                await Executor.executeCMD(outputChannel,
-                    "cookiecutter",
-                    { cwd: `${parent}`, shell: true },
-                    `--no-input ${gitHubSource} module_name=${name} image_repository=${repositoryName} --checkout ${branch}`);
+                await new Promise((resolve, reject) => {
+                    tmp.dir({ unsafeCleanup: true }, (err, tmpDir, cleanupCallback) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            const moduleContentDirName = "{{cookiecutter.module_name}}";
+                            const moduleContentDir = path.join(tmpDir, moduleContentDirName);
+                            download(`github:Azure/cookiecutter-azure-iot-edge-module#${Versions.pythonTemplateVersion()}`, tmpDir, async (downloadErr) => {
+                                if (downloadErr) {
+                                    reject(downloadErr);
+                                } else {
+                                    try {
+                                        await this.updateRepositoryName(tmpDir, moduleContentDirName, repositoryName);
+                                        await fse.move(moduleContentDir, path.join(parent, name));
+                                        resolve();
+                                    } catch (error) {
+                                        reject(error);
+                                    }
+                                }
+                                cleanupCallback();
+                            });
+                        }
+                    });
+                });
                 break;
             case Constants.LANGUAGE_NODE:
-                await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                if (Versions.installNodeTemplate()) {
+                    // Have to install Node.js module template and Yeoman in the same space (either global or npx environment)
+                    // https://github.com/Microsoft/vscode-azure-iot-edge/issues/326
+                    const nodeModuleVersion = Versions.nodeTemplateVersion();
+                    const nodeVersionConfig = nodeModuleVersion != null ? `@${nodeModuleVersion}` : "";
+                    if (os.platform() === "win32") {
+                        await Executor.executeCMD(outputChannel, "npm", { cwd: `${parent}`, shell: true },
+                            `i -g generator-azure-iot-edge-module${nodeVersionConfig}`);
+                        await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                    } else {
+                        await Executor.executeCMD(outputChannel, "npx", { cwd: `${parent}`, shell: true },
+                            `-p yo -p generator-azure-iot-edge-module${nodeVersionConfig} -- yo azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                    }
+                } else {
+                    await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                }
                 break;
             case Constants.LANGUAGE_C:
                 await new Promise((resolve, reject) => {
@@ -519,10 +527,7 @@ export class EdgeManager {
                         }
                     });
                 });
-                const moduleFile = path.join(parent, name, Constants.moduleManifest);
-                const moduleJson = await fse.readJson(moduleFile);
-                moduleJson.image.repository = repositoryName;
-                await fse.writeFile(moduleFile, JSON.stringify(moduleJson, null, 2), { encoding: "utf8" });
+                await this.updateRepositoryName(parent, name, repositoryName);
                 break;
             case Constants.LANGUAGE_JAVA:
                 const groupId = extraProps.get(Constants.groupId);
@@ -553,6 +558,13 @@ export class EdgeManager {
                 }
                 break;
         }
+    }
+
+    private async updateRepositoryName(parent: string, name: string, repositoryName: string) {
+        const moduleFile = path.join(parent, name, Constants.moduleManifest);
+        const moduleJson = await fse.readJson(moduleFile);
+        moduleJson.image.repository = repositoryName;
+        await fse.writeFile(moduleFile, JSON.stringify(moduleJson, null, 2), { encoding: "utf8" });
     }
 
     private async validateInputName(name: string, parentPath?: string): Promise<string | undefined> {
@@ -597,12 +609,6 @@ export class EdgeManager {
         }
 
         return selectedUri[0].fsPath;
-    }
-
-    private async inputInputNames(): Promise<string> {
-        return await Utility.showInputBox(
-            Constants.inputNamePattern,
-            Constants.inputNamePrompt, null, "input1,input2");
     }
 
     private async inputSolutionName(parentPath: string): Promise<string> {
@@ -853,14 +859,14 @@ export class EdgeManager {
         if (!templatePick) {
             throw new UserCancelledError();
         }
-        TelemetryClient.sendEvent( `${Constants.addModuleEvent}.selectModuleTemplate`, {
+        TelemetryClient.sendEvent(`${Constants.addModuleEvent}.selectModuleTemplate`, {
             template: templatePick.label,
         });
         return templatePick.label;
     }
 
     private get3rdPartyModuleTemplates() {
-        const templatesConfig = Utility.getConfiguration().get<any>(Constants.thirdPartyModuleTemplatesConfig);
+        const templatesConfig = Configuration.getConfiguration().get<any>(Constants.thirdPartyModuleTemplatesConfig);
         return templatesConfig ? templatesConfig.templates as any[] : undefined;
     }
 

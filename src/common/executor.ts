@@ -2,25 +2,27 @@
 // Licensed under the MIT license.
 
 "use strict";
-import { ChildProcess, exec, execSync, spawn, SpawnOptions } from "child_process";
+import { ChildProcess, execSync, ExecSyncOptions, spawn, SpawnOptions } from "child_process";
 import * as vscode from "vscode";
+import { Configuration } from "./configuration";
 import { Constants } from "./constants";
 
 export class Executor {
     public static runInTerminal(command: string, terminal: string = Constants.edgeDisplayName): void {
-        if (this.terminals[terminal] === undefined ) {
-            this.terminals[terminal] = vscode.window.createTerminal(terminal);
+        if (this.terminals[terminal] === undefined) {
+            this.terminals[terminal] = Executor.createTerminal(terminal);
         }
         this.terminals[terminal].show();
         this.terminals[terminal].sendText(command);
     }
 
-    public static exec(command: string) {
-        return exec(command);
-    }
-
     public static execSync(command: string) {
-        return execSync(command, { encoding: "utf8" });
+        const envVars = Executor.getEnvFromConfig();
+        const options: ExecSyncOptions = { encoding: "utf8" };
+        if (envVars) {
+            options.env = Executor.mergeEnvs(envVars, process.env);
+        }
+        return execSync(command, options);
     }
 
     public static onDidCloseTerminal(closedTerminal: vscode.Terminal): void {
@@ -28,30 +30,91 @@ export class Executor {
     }
 
     public static async executeCMD(outputPane: vscode.OutputChannel, command: string,
-                                   options: SpawnOptions, ...args: string[]): Promise<void> {
-        await new Promise((resolve: () => void, reject: (e: Error) => void): void => {
-            outputPane.show();
-            outputPane.appendLine(`Executing ${command} ${args.join(" ")}`);
+                                   options: SpawnOptions, ...args: string[]): Promise<string> {
+        return await new Promise((resolve: (output: string) => void, reject: (e: Error) => void): void => {
+            Executor.show(outputPane);
+            Executor.appendLine(`Executing ${command} ${args.join(" ")}`, outputPane);
+
             let stderr: string = "";
+            let stdOutput: string = "";
+            const envVars = Executor.getEnvFromConfig();
+            if (envVars) {
+                options = options || {};
+                const processEnvs = Executor.mergeEnvs(envVars, process.env);
+                options.env = Executor.mergeEnvs(options.env, processEnvs);
+            }
+
             const p: ChildProcess = spawn(command, args, options);
-            p.stdout.on("data", (data: string | Buffer): void =>
-                outputPane.append(data.toString()));
+            p.stdout.on("data", (data: string | Buffer): void => {
+                const dataStr = data.toString();
+                stdOutput = stdOutput.concat(dataStr);
+                Executor.append(dataStr, outputPane);
+            });
             p.stderr.on("data", (data: string | Buffer) => {
-                stderr = stderr.concat(data.toString());
-                outputPane.append(data.toString());
+                const dataStr = data.toString();
+                stderr = stderr.concat(dataStr);
+                Executor.append(dataStr, outputPane);
             });
             p.on("error", (err: Error) => {
-                reject(new Error(err.toString()));
+                reject(new Error(`${err.toString()}. Detail: ${stderr}`));
             });
             p.on("exit", (code: number, signal: string) => {
                 if (code !== 0) {
-                    reject (new Error((`Command failed with exit code ${code}`)));
+                    reject (new Error((`Command failed with exit code ${code}.`)));
                 } else {
-                    resolve();
+                    resolve(stdOutput);
                 }
             });
         });
     }
 
     private static terminals: { [id: string]: vscode.Terminal } = {};
+
+    private static show(outputPane: vscode.OutputChannel): void {
+        if (outputPane) {
+            outputPane.show();
+        }
+    }
+
+    private static append(value: string, outputPane: vscode.OutputChannel): void {
+        if (outputPane) {
+            outputPane.append(value);
+        }
+    }
+
+    private static appendLine(value: string, outputPane: vscode.OutputChannel): void {
+        if (outputPane) {
+            outputPane.appendLine(value);
+        }
+    }
+
+    private static createTerminal(terminal: string): vscode.Terminal {
+        const envVars  = Executor.getEnvFromConfig();
+        const options: vscode.TerminalOptions = { name: terminal };
+        if (envVars) {
+            options.env = envVars;
+        }
+        return vscode.window.createTerminal(options);
+    }
+
+    private static mergeEnvs(overrideEnv, envs) {
+        if (!overrideEnv) {
+            return envs;
+        }
+
+        envs = envs || {};
+        for (const key of Object.keys(overrideEnv)) {
+            envs[key] = overrideEnv[key];
+        }
+        return envs;
+    }
+
+    private static getEnvFromConfig() {
+        const envVars = Configuration.getConfigurationProperty("executor.env");
+        if (envVars && Object.keys(envVars).length > 0) {
+            return envVars;
+        } else {
+            return undefined;
+        }
+    }
 }

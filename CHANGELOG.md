@@ -1,4 +1,30 @@
 # Change Log
+## 1.9.0 - 2019-01-XX
+### Added
+* Add configuration "azure-iot-edge.executor.env" which can be configured to inject environment variables into terminals created by VS Code Azure IoT Edge extension.
+
+### Changed
+* Change the extension activation condition. It will not be actived by a debug session.
+
+## 1.8.0 - 2019-01-07
+### Added
+* Autodetect/install/update iotedgehubdev
+* Install Azure IoT Edge Node.js Module Generator automatically before new Node.js module
+
+### Changed
+* Use Webpack to improve extension performance ⚡
+* Use git download instead of cookiecutter to add Python module
+
+## 1.7.0 - 2018-12-06
+### Added
+* Support adding Azure Machine Learning modules.
+* Support setting the template versions to be used by "New IoT Edge Solution" or "Add IoT Edge Module" commands.
+    * [Released CSharp module template versions](https://github.com/Azure/dotnet-template-azure-iot-edge-module/blob/master/CHANGELOG.md)
+    * [Released CSharp function module template versions](https://github.com/Azure/dotnet-template-azure-iot-edge-function/blob/master/CHANGELOG.md)
+    * [Released Java module template versions](https://mvnrepository.com/artifact/com.microsoft.azure/azure-iot-edge-archetype)
+    * [Released Python module template versions](https://github.com/Azure/cookiecutter-azure-iot-edge-module/releases)
+    * [Released C module template versions](https://github.com/Azure/azure-iot-edge-c-module/releases)
+
 ## 1.6.0 - 2018-11-23
 ### Added
 * Add **deployment.debug.template.json** when creating new solution. The template refer to the debug flavour image of the modules and has debug createOptions populated automatically.

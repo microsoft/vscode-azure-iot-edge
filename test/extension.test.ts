@@ -1,8 +1,7 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
+import { Configuration } from "../src/common/configuration";
 import { Constants } from "../src/common/constants";
-import { Utility } from "../src/common/utility";
-import * as myExtension from "../src/extension";
 
 suite("Extension Tests", () => {
 
@@ -11,7 +10,7 @@ suite("Extension Tests", () => {
     });
 
     test("should be able to get config", () => {
-        const terminalRoot = Utility.getConfiguration().get<string>("terminalRoot");
+        const terminalRoot = Configuration.getConfiguration().get<string>("terminalRoot");
         assert.equal(terminalRoot, "");
     });
 });

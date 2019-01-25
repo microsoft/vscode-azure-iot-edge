@@ -2,7 +2,7 @@
   "name": "azure-iot-edge",
   "displayName": "Azure IoT Edge",
   "description": "Develop, deploy, debug, and manage your IoT Edge solution",
-  "version": "1.7.0-rc",
+  "version": "1.9.0-rc",
   "publisher": "vsciot-vscode",
   "aiKey": "95b20d64-f54f-4de3-8ad5-165a75a6c6fe",
   "icon": "logo.png",
@@ -32,7 +32,6 @@
     "multi-root ready"
   ],
   "activationEvents": [
-    "onDebug",
     "onCommand:azure-iot-edge.buildSolution",
     "onCommand:azure-iot-edge.buildAndPushSolution",
     "onCommand:azure-iot-edge.buildAndRunSolution",
@@ -50,7 +49,7 @@
     "onCommand:azure-iot-edge.showGallery",
     "workspaceContains:**/deployment.template.json"
   ],
-  "main": "./out/src/extension",
+  "main": "./dist/extension",
   "contributes": {
     "menus": {
       "explorer/context": [
@@ -209,18 +208,18 @@
         },
         "azure-iot-edge.version.cmodule": {
           "type": "string",
-          "default": null,
-          "description": "Set the C module template version, which will be refernced during scaffolding C module. null for latest."
+          "default": "master",
+          "description": "Set the C module template version, which will be referenced during scaffolding C module."
         },
         "azure-iot-edge.version.pythonmodule": {
           "type": "string",
-          "default": null,
-          "description": "Set the Python module template version, which will be refernced during scaffolding Python module. null for latest."
+          "default": "master",
+          "description": "Set the Python module template version, which will be referenced during scaffolding Python module."
         },
         "azure-iot-edge.version.csharpmodule": {
           "type": "string",
           "default": null,
-          "description": "Set the C# module template version, which will be refernced during scaffolding C# module. null for latest."
+          "description": "Set the C# module template version, which will be referenced during scaffolding C# module."
         },
         "azure-iot-edge.templateInstall.csharpmodule": {
           "type": "boolean",
@@ -232,20 +231,25 @@
           "default": true,
           "description": "Switch to install C# function module template before scaffolding. Default is true."
         },
+        "azure-iot-edge.templateInstall.nodemodule": {
+          "type": "boolean",
+          "default": true,
+          "description": "Switch to install Node.js module template before scaffolding. Default is true."
+        },
         "azure-iot-edge.version.csfunctionmodule": {
           "type": "string",
           "default": null,
-          "description": "Set the C# fuction module template version, which will be refernced during scaffolding C# function module. null for latest."
+          "description": "Set the C# function module template version, which will be referenced during scaffolding C# function module."
         },
         "azure-iot-edge.version.javamodule": {
           "type": "string",
           "default": null,
-          "description": "Set the Java module template version, which will be refernced during scaffolding Java module. null for latest."
+          "description": "Set the Java module template version, which will be referenced during scaffolding Java module."
         },
         "azure-iot-edge.version.nodemodule": {
           "type": "string",
           "default": null,
-          "description": "Set the Node.js module template version, which will be refernced during scaffolding Node.js module. null for latest."
+          "description": "Set the Node.js module template version, which will be referenced during scaffolding Node.js module."
         },
         "azure-iot-edge.terminalRoot": {
           "type": "string",
@@ -283,6 +287,10 @@
           "type": "object",
           "default": {},
           "description": "Templates for third party modules"
+        },
+        "azure-iot-edge.executor.env": {
+          "type": "object",
+          "description": "Environment variables for the command executor and Azure IoT Edge terminals"
         }
       }
     },
@@ -422,11 +430,13 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "tsc -p ./",
-    "compile": "tsc -watch -p ./",
+    "vscode:prepublish": "webpack --mode production",
+    "compile": "tsc -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "tslint": "tslint -t verbose src/**/*.ts",
-    "test": "node ./node_modules/vscode/bin/test"
+    "test": "node ./node_modules/vscode/bin/test",
+    "webpack": "webpack --mode development",
+    "webpack-dev": "webpack --mode development --watch"
   },
   "devDependencies": {
     "@types/dotenv": "^4.0.3",
@@ -434,14 +444,20 @@
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
     "@types/request-promise": "^4.1.41",
+    "@types/semver": "^5.5.0",
     "@types/sinon": "^5.0.5",
     "@types/strip-json-comments": "0.0.30",
+    "@types/tmp": "0.0.33",
     "azure-arm-resource": "^3.1.1-preview",
+    "fail-on-errors-webpack-plugin": "^3.0.0",
     "mocha": "^5.1.1",
     "sinon": "^7.1.1",
+    "ts-loader": "^4.4.2",
     "tslint": "^5.7.0",
     "typescript": "^2.0.3",
-    "vscode": "^1.1.22"
+    "vscode": "^1.1.22",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.0"
   },
   "dependencies": {
     "azure-arm-containerregistry": "^2.2.0",
@@ -454,7 +470,9 @@
     "jsonc-parser": "^1.0.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "semver": "^5.6.0",
     "strip-json-comments": "^2.0.1",
+    "tmp": "0.0.33",
     "vscode-extension-telemetry": "0.0.18"
   },
   "extensionDependencies": [

@@ -1,5 +1,5 @@
+import { Configuration } from "./configuration";
 import { Constants } from "./constants";
-import { Utility } from "./utility";
 
 export class Versions {
     public static getRunTimeVersionMap(): Map<string, string> {
@@ -16,6 +16,10 @@ export class Versions {
 
     public static installCSFunctionTemplate(): boolean {
         return Versions.getValue(Constants.installCSFunctionModule, true) as boolean;
+    }
+
+    public static installNodeTemplate(): boolean {
+        return Versions.getValue(Constants.installNodeModule, true) as boolean;
     }
 
     public static csTemplateVersion(): string {
@@ -35,7 +39,11 @@ export class Versions {
     }
 
     public static javaTemplateVersion(): string {
-        return Versions.getValue(Constants.versionJavaModule, "1.1.0") as string;
+        return Versions.getValue(Constants.versionJavaModule) as string;
+    }
+
+    public static nodeTemplateVersion(): string {
+        return Versions.getValue(Constants.versionNodeModule) as string;
     }
 
     private static edgeAgentVersion(): string {
@@ -51,8 +59,8 @@ export class Versions {
     }
 
     private static getValue(key: string, defaultVal: string|boolean = null): string | boolean {
-        const value = Utility.getConfigurationProperty(key);
-        if (value === undefined) {
+        const value = Configuration.getConfigurationProperty(key);
+        if (value === undefined || value === null) {
             return defaultVal;
         }
         return value;

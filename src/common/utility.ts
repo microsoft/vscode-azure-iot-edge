@@ -11,6 +11,7 @@ import * as vscode from "vscode";
 import { AzureAccount, AzureSession } from "../typings/azure-account.api";
 import { IDeviceItem } from "../typings/IDeviceItem";
 import { BuildSettings } from "./buildSettings";
+import { Configuration } from "./configuration";
 import { Constants, ContainerState } from "./constants";
 import { Executor } from "./executor";
 import { Platform } from "./platform";
@@ -18,10 +19,6 @@ import { TelemetryClient } from "./telemetryClient";
 import { UserCancelledError } from "./UserCancelledError";
 
 export class Utility {
-    public static getConfiguration(): vscode.WorkspaceConfiguration {
-        return vscode.workspace.getConfiguration("azure-iot-edge");
-    }
-
     public static checkWorkspace(): boolean {
         if (!vscode.workspace.workspaceFolders) {
             vscode.window.showErrorMessage("This extension only works when folders are opened.");
@@ -35,22 +32,10 @@ export class Utility {
         return (os.platform() === "linux" || os.platform() === "darwin") ? `sudo ${command}` : command;
     }
 
-    public static getConfigurationProperty(id: string): any {
-        return Utility.getConfiguration().get(id);
-    }
-
-    public static async setGlobalConfigurationProperty(id: string, value: any): Promise<void> {
-        await Utility.getConfiguration().update(id, value, true);
-    }
-
-    public static async setWorkspaceConfigurationProperty(id: string, value: any): Promise<void> {
-        await Utility.getConfiguration().update(id, value, false);
-    }
-
     public static adjustFilePath(filePath: string): string {
         if (os.platform() === "win32") {
             const windowsShell = vscode.workspace.getConfiguration("terminal").get<string>("integrated.shell.windows");
-            const terminalRoot = Utility.getConfiguration().get<string>("terminalRoot");
+            const terminalRoot = Configuration.getConfiguration().get<string>("terminalRoot");
             if (windowsShell && terminalRoot) {
                 filePath = filePath
                     .replace(/^([A-Za-z]):/, (match, p1) => `${terminalRoot}${p1.toLowerCase()}`)
@@ -99,14 +84,6 @@ export class Utility {
         } else {
             return commands.join(" && ");
         }
-    }
-
-    public static registerDebugTelemetryListener() {
-        vscode.debug.onDidStartDebugSession((session) => {
-            if (session.name.startsWith(Constants.EdgeDebugSessionPrefix)) {
-                TelemetryClient.sendEvent("startDebugSession");
-            }
-        });
     }
 
     public static async getInputFilePath(inputFileFromContextMenu: vscode.Uri, filePattern: string, fileDescription: string, eventName: string, excludeFilePattern?: string | null): Promise<string> {

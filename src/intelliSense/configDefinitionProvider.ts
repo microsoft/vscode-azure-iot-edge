@@ -7,10 +7,10 @@ import { IntelliSenseUtility } from "./intelliSenseUtility";
 
 export class ConfigDefinitionProvider implements vscode.DefinitionProvider {
     public async provideDefinition(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.Definition> {
-        const {dockerfile, range} = await IntelliSenseUtility.getImageDockerfileAtLocation(document, position);
-        if (dockerfile) {
+        const dockerfileInfo: { dockerfile: string, range: vscode.Range } = await IntelliSenseUtility.getImageDockerfileAtLocation(document, position);
+        if (dockerfileInfo && dockerfileInfo.dockerfile) {
             const beginOfFile: vscode.Position = new vscode.Position(0, 0);
-            return new vscode.Location(vscode.Uri.file(dockerfile), beginOfFile);
+            return new vscode.Location(vscode.Uri.file(dockerfileInfo.dockerfile), beginOfFile);
         }
 
         return undefined;

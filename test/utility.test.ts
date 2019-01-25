@@ -3,6 +3,7 @@ import * as fse from "fs-extra";
 import * as path from "path";
 import * as sinon from "sinon";
 import { BuildSettings } from "../src/common/buildSettings";
+import { Configuration } from "../src/common/configuration";
 import { Constants } from "../src/common/constants";
 import { Platform } from "../src/common/platform";
 import { Utility } from "../src/common/utility";
@@ -152,7 +153,7 @@ suite("utility tests", () => {
   });
 
   test("getPlatformsSetting", () => {
-    sinon.stub(Utility, "getConfiguration").callsFake(() => {
+    sinon.stub(Configuration, "getConfiguration").callsFake(() => {
       const stubMap = new Map();
       stubMap.set(Constants.platformsConfig, {
         arm32v7: [],

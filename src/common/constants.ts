@@ -161,9 +161,8 @@ export class Constants {
     public static learnMore = "Learn More";
     public static install = "Install";
 
-    public static showSampleGalleryEvent = "showSampleGallery";
     public static openSampleEvent = "openSample";
-    public static openSampleUrlEvent = "openSampeUrl";
+    public static openSampleUrlEvent = "openSampleUrl";
 }
 
 export enum ContainerState {

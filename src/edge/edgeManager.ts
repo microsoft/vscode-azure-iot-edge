@@ -232,8 +232,8 @@ export class EdgeManager {
         await fse.mkdirp(path.join(samplePath, Constants.vscodeFolder));
         const vscodeSettingPath = path.join(samplePath, Constants.vscodeFolder, Constants.vscodeSettingsFile);
         let vscodeSettingJson = {};
-        const vscdoeSettingExists = await fse.pathExists(vscodeSettingPath);
-        if (vscdoeSettingExists) {
+        const vscodeSettingExists = await fse.pathExists(vscodeSettingPath);
+        if (vscodeSettingExists) {
           vscodeSettingJson = await fse.readJson(vscodeSettingPath);
         }
 

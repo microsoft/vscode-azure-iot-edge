@@ -182,7 +182,7 @@ export class EdgeManager {
         enableScripts: true,
         retainContextWhenHidden: true,
       });
-      panel.webview.html = this.getWebViewContent("./assets/views/gallery.html");
+      panel.webview.html = await this.getWebViewContent("./assets/views/gallery.html");
       TelemetryClient.sendEvent(Constants.showSampleGalleryEvent);
       // Handle messages from the webview
       panel.webview.onDidReceiveMessage(async (message) => {
@@ -202,10 +202,10 @@ export class EdgeManager {
       }, undefined, this.context.subscriptions);
     }
 
-    public getWebViewContent(templatePath: string): string {
+    public async getWebViewContent(templatePath: string): Promise<string> {
       const resourcePath = path.join(this.context.extensionPath, templatePath);
       const dirPath = path.dirname(resourcePath);
-      let html = fse.readFileSync(resourcePath, "utf-8");
+      let html = await fse.readFile(resourcePath, "utf-8");
 
       html = html.replace(/(<link.*?\shref="|<script.*?\ssrc="|<img.*?\ssrc=")(.+?)"/g, (m, $1, $2) => {
           return $1 + vscode.Uri.file(path.join(dirPath, $2)).with({ scheme: "vscode-resource" }).toString(true) + "\"";
@@ -232,7 +232,8 @@ export class EdgeManager {
         await fse.mkdirp(path.join(samplePath, Constants.vscodeFolder));
         const vscodeSettingPath = path.join(samplePath, Constants.vscodeFolder, Constants.vscodeSettingsFile);
         let vscodeSettingJson = {};
-        if (fse.existsSync(vscodeSettingPath)) {
+        const vscdoeSettingExists = await fse.pathExists(vscodeSettingPath);
+        if (vscdoeSettingExists) {
           vscodeSettingJson = await fse.readJson(vscodeSettingPath);
         }
 

@@ -121,8 +121,8 @@ export class Constants {
     public static moduleNameSubstitution = "${moduleName}";
     public static repositoryNameSubstitution = "${repositoryName}";
     public static selectDefaultPlatform = "Select Azure IoT Edge Solution Default Platform";
-    public static sampleName = "Sample Name";
-    public static sampleNamePrompt = "Provide a Sample Name";
+    public static sampleName = "Solution Name";
+    public static sampleNamePrompt = "Provide a Solution Name for the Sample";
 
     public static versionEdgeAgent = "version.edgeAgent";
     public static versionEdgeHub = "version.edgeHub";

@@ -170,12 +170,6 @@ export function activate(context: vscode.ExtensionContext) {
           return edgeManager.loadWebView(outputChannel);
         });
 
-    initCommandAsync(context, outputChannel,
-      "azure-iot-edge.initializeSample",
-      async (name: string, url: string, platform: string): Promise<void> => {
-        return edgeManager.initializeSample(name, url, platform, outputChannel);
-      });
-
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {
         Executor.onDidCloseTerminal(closedTerminal);
     }));

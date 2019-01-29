@@ -123,6 +123,10 @@ export class Constants {
     public static selectDefaultPlatform = "Select Azure IoT Edge Solution Default Platform";
     public static sampleName = "Solution Name";
     public static sampleNamePrompt = "Provide a Solution Name for the Sample";
+    public static galleryPanelViewType = "IoTEdgeSamples";
+    public static galleryPanelViewTitle = "Azure IoT Edge Samples";
+    public static galleryAssetsFolder = "views";
+    public static galleryIndexHtmlName = "gallery.html";
 
     public static versionEdgeAgent = "version.edgeAgent";
     public static versionEdgeHub = "version.edgeHub";

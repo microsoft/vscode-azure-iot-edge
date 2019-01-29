@@ -178,18 +178,20 @@ export class EdgeManager {
     }
 
     public async loadWebView(outputChannel: vscode.OutputChannel) {
-      const panel = vscode.window.createWebviewPanel("IoTEdgeSamples", "Azure IoT Edge Samples", vscode.ViewColumn.One, {
+      const panel = vscode.window.createWebviewPanel(Constants.galleryPanelViewType, Constants.galleryPanelViewTitle, vscode.ViewColumn.One, {
         enableScripts: true,
         retainContextWhenHidden: true,
       });
-      panel.webview.html = await this.getWebViewContent("./assets/views/gallery.html");
-      TelemetryClient.sendEvent(Constants.showSampleGalleryEvent);
+
+      const srcPath: string = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.galleryAssetsFolder, Constants.galleryIndexHtmlName));
+      panel.webview.html = await this.getWebViewContent(srcPath);
+
       // Handle messages from the webview
       panel.webview.onDidReceiveMessage(async (message) => {
         switch (message.command) {
           case "openSample":
             if (message.name && message.url) {
-              await vscode.commands.executeCommand("azure-iot-edge.initializeSample", message.name, message.url, message.platform);
+              await this.initializeSample(message.name, message.url, message.platform, outputChannel);
             }
             break;
           case "openLink":
@@ -203,9 +205,8 @@ export class EdgeManager {
     }
 
     public async getWebViewContent(templatePath: string): Promise<string> {
-      const resourcePath = path.join(this.context.extensionPath, templatePath);
-      const dirPath = path.dirname(resourcePath);
-      let html = await fse.readFile(resourcePath, "utf-8");
+      const dirPath = path.dirname(templatePath);
+      let html = await fse.readFile(templatePath, "utf-8");
 
       html = html.replace(/(<link.*?\shref="|<script.*?\ssrc="|<img.*?\ssrc=")(.+?)"/g, (m, $1, $2) => {
           return $1 + vscode.Uri.file(path.join(dirPath, $2)).with({ scheme: "vscode-resource" }).toString(true) + "\"";

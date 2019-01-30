@@ -20,7 +20,7 @@
 * Add configuration "azure-iot-edge.executor.env" which can be configured to inject environment variables into terminals created by VS Code Azure IoT Edge extension.
 
 ### Changed
-* Change the extension activation condition. It will not be actived by a debug session.
+* Change the extension activation condition. It will not be activated by a debug session.
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

@@ -36,7 +36,7 @@ export class EdgeManager {
         }
 
         await fse.ensureDir(parentPath);
-        const slnName: string = await this.inputSolutionName(parentPath);
+        const slnName: string = await this.inputSolutionName(parentPath, Constants.solutionNameDft);
         const slnPath: string = path.join(parentPath, slnName);
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const sourceGitIgnore = path.join(sourceSolutionPath, Constants.gitIgnore);
@@ -191,7 +191,7 @@ export class EdgeManager {
         switch (message.command) {
           case "openSample":
             if (message.name && message.url) {
-              await this.initializeSample(message.name, message.url, message.platform, outputChannel);
+              await vscode.commands.executeCommand("azure-iot-edge.initializeSample", message.name, message.url, message.platform);
             }
             break;
           case "openLink":
@@ -215,46 +215,55 @@ export class EdgeManager {
     }
 
     public async initializeSample(name: string, url: string, platform: string, channel: vscode.OutputChannel) {
-      try {
-        const parentPath = await this.getSolutionParentFolder();
+        try {
+            const parentPath = await this.getSolutionParentFolder();
 
-        if (parentPath === undefined) {
-          throw new UserCancelledError();
+            if (parentPath === undefined) {
+                throw new UserCancelledError();
+            }
+
+            await fse.ensureDir(parentPath);
+            const sampleName: string = await this.inputSolutionName(parentPath, name);
+            const samplePath: string = path.join(parentPath, sampleName);
+
+            channel.show();
+            channel.appendLine(`Downloading sample project to ${samplePath}...`);
+            await this.downloadSamplePackage(url, samplePath);
+
+            const defaultPlatformKey = Utility.getVscodeSettingKey(Constants.defPlatformConfig);
+            let vscodeSettingJson = await Utility.getUserSettingJsonFromSolutionPath(samplePath);
+
+            if (vscodeSettingJson === undefined) {
+                vscodeSettingJson = {};
+            }
+
+            if (vscodeSettingJson[defaultPlatformKey] === undefined) {
+                vscodeSettingJson[defaultPlatformKey] = {
+                    platform,
+                    alias: null,
+                };
+            } else {
+                if (vscodeSettingJson[defaultPlatformKey].platform === undefined) {
+                    vscodeSettingJson[defaultPlatformKey].platform = platform;
+                }
+                if (vscodeSettingJson[defaultPlatformKey].alias === undefined) {
+                    vscodeSettingJson[defaultPlatformKey].alias = null;
+                }
+            }
+
+            channel.appendLine(`Setting default platform to ${vscodeSettingJson[defaultPlatformKey].platform}...`);
+
+            await fse.outputJson(Utility.getVscodeSolutionSettingPath(samplePath), vscodeSettingJson, { spaces: 2 });
+
+            channel.appendLine(`Sample project successfully downloaded and opened in another window.`);
+            TelemetryClient.sendEvent(Constants.openSampleEvent, { Result: "Success" });
+            await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(samplePath), false);
+        } catch (error) {
+            if (!(error instanceof UserCancelledError)) {
+                channel.appendLine("Unable to load sample. Please check output window for detailed information.");
+                TelemetryClient.sendEvent(Constants.openSampleEvent, { Result: "Fail", Message: error.message });
+            }
         }
-
-        await fse.ensureDir(parentPath);
-        const sampleName: string = await this.inputSampleName(parentPath, name);
-        const samplePath: string = path.join(parentPath, sampleName);
-
-        channel.show();
-        channel.appendLine(`Downloading sample project to ${samplePath}...`);
-        await this.downloadSamplePackage(url, samplePath);
-        channel.appendLine(`Setting default platform to ${platform}...`);
-        await fse.mkdirp(path.join(samplePath, Constants.vscodeFolder));
-        const vscodeSettingPath = path.join(samplePath, Constants.vscodeFolder, Constants.vscodeSettingsFile);
-        let vscodeSettingJson = {};
-        const vscodeSettingExists = await fse.pathExists(vscodeSettingPath);
-        if (vscodeSettingExists) {
-          vscodeSettingJson = await fse.readJson(vscodeSettingPath);
-        }
-
-        const defaultPlatformKey = `${Constants.ExtensionId.substring(Constants.ExtensionId.indexOf(".") + 1)}.${Constants.defPlatformConfig}`;
-        vscodeSettingJson[defaultPlatformKey] = {
-          platform,
-          alias: null,
-        };
-        await fse.outputJson(vscodeSettingPath, vscodeSettingJson, { spaces: 2 });
-
-        channel.appendLine(`Sample project successfully downloaded and opened in another window.`);
-        TelemetryClient.sendEvent(Constants.openSampleEvent, {Result: "Success"});
-        await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(samplePath), true);
-      } catch (error) {
-        if (!(error instanceof UserCancelledError)) {
-          channel.appendLine("Unable to load sample. Please check output window for detailed information.");
-          TelemetryClient.sendEvent(Constants.openSampleEvent, {Result: "Fail", Message: error.message});
-        }
-        throw error;
-      }
     }
 
     private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: any }> {
@@ -616,13 +625,13 @@ export class EdgeManager {
         return selectedUri[0].fsPath;
     }
 
-    private async inputSolutionName(parentPath: string): Promise<string> {
+    private async inputSolutionName(parentPath: string, defaultName: string): Promise<string> {
         const validateFunc = async (name: string): Promise<string> => {
             return await this.validateInputName(name, parentPath);
         };
         return await Utility.showInputBox(Constants.solutionName,
             Constants.solutionNamePrompt,
-            validateFunc, Constants.solutionNameDft);
+            validateFunc, defaultName);
     }
 
     private async inputModuleName(parentPath?: string, modules?: string[]): Promise<string> {
@@ -878,15 +887,6 @@ export class EdgeManager {
     private get3rdPartyModuleTemplateByName(name: string) {
         const templates = this.get3rdPartyModuleTemplates();
         return templates ? templates.find((template) => template.name === name) : undefined;
-    }
-
-    private async inputSampleName(parentPath: string, defaultName: string): Promise<string> {
-      const validateFunc = async (name: string): Promise<string> => {
-          return await this.validateInputName(name, parentPath);
-      };
-      return await Utility.showInputBox(Constants.sampleName,
-          Constants.sampleNamePrompt,
-          validateFunc, defaultName);
     }
 
     private async downloadSamplePackage(url: string, fsPath: string): Promise<void> {

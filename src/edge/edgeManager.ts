@@ -237,16 +237,16 @@ export class EdgeManager {
                 vscodeSettingJson = {};
             }
 
-            if (vscodeSettingJson[defaultPlatformKey] === undefined) {
+            if (!vscodeSettingJson[defaultPlatformKey]) {
                 vscodeSettingJson[defaultPlatformKey] = {
                     platform,
                     alias: null,
                 };
             } else {
-                if (vscodeSettingJson[defaultPlatformKey].platform === undefined) {
+                if (!vscodeSettingJson[defaultPlatformKey].platform) {
                     vscodeSettingJson[defaultPlatformKey].platform = platform;
                 }
-                if (vscodeSettingJson[defaultPlatformKey].alias === undefined) {
+                if (!vscodeSettingJson[defaultPlatformKey].alias) {
                     vscodeSettingJson[defaultPlatformKey].alias = null;
                 }
             }
@@ -255,13 +255,14 @@ export class EdgeManager {
 
             await fse.outputJson(Utility.getVscodeSolutionSettingPath(samplePath), vscodeSettingJson, { spaces: 2 });
 
-            channel.appendLine(`Sample project successfully downloaded and opened in another window.`);
+            channel.appendLine(`Sample project downloaded successfully and will be opened now.`);
             TelemetryClient.sendEvent(Constants.openSampleEvent, { Result: "Success" });
             await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(samplePath), false);
         } catch (error) {
-            if (!(error instanceof UserCancelledError)) {
-                channel.appendLine("Unable to load sample. Please check output window for detailed information.");
-                TelemetryClient.sendEvent(Constants.openSampleEvent, { Result: "Fail", Message: error.message });
+            if (error instanceof UserCancelledError) {
+                throw new UserCancelledError();
+            } else {
+                throw new error("Unable to load sample. " + error.message);
             }
         }
     }

@@ -35,7 +35,7 @@
 
   Vue.component('v-select', VueSelect.VueSelect);
 
-  var example = new Vue({
+  new Vue({
     el: '#main',
     data: {
       version: '',
@@ -56,8 +56,8 @@
         this.adjustFilterWidth();
       });
       this.httpRequest(url, function (data) {
-        var examples = [];
-        var aside = [];
+        let examples = [];
+        let aside = [];
         let allPlatforms = [];
         let allDevices = [];
         try {
@@ -78,7 +78,7 @@
           document.getElementById('main').className = 'no-aside';
         }
 
-        for (var i = 0; i < examples.length; i++) {
+        for (let i = 0; i < examples.length; i++) {
           for (let j = 0; j < examples[i].supportDevices.length; j++) {
             let device = examples[i].supportDevices[j];
             if (!device.deviceId || !device.platform) {
@@ -124,8 +124,13 @@
         // If user has a device filter, then it will set the platform as the first device filter match the sample
         // else it will set the platform as the first support devices platform in the sample
         if (this.selectedLogicalDevice) {
-          platform = this.selectedLogicalDevice.value.platform;
-        } else {
+          let supportedPlatforms = sample.supportDevices.map(device => device.platform);
+          if (supportedPlatforms.includes(this.selectedLogicalDevice.value.platform)) {
+            platform = this.selectedLogicalDevice.value.platform;
+          }
+        }
+
+        if (platform === null) {
           platform = sample.supportDevices[0].platform;
         }
 
@@ -189,7 +194,7 @@
         }
       },
       httpRequest: function (url, callback) {
-        var xhr = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {

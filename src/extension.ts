@@ -12,7 +12,6 @@ import { NSAT } from "./common/nsat";
 import { Platform } from "./common/platform";
 import { TelemetryClient } from "./common/telemetryClient";
 import { UserCancelledError } from "./common/UserCancelledError";
-import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
 import { Simulator } from "./edge/simulator";

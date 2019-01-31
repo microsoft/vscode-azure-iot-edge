@@ -20,7 +20,8 @@ export class Executor {
         const envVars = Executor.getEnvFromConfig();
         const options: ExecSyncOptions = { encoding: "utf8" };
         if (envVars) {
-            options.env = Executor.mergeEnvs(envVars, process.env);
+            const processEnvs = JSON.parse(JSON.stringify(process.env));
+            options.env = Executor.mergeEnvs(envVars, processEnvs);
         }
         return execSync(command, options);
     }
@@ -40,7 +41,8 @@ export class Executor {
             const envVars = Executor.getEnvFromConfig();
             if (envVars) {
                 options = options || {};
-                const processEnvs = Executor.mergeEnvs(envVars, process.env);
+                let processEnvs = JSON.parse(JSON.stringify(process.env));
+                processEnvs = Executor.mergeEnvs(envVars, processEnvs);
                 options.env = Executor.mergeEnvs(options.env, processEnvs);
             }
 

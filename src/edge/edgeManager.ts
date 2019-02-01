@@ -262,7 +262,7 @@ export class EdgeManager {
             if (error instanceof UserCancelledError) {
                 throw new UserCancelledError();
             } else {
-                throw new error("Unable to load sample. " + error.message);
+                throw new Error(`Unable to load sample. ${error.message}`);
             }
         }
     }

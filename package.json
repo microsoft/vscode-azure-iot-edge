@@ -2,7 +2,7 @@
   "name": "azure-iot-edge",
   "displayName": "Azure IoT Edge",
   "description": "Develop, deploy, debug, and manage your IoT Edge solution",
-  "version": "1.9.0",
+  "version": "1.10.0-rc1",
   "publisher": "vsciot-vscode",
   "aiKey": "95b20d64-f54f-4de3-8ad5-165a75a6c6fe",
   "icon": "logo.png",
@@ -46,6 +46,7 @@
     "onCommand:azure-iot-edge.startEdgeHubSingle",
     "onCommand:azure-iot-edge.setModuleCred",
     "onCommand:azure-iot-edge.setDefaultPlatform",
+    "onCommand:azure-iot-edge.showGallery",
     "workspaceContains:**/deployment.template.json"
   ],
   "main": "./dist/extension",
@@ -178,6 +179,11 @@
       {
         "command": "azure-iot-edge.setDefaultPlatform",
         "title": "Set Default Target Platform for Edge Solution",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.showGallery",
+        "title": "Show Sample Gallery",
         "category": "Azure IoT Edge"
       }
     ],

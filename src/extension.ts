@@ -12,7 +12,6 @@ import { NSAT } from "./common/nsat";
 import { Platform } from "./common/platform";
 import { TelemetryClient } from "./common/telemetryClient";
 import { UserCancelledError } from "./common/UserCancelledError";
-import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
 import { Simulator } from "./edge/simulator";
@@ -162,6 +161,18 @@ export function activate(context: vscode.ExtensionContext) {
             await edgeManager.selectDefaultPlatform(outputChannel);
             const document = vscode.window && vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document : null;
             return configDiagnosticProvider.updateDiagnostics(document, diagCollection);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.showGallery",
+        async (): Promise<void> => {
+          return edgeManager.loadWebView(outputChannel);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.initializeSample",
+        async (name: string, url: string, platform: string): Promise<void> => {
+            return edgeManager.initializeSample(name, url, platform, outputChannel);
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

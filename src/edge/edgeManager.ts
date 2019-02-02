@@ -36,7 +36,7 @@ export class EdgeManager {
         }
 
         await fse.ensureDir(parentPath);
-        const slnName: string = await this.inputSolutionName(parentPath);
+        const slnName: string = await this.inputSolutionName(parentPath, Constants.solutionNameDft);
         const slnPath: string = path.join(parentPath, slnName);
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const sourceGitIgnore = path.join(sourceSolutionPath, Constants.gitIgnore);
@@ -174,6 +174,96 @@ export class EdgeManager {
         if (defaultPlatform) {
             await Configuration.setWorkspaceConfigurationProperty(Constants.defPlatformConfig, platformMap.get(defaultPlatform));
             outputChannel.appendLine(`Default platform is ${defaultPlatform} now.`);
+        }
+    }
+
+    public async loadWebView(outputChannel: vscode.OutputChannel) {
+      const panel = vscode.window.createWebviewPanel(Constants.galleryPanelViewType, Constants.galleryPanelViewTitle, vscode.ViewColumn.One, {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+      });
+
+      const srcPath: string = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.galleryAssetsFolder, Constants.galleryIndexHtmlName));
+      panel.webview.html = await this.getWebViewContent(srcPath);
+
+      // Handle messages from the webview
+      panel.webview.onDidReceiveMessage(async (message) => {
+        switch (message.command) {
+          case "openSample":
+            if (message.name && message.url) {
+              await vscode.commands.executeCommand("azure-iot-edge.initializeSample", message.name, message.url, message.platform);
+            }
+            break;
+          case "openLink":
+            if (message.url) {
+              TelemetryClient.sendEvent(Constants.openSampleUrlEvent, {Url: message.url});
+              await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(message.url));
+            }
+            break;
+        }
+      }, undefined, this.context.subscriptions);
+    }
+
+    public async getWebViewContent(templatePath: string): Promise<string> {
+      const dirPath = path.dirname(templatePath);
+      let html = await fse.readFile(templatePath, "utf-8");
+
+      html = html.replace(/(<link.*?\shref="|<script.*?\ssrc="|<img.*?\ssrc=")(.+?)"/g, (m, $1, $2) => {
+          return $1 + vscode.Uri.file(path.join(dirPath, $2)).with({ scheme: "vscode-resource" }).toString(true) + "\"";
+      });
+      return html;
+    }
+
+    public async initializeSample(name: string, url: string, platform: string, channel: vscode.OutputChannel) {
+        try {
+            const parentPath = await this.getSolutionParentFolder();
+
+            if (parentPath === undefined) {
+                throw new UserCancelledError();
+            }
+
+            await fse.ensureDir(parentPath);
+            const sampleName: string = await this.inputSolutionName(parentPath, name);
+            const samplePath: string = path.join(parentPath, sampleName);
+
+            channel.show();
+            channel.appendLine(`Downloading sample project to ${samplePath}...`);
+            await this.downloadSamplePackage(url, samplePath);
+
+            const defaultPlatformKey = Utility.getVscodeSettingKey(Constants.defPlatformConfig);
+            let vscodeSettingJson = await Utility.getUserSettingJsonFromSolutionPath(samplePath);
+
+            if (vscodeSettingJson === undefined) {
+                vscodeSettingJson = {};
+            }
+
+            if (!vscodeSettingJson[defaultPlatformKey]) {
+                vscodeSettingJson[defaultPlatformKey] = {
+                    platform,
+                    alias: null,
+                };
+            } else {
+                if (!vscodeSettingJson[defaultPlatformKey].platform) {
+                    vscodeSettingJson[defaultPlatformKey].platform = platform;
+                }
+                if (!vscodeSettingJson[defaultPlatformKey].alias) {
+                    vscodeSettingJson[defaultPlatformKey].alias = null;
+                }
+            }
+
+            channel.appendLine(`Setting default platform to ${vscodeSettingJson[defaultPlatformKey].platform}...`);
+
+            await fse.outputJson(Utility.getVscodeSolutionSettingPath(samplePath), vscodeSettingJson, { spaces: 2 });
+
+            channel.appendLine(`Sample project downloaded successfully and will be opened now.`);
+            TelemetryClient.sendEvent(Constants.openSampleEvent, { Result: "Success" });
+            await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(samplePath), false);
+        } catch (error) {
+            if (error instanceof UserCancelledError) {
+                throw new UserCancelledError();
+            } else {
+                throw new Error(`Unable to load sample. ${error.message}`);
+            }
         }
     }
 
@@ -536,13 +626,13 @@ export class EdgeManager {
         return selectedUri[0].fsPath;
     }
 
-    private async inputSolutionName(parentPath: string): Promise<string> {
+    private async inputSolutionName(parentPath: string, defaultName: string): Promise<string> {
         const validateFunc = async (name: string): Promise<string> => {
             return await this.validateInputName(name, parentPath);
         };
         return await Utility.showInputBox(Constants.solutionName,
             Constants.solutionNamePrompt,
-            validateFunc, Constants.solutionNameDft);
+            validateFunc, defaultName);
     }
 
     private async inputModuleName(parentPath?: string, modules?: string[]): Promise<string> {
@@ -798,5 +888,17 @@ export class EdgeManager {
     private get3rdPartyModuleTemplateByName(name: string) {
         const templates = this.get3rdPartyModuleTemplates();
         return templates ? templates.find((template) => template.name === name) : undefined;
+    }
+
+    private async downloadSamplePackage(url: string, fsPath: string): Promise<void> {
+      await new Promise((resolve, reject) => {
+        download(url, fsPath, (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
     }
 }

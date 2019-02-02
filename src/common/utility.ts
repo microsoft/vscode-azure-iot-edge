@@ -533,6 +533,26 @@ export class Utility {
         return items;
     }
 
+    public static getVscodeSettingKey(name: string) {
+        return `${Constants.ExtensionId.substring(Constants.ExtensionId.indexOf(".") + 1)}.${name}`;
+    }
+
+    public static async getUserSettingJsonFromSolutionPath(solutionPath: string) {
+        await fse.mkdirp(path.join(solutionPath, Constants.vscodeFolder));
+        const vscodeSettingPath = Utility.getVscodeSolutionSettingPath(solutionPath);
+        let vscodeSettingJson = {};
+        const vscodeSettingExists = await fse.pathExists(vscodeSettingPath);
+        if (!vscodeSettingExists) {
+            return undefined;
+        }
+        vscodeSettingJson = await fse.readJson(vscodeSettingPath);
+        return vscodeSettingJson;
+    }
+
+    public static getVscodeSolutionSettingPath(solutionPath: string) {
+        return path.join(solutionPath, Constants.vscodeFolder, Constants.vscodeSettingsFile);
+    }
+
     private static expandPlacesHolders(pattern: RegExp, input: string, valMap: Map<string, string>): string {
         return input.replace(pattern, (matched) => {
             const key: string = matched.replace(/\$|{|}/g, "");

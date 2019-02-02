@@ -73,6 +73,7 @@ export class Constants {
     public static moduleManifest = "module.json";
     public static outputConfig = "config";
     public static vscodeFolder = ".vscode";
+    public static vscodeSettingsFile = "settings.json";
     public static buildModuleImageEvent = "buildModuleImage";
     public static buildAndPushModuleImageEvent = "buildAndPushModuleImage";
     public static buildSolutionEvent = "buildSolution";
@@ -120,6 +121,11 @@ export class Constants {
     public static moduleNameSubstitution = "${moduleName}";
     public static repositoryNameSubstitution = "${repositoryName}";
     public static selectDefaultPlatform = "Select Azure IoT Edge Solution Default Platform";
+    public static sampleName = "Solution Name";
+    public static galleryPanelViewType = "IoTEdgeSamples";
+    public static galleryPanelViewTitle = "Azure IoT Edge Samples";
+    public static galleryAssetsFolder = "views";
+    public static galleryIndexHtmlName = "gallery.html";
 
     public static versionEdgeAgent = "version.edgeAgent";
     public static versionEdgeHub = "version.edgeHub";
@@ -153,6 +159,9 @@ export class Constants {
     public static skipForNow = "Skip for Now";
     public static learnMore = "Learn More";
     public static install = "Install";
+
+    public static openSampleEvent = "openSample";
+    public static openSampleUrlEvent = "openSampleUrl";
 }
 
 export enum ContainerState {

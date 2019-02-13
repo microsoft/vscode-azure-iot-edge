@@ -62,7 +62,7 @@ export class Executor {
             });
             p.on("exit", (code: number, signal: string) => {
                 if (code !== 0) {
-                    reject (new Error((`Command failed with exit code ${code}.`)));
+                    reject (new Error((`Command failed with exit code ${code}. Detail: ${stderr}`)));
                 } else {
                     resolve(stdOutput);
                 }

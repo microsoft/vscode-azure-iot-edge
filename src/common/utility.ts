@@ -241,9 +241,12 @@ export class Utility {
                                          moduleToImageMap: Map<string, string>,
                                          imageToBuildSettings?: Map<string, BuildSettings>): Promise<void> {
         const modulesPath: string = path.join(slnPath, Constants.moduleFolder);
+        if (!await fse.pathExists(modulesPath)) {
+            return;
+        }
         const stat: fse.Stats = await fse.lstat(modulesPath);
         if (!stat.isDirectory()) {
-            throw new Error("no modules folder");
+            return;
         }
 
         const moduleDirs: string[] = await Utility.getSubDirectories(modulesPath);

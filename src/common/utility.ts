@@ -19,10 +19,9 @@ import { TelemetryClient } from "./telemetryClient";
 import { UserCancelledError } from "./UserCancelledError";
 
 export class Utility {
-    public static checkWorkspace(message?: string): boolean {
+    public static checkWorkspace(message: string = Constants.noWorkspaceMsg): boolean {
         if (!vscode.workspace.workspaceFolders) {
-            const errMsg = message ? message : Constants.noWorkspaceMsg;
-            vscode.window.showErrorMessage(errMsg);
+            vscode.window.showErrorMessage(message);
             return false;
         }
 

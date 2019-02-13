@@ -19,9 +19,9 @@ import { TelemetryClient } from "./telemetryClient";
 import { UserCancelledError } from "./UserCancelledError";
 
 export class Utility {
-    public static checkWorkspace(): boolean {
+    public static checkWorkspace(message: string = Constants.noWorkspaceMsg): boolean {
         if (!vscode.workspace.workspaceFolders) {
-            vscode.window.showErrorMessage("This extension only works when folders are opened.");
+            vscode.window.showErrorMessage(message);
             return false;
         }
 

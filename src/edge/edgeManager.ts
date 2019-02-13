@@ -156,6 +156,10 @@ export class EdgeManager {
     }
 
     public async selectDefaultPlatform(outputChannel: vscode.OutputChannel) {
+        if (!Utility.checkWorkspace(Constants.noWorkspaceSetDefaultPlatformMsg)) {
+            return;
+        }
+
         const platforms: Platform[] = Platform.getPlatformsSetting();
         const keyWithAlias: string[] = [];
         const defaultKeys: string[] = [];

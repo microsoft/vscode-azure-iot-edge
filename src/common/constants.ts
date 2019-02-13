@@ -161,6 +161,7 @@ export class Constants {
     public static install = "Install";
 
     public static noWorkspaceSetDefaultPlatformMsg = "No workspace is opened for setting default platform. Please open a workspace and try again.";
+    public static noWorkspaceMsg = "This extension only works when folders are opened.";
 
     public static openSampleEvent = "openSample";
     public static openSampleUrlEvent = "openSampleUrl";

@@ -156,8 +156,7 @@ export class EdgeManager {
     }
 
     public async selectDefaultPlatform(outputChannel: vscode.OutputChannel) {
-        if (vscode.workspace.workspaceFolders === undefined) {
-            vscode.window.showInformationMessage(Constants.noWorkspaceSetDefaultPlatformMsg);
+        if (!Utility.checkWorkspace(Constants.noWorkspaceSetDefaultPlatformMsg)) {
             return;
         }
 

@@ -366,6 +366,7 @@ export class EdgeManager {
 
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
+        await fse.ensureDir(targetModulePath);
         const envFilePath = path.join(slnPath, Constants.envFile);
 
         const template = await this.selectModuleTemplate();

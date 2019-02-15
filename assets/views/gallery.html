@@ -37,6 +37,7 @@
           <!-- Fake button. The entire block is clickable. -->
           <div v-if="example.tutorial" class="example-link tutorial">View Tutorial</div>
           <button v-on:click.left.stop="openSample(example, example.url, boardId, $event)">Open Sample</button>
+          <div v-if="example.issuesUrl" v-on:click.left.stop="openLink(example.issuesUrl)" class="issue-link">Report Issue</div>
         </div>
       </div>
     </li>

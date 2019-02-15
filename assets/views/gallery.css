@@ -400,6 +400,17 @@ ul.example-list > li:hover > .header > img,
   cursor: pointer;
 }
 
+.issue-link > li:hover .issue-link {
+  text-decoration: underline;
+}
+
+.issue-link {
+  cursor: pointer;
+  float: right;
+  padding: 8px 8px;
+  color: #069;
+}
+
 #filter {
   margin-bottom: 30px;
   min-width: 660px;

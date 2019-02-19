@@ -2,7 +2,7 @@
 ## 1.10.0 - 2019-02-19
 ### Added
 * Add sample gallery page. User can view and create Azure IoT Edge solution based on samples.
-* Add template when report issue
+* Add template when reporting issue
 
 ## 1.9.0 - 2019-01-30
 ### Added

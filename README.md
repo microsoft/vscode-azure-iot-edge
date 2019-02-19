@@ -18,7 +18,7 @@
 ## What's New (v1.10.0)
 ### Added
 * Add sample gallery page. User can view and create Azure IoT Edge solution based on samples.
-* Add template when reporting issue
+* Add issue template
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

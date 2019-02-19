@@ -49,7 +49,7 @@
     "onCommand:azure-iot-edge.showGallery",
     "workspaceContains:**/deployment.template.json"
   ],
-  "main": "./dist/extension",
+  "main": "./out/src/extension",
   "contributes": {
     "menus": {
       "explorer/context": [

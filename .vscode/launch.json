@@ -11,9 +11,9 @@
                 "--extensionDevelopmentPath=${workspaceFolder}"
             ],
             "outFiles": [
-                "${workspaceFolder}/dist/**/*.js"
+                "${workspaceRoot}/out/src/**/*.js"
             ],
-            "preLaunchTask": "npm: webpack"
+            "preLaunchTask": "npm: compile"
         },
         {
             "name": "Launch Tests",

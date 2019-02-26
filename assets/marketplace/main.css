@@ -1,0 +1,172 @@
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI";
+}
+
+body {
+    background: #1E1E1E;
+    color: white;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0
+}
+
+#app {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+
+#content {
+    position: relative;
+    display: table-cell;
+}
+
+#title-area {
+    position: relative;
+}
+
+#search-box {
+    position: absolute;
+    top: 10px;
+    right: 80px;
+}
+
+#main-content {
+    padding-left: 50px;
+}
+
+.module {
+    float: left;
+    background-color: white;
+    width: 200px;
+    padding: 10px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    border-width: 5px;
+    border-style: solid;
+}
+
+.module.selected {
+    border-color: aquamarine;
+}
+
+.module img {
+    max-width: 100px;
+    padding: 16px 0;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.module .title {
+    position: relative;
+    color: black;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.module .title:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 20%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
+}
+
+.module .description {
+    margin-top: 16px;
+    font-size: 15px;
+    color: gray;
+    display: -webkit-box;
+    height: 54px;
+    line-height: 1.2;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#module-detail {
+    width: 100%;
+    padding: 30px;
+    background-color: #404040;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    font-size: 20px;
+}
+
+#module-detail .title {
+    color: #D9D9D9;
+    font-size: 30px;
+}
+
+#module-detail .description {
+    color: #B6B6B6;
+    margin: 10px 0;
+    font-size: 25px;
+}
+
+#module-detail .inputs {
+    color: #D9D9D9
+}
+
+#module-detail .input {
+    margin: 5px 0;
+}
+
+#module-detail .input label {
+    display: block;
+    width: 200px;
+    float: left;
+}
+
+#module-detail input,
+#module-detail select {
+    background-color: #868686;
+    border-color: #868686;
+    color: #D9D9D9;
+    border-style: none;
+}
+
+#module-detail .action {
+    color: #B6B6B6;
+    margin-top: 10px;
+}
+
+#module-detail a {
+    color: #3E9CD2;
+}
+
+#module-detail button {
+    margin: 5px;
+    padding: 10px 30px;
+    float: right;
+    color: white;
+    background-color: #1C4E7E;
+    border-style: none;
+}
+
+#module-detail .error {
+    margin: 5px;
+    color: red;
+    float: right;
+    clear: both;
+}
+
+#sidebar {
+    width: 0%;
+    background-color: #404040;
+    /* border-style: solid;
+    border-width: 5px;
+    border-color: red; */
+    display: table-cell;
+}

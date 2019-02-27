@@ -378,18 +378,7 @@ export class EdgeManager {
         }
 
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
-        // const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
-        // const moduleInfo: ModuleInfo = await this.inputImage(moduleName, template);
-        // await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
-
-        const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
-        const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
-
         let moduleName: string = "";
-        // let repositoryName: string = "";
-        // let imageName: string = "";
-        // let moduleTwin: object;
-        // let createOptions: string = "";
         let moduleInfo: ModuleInfo;
         if (template === Constants.MARKETPLACE_MODULE) {
             const marketplace = new Marketplace(this.context);
@@ -399,43 +388,7 @@ export class EdgeManager {
             moduleInfo = await this.inputImage(moduleName, template);
         }
 
-        if (template === Constants.STREAM_ANALYTICS && moduleTwin) {
-            templateJson.modulesContent[moduleName] = moduleTwin;
-        }
-
-        const address = await Utility.getRegistryAddress(repositoryName);
-        let registries = runtimeSettings.registryCredentials;
-        if (registries === undefined) {
-            registries = {};
-            runtimeSettings.registryCredentials = registries;
-        }
-
-        let result = { registries: {}, usernameEnv: undefined, passwordEnv: undefined };
-        if (template !== Constants.STREAM_ANALYTICS) {
-            result = await this.updateRegistrySettings(address, registries, envFilePath);
-        }
-
-        await this.addModuleProj(targetModulePath, moduleName, repositoryName, template, outputChannel, extraProps);
-
-        const newModuleSection = `{
-            "version": "1.0",
-            "type": "docker",
-            "status": "running",
-            "restartPolicy": "always",
-            "settings": {
-              "image": "${imageName}",
-              "createOptions": "${createOptions.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"
-            }
-          }`;
-        modules[moduleName] = JSON.parse(newModuleSection);
-        const newModuleToUpstream = `${moduleName}ToIoTHub`;
-        routes[newModuleToUpstream] = `FROM /messages/modules/${moduleName}/outputs/* INTO $upstream`;
-        if (isNewSolution) {
-            const tempSensorToModule = `sensorTo${moduleName}`;
-            routes[tempSensorToModule] =
-                `FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/${moduleName}/inputs/input1\")`;
-        }
-        await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
+        await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
 
         const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleName, extraProps);
         if (debugGenerated) {

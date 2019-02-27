@@ -5,6 +5,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
+import { ModuleInfo } from "../common/moduleInfo";
+import { Utility } from "../common/utility";
 import { LocalServer } from "./localserver";
 
 export class Marketplace {
@@ -40,7 +42,8 @@ export class Marketplace {
         return new Promise((resolve, reject) => {
             this.panel.webview.onDidReceiveMessage((message) => {
                 this.panel.dispose();
-                resolve(message);
+                const repositoryName = Utility.getRepositoryNameFromImageName(message.imageName);
+                resolve(new ModuleInfo(message.moduleName, repositoryName, message.imageName, undefined, message.createOptions, "", ""));
             }, undefined, this.context.subscriptions);
         });
     }

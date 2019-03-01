@@ -212,6 +212,9 @@ export class EdgeManager {
       const dirPath = path.dirname(templatePath);
       let html = await fse.readFile(templatePath, "utf-8");
 
+      const extensionVersion = vscode.extensions.getExtension(Constants.ExtensionId).packageJSON.version;
+      html = html.replace("{{version}}", extensionVersion);
+
       html = html.replace(/(<link.*?\shref="|<script.*?\ssrc="|<img.*?\ssrc=")(.+?)"/g, (m, $1, $2) => {
           return $1 + vscode.Uri.file(path.join(dirPath, $2)).with({ scheme: "vscode-resource" }).toString(true) + "\"";
       });

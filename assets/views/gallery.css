@@ -91,6 +91,36 @@ ul.example-list > li > .header > .difficulty {
   z-index: 10;
 }
 
+#featured > .issue,
+ul.example-list > li > .header > .issue {
+  position: absolute;
+  right:  14px;
+  bottom: 12px;
+  padding: 1px 14px;
+  color: white;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 10;
+  cursor: pointer;
+  display: none;
+}
+
+#featured:hover > .issue,
+ul.example-list > li:hover > .header > .issue {
+  display: block;
+}
+
+#featured > .issue.color,
+ul.example-list > li > .header > .issue.color {
+  background: rgba(24, 24, 24, 0.5);
+}
+
+#featured > .difficulty.color:before,
+ul.example-list > li > .header > .difficulty.color:before {
+  content: "ISSUES"
+}
+
 #featured > .difficulty.easy,
 ul.example-list > li > .header > .difficulty.easy {
   background: rgb(143, 195, 31);
@@ -398,17 +428,6 @@ ul.example-list > li:hover > .header > img,
 
 .example-link {
   cursor: pointer;
-}
-
-.issue-link > li:hover .issue-link {
-  text-decoration: underline;
-}
-
-.issue-link {
-  cursor: pointer;
-  float: right;
-  padding: 8px 8px;
-  color: #069;
 }
 
 #filter {

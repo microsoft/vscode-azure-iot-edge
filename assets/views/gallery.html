@@ -7,8 +7,8 @@
 <script src="velocity.min.js"></script>
 </head>
 <body>
-<div id="example">
-<div id="main" v-cloak>
+<div id="example" v-cloak>
+<div id="main">
   <div id="filter">
     <v-select ref="filter" placeholder="Choose a Device" v-model="selectedLogicalDevice" :options="logicalDeviceOptions"></v-select>
   </div>
@@ -25,25 +25,53 @@
     </div>
   </div>
   <transition-group name="elist" ref="elist" tag="ul" class="example-list">
-    <li v-for="(example, index) in selectedExamples" v-bind:data-index="index" :key="example.name" v-on:click="openLink(example.tutorial)" class="elist-item">
+    <li v-for="(example, index) in selectedExamples" v-bind:data-index="index" :key="example.name" class="elist-item">
       <div class="header">
         <span v-if="example.difficulty" v-bind:class="'difficulty ' + example.difficulty"></span>
+        <span v-if="example.issuesUrl" v-bind:class="'issue color'" v-on:click="openLink(example.issuesUrl)">Report Issue</span>
+
         <img v-bind:src="example.image || '/images/no-image.jpg'">
       </div>
       <div class="body">
-        <h2 v-bind:class="{'example-link': example.tutorial}">{{ example.name }}</h2>
+        <h2 v-bind:class="{'example-link': example.tutorial}" v-on:click="openLink(example.tutorial)">{{ example.name }}</h2>
         <div class="description" v-bind:title="example.description" v-if="example.description">{{ example.description.length > 80 ? example.description.substr(0, 77) + '...' : example.description }}</div>
         <div class="buttons">
           <!-- Fake button. The entire block is clickable. -->
-          <div v-if="example.tutorial" class="example-link tutorial">View Tutorial</div>
-          <button v-on:click.left.stop="openSample(example, example.url, boardId, $event)">Open Sample</button>
-          <div v-if="example.issuesUrl" v-on:click.left.stop="openLink(example.issuesUrl)" class="issue-link">Report Issue</div>
+          <div v-if="example.tutorial" v-on:click="openLink(example.tutorial)" class="example-link tutorial">View Tutorial</div>
+          <button v-on:click="openSample(example, example.url, boardId, $event)">Open Sample</button>
         </div>
       </div>
     </li>
   </transition-group>
 </div>
-<aside id="aside"></aside>
+<aside id="aside">
+    <div class="section quick-links">
+      <h1>Quick Links</h1>
+      <ul class="links">
+        <li v-on:click="openLink('https://docs.microsoft.com/en-us/azure/iot-edge/about-iot-edge')" >About Azure IoT Edge</li>
+        <li v-on:click="openLink('https://github.com/Microsoft/vscode-azure-iot-edge#azure-iot-edge-for-visual-studio-code')">Documentation</li>
+        <li v-on:click="openLink('https://github.com/Microsoft/vscode-azure-iot-edge/issues/new')">Report Extension Issue</li>
+        <li v-on:click="openLink('https://github.com/Microsoft/vscode-azure-iot-edge')">Extension GitHub Repository</li>
+      </ul>
+    </div>
+    <div class="section info">
+      <h1>Info</h1>
+      <table>
+        <tr>
+          <td>Version</td>
+          <td v-on:click="openLink('https://github.com/Microsoft/vscode-azure-iot-edge/releases')" class="link">{{version}}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="section info">
+      <h1>Tips</h1>
+      <table>
+        <tr>
+          <td>For sample issues, you can report them to sample repo on Github.</td>
+        </tr>
+      </table>
+    </div>
+  </aside>
 </div>
 <script src="gallery.js"></script>
 </body>

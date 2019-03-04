@@ -28,7 +28,7 @@
     <li v-for="(example, index) in selectedExamples" v-bind:data-index="index" :key="example.name" class="elist-item">
       <div class="header">
         <span v-if="example.difficulty" v-bind:class="'difficulty ' + example.difficulty"></span>
-        <span v-if="example.issuesUrl" v-bind:class="'issue color'" v-on:click="openLink(example.issuesUrl)">Report Issue</span>
+        <span v-if="example.issuesUrl" v-bind:class="'issue color'" v-on:click="openLink(example.issuesUrl)"></span>
 
         <img v-bind:src="example.image || '/images/no-image.jpg'">
       </div>

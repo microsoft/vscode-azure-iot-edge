@@ -20,16 +20,16 @@
                     <div v-for="module in filteredModules" class="module" :class="{selected:selectedModule.id == module.id}"
                         v-on:click="showModule(module)">
                         <div class="image">
-                            <img :src="module.iconUri">
+                            <img :src="module.icon">
                         </div>
-                        <div class="title">{{ module.name }}</div>
-                        <div class="description">{{ module.desc }}</div>
+                        <div class="title">{{ module.displayName }}</div>
+                        <div class="description">{{ module.summary }}</div>
                     </div>
                 </div>
             </div>
             <div id="module-detail" v-if="selectedModule.id">
-                <div class="title"> {{ selectedModule.name }} </div>
-                <div class="description">{{ selectedModule.desc }}</div>
+                <div class="title"> {{ selectedModule.displayName }} </div>
+                <div class="description">{{ selectedModule.longSummary }}</div>
                 <div class="inputs">
                     <div class="input">
                         <label>Module Name: </label>
@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="action">
-                    By importing the {{ selectedModule.name }}, I agree to its <a href="">Term of Use</a> and <a href="">Privacy Policy</a>
+                    By importing the {{ selectedModule.displayName }}, I agree to its <a href="">Term of Use</a> and <a href="">Privacy Policy</a>
                     <button v-on:click="selectedModule.id=''">Cancel</button>
                     <button v-on:click="importModule()">Import</button>
                 </div>

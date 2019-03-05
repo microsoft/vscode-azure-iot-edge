@@ -14,18 +14,19 @@ const app = new Vue({
         selectedTag: "",
         moduleName: '',
         modules: [],
-        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:57098" : document.getElementById('app').getAttribute('data-endpoint'),
+        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:59372" : document.getElementById('app').getAttribute('data-endpoint'),
         errorMessage: "",
     },
     created: async function () {
         this.modules = await this.getModules();
+        console.log(this.modules )
     },
     methods: {
         getModules: async function () {
-            return (await axios.get(`${this.endpoint}/api/v1/modules`)).data.items;
+            return (await axios.get(`${this.endpoint}/api/v1/modules`)).data;
         },
         getModuleMetadata: async function (module) {
-            return (await axios.get(`${this.endpoint}/api/v1/modules/${module.id}?uri=${encodeURIComponent(module.metaUri)}`)).data;
+            return (await axios.get(module.iotEdgeMetadataUrl)).data;
         },
         showModule: async function (module) {
             // this.selectedModule.id = '';
@@ -45,13 +46,15 @@ const app = new Vue({
                 moduleName: this.moduleName,
                 imageName: this.selectedModule.metadata.containerUri + ":" + this.selectedTag,
                 createOptions: this.selectedModule.metadata.createOptions ? JSON.stringify(this.selectedModule.metadata.createOptions) : "",
+                routes: this.selectedModule.metadata.routes,
+                twins: this.selectedModule.metadata.twins,
             });
         }
     },
     computed: {
         filteredModules: function () {
             return this.modules.filter(module => {
-                return module.name.toLowerCase().includes(this.searchInput.toLowerCase());
+                return module.displayName.toLowerCase().includes(this.searchInput.toLowerCase());
             });
         }
     }

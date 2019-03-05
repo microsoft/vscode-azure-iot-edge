@@ -22,7 +22,7 @@ export class LocalServer {
         const port = this.server.listen(0).address().port;
         this.serverPort = port;
         // tslint:disable-next-line:no-console
-        console.log(this.serverPort);
+        console.log("serverPort:" + this.serverPort);
     }
 
     public stopServer(): void {
@@ -89,7 +89,7 @@ export class LocalServer {
                 }
             });
 
-            return result;
+            return res.status(200).json(result);
         } catch (err) {
             next(err);
         }

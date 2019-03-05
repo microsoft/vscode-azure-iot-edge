@@ -609,6 +609,22 @@ export class EdgeManager {
         return undefined;
     }
 
+    private async validateSolutionName(name: string, parentPath?: string): Promise<string | undefined> {
+        if (!name) {
+            return "The name could not be empty";
+        }
+        if (name.match(/[/\\:*?\"<>|]/)) {
+            return "Solution name cannot contain special characters";
+        }
+        if (parentPath) {
+            const folderPath = path.join(parentPath, name);
+            if (await fse.pathExists(folderPath)) {
+                return `${name} already exists under ${parentPath}`;
+            }
+        }
+        return undefined;
+    }
+
     private validateModuleExistence(name: string, modules?: string[]): string | undefined {
         if (modules && modules.indexOf(name) >= 0) {
             return `${name} already exists in ${Constants.deploymentTemplate}`;
@@ -636,7 +652,7 @@ export class EdgeManager {
 
     private async inputSolutionName(parentPath: string, defaultName: string): Promise<string> {
         const validateFunc = async (name: string): Promise<string> => {
-            return await this.validateInputName(name, parentPath);
+            return await this.validateSolutionName(name, parentPath);
         };
         return await Utility.showInputBox(Constants.solutionName,
             Constants.solutionNamePrompt,

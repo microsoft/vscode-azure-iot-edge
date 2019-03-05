@@ -1,13 +1,8 @@
 import * as bodyParser from "body-parser";
 import * as express from "express";
-import * as fse from "fs-extra";
 import * as http from "http";
-import * as path from "path";
 import * as request from "request-promise";
-import * as url from "url";
 import * as vscode from "vscode";
-
-import { Constants } from "../common/constants";
 
 export class LocalServer {
     private app: express.Express;
@@ -41,9 +36,6 @@ export class LocalServer {
     private initRouter() {
         this.router = express.Router();
         this.router.get("/api/v1/modules", async (req, res, next) => await this.getModules(req, res, next));
-        this.router.get("/api/v1/modules/:module_id", async (req, res, next) => await this.getModuleMetaData(req, res, next));
-        // TODO: remove this router after there is host to store metadata.
-        this.router.get("/api/v1/metadata/:json_name", async (req, res, next) => await this.tempFetchMetaData(req, res, next));
     }
 
     private initApp() {
@@ -69,67 +61,37 @@ export class LocalServer {
 
     private async getModules(req: express.Request, res: express.Response, next: express.NextFunction) {
         try {
-            const marketplaceResources = this.context.asAbsolutePath(path.join(Constants.assetsFolder, "marketplace", "resources"));
-            const itemJson = path.join(marketplaceResources, "itemlist.json");
-            const modules = await fse.readJson(itemJson);
-            const moduleList: any[] = modules.items;
-            const resModuleList = new Array();
-            moduleList.forEach((module) => {
-                const uri = this.getMetaUri(module.specialArtifacts);
-                const moduleDesc = {
-                    name: module.name,
-                    id: module.id,
-                    iconUri: module.iconUri,
-                    metaUri: uri,
-                    desc: module.desc,
-                };
-                resModuleList.push(moduleDesc);
-            });
-            return res.status(200).json({items: resModuleList});
-        } catch (err) {
-            next(err);
-        }
-    }
-
-    private async getModuleMetaData(req: express.Request, res: express.Response, next: express.NextFunction) {
-        try {
-            // tslint:disable-next-line:no-console
-            console.log(req.params.module_id);
-            const uri = req.query.uri;
-            if (!uri) {
-                throw Error("Please provide the meta data uri");
+            let apiUrl = "https://catalogapi.azure.com/offers/?api-version=2018-08-01-beta&$filter=categoryIds/any(c:%20c%20eq%20%27microsoft-iot-edge-module%27)";
+            let items = [];
+            const result = [];
+            while (apiUrl != null) {
+                const modulesList = JSON.parse(await request.get(apiUrl));
+                apiUrl = modulesList.nextPageLink;
+                items = items.concat(modulesList.items);
             }
-            const formatUri = this.formatURL(decodeURIComponent(uri));
-            const metaData = await request.get(formatUri);
-            return res.status(200).json(JSON.parse(metaData));
+
+            items.forEach((item) => {
+                if (item.id !== "microsoft.stream-analytics-on-iot-edge") {
+                    const metaData = item.plans[0].artifacts.find((artifact) => artifact.name === "iot-edge-metadata.json");
+                    if (metaData !== null) {
+                        item.iotEdgeMetadataUrl = metaData.uri;
+                    } else {
+                        item.iotEdgeMetadataUrl = null;
+                    }
+
+                    const image = item.images[0].items.find((img) => img.id === "large");
+                    if (image !== null) {
+                        item.icon = image.uri;
+                    } else {
+                        item.icon = null;
+                    }
+                    result.push(item);
+                }
+            });
+
+            return result;
         } catch (err) {
             next(err);
         }
-    }
-
-    private async tempFetchMetaData(req: express.Request, res: express.Response, next: express.NextFunction): Promise<any> {
-        // tslint:disable-next-line:no-console
-        console.log(req.params.json_name);
-        const filePath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, "marketplace", "resources", "modulemetadatas", req.params.json_name));
-        const data = await fse.readJson(filePath);
-        return res.status(200).json(data);
-    }
-
-    private getMetaUri(artifacts: any[]): string|undefined {
-        const element = artifacts.find((value, index) => {
-            return "iot-edge-metadata.json" === value.name;
-        });
-        return this.formatURL(element.uri);
-    }
-
-    private formatURL(uri: string): string|undefined {
-        if (!uri) {
-            return undefined;
-        }
-        const urlObj: url.Url = url.parse(uri);
-        if (urlObj.host === null) {
-            urlObj.host = this.getServerUri();
-        }
-        return url.format(urlObj);
     }
 }

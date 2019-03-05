@@ -91,6 +91,36 @@ ul.example-list > li > .header > .difficulty {
   z-index: 10;
 }
 
+#featured > .issue,
+ul.example-list > li > .header > .issue {
+  position: absolute;
+  right:  14px;
+  top: 12px;
+  padding: 1px 14px;
+  color: white;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 10;
+  cursor: pointer;
+  display: none;
+}
+
+#featured:hover > .issue,
+ul.example-list > li:hover > .header > .issue {
+  display: block;
+}
+
+#featured > .issue.color,
+ul.example-list > li > .header > .issue.color {
+  background: rgba(24, 24, 24, 0.5);
+}
+
+#featured > .issue:before,
+ul.example-list > li > .header > .issue:before {
+  content: "REPORT ISSUES"
+}
+
 #featured > .difficulty.easy,
 ul.example-list > li > .header > .difficulty.easy {
   background: rgb(143, 195, 31);
@@ -161,7 +191,6 @@ ul.example-list > li > .body > .buttons > button {
   padding: 8px 15px;
   cursor: pointer;
   outline: none;
-  margin-right: 10px;
   font-size: 15px;
 }
 
@@ -176,7 +205,7 @@ ul.example-list > li > .body > .buttons {
 }
 
 ul.example-list > li > .body > .buttons > button {
-  background: white;
+  background: inherit;
   color: #069;
   border: 1px solid #069;
 }
@@ -199,6 +228,7 @@ ul.example-list > li > .body > .buttons > button:hover {
 
 .link:hover {
   text-decoration: underline;
+  color: blue;
 }
 
 aside {
@@ -246,6 +276,7 @@ aside .section > img {
 
 .quick-links > ul.links > li:hover {
   text-decoration: underline;
+  color: blue;
 }
 
 .blog {
@@ -400,17 +431,6 @@ ul.example-list > li:hover > .header > img,
   cursor: pointer;
 }
 
-.issue-link > li:hover .issue-link {
-  text-decoration: underline;
-}
-
-.issue-link {
-  cursor: pointer;
-  float: right;
-  padding: 8px 8px;
-  color: #069;
-}
-
 #filter {
   margin-bottom: 30px;
   min-width: 660px;
@@ -511,7 +531,7 @@ ul.example-list > li:hover > .header > img,
 }
 
 .vscode-dark aside {
-  color: #22a7ff;;
+  color: #999999;
 }
 
 .vscode-dark .v-select .dropdown-toggle{
@@ -582,4 +602,21 @@ ul.example-list > li:hover > .header > img,
 
 .vscode-dark ul.example-list > li > .body > .description {
   color: #999999;
+}
+
+.vscode-dark .link:hover {
+  color: #22a7ff;
+}
+
+.vscode-dark .quick-links > ul.links > li:hover {
+  text-decoration: underline;
+  color: #22a7ff;
+}
+
+.vscode-dark  ul.example-list > li {
+  box-shadow: 0px 1px 3px 0 rgba(255, 255, 255, 0.15);
+}
+
+.vscode-dark ul.example-list > li:hover {
+  box-shadow: 0px 1px 3px 0 rgba(255, 255, 255, 0.3);
 }

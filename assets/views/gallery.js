@@ -36,7 +36,7 @@
   Vue.component('v-select', VueSelect.VueSelect);
 
   new Vue({
-    el: '#main',
+    el: '#example',
     data: {
       version: '',
       publishDate: '',
@@ -57,7 +57,6 @@
       });
       this.httpRequest(url, function (data) {
         let examples = [];
-        let aside = [];
         let allPlatforms = [];
         let allDevices = [];
         try {
@@ -66,16 +65,9 @@
             examples = data.samples;
             allPlatforms = data.platforms;
             allDevices = data.devices;
-            aside = data.aside || [];
           }
         } catch (error) {
           // ignore
-        }
-
-        if (aside.length) {
-          this.generateAside(aside);
-        } else {
-          document.getElementById('main').className = 'no-aside';
         }
 
         for (let i = 0; i < examples.length; i++) {
@@ -163,36 +155,6 @@
         console.log(this)
         this.$refs.filter.$el.style.width = `${num * (320 + 20) - 20}px`;
       },
-      generateAside: function (data) {
-        const aside = document.getElementById('aside');
-        if (data.length) {
-          data.forEach(item => {
-            let section;
-            switch (item.type) {
-              case 'links':
-                section = this.generateLinks(item);
-                break;
-              case 'table':
-                section = this.generateTable(item);
-                break;
-              case 'text':
-                section = this.generateText(item);
-                break;
-              case 'image':
-                section = this.generateImage(item);
-                break;
-              case 'badge':
-                section = this.generateBadge(item);
-                break;
-              default:
-                break;
-            }
-            if (section) {
-              aside.appendChild(section);
-            }
-          });
-        }
-      },
       httpRequest: function (url, callback) {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
@@ -223,137 +185,6 @@
         });
 
         return res;
-      },
-      generateSection: function (obj, className) {
-        let section = document.createElement('div');
-        section.className = 'section';
-        if (className) {
-          section.className += ' ' + className;
-        }
-
-        if (obj.title) {
-          let title = document.createElement('h1');
-          title.innerText = obj.title;
-          section.appendChild(title);
-        }
-        return section;
-      },
-      generateLinks: function (obj) {
-        let section = this.generateSection(obj, 'quick-links');
-        if (obj.items && obj.items.length) {
-          let ulEl = document.createElement('ul');
-          ulEl.className = 'links';
-          obj.items.forEach((link) => {
-            let linkEl = document.createElement('li');
-            linkEl.innerText = link.text;
-            linkEl.addEventListener('click', () => {
-              this.openLink(link.url);
-            });
-            ulEl.appendChild(linkEl);
-          });
-          section.appendChild(ulEl);
-        }
-        return section;
-      },
-      generateTable: function (obj) {
-        let section = this.generateSection(obj, 'info');
-        if (obj.rows && obj.rows.length) {
-          let tableEl = document.createElement('table');
-          obj.rows.forEach((row) => {
-            if (row.length) {
-              let trEl = document.createElement('tr');
-              row.forEach((col) => {
-                let tdEl = document.createElement('td');
-                tdEl.innerText = col.text;
-                if (col.url) {
-                  tdEl.className = 'link';
-                  tdEl.addEventListener('click', () => {
-                    this.openLink(col.url);
-                  });
-                }
-                trEl.appendChild(tdEl);
-              });
-              tableEl.appendChild(trEl);
-            }
-          });
-          section.appendChild(tableEl);
-        }
-        return section;
-      },
-      generateText: function (obj) {
-        let section = this.generateSection(obj);
-        let pEl = document.createElement('p');
-        pEl.innerText = obj.text;
-        section.appendChild(pEl);
-        return section;
-      },
-      generateImage: function (obj) {
-        let section = this.generateSection(obj);
-        let imgEl = document.createElement('img');
-        imgEl.src = obj.src;
-        if (obj.url) {
-          imgEl.className = 'link';
-          imgEl.addEventListener('click', () => {
-            this.openLink(obj.url);
-          });
-        }
-        section.appendChild(imgEl);
-        return section;
-      },
-      generateBadge: function (obj) {
-        let section = this.generateSection(obj, 'badge');
-        if (obj.items && obj.items.length) {
-          obj.items.forEach((item) => {
-            let spanEl = document.createElement('span');
-            spanEl.className = item.icon;
-            spanEl.innerText = item.text;
-            if (item.url) {
-              spanEl.className += ' link';
-              spanEl.addEventListener('click', () => {
-                this.openLink(item.url);
-              });
-            }
-            section.appendChild(spanEl);
-          });
-        }
-        return section;
-      },
-      generateFeed: function (obj) {
-        let section = this.generateSection(obj, 'blog');
-        this.httpRequest('https://blogs.msdn.microsoft.com/iotdev/feed/', function (data) {
-          let parser = new DOMParser();
-          let xmlDoc = parser.parseFromString(data, 'text/xml');
-          let items = xmlDoc.getElementsByTagName('item');
-          let ulEl = document.createElement('ul');
-          ulEl.className = 'blog';
-          for (let i = 0; i < Math.min(items.length, 3); i++) {
-            let title = items[i].getElementsByTagName('title')[0].textContent;
-            let link = items[i].getElementsByTagName('link')[0].textContent;
-            let date = new Date(items[i].getElementsByTagName('pubDate')[0].textContent).toISOString().slice(0, 10);
-            let description = items[i].getElementsByTagName('description')[0].textContent;
-
-            let liEl = document.createElement('li');
-            let h2El = document.createElement('h2');
-            h2El.innerText = title;
-            h2El.addEventListener('click', () => {
-              this.openLink(link);
-            });
-            liEl.appendChild(h2El);
-
-            let divEl = document.createElement('div');
-            divEl.className = 'date';
-            divEl.innerText = date;
-            liEl.appendChild(divEl);
-
-            let pEl = document.createElement('p');
-            pEl.innerText = description;
-            liEl.appendChild(pEl);
-
-            ulEl.appendChild(liEl);
-          }
-          section.appendChild(ulEl);
-        });
-        return section;
       }
     },
     computed: {

@@ -610,11 +610,11 @@ export class EdgeManager {
     }
 
     private async validateSolutionName(name: string, parentPath?: string): Promise<string | undefined> {
-        if (!name) {
+        if (!name || name.trim() === "") {
             return "The name could not be empty";
         }
         if (name.match(/[/\\:*?\"<>|]/)) {
-            return "Solution name cannot contain special characters";
+            return "Solution name can't contain characters: /\:*?<>|";
         }
         if (parentPath) {
             const folderPath = path.join(parentPath, name);

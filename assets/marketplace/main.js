@@ -43,9 +43,11 @@ const app = new Vue({
                 return;
             }
             const environmentVariables = {};
-            for (const environmentVariable of this.selectedModule.metadata.environmentVariables) {
-                environmentVariables[environmentVariable.name] = {
-                    value: environmentVariable.value
+            if (this.selectedModule.metadata.environmentVariables) {
+                for (const environmentVariable of this.selectedModule.metadata.environmentVariables) {
+                    environmentVariables[environmentVariable.name] = {
+                        value: environmentVariable.value
+                    }
                 }
             }
             let twins = undefined;

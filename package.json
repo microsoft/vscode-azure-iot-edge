@@ -73,22 +73,22 @@
           "group": "edge@0"
         },
         {
-          "when": "resourceFilename =~ /^deployment(\\.debug)?\\.template\\.json$/",
+          "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
           "command": "azure-iot-edge.buildSolution",
           "group": "edge@1"
         },
         {
-          "when": "resourceFilename =~ /^deployment(\\.debug)?\\.template\\.json$/",
+          "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
           "command": "azure-iot-edge.buildAndPushSolution",
           "group": "edge@2"
         },
         {
-          "when": "resourceFilename =~ /^deployment(\\.debug)?\\.template\\.json$/",
+          "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
           "command": "azure-iot-edge.buildAndRunSolution",
           "group": "edge@3"
         },
         {
-          "when": "resourceFilename =~ /^deployment(\\.debug)?\\.template\\.json$/",
+          "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
           "command": "azure-iot-edge.generateDeployment",
           "group": "edge@4"
         },
@@ -455,7 +455,7 @@
     "ts-loader": "^4.4.2",
     "tslint": "^5.7.0",
     "typescript": "^2.0.3",
-    "vscode": "^1.1.22",
+    "vscode": "^1.1.30",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.0"
   },

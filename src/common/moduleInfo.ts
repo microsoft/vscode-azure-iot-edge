@@ -7,7 +7,7 @@ export class ModuleInfo {
     public readonly createOptions: string;
     public readonly debugCreateOptions: string;
     public readonly routes: any[];
-    public readonly environmentVariables: any[];
+    public readonly environmentVariables: any;
 
     constructor(moduleName: string, repositoryName: string, imageName: string, moduleTwin: object, createOptions: any,
                 debugImageName: string, debugCreateOptions: any, routes: any[] = [], environmentVariables: any = {}) {

@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="action">
-                    By importing the {{ selectedModule.displayName }}, I agree to its <a href="">Term of Use</a> and <a href="">Privacy Policy</a>
+                    By importing the {{ selectedModule.displayName }}, I agree to its <a :href="selectedModule.legalTermsUri">Term of Use</a> and <a :href="selectedModule.privacyPolicyUri">Privacy Policy</a>
                     <button v-on:click="selectedModule.id=''">Cancel</button>
                     <button v-on:click="importModule()">Import</button>
                 </div>

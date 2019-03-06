@@ -43,7 +43,8 @@ export class Marketplace {
             this.panel.webview.onDidReceiveMessage((message) => {
                 this.panel.dispose();
                 const repositoryName = Utility.getRepositoryNameFromImageName(message.imageName);
-                resolve(new ModuleInfo(message.moduleName, repositoryName, message.imageName, undefined, message.createOptions, "", ""));
+                resolve(new ModuleInfo(message.moduleName, repositoryName, message.imageName, message.twins, message.createOptions,
+                    message.imageName, message.createOptions, message.routes, message.environmentVariables));
             }, undefined, this.context.subscriptions);
         });
     }

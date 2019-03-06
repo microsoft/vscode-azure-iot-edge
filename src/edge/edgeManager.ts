@@ -455,6 +455,7 @@ export class EdgeManager {
 
         const imageName = isDebug ? moduleInfo.debugImageName : moduleInfo.imageName;
         const createOptions = isDebug ? moduleInfo.debugCreateOptions : moduleInfo.createOptions;
+        const environmentVariables = moduleInfo.environmentVariables ? moduleInfo.environmentVariables : {};
         const newModuleSection = {
             version: "1.0",
             type: "docker",
@@ -464,10 +465,17 @@ export class EdgeManager {
                 image: imageName,
                 createOptions,
             },
+            env: environmentVariables,
         };
         modules[moduleInfo.moduleName] = newModuleSection;
-        const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
-        routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
+        if (moduleInfo.routes) {
+            for (const route of moduleInfo.routes) {
+                routes[route.name] = route.value;
+            }
+        } else {
+            const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
+            routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
+        }
         if (isNewSolution) {
             const tempSensorToModule = `sensorTo${moduleInfo.moduleName}`;
             routes[tempSensorToModule] =

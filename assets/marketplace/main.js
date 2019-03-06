@@ -42,12 +42,29 @@ const app = new Vue({
                 this.errorMessage = "Module name could not be empty";
                 return;
             }
+            const environmentVariables = {};
+            for (const environmentVariable of this.selectedModule.metadata.environmentVariables) {
+                environmentVariables[environmentVariable.name] = {
+                    value: environmentVariable.value
+                }
+            }
+            let twins = undefined;
+            if (this.selectedModule.metadata.twins) {
+                const twinObject = {};
+                for (const twin of this.selectedModule.metadata.twins) {
+                    twinObject[twin.name] =  twin.value
+                }
+                twins = {
+                    "properties.desired": twinObject
+                }
+            }
             vscode.postMessage({
                 moduleName: this.moduleName,
                 imageName: this.selectedModule.metadata.containerUri + ":" + this.selectedTag,
-                createOptions: this.selectedModule.metadata.createOptions ? JSON.stringify(this.selectedModule.metadata.createOptions) : "",
+                createOptions: this.selectedModule.metadata.createOptions, //? JSON.stringify(this.selectedModule.metadata.createOptions) : "",
                 routes: this.selectedModule.metadata.routes,
-                twins: this.selectedModule.metadata.twins,
+                twins,
+                environmentVariables,
             });
         }
     },

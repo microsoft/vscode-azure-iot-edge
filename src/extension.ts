@@ -71,6 +71,9 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => configDiagnosticProvider.updateDiagnostics(document, diagCollection)));
     context.subscriptions.push(outputChannel);
 
+    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-coreclr", {resolveDebugConfiguration}));
+    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-node", {resolveDebugConfiguration}));
+
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildModuleImage",
         (fileUri?: vscode.Uri): Promise<void> => {
@@ -183,6 +186,14 @@ export function activate(context: vscode.ExtensionContext) {
     if (folders && folders.length > 0) {
         folders.forEach((value) => edgeManager.checkRegistryEnv(value));
     }
+}
+
+function resolveDebugConfiguration(folder: vscode.WorkspaceFolder | undefined,
+                                   debugConfiguration: vscode.DebugConfiguration,
+                                   token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration> {
+    // Use static debug initialize configuration in package.json
+    // https://github.com/Microsoft/vscode/issues/68129 and https://github.com/Microsoft/vscode/issues/33794
+    return null;
 }
 
 function formatStatusBarText(platform?: string): string {

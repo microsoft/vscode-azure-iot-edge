@@ -36,10 +36,15 @@ const app = new Vue({
             this.selectedModule.metadata = metadata;
             this.selectedTag = this.selectedModule.metadata.tagsOrDigests[0];
         },
-        importModule: function () {
+        importModule: async function () {
             this.errorMessage = "";
             if (!this.moduleName) {
                 this.errorMessage = "Module name could not be empty";
+                return;
+            }
+            const moduleNameValidationStatus = (await axios.get(`${this.endpoint}/api/v1/modules/${this.moduleName}/status`)).data;
+            if (moduleNameValidationStatus) {
+                this.errorMessage = moduleNameValidationStatus;
                 return;
             }
             const environmentVariables = {};
@@ -51,7 +56,7 @@ const app = new Vue({
                 }
             }
             let twins = undefined;
-            if (this.selectedModule.metadata.twins) {
+            if (this.selectedModule.metadata.twins && this.selectedModule.metadata.twins.length > 0) {
                 const twinObject = {};
                 for (const twin of this.selectedModule.metadata.twins) {
                     twinObject[twin.name] =  twin.value

@@ -39,7 +39,7 @@ export class LocalServer {
     private initRouter() {
         this.router = express.Router();
         this.router.get("/api/v1/modules", async (req, res, next) => await this.getModules(req, res, next));
-        this.router.get("/api/v1/modules/:module/status", async (req, res, next) => await this.isValidModuleName(req, res, next));
+        this.router.get("/api/v1/modules/:module/status", async (req, res, next) => await this.validateModuleName(req, res, next));
     }
 
     private initApp() {
@@ -63,7 +63,7 @@ export class LocalServer {
         });
     }
 
-    private async isValidModuleName(req: express.Request, res: express.Response, next: express.NextFunction) {
+    private async validateModuleName(req: express.Request, res: express.Response, next: express.NextFunction) {
         try {
             const moduleName = req.params.module;
             const errorMessage = await Utility.validateInputName(moduleName) || Utility.validateModuleExistence(moduleName, this.modules) || "";

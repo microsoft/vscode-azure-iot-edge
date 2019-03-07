@@ -3,6 +3,7 @@ import * as express from "express";
 import * as http from "http";
 import * as request from "request-promise";
 import * as vscode from "vscode";
+import { Utility } from "../common/utility";
 
 export class LocalServer {
     private app: express.Express;
@@ -10,12 +11,14 @@ export class LocalServer {
     private serverPort = 0;
     private router: express.Router;
     private context: vscode.ExtensionContext;
+    private modules;
 
-    constructor(context: vscode.ExtensionContext) {
+    constructor(context: vscode.ExtensionContext, modules?: string[]) {
         this.initRouter();
         this.initApp();
         this.server = http.createServer(this.app);
         this.context = context;
+        this.modules = modules;
     }
 
     public startServer(): void {
@@ -36,6 +39,7 @@ export class LocalServer {
     private initRouter() {
         this.router = express.Router();
         this.router.get("/api/v1/modules", async (req, res, next) => await this.getModules(req, res, next));
+        this.router.get("/api/v1/modules/:module/status", async (req, res, next) => await this.isValidModuleName(req, res, next));
     }
 
     private initApp() {
@@ -57,6 +61,16 @@ export class LocalServer {
               res.status(404).json({error: "I don\'t have that"});
             }
         });
+    }
+
+    private async isValidModuleName(req: express.Request, res: express.Response, next: express.NextFunction) {
+        try {
+            const moduleName = req.params.module;
+            const errorMessage = await Utility.validateInputName(moduleName) || Utility.validateModuleExistence(moduleName, this.modules) || "";
+            return res.status(200).send(errorMessage);
+        } catch (err) {
+            next(err);
+        }
     }
 
     private async getModules(req: express.Request, res: express.Response, next: express.NextFunction) {

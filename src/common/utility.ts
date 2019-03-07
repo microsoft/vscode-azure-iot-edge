@@ -556,6 +556,32 @@ export class Utility {
         return path.join(solutionPath, Constants.vscodeFolder, Constants.vscodeSettingsFile);
     }
 
+    public static async validateInputName(name: string, parentPath?: string): Promise<string | undefined> {
+        if (!name) {
+            return "The name could not be empty";
+        }
+        if (name.startsWith("_") || name.endsWith("_")) {
+            return "The name must not start or end with the symbol _";
+        }
+        if (name.match(/[^a-zA-Z0-9\_]/)) {
+            return "The name must contain only alphanumeric characters or the symbol _";
+        }
+        if (parentPath) {
+            const folderPath = path.join(parentPath, name);
+            if (await fse.pathExists(folderPath)) {
+                return `${name} already exists under ${parentPath}`;
+            }
+        }
+        return undefined;
+    }
+
+    public static validateModuleExistence(name: string, modules?: string[]): string | undefined {
+        if (modules && modules.indexOf(name) >= 0) {
+            return `${name} already exists in ${Constants.deploymentTemplate}`;
+        }
+        return undefined;
+    }
+
     private static expandPlacesHolders(pattern: RegExp, input: string, valMap: Map<string, string>): string {
         return input.replace(pattern, (matched) => {
             const key: string = matched.replace(/\$|{|}/g, "");

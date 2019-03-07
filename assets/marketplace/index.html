@@ -22,18 +22,25 @@
                         <div class="image">
                             <img :src="module.icon">
                         </div>
-                        <div class="title">{{ module.displayName }}</div>
-                        <div class="description">{{ module.summary }}</div>
+                        <div class="info-area">
+                            <div class="title">{{ module.displayName }}</div>
+                            <div class="publisher">By {{ module.publisherDisplayName }}</div>
+                            <div class="description">{{ module.summary }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div id="module-detail" v-if="selectedModule.id">
                 <div class="title"> {{ selectedModule.displayName }} </div>
+                <div class="publisher">By {{ selectedModule.publisherDisplayName }}</div>
                 <div class="description">{{ selectedModule.longSummary }}</div>
                 <div class="inputs">
                     <div class="input">
                         <label>Module Name: </label>
                         <input v-model="moduleName">
+                    </div>
+                    <div class="error" v-if="errorMessage">
+                            {{ errorMessage }}
                     </div>
                     <div class="input"> 
                         <label>Tags: </label>
@@ -43,12 +50,19 @@
                     </div>
                 </div>
                 <div class="action">
-                    By importing the {{ selectedModule.displayName }}, I agree to its <a :href="selectedModule.legalTermsUri">Term of Use</a> and <a :href="selectedModule.privacyPolicyUri">Privacy Policy</a>
-                    <button v-on:click="selectedModule.id=''">Cancel</button>
                     <button v-on:click="importModule()">Import</button>
+                    <button v-on:click="selectedModule.id=''">Cancel</button>
                 </div>
-                <div class="error" v-if="errorMessage">
-                    {{ errorMessage }}
+                <div class="term-of-use">
+                    I agree to the provider's <a :href="selectedModule.legalTermsUri">Term of Use</a> and <a :href="selectedModule.privacyPolicyUri">Privacy Policy</a> and understand that the rights to use this product do not come from Microsoft, unless Microsoft is the provider. Use of Azure Marketplace is governed by separate <a href="https://aka.ms/azuremarketplaceterms">terms</a>.
+                </div>
+                <div v-if="selectedModule.links && selectedModule.links.length > 0">
+                    <div class="learn-more"> Learn more </div>
+                    <div class="learn-more-links"> 
+                        <div v-for="link in selectedModule.links" class="link">
+                            <a :href="link.uri">{{ link.displayName }}</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

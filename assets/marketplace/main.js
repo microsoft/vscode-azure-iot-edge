@@ -14,7 +14,7 @@ const app = new Vue({
         selectedTag: "",
         moduleName: '',
         modules: [],
-        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:59372" : document.getElementById('app').getAttribute('data-endpoint'),
+        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:50227" : document.getElementById('app').getAttribute('data-endpoint'),
         errorMessage: "",
     },
     created: async function () {

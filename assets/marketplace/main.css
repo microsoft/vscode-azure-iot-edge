@@ -31,9 +31,18 @@ body {
 }
 
 #search-box {
+    width: 280px;
+    height: 32px;
     position: absolute;
     top: 10px;
     right: 80px;
+    padding-left: 12px;
+    font-size: 13px;
+    color: #A8A8A8;
+    letter-spacing: 0;
+    line-height: 17px;
+    background: #3C3C3C;
+    border: 1px solid #383838;
 }
 
 #main-content {
@@ -44,51 +53,64 @@ body {
     float: left;
     background-color: white;
     width: 200px;
-    padding: 10px;
     margin-right: 20px;
     margin-bottom: 20px;
-    border-width: 5px;
+    border-width: 1px;
     border-style: solid;
+    border-color: #383838;
 }
 
 .module.selected {
-    border-color: aquamarine;
+    border-color: #0078D7;
+}
+
+.module .image {
+    height: 68px;
+    background-color: #383838;
+    padding-left: 14px;
+    padding-top: 14px;
 }
 
 .module img {
-    max-width: 100px;
-    padding: 16px 0;
+    width: 40px;
+    height: 40px;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
+}
+
+.module .info-area {
+    padding: 0 10px;
+    height: 200px;
+    background-color: #2B2B2B;
 }
 
 .module .title {
-    position: relative;
-    color: black;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
+    font-weight: 600;
+    font-size: 16px;
+    color: #D4D4D4;
+    letter-spacing: 0;
+    text-align: left;
+    line-height: 18px;
+    padding-top: 10px;
 }
 
-.module .title:after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 20%;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
+.module .publisher {
+    font-size: 12px;
+    color: #999999;
+    letter-spacing: 0;
+    text-align: left;
+    line-height: 15px;
+    padding-top: 5px;
 }
 
 .module .description {
-    margin-top: 16px;
-    font-size: 15px;
-    color: gray;
+    padding-top: 10px;
+    font-size: 12px;
+    color: #D4D4D4;
+    letter-spacing: 0;
+    text-align: left;
+    line-height: 15px;
     display: -webkit-box;
-    height: 54px;
-    line-height: 1.2;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -97,69 +119,98 @@ body {
 #module-detail {
     width: 100%;
     padding: 30px;
-    background-color: #404040;
-    color: white;
+    background-color: #2B2B2B;
+    color: #D4D4D4;
     position: fixed;
     bottom: 0;
-    font-size: 20px;
 }
 
 #module-detail .title {
-    color: #D9D9D9;
-    font-size: 30px;
+    font-size: 24px;
+    line-height: 28px;
+}
+
+#module-detail .publisher {
+    padding-top: 5px;
+    font-size: 13px;
+    color: #999999;
 }
 
 #module-detail .description {
-    color: #B6B6B6;
-    margin: 10px 0;
-    font-size: 25px;
+    padding-top: 5px;
+    font-size: 15px;
 }
 
 #module-detail .inputs {
+    padding-top: 10px;
+    font-size: 13px;
     color: #D9D9D9
 }
 
 #module-detail .input {
-    margin: 5px 0;
+    margin-top: 10px
 }
 
 #module-detail .input label {
     display: block;
-    width: 200px;
+    width: 100px;
     float: left;
 }
 
 #module-detail input,
 #module-detail select {
-    background-color: #868686;
-    border-color: #868686;
-    color: #D9D9D9;
-    border-style: none;
-}
-
-#module-detail .action {
-    color: #B6B6B6;
-    margin-top: 10px;
-}
-
-#module-detail a {
-    color: #3E9CD2;
-}
-
-#module-detail button {
-    margin: 5px;
-    padding: 10px 30px;
-    float: right;
-    color: white;
-    background-color: #1C4E7E;
+    background-color: #3C3C3C;
+    color: #D4D4D4;
     border-style: none;
 }
 
 #module-detail .error {
-    margin: 5px;
-    color: red;
-    float: right;
-    clear: both;
+    font-size: 12px;
+    color: #E81123;
+    line-height: 15px;
+}
+
+#module-detail .action {
+    color: #B6B6B6;
+    margin-top: 20px;
+}
+
+#module-detail .action button {
+    width: 120px;
+    height: 32px;
+    margin-right: 15px;
+    font-size: 13px;
+    color: #FFFFFF;
+    background-color: #0078D7;
+    border-style: none;
+}
+
+#module-detail .term-of-use {
+    font-size: 13px;
+    line-height: 15px;
+    margin-top: 10px;
+}
+
+#module-detail .learn-more {
+    font-size: 18px;
+    letter-spacing: 0;
+    line-height: 22px;
+    margin-top: 20px;
+}
+
+#module-detail .learn-more-links {
+    margin-top: 5px;
+}
+
+#module-detail .learn-more-links .link {
+    font-size: 13px;
+    letter-spacing: 0;
+    line-height: 18px;
+}
+
+#module-detail a {
+    color: #3D7DD3;
+    text-decoration: none;
 }
 
 #sidebar {

@@ -93,7 +93,7 @@ export class LocalServer {
                         item.iotEdgeMetadataUrl = null;
                     }
 
-                    const image = item.images[0].items.find((img) => img.id === "large");
+                    const image = item.images[0].items.find((img) => img.id === "small");
                     if (image !== null) {
                         item.icon = image.uri;
                     } else {

@@ -399,9 +399,7 @@ export class EdgeManager {
             }
         }
 
-        const needUpdateRegistry: boolean = template !== Constants.STREAM_ANALYTICS;
-
-        const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, needUpdateRegistry, isNewSolution);
+        const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, isNewSolution);
 
         const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
         const debugTemplateEnv = { usernameEnv: undefined, passwordEnv: undefined };
@@ -409,7 +407,7 @@ export class EdgeManager {
         if (await fse.pathExists(templateDebugFile)) {
             debugExist = true;
             const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
-            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, needUpdateRegistry, isNewSolution, true);
+            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, isNewSolution, true);
             debugTemplateEnv.usernameEnv = envs.usernameEnv;
             debugTemplateEnv.passwordEnv = envs.passwordEnv;
         }
@@ -425,8 +423,7 @@ export class EdgeManager {
     }
 
     private async addModuleToDeploymentTemplate(templateJson: any, templateFile: string, envFilePath: string,
-                                                moduleInfo: ModuleInfo, updateRegistry: boolean,
-                                                isNewSolution: boolean, isDebug: boolean = false): Promise<{ usernameEnv: string, passwordEnv: string }> {
+                                                moduleInfo: ModuleInfo, isNewSolution: boolean, isDebug: boolean = false): Promise<{ usernameEnv: string, passwordEnv: string }> {
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
         const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
         const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
@@ -443,9 +440,7 @@ export class EdgeManager {
         }
 
         let result = { registries: {}, usernameEnv: undefined, passwordEnv: undefined };
-        if (updateRegistry) {
-            result = await this.updateRegistrySettings(address, registries, envFilePath);
-        }
+        result = await this.updateRegistrySettings(address, registries, envFilePath);
 
         const imageName = isDebug ? moduleInfo.debugImageName : moduleInfo.imageName;
         const createOptions = isDebug ? moduleInfo.debugCreateOptions : moduleInfo.createOptions;
@@ -740,7 +735,7 @@ export class EdgeManager {
         let usernameEnv;
         let passwordEnv;
         const lowerCase = address.toLowerCase();
-        if (lowerCase === "localhost" || lowerCase.startsWith("localhost:")) {
+        if (lowerCase === "mcr.microsoft.com" || lowerCase === "localhost" || lowerCase.startsWith("localhost:")) {
             return { registries, usernameEnv, passwordEnv };
         }
         await Utility.loadEnv(envFile);

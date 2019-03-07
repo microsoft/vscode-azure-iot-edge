@@ -13,8 +13,8 @@ export class Marketplace {
     private panel: vscode.WebviewPanel;
     private localServer: LocalServer;
 
-    constructor(private context: vscode.ExtensionContext) {
-        this.localServer = new LocalServer(context);
+    constructor(private context: vscode.ExtensionContext, private modules?: string[]) {
+        this.localServer = new LocalServer(context, modules);
     }
 
     public async importModule(): Promise<any> {

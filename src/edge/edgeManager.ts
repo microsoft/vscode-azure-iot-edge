@@ -381,7 +381,7 @@ export class EdgeManager {
         let moduleName: string = "";
         let moduleInfo: ModuleInfo;
         if (template === Constants.MARKETPLACE_MODULE) {
-            const marketplace = new Marketplace(this.context);
+            const marketplace = new Marketplace(this.context, Object.keys(modules));
             moduleInfo = await marketplace.importModule();
         } else {
             moduleName = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
@@ -604,32 +604,6 @@ export class EdgeManager {
         await fse.writeFile(moduleFile, JSON.stringify(moduleJson, null, 2), { encoding: "utf8" });
     }
 
-    private async validateInputName(name: string, parentPath?: string): Promise<string | undefined> {
-        if (!name) {
-            return "The name could not be empty";
-        }
-        if (name.startsWith("_") || name.endsWith("_")) {
-            return "The name must not start or end with the symbol _";
-        }
-        if (name.match(/[^a-zA-Z0-9\_]/)) {
-            return "The name must contain only alphanumeric characters or the symbol _";
-        }
-        if (parentPath) {
-            const folderPath = path.join(parentPath, name);
-            if (await fse.pathExists(folderPath)) {
-                return `${name} already exists under ${parentPath}`;
-            }
-        }
-        return undefined;
-    }
-
-    private validateModuleExistence(name: string, modules?: string[]): string | undefined {
-        if (modules && modules.indexOf(name) >= 0) {
-            return `${name} already exists in ${Constants.deploymentTemplate}`;
-        }
-        return undefined;
-    }
-
     private async getSolutionParentFolder(): Promise<string | undefined> {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         const defaultFolder: vscode.Uri | undefined = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri : undefined;
@@ -650,7 +624,7 @@ export class EdgeManager {
 
     private async inputSolutionName(parentPath: string, defaultName: string): Promise<string> {
         const validateFunc = async (name: string): Promise<string> => {
-            return await this.validateInputName(name, parentPath);
+            return await Utility.validateInputName(name, parentPath);
         };
         return await Utility.showInputBox(Constants.solutionName,
             Constants.solutionNamePrompt,
@@ -659,7 +633,7 @@ export class EdgeManager {
 
     private async inputModuleName(parentPath?: string, modules?: string[]): Promise<string> {
         const validateFunc = async (name: string): Promise<string> => {
-            return await this.validateInputName(name, parentPath) || this.validateModuleExistence(name, modules);
+            return await Utility.validateInputName(name, parentPath) || Utility.validateModuleExistence(name, modules);
         };
         return await Utility.showInputBox(Constants.moduleName,
             Constants.moduleNamePrompt,

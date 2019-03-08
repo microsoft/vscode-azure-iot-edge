@@ -6,9 +6,10 @@ export class ModuleInfo {
     public readonly moduleTwin: object;
     public readonly createOptions: string;
     public readonly debugCreateOptions: string;
+    public readonly env: object;
 
     constructor(moduleName: string, repositoryName: string, imageName: string, moduleTwin: object, createOptions: any,
-                debugImageName: string, debugCreateOptions: any) {
+                debugImageName: string, debugCreateOptions: any, env: object) {
         this.moduleName = moduleName;
         this.repositoryName = repositoryName;
         this.imageName = imageName;
@@ -16,5 +17,6 @@ export class ModuleInfo {
         this.createOptions = createOptions ? createOptions : {};
         this.debugImageName = debugImageName;
         this.debugCreateOptions = debugCreateOptions ? debugCreateOptions : {};
+        this.env = env ? env : undefined;
     }
 }

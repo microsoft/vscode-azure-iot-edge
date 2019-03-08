@@ -458,7 +458,9 @@ export class EdgeManager {
                 image: imageName,
                 createOptions,
             },
+            env: moduleInfo.env,
         };
+
         modules[moduleInfo.moduleName] = newModuleSection;
         const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
         routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
@@ -701,6 +703,7 @@ export class EdgeManager {
         let createOptions: any = {};
         let debugImageName: string = "";
         let debugCreateOptions: any = {};
+        let env: object;
         const thirdPartyModuleTemplate = this.get3rdPartyModuleTemplateByName(template);
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
@@ -718,6 +721,7 @@ export class EdgeManager {
             const job = await saManager.selectStreamingJob();
             const JobInfo: any = await saManager.getJobInfo(job);
             debugImageName = imageName = JobInfo.settings.image;
+            env = JobInfo.env;
             moduleTwin = JobInfo.twin.content;
             debugCreateOptions = createOptions = JobInfo.settings.createOptions ? JobInfo.settings.createOptions : {};
         } else if (thirdPartyModuleTemplate) {
@@ -733,7 +737,7 @@ export class EdgeManager {
             debugImageName = debugSettings.debugImageName;
             debugCreateOptions = debugSettings.debugCreateOptions;
         }
-        return new ModuleInfo(module, repositoryName, imageName, moduleTwin, createOptions, debugImageName, debugCreateOptions);
+        return new ModuleInfo(module, repositoryName, imageName, moduleTwin, createOptions, debugImageName, debugCreateOptions, env);
     }
 
     private async updateRegistrySettings(address: string, registries: any, envFile: string): Promise<{ registries: string, usernameEnv: string, passwordEnv: string }> {

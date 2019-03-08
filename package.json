@@ -47,7 +47,6 @@
     "onCommand:azure-iot-edge.setModuleCred",
     "onCommand:azure-iot-edge.setDefaultPlatform",
     "onCommand:azure-iot-edge.showGallery",
-    "onCommand:azure-iot-edge.showMarketplace",
     "workspaceContains:**/deployment.template.json"
   ],
   "main": "./dist/extension",
@@ -185,11 +184,6 @@
       {
         "command": "azure-iot-edge.showGallery",
         "title": "Show Sample Gallery",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.showMarketplace",
-        "title": "Show Marketplace",
         "category": "Azure IoT Edge"
       }
     ],

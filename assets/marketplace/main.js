@@ -82,7 +82,7 @@ const app = new Vue({
             vscode.postMessage({
                 moduleName: this.moduleName,
                 imageName: this.selectedModule.metadata.repository + ":" + this.selectedTag,
-                createOptions: this.selectedModule.metadata.createOptions, //? JSON.stringify(this.selectedModule.metadata.createOptions) : "",
+                createOptions: this.selectedModule.metadata.createOptions,
                 routes: this.selectedModule.metadata.routes,
                 twins,
                 environmentVariables,

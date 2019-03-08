@@ -179,12 +179,6 @@ export function activate(context: vscode.ExtensionContext) {
             return edgeManager.initializeSample(name, url, platform, outputChannel);
         });
 
-    initCommandAsync(context, outputChannel,
-        "azure-iot-edge.showMarketplace",
-        (): Promise<any> => {
-            return marketplace.importModule();
-        });
-
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {
         Executor.onDidCloseTerminal(closedTerminal);
     }));

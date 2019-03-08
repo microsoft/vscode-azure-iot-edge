@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="{{root}}/assets/marketplace/main.css">
+    <link rel="stylesheet" href="./main.css">
+</head>
+
+<body class="vscode-dark">
+    <div id="app" data-endpoint="{{endpoint}}">
+        <div id="content">
+            <div id="main-content">
+                <header>
+                    <div id="title-area">
+                        <h1>You are importing modules from Marketplace</h1>
+                        <input id="search-box" v-model="searchInput" placeholder="Search">
+                    </div>
+                </header>
+                <div>
+                    <div v-for="module in filteredModules" class="module" :class="{selected:selectedModule.id == module.id}"
+                        v-on:click="showModule(module)">
+                        <div class="image">
+                            <img :src="module.icon">
+                        </div>
+                        <div class="info-area">
+                            <div class="title">{{ module.displayName }}</div>
+                            <div class="publisher">By {{ module.publisherDisplayName }}</div>
+                            <div class="description">{{ module.summary }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="module-detail" v-if="selectedModule.id">
+                <div class="title"> {{ selectedModule.displayName }} </div>
+                <div class="publisher">By {{ selectedModule.publisherDisplayName }}</div>
+                <div class="description">{{ selectedModule.longSummary }}</div>
+                <div class="inputs">
+                    <div class="input">
+                        <label>Module Name: </label>
+                        <input v-model="moduleName">
+                    </div>
+                    <div class="error" v-if="errorMessage">
+                            {{ errorMessage }}
+                    </div>
+                    <div class="input"> 
+                        <label>Tags: </label>
+                        <select v-model="selectedTag">
+                            <option v-for="tag in selectedModule.metadata.tagsOrDigests">{{ tag }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="action">
+                    <button v-on:click="importModule()">Import</button>
+                    <button v-on:click="selectedModule.id=''">Cancel</button>
+                </div>
+                <div class="term-of-use">
+                    I agree to the provider's <a :href="selectedModule.legalTermsUri">Term of Use</a> and <a :href="selectedModule.privacyPolicyUri">Privacy Policy</a> and understand that the rights to use this product do not come from Microsoft, unless Microsoft is the provider. Use of Azure Marketplace is governed by separate <a href="https://aka.ms/azuremarketplaceterms">terms</a>.
+                </div>
+                <div v-if="selectedModule.links && selectedModule.links.length > 0">
+                    <div class="learn-more"> Learn more </div>
+                    <div class="learn-more-links"> 
+                        <div v-for="link in selectedModule.links" class="link">
+                            <a :href="link.uri">{{ link.displayName }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar">
+        </div>
+    </div>
+    <script type="text/javascript" src="{{root}}/assets/marketplace/vue.min.js"></script>
+    <script type="text/javascript" src="./vue.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/marketplace/axios.min.js"></script>
+    <script type="text/javascript" src="./axios.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/marketplace/main.js"></script>
+    <script type="text/javascript" src="./main.js"></script>
+</body>
+
+</html>

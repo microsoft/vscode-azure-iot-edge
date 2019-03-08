@@ -19,6 +19,7 @@ import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionIte
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
 import { ConfigHoverProvider } from "./intelliSense/configHoverProvider";
+import { Marketplace } from "./marketplace/marketplace";
 import { IDeviceItem } from "./typings/IDeviceItem";
 
 // Work around TLS issue in Node.js >= 8.6.0
@@ -30,9 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     Simulator.validateSimulatorUpdated(outputChannel);
     const edgeManager = new EdgeManager(context);
-
     const simulator = new Simulator(context);
     const containerManager = new ContainerManager(simulator);
+    const marketplace = new Marketplace(context);
 
     const statusBar: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, -10000);
     statusBar.command = "azure-iot-edge.setDefaultPlatform";
@@ -176,6 +177,12 @@ export function activate(context: vscode.ExtensionContext) {
         "azure-iot-edge.initializeSample",
         async (name: string, url: string, platform: string): Promise<void> => {
             return edgeManager.initializeSample(name, url, platform, outputChannel);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.showMarketplace",
+        (): Promise<any> => {
+            return marketplace.importModule();
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

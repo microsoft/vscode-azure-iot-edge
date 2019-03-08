@@ -21,6 +21,7 @@ import { Versions } from "../common/version";
 import { AcrManager } from "../container/acrManager";
 import { AmlManager } from "../container/amlManager";
 import { StreamAnalyticsManager } from "../container/streamAnalyticsManager";
+import { Marketplace } from "../marketplace/marketplace";
 
 export class EdgeManager {
 
@@ -380,8 +381,16 @@ export class EdgeManager {
         }
 
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
-        const moduleName: string = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
-        const moduleInfo: ModuleInfo = await this.inputImage(moduleName, template);
+        let moduleName: string = "";
+        let moduleInfo: ModuleInfo;
+        if (template === Constants.MARKETPLACE_MODULE) {
+            const marketplace = new Marketplace(this.context, Object.keys(modules));
+            moduleInfo = await marketplace.importModule();
+        } else {
+            moduleName = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
+            moduleInfo = await this.inputImage(moduleName, template);
+        }
+
         await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
 
         const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleName, extraProps);
@@ -444,6 +453,7 @@ export class EdgeManager {
 
         const imageName = isDebug ? moduleInfo.debugImageName : moduleInfo.imageName;
         const createOptions = isDebug ? moduleInfo.debugCreateOptions : moduleInfo.createOptions;
+        const environmentVariables = moduleInfo.environmentVariables ? moduleInfo.environmentVariables : {};
         const newModuleSection = {
             version: "1.0",
             type: "docker",
@@ -453,10 +463,17 @@ export class EdgeManager {
                 image: imageName,
                 createOptions,
             },
+            env: environmentVariables,
         };
         modules[moduleInfo.moduleName] = newModuleSection;
-        const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
-        routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
+        if (moduleInfo.routes) {
+            for (const route of moduleInfo.routes) {
+                routes[route.name] = route.value;
+            }
+        } else {
+            const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
+            routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
+        }
         if (isNewSolution) {
             const tempSensorToModule = `sensorTo${moduleInfo.moduleName}`;
             routes[tempSensorToModule] =
@@ -585,25 +602,6 @@ export class EdgeManager {
         await fse.writeFile(moduleFile, JSON.stringify(moduleJson, null, 2), { encoding: "utf8" });
     }
 
-    private async validateInputName(name: string, parentPath?: string): Promise<string | undefined> {
-        if (!name) {
-            return "The name could not be empty";
-        }
-        if (name.startsWith("_") || name.endsWith("_")) {
-            return "The name must not start or end with the symbol _";
-        }
-        if (name.match(/[^a-zA-Z0-9\_]/)) {
-            return "The name must contain only alphanumeric characters or the symbol _";
-        }
-        if (parentPath) {
-            const folderPath = path.join(parentPath, name);
-            if (await fse.pathExists(folderPath)) {
-                return `${name} already exists under ${parentPath}`;
-            }
-        }
-        return undefined;
-    }
-
     private async validateSolutionName(name: string, parentPath?: string): Promise<string | undefined> {
         if (!name || name.trim() === "") {
             return "The name could not be empty";
@@ -616,13 +614,6 @@ export class EdgeManager {
             if (await fse.pathExists(folderPath)) {
                 return `${name} already exists under ${parentPath}`;
             }
-        }
-        return undefined;
-    }
-
-    private validateModuleExistence(name: string, modules?: string[]): string | undefined {
-        if (modules && modules.indexOf(name) >= 0) {
-            return `${name} already exists in ${Constants.deploymentTemplate}`;
         }
         return undefined;
     }
@@ -656,7 +647,7 @@ export class EdgeManager {
 
     private async inputModuleName(parentPath?: string, modules?: string[]): Promise<string> {
         const validateFunc = async (name: string): Promise<string> => {
-            return await this.validateInputName(name, parentPath) || this.validateModuleExistence(name, modules);
+            return await Utility.validateInputName(name, parentPath) || Utility.validateModuleExistence(name, modules);
         };
         return await Utility.showInputBox(Constants.moduleName,
             Constants.moduleNamePrompt,
@@ -873,6 +864,10 @@ export class EdgeManager {
             {
                 label: Constants.EXISTING_MODULE,
                 description: Constants.EXISTING_MODULE_DESCRIPTION,
+            },
+            {
+                label: Constants.MARKETPLACE_MODULE,
+                description: Constants.MARKETPLACE_MODULE_DESCRIPTION,
             },
         ];
         const templates = this.get3rdPartyModuleTemplates();

@@ -26,7 +26,23 @@ const app = new Vue({
             return (await axios.get(`${this.endpoint}/api/v1/modules`)).data;
         },
         getModuleMetadata: async function (module) {
-            return (await axios.get(module.iotEdgeMetadataUrl)).data;
+            let data = (await axios.get(module.iotEdgeMetadataUrl)).data;
+            let repository;
+            let defaultTag;
+            let splitArr = data.containerUri.split(":");
+            if (splitArr.length > 1) {
+                defaultTag = splitArr.pop();
+                repository = splitArr.join(":");
+            }
+            else {
+                repository = data.containerUri;
+                defaultTag = data.tagsOrDigests[0];
+            }
+
+            data.repository = repository;
+            data.defaultTag = defaultTag;
+
+            return data;
         },
         showModule: async function (module) {
             // this.selectedModule.id = '';

@@ -453,7 +453,7 @@ export class EdgeManager {
 
         const imageName = isDebug ? moduleInfo.debugImageName : moduleInfo.imageName;
         const createOptions = isDebug ? moduleInfo.debugCreateOptions : moduleInfo.createOptions;
-        const environmentVariables = moduleInfo.environmentVariables;
+        const environmentVariables = moduleInfo.environmentVariables ? moduleInfo.environmentVariables : undefined;
         const newModuleSection = {
             version: "1.0",
             type: "docker",
@@ -466,7 +466,7 @@ export class EdgeManager {
             env: environmentVariables,
         };
         modules[moduleInfo.moduleName] = newModuleSection;
-        if (moduleInfo.routes) {
+        if (moduleInfo.routes && moduleInfo.routes.length > 0) {
             for (const route of moduleInfo.routes) {
                 routes[route.name] = route.value;
             }

@@ -14,7 +14,7 @@ const app = new Vue({
         selectedTag: "",
         moduleName: '',
         modules: [],
-        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:64616" : document.getElementById('app').getAttribute('data-endpoint'),
+        endpoint: document.getElementById('app').getAttribute('data-endpoint').includes("{{") ? "http://localhost:54050" : document.getElementById('app').getAttribute('data-endpoint'),
         errorMessage: "",
     },
     created: async function () {
@@ -26,17 +26,17 @@ const app = new Vue({
             return (await axios.get(`${this.endpoint}/api/v1/modules`)).data;
         },
         getModuleMetadata: async function (module) {
-            let data = (await axios.get(module.iotEdgeMetadataUrl)).data;
-            let repository;
-            let defaultTag;
+            const data = (await axios.get(module.iotEdgeMetadataUrl)).data;
+            let repository = data.containerUri;
+            let defaultTag = data.tagsOrDigests[0];
             let splitArr = data.containerUri.split(":");
             if (splitArr.length > 1) {
-                defaultTag = splitArr.pop();
-                repository = splitArr.join(":");
-            }
-            else {
-                repository = data.containerUri;
-                defaultTag = data.tagsOrDigests[0];
+                const tag = splitArr.pop();
+                if (data.tagsOrDigests.includes(tag)) {
+                    repository = splitArr.join(":");
+                    defaultTag = tag;
+                }
+                
             }
 
             data.repository = repository;
@@ -50,7 +50,7 @@ const app = new Vue({
             const metadata = await this.getModuleMetadata(module);
             this.selectedModule = Object.assign({}, module);
             this.selectedModule.metadata = metadata;
-            this.selectedTag = this.selectedModule.metadata.tagsOrDigests[0];
+            this.selectedTag = this.selectedModule.metadata.defaultTag;
         },
         importModule: async function () {
             this.errorMessage = "";
@@ -63,7 +63,7 @@ const app = new Vue({
                 this.errorMessage = moduleNameValidationStatus;
                 return;
             }
-            const environmentVariables = {};
+            const environmentVariables = undefined;
             if (this.selectedModule.metadata.environmentVariables) {
                 for (const environmentVariable of this.selectedModule.metadata.environmentVariables) {
                     environmentVariables[environmentVariable.name] = {
@@ -83,7 +83,7 @@ const app = new Vue({
             }
             vscode.postMessage({
                 moduleName: this.moduleName,
-                imageName: this.selectedModule.metadata.containerUri + ":" + this.selectedTag,
+                imageName: this.selectedModule.metadata.repository + ":" + this.selectedTag,
                 createOptions: this.selectedModule.metadata.createOptions, //? JSON.stringify(this.selectedModule.metadata.createOptions) : "",
                 routes: this.selectedModule.metadata.routes,
                 twins,

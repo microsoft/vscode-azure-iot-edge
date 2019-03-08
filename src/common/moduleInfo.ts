@@ -10,7 +10,7 @@ export class ModuleInfo {
     public readonly environmentVariables: any;
 
     constructor(moduleName: string, repositoryName: string, imageName: string, moduleTwin: object, createOptions: any,
-                debugImageName: string, debugCreateOptions: any, routes: any[] = null, environmentVariables: any = null) {
+                debugImageName: string, debugCreateOptions: any, routes: any[] = [], environmentVariables: any = null) {
         this.moduleName = moduleName;
         this.repositoryName = repositoryName;
         this.imageName = imageName;

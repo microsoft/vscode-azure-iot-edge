@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="./main.css">
 </head>
 
-<body class="vscode-dark">
+<body>
     <div id="app" data-endpoint="{{endpoint}}">
         <div id="content">
             <div id="main-content">
@@ -16,7 +16,7 @@
                         <input id="search-box" v-model="searchInput" placeholder="Search">
                     </div>
                 </header>
-                <div>
+                <div class="modules">
                     <div v-for="module in filteredModules" class="module" :class="{selected:selectedModule.id == module.id}"
                         v-on:click="showModule(module)">
                         <div class="image">

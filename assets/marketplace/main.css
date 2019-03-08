@@ -3,9 +3,13 @@
     font-family: "Segoe UI";
 }
 
-body {
+.vscode-dark {
     background: #1E1E1E;
-    color: white;
+    color: #D4D4D4;
+}
+.vscode-light {
+    background: #FFFFFF;
+    color: #333333;
 }
 
 html,
@@ -30,34 +34,54 @@ body {
     position: relative;
 }
 
+#title-area h1 {
+    font-size: 24px;
+    line-height: 28px;
+}
+
 #search-box {
     width: 280px;
     height: 32px;
     position: absolute;
-    top: 10px;
+    top: 0;
     right: 80px;
     padding-left: 12px;
     font-size: 13px;
-    color: #A8A8A8;
     letter-spacing: 0;
     line-height: 17px;
+}
+.vscode-dark #search-box {
+    color: #A8A8A8;
     background: #3C3C3C;
     border: 1px solid #383838;
+}
+.vscode-light #search-box {
+    color: #999999;
+    background: #FFFFFF;
+    border: 1px solid #9F9F9F;
 }
 
 #main-content {
     padding-left: 50px;
 }
 
+.modules {
+    padding-top: 10px;
+}
+
 .module {
     float: left;
-    background-color: white;
     width: 200px;
     margin-right: 20px;
     margin-bottom: 20px;
     border-width: 1px;
     border-style: solid;
+}
+.vscode-dark .module {
     border-color: #383838;
+}
+.vscode-light .module {
+    border-color: #E4E4E4;
 }
 
 .module.selected {
@@ -66,9 +90,15 @@ body {
 
 .module .image {
     height: 68px;
-    background-color: #383838;
+    
     padding-left: 14px;
     padding-top: 14px;
+}
+.vscode-dark .module .image {
+    background-color: #383838;
+}
+.vscode-light .module .image {
+    background-color: #F2F2F2;
 }
 
 .module img {
@@ -80,13 +110,17 @@ body {
 .module .info-area {
     padding: 0 10px;
     height: 200px;
+}
+.vscode-dark .module .info-area {
     background-color: #2B2B2B;
+}
+.vscode-light .module .info-area {
+    background-color: #FFFFFF;
 }
 
 .module .title {
     font-weight: 600;
     font-size: 16px;
-    color: #D4D4D4;
     letter-spacing: 0;
     text-align: left;
     line-height: 18px;
@@ -95,17 +129,22 @@ body {
 
 .module .publisher {
     font-size: 12px;
-    color: #999999;
+    
     letter-spacing: 0;
     text-align: left;
     line-height: 15px;
     padding-top: 5px;
 }
+.vscode-dark .module .publisher {
+    color: #999999;
+}
+.vscode-light .module .publisher {
+    color: #666666;
+}
 
 .module .description {
     padding-top: 10px;
     font-size: 12px;
-    color: #D4D4D4;
     letter-spacing: 0;
     text-align: left;
     line-height: 15px;
@@ -119,10 +158,14 @@ body {
 #module-detail {
     width: 100%;
     padding: 30px;
-    background-color: #2B2B2B;
-    color: #D4D4D4;
     position: fixed;
     bottom: 0;
+}
+.vscode-dark #module-detail {
+    background-color: #2B2B2B;
+}
+.vscode-light #module-detail {
+    background-color: #F7F7F7;
 }
 
 #module-detail .title {
@@ -133,7 +176,12 @@ body {
 #module-detail .publisher {
     padding-top: 5px;
     font-size: 13px;
+}
+.vscode-dark #module-detail .publisher {
     color: #999999;
+}
+.vscode-light #module-detail .publisher {
+    color: #666666;
 }
 
 #module-detail .description {
@@ -144,7 +192,7 @@ body {
 #module-detail .inputs {
     padding-top: 10px;
     font-size: 13px;
-    color: #D9D9D9
+    
 }
 
 #module-detail .input {
@@ -159,9 +207,18 @@ body {
 
 #module-detail input,
 #module-detail select {
-    background-color: #3C3C3C;
-    color: #D4D4D4;
+    
     border-style: none;
+}
+.vscode-dark #module-detail input,
+.vscode-dark #module-detail select {
+    color: #D4D4D4;
+    background-color: #3C3C3C;
+}
+.vscode-light #module-detail input,
+.vscode-light #module-detail select {
+    color: #333333;
+    background-color: #FFFFFF;
 }
 
 #module-detail .error {

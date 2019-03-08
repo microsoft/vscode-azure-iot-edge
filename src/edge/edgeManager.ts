@@ -453,7 +453,7 @@ export class EdgeManager {
 
         const imageName = isDebug ? moduleInfo.debugImageName : moduleInfo.imageName;
         const createOptions = isDebug ? moduleInfo.debugCreateOptions : moduleInfo.createOptions;
-        const environmentVariables = moduleInfo.environmentVariables ? moduleInfo.environmentVariables : {};
+        const environmentVariables = moduleInfo.environmentVariables;
         const newModuleSection = {
             version: "1.0",
             type: "docker",

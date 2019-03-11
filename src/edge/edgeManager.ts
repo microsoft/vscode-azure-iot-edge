@@ -56,7 +56,6 @@ export class EdgeManager {
         await fse.writeFile(debugTemplateFile, templateContent, { encoding: "utf8" });
 
         await this.addModule(templateFile, outputChannel, true);
-        await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
     }
 
     public async addModuleForSolution(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
@@ -275,6 +274,85 @@ export class EdgeManager {
         }
     }
 
+    public async addModule(templateFile: string,
+                           outputChannel: vscode.OutputChannel,
+                           isNewSolution: boolean,
+                           moduleInfo: ModuleInfo = null,
+                           template: string = ""): Promise<void> {
+        const templateJson = Utility.updateSchema(await fse.readJson(templateFile));
+        const slnPath: string = path.dirname(templateFile);
+
+        const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
+        const targetModulePath = path.join(slnPath, Constants.moduleFolder);
+        await fse.ensureDir(targetModulePath);
+        const envFilePath = path.join(slnPath, Constants.envFile);
+
+        if (!template) {
+            template = await this.selectModuleTemplate();
+        }
+        const extraProps: Map<string, string> = new Map<string, string>();
+        if (template === Constants.LANGUAGE_JAVA) {
+            const grpId = await this.inputJavaModuleGrpId();
+            extraProps.set(Constants.groupId, grpId);
+        }
+
+        const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
+        let moduleName: string = "";
+        if (!moduleInfo) {
+            if (template === Constants.MARKETPLACE_MODULE) {
+                const marketplace = Marketplace.getInstance(this.context);
+                await marketplace.openMarketplacePage(this, templateFile, outputChannel, isNewSolution, Object.keys(modules));
+                return;
+            } else {
+                moduleName = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
+                moduleInfo = await this.inputImage(moduleName, template);
+            }
+        }
+
+        await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
+
+        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleName, extraProps);
+        if (debugGenerated) {
+            const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
+            await fse.ensureDir(targetVscodeFolder);
+            const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
+            if (await fse.pathExists(targetLaunchJson)) {
+                const text = await fse.readFile(targetLaunchJson, "utf8");
+                const launchJson = JSON.parse(stripJsonComments(text));
+                launchJson.configurations.push(...debugGenerated.configurations);
+                await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
+            } else {
+                await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });
+            }
+        }
+
+        const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, isNewSolution);
+
+        const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
+        const debugTemplateEnv = { usernameEnv: undefined, passwordEnv: undefined };
+        let debugExist = false;
+        if (await fse.pathExists(templateDebugFile)) {
+            debugExist = true;
+            const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
+            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, isNewSolution, true);
+            debugTemplateEnv.usernameEnv = envs.usernameEnv;
+            debugTemplateEnv.passwordEnv = envs.passwordEnv;
+        }
+
+        if (!isNewSolution) {
+            const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "are updated.";
+            const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
+            const deploymentTemlateMessage = debugExist ? "deployment.template.json, deployment.debug.template.json" : "deployment.template.json";
+            vscode.window.showInformationMessage(`${moduleCreationMessage} ${deploymentTemlateMessage} ${launchUpdated}`);
+        }
+        const address = await Utility.getRegistryAddress(moduleInfo.repositoryName);
+        await this.writeRegistryCredEnv(address, envFilePath, usernameEnv, passwordEnv, debugTemplateEnv.usernameEnv, debugTemplateEnv.passwordEnv);
+
+        if (isNewSolution) {
+            await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
+        }
+    }
+
     private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: any }> {
         let debugCreateOptions = {};
         switch (template) {
@@ -360,76 +438,6 @@ export class EdgeManager {
         } else {
             return undefined;
         }
-    }
-
-    private async addModule(templateFile: string,
-                            outputChannel: vscode.OutputChannel,
-                            isNewSolution: boolean): Promise<void> {
-        const templateJson = Utility.updateSchema(await fse.readJson(templateFile));
-        const slnPath: string = path.dirname(templateFile);
-
-        const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
-        const targetModulePath = path.join(slnPath, Constants.moduleFolder);
-        await fse.ensureDir(targetModulePath);
-        const envFilePath = path.join(slnPath, Constants.envFile);
-
-        const template = await this.selectModuleTemplate();
-        const extraProps: Map<string, string> = new Map<string, string>();
-        if (template === Constants.LANGUAGE_JAVA) {
-            const grpId = await this.inputJavaModuleGrpId();
-            extraProps.set(Constants.groupId, grpId);
-        }
-
-        const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
-        let moduleName: string = "";
-        let moduleInfo: ModuleInfo;
-        const marketplace = Marketplace.getInstance(this.context, Object.keys(modules));
-        if (template === Constants.MARKETPLACE_MODULE) {
-            moduleInfo = await marketplace.importModule();
-        } else {
-            moduleName = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
-            moduleInfo = await this.inputImage(moduleName, template);
-            marketplace.dispose();
-        }
-
-        await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
-
-        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleName, extraProps);
-        if (debugGenerated) {
-            const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
-            await fse.ensureDir(targetVscodeFolder);
-            const targetLaunchJson: string = path.join(targetVscodeFolder, Constants.launchFile);
-            if (await fse.pathExists(targetLaunchJson)) {
-                const text = await fse.readFile(targetLaunchJson, "utf8");
-                const launchJson = JSON.parse(stripJsonComments(text));
-                launchJson.configurations.push(...debugGenerated.configurations);
-                await fse.writeFile(targetLaunchJson, JSON.stringify(launchJson, null, 2), { encoding: "utf8" });
-            } else {
-                await fse.writeFile(targetLaunchJson, JSON.stringify(debugGenerated, null, 2), { encoding: "utf8" });
-            }
-        }
-
-        const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, isNewSolution);
-
-        const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
-        const debugTemplateEnv = { usernameEnv: undefined, passwordEnv: undefined };
-        let debugExist = false;
-        if (await fse.pathExists(templateDebugFile)) {
-            debugExist = true;
-            const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
-            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, isNewSolution, true);
-            debugTemplateEnv.usernameEnv = envs.usernameEnv;
-            debugTemplateEnv.passwordEnv = envs.passwordEnv;
-        }
-
-        if (!isNewSolution) {
-            const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "are updated.";
-            const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
-            const deploymentTemlateMessage = debugExist ? "deployment.template.json, deployment.debug.template.json" : "deployment.template.json";
-            vscode.window.showInformationMessage(`${moduleCreationMessage} ${deploymentTemlateMessage} ${launchUpdated}`);
-        }
-        const address = await Utility.getRegistryAddress(moduleInfo.repositoryName);
-        await this.writeRegistryCredEnv(address, envFilePath, usernameEnv, passwordEnv, debugTemplateEnv.usernameEnv, debugTemplateEnv.passwordEnv);
     }
 
     private async addModuleToDeploymentTemplate(templateJson: any, templateFile: string, envFilePath: string,

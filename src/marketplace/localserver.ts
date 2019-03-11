@@ -11,14 +11,17 @@ export class LocalServer {
     private serverPort = 0;
     private router: express.Router;
     private context: vscode.ExtensionContext;
-    private modules;
+    private _modules: string[];
 
-    constructor(context: vscode.ExtensionContext, modules?: string[]) {
+    constructor(context: vscode.ExtensionContext) {
         this.initRouter();
         this.initApp();
         this.server = http.createServer(this.app);
         this.context = context;
-        this.modules = modules;
+    }
+
+    set modules(modules: string[]) {
+        this._modules = modules;
     }
 
     public startServer(): void {
@@ -66,7 +69,7 @@ export class LocalServer {
     private async validateModuleName(req: express.Request, res: express.Response, next: express.NextFunction) {
         try {
             const moduleName = req.params.module;
-            const errorMessage = await Utility.validateInputName(moduleName) || Utility.validateModuleExistence(moduleName, this.modules) || "";
+            const errorMessage = await Utility.validateInputName(moduleName) || Utility.validateModuleExistence(moduleName, this._modules) || "";
             return res.status(200).send(errorMessage);
         } catch (err) {
             next(err);

@@ -8,12 +8,13 @@ import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { ModuleInfo } from "../common/moduleInfo";
 import { Utility } from "../common/utility";
+import { EdgeManager } from "../edge/edgeManager";
 import { LocalServer } from "./localserver";
 
-export class Marketplace implements vscode.Disposable {
-    public static getInstance(context: vscode.ExtensionContext, modules?: string[]) {
+export class Marketplace {
+    public static getInstance(context: vscode.ExtensionContext) {
         if (!Marketplace.instance) {
-            Marketplace.instance = new Marketplace(context, modules);
+            Marketplace.instance = new Marketplace(context);
         }
         return Marketplace.instance;
     }
@@ -21,12 +22,18 @@ export class Marketplace implements vscode.Disposable {
     private static instance: Marketplace;
     private panel: vscode.WebviewPanel;
     private localServer: LocalServer;
+    private edgeManager: EdgeManager;
+    private templateFile: string;
+    private outputChannel: vscode.OutputChannel;
+    private isNewSolution: boolean;
+    private modules: string[];
 
-    private constructor(private context: vscode.ExtensionContext, private modules?: string[]) {
-        this.localServer = new LocalServer(context, modules);
+    private constructor(private context: vscode.ExtensionContext) {
+        this.localServer = new LocalServer(context);
     }
 
-    public async importModule(): Promise<any> {
+    public async openMarketplacePage(edgeManager: EdgeManager, templateFile: string, outputChannel: vscode.OutputChannel, isNewSolution: boolean, modules: string[]): Promise<any> {
+        this.setStatus(edgeManager, templateFile, outputChannel, isNewSolution, modules);
         if (!this.panel) {
             this.localServer.startServer();
             this.panel = vscode.window.createWebviewPanel(
@@ -54,17 +61,21 @@ export class Marketplace implements vscode.Disposable {
             this.panel.reveal();
         }
 
-        return new Promise((resolve, reject) => {
-            this.panel.webview.onDidReceiveMessage((message) => {
-                this.panel.dispose();
-                const repositoryName = Utility.getRepositoryNameFromImageName(message.imageName);
-                resolve(new ModuleInfo(message.moduleName, repositoryName, message.imageName, message.twins, message.createOptions,
-                    message.imageName, message.createOptions, message.routes, message.environmentVariables));
-            }, undefined, this.context.subscriptions);
-        });
+        this.panel.webview.onDidReceiveMessage(async (message) => {
+            this.panel.dispose();
+            const repositoryName = Utility.getRepositoryNameFromImageName(message.imageName);
+            const moduleInfo = new ModuleInfo(message.moduleName, repositoryName, message.imageName, message.twins, message.createOptions,
+                message.imageName, message.createOptions, message.routes, message.environmentVariables);
+            await this.edgeManager.addModule(this.templateFile, this.outputChannel, this.isNewSolution, moduleInfo, Constants.MARKETPLACE_MODULE);
+        }, undefined, this.context.subscriptions);
     }
 
-    public dispose() {
-        this.panel.dispose();
+    private setStatus(edgeManager: EdgeManager, templateFile: string, outputChannel: vscode.OutputChannel, isNewSolution: boolean, modules: string[]) {
+        this.localServer.modules = modules;
+        this.edgeManager = edgeManager;
+        this.templateFile = templateFile;
+        this.outputChannel = outputChannel;
+        this.isNewSolution = isNewSolution;
+        this.modules = modules;
     }
 }

@@ -30,6 +30,17 @@ body {
     display: table-cell;
 }
 
+#main-content {
+    padding-left: 50px;
+}
+
+#error-initialization {
+    padding-top: 50px;
+    font-size: 20px;
+    color: #E81123;
+    line-height: 24px;
+}
+
 #title-area {
     position: relative;
 }
@@ -59,10 +70,6 @@ body {
     color: #999999;
     background: #FFFFFF;
     border: 1px solid #9F9F9F;
-}
-
-#main-content {
-    padding-left: 50px;
 }
 
 .modules {
@@ -192,7 +199,6 @@ body {
 #module-detail .inputs {
     padding-top: 10px;
     font-size: 13px;
-    
 }
 
 #module-detail .input {
@@ -271,10 +277,7 @@ body {
 }
 
 #sidebar {
-    width: 0%;
+    width: 0;
     background-color: #404040;
-    /* border-style: solid;
-    border-width: 5px;
-    border-color: red; */
     display: table-cell;
 }

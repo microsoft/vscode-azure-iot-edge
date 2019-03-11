@@ -8,17 +8,21 @@ try {
 const app = new Vue({
     el: '#app',
     data: {
-        message: 'Hello Vue!',
         searchInput: '',
         selectedModule: {},
         selectedTag: "",
         moduleName: '',
         modules: [],
         endpoint: document.getElementById('app').getAttribute('data-endpoint'),
-        errorMessage: "",
+        errorMessageModuleName: "",
+        errorMessageInitialization: "",
     },
     created: async function () {
-        this.modules = await this.getModules();
+        try {
+            this.modules = await this.getModules();
+        } catch (error) {
+            this.errorMessageInitialization = error.toString();
+        }
     },
     methods: {
         getModules: async function () {
@@ -44,25 +48,26 @@ const app = new Vue({
             return data;
         },
         showModule: async function (module) {
-            this.errorMessage = "";
+            this.errorMessageModuleName = "";
             const metadata = await this.getModuleMetadata(module);
             this.selectedModule = Object.assign({}, module);
             this.selectedModule.metadata = metadata;
             this.selectedTag = this.selectedModule.metadata.defaultTag;
         },
         importModule: async function () {
-            this.errorMessage = "";
+            this.errorMessageModuleName = "";
             if (!this.moduleName) {
-                this.errorMessage = "Module name could not be empty";
+                this.errorMessageModuleName = "Module name could not be empty";
                 return;
             }
             const moduleNameValidationStatus = (await axios.get(`${this.endpoint}/api/v1/modules/${this.moduleName}/status`)).data;
             if (moduleNameValidationStatus) {
-                this.errorMessage = moduleNameValidationStatus;
+                this.errorMessageModuleName = moduleNameValidationStatus;
                 return;
             }
-            const environmentVariables = undefined;
-            if (this.selectedModule.metadata.environmentVariables) {
+            let environmentVariables = undefined;
+            if (this.selectedModule.metadata.environmentVariables && this.selectedModule.metadata.environmentVariables.length > 0) {
+                environmentVariables = {};
                 for (const environmentVariable of this.selectedModule.metadata.environmentVariables) {
                     environmentVariables[environmentVariable.name] = {
                         value: environmentVariable.value

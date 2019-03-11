@@ -128,6 +128,8 @@ export class Constants {
     public static galleryPanelViewTitle = "Azure IoT Edge Samples";
     public static galleryAssetsFolder = "views";
     public static galleryIndexHtmlName = "gallery.html";
+    public static marketplacePanelViewType = "IoT Edge Marketplace";
+    public static marketplacePanelViewTitle = "IoT Edge Marketplace";
 
     public static versionEdgeAgent = "version.edgeAgent";
     public static versionEdgeHub = "version.edgeHub";

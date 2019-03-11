@@ -383,12 +383,13 @@ export class EdgeManager {
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
         let moduleName: string = "";
         let moduleInfo: ModuleInfo;
+        const marketplace = Marketplace.getInstance(this.context, Object.keys(modules));
         if (template === Constants.MARKETPLACE_MODULE) {
-            const marketplace = new Marketplace(this.context, Object.keys(modules));
             moduleInfo = await marketplace.importModule();
         } else {
             moduleName = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));
             moduleInfo = await this.inputImage(moduleName, template);
+            marketplace.dispose();
         }
 
         await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);

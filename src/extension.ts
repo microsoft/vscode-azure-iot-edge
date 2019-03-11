@@ -33,7 +33,6 @@ export function activate(context: vscode.ExtensionContext) {
     const edgeManager = new EdgeManager(context);
     const simulator = new Simulator(context);
     const containerManager = new ContainerManager(simulator);
-    const marketplace = new Marketplace(context);
 
     const statusBar: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, -10000);
     statusBar.command = "azure-iot-edge.setDefaultPlatform";

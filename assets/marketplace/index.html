@@ -10,24 +10,30 @@
     <div id="app" data-endpoint="{{endpoint}}">
         <div id="content">
             <div id="main-content">
-                <header>
-                    <div id="title-area">
-                        <h1>You are importing IoT Edge modules from Azure Marketplace</h1>
-                        <input id="search-box" v-model="searchInput" placeholder="Search">
-                    </div>
-                </header>
-                <div class="modules">
-                    <div v-for="module in filteredModules" class="module" :class="{selected:selectedModule.id == module.id}"
-                        v-on:click="showModule(module)">
-                        <div class="image">
-                            <img :src="module.icon">
+                <div v-if="!errorMessageInitialization">
+                    <header>
+                            <div id="title-area">
+                                <h1>You are importing IoT Edge modules from Azure Marketplace</h1>
+                                <input id="search-box" v-model="searchInput" placeholder="Search">
+                            </div>
+                        </header>
+                        <div class="modules">
+                            <div v-for="module in filteredModules" class="module" :class="{selected:selectedModule.id == module.id}"
+                                v-on:click="showModule(module)">
+                                <div class="image">
+                                    <img :src="module.icon">
+                                </div>
+                                <div class="info-area">
+                                    <div class="title">{{ module.displayName }}</div>
+                                    <div class="publisher">By {{ module.publisherDisplayName }}</div>
+                                    <div class="description">{{ module.summary }}</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="info-area">
-                            <div class="title">{{ module.displayName }}</div>
-                            <div class="publisher">By {{ module.publisherDisplayName }}</div>
-                            <div class="description">{{ module.summary }}</div>
-                        </div>
-                    </div>
+                </div>
+                <div v-else id="error-initialization">
+                    Fail to fetch IoT Edge modules from Azure Marketplace. Please retry. <br />
+                    Error message: {{ errorMessageInitialization }}
                 </div>
             </div>
             <div id="module-detail" v-if="selectedModule.id">
@@ -39,8 +45,8 @@
                         <label>Module Name: </label>
                         <input v-model="moduleName">
                     </div>
-                    <div class="error" v-if="errorMessage">
-                            {{ errorMessage }}
+                    <div class="error" v-if="errorMessageModuleName">
+                            {{ errorMessageModuleName }}
                     </div>
                     <div class="input"> 
                         <label>Tags: </label>

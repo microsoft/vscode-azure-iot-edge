@@ -301,7 +301,7 @@ export class EdgeManager {
         if (!moduleInfo) {
             if (template === Constants.MARKETPLACE_MODULE) {
                 const marketplace = Marketplace.getInstance(this.context);
-                await marketplace.openMarketplacePage(this, templateFile, outputChannel, isNewSolution, Object.keys(modules));
+                await marketplace.openMarketplacePage(templateFile, isNewSolution, Object.keys(modules));
                 return;
             } else {
                 moduleName = Utility.getValidModuleName(await this.inputModuleName(targetModulePath, Object.keys(modules)));

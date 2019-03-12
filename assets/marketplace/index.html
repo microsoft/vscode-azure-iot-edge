@@ -12,24 +12,24 @@
             <div id="main-content">
                 <div v-if="!errorMessageInitialization">
                     <header>
-                            <div id="title-area">
-                                <h1>You are importing IoT Edge modules from Azure Marketplace</h1>
-                                <input id="search-box" v-model="searchInput" placeholder="Search">
+                        <div id="title-area">
+                            <h1>You are importing IoT Edge modules from Azure Marketplace</h1>
+                            <input id="search-box" v-model="searchInput" placeholder="Search">
+                        </div>
+                    </header>
+                    <div class="modules">
+                        <div v-for="module in filteredModules" class="module" :class="{selected:selectedModule.id == module.id}"
+                            v-on:click="showModule(module)">
+                            <div class="image">
+                                <img :src="module.icon">
                             </div>
-                        </header>
-                        <div class="modules">
-                            <div v-for="module in filteredModules" class="module" :class="{selected:selectedModule.id == module.id}"
-                                v-on:click="showModule(module)">
-                                <div class="image">
-                                    <img :src="module.icon">
-                                </div>
-                                <div class="info-area">
-                                    <div class="title">{{ module.displayName }}</div>
-                                    <div class="publisher">By {{ module.publisherDisplayName }}</div>
-                                    <div class="description">{{ module.summary }}</div>
-                                </div>
+                            <div class="info-area">
+                                <div class="title">{{ module.displayName }}</div>
+                                <div class="publisher">By {{ module.publisherDisplayName }}</div>
+                                <div class="description">{{ module.summary }}</div>
                             </div>
                         </div>
+                    </div>
                 </div>
                 <div v-else id="error-initialization">
                     Fail to fetch IoT Edge modules from Azure Marketplace. Please retry. <br />
@@ -46,9 +46,9 @@
                         <input v-model="moduleName">
                     </div>
                     <div class="error" v-if="errorMessageModuleName">
-                            {{ errorMessageModuleName }}
+                        {{ errorMessageModuleName }}
                     </div>
-                    <div class="input"> 
+                    <div class="input">
                         <label>Tags: </label>
                         <select v-model="selectedTag">
                             <option v-for="tag in selectedModule.metadata.tagsOrDigests">{{ tag }}</option>
@@ -60,11 +60,13 @@
                     <button v-on:click="selectedModule.id=''">Cancel</button>
                 </div>
                 <div class="term-of-use">
-                    I agree to the provider's <a :href="selectedModule.legalTermsUri">Term of Use</a> and <a :href="selectedModule.privacyPolicyUri">Privacy Policy</a> and understand that the rights to use this product do not come from Microsoft, unless Microsoft is the provider. Use of Azure Marketplace is governed by separate <a href="https://aka.ms/azuremarketplaceterms">terms</a>.
+                    I agree to the provider's <a :href="selectedModule.legalTermsUri">Term of Use</a> and <a :href="selectedModule.privacyPolicyUri">Privacy
+                        Policy</a> and understand that the rights to use this product do not come from Microsoft,
+                    unless Microsoft is the provider. Use of Azure Marketplace is governed by separate <a href="https://aka.ms/azuremarketplaceterms">terms</a>.
                 </div>
                 <div v-if="selectedModule.links && selectedModule.links.length > 0">
                     <div class="learn-more"> Learn more </div>
-                    <div class="learn-more-links"> 
+                    <div class="learn-more-links">
                         <div v-for="link in selectedModule.links" class="link">
                             <a :href="link.uri">{{ link.displayName }}</a>
                         </div>

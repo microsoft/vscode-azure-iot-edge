@@ -8,6 +8,7 @@ import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
 import { LearnMoreError } from "./common/LearnMoreError";
+import { ModuleInfo } from "./common/moduleInfo";
 import { NSAT } from "./common/nsat";
 import { Platform } from "./common/platform";
 import { TelemetryClient } from "./common/telemetryClient";
@@ -176,6 +177,12 @@ export function activate(context: vscode.ExtensionContext) {
         "azure-iot-edge.initializeSample",
         async (name: string, url: string, platform: string): Promise<void> => {
             return edgeManager.initializeSample(name, url, platform, outputChannel);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.internal.addModule",
+        async (templateFile: string, isNewSolution: boolean, moduleInfo: ModuleInfo, template: string): Promise<void> => {
+            return edgeManager.addModule(templateFile, outputChannel, isNewSolution, moduleInfo, template);
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

@@ -39,7 +39,7 @@ export class Constants {
     public static STREAM_ANALYTICS = "Azure Stream Analytics";
     public static ACR_MODULE = "Existing Module (Import from ACR)";
     public static EXISTING_MODULE = "Existing Module (Enter Full Image URL)";
-    public static MARKETPLACE_MODULE = "Module on Azure Marketplace";
+    public static MARKETPLACE_MODULE = "Module from Azure Marketplace";
     public static LANGUAGE_CSHARP_DESCRIPTION = "Use Azure IoT C# SDK to build a module";
     public static LANGUAGE_NODE_DESCRIPTION = "Use Azure IoT Node.js SDK to build a module";
     public static LANGUAGE_PYTHON_DESCRIPTION = "Use Azure IoT Python SDK to build a module";

@@ -83,6 +83,7 @@ body {
     margin-bottom: 20px;
     border-width: 1px;
     border-style: solid;
+    cursor: pointer;
 }
 .vscode-dark .module {
     border-color: #383838;

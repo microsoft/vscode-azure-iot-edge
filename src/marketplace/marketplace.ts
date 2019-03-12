@@ -22,18 +22,15 @@ export class Marketplace {
     private static instance: Marketplace;
     private panel: vscode.WebviewPanel;
     private localServer: LocalServer;
-    private edgeManager: EdgeManager;
     private templateFile: string;
-    private outputChannel: vscode.OutputChannel;
     private isNewSolution: boolean;
-    private modules: string[];
 
     private constructor(private context: vscode.ExtensionContext) {
         this.localServer = new LocalServer(context);
     }
 
-    public async openMarketplacePage(edgeManager: EdgeManager, templateFile: string, outputChannel: vscode.OutputChannel, isNewSolution: boolean, modules: string[]): Promise<any> {
-        this.setStatus(edgeManager, templateFile, outputChannel, isNewSolution, modules);
+    public async openMarketplacePage(templateFile: string, isNewSolution: boolean, modules: string[]): Promise<any> {
+        this.setStatus(templateFile, isNewSolution, modules);
         if (!this.panel) {
             this.localServer.startServer();
             this.panel = vscode.window.createWebviewPanel(
@@ -66,16 +63,13 @@ export class Marketplace {
             const repositoryName = Utility.getRepositoryNameFromImageName(message.imageName);
             const moduleInfo = new ModuleInfo(message.moduleName, repositoryName, message.imageName, message.twins, message.createOptions,
                 message.imageName, message.createOptions, message.routes, message.environmentVariables);
-            await this.edgeManager.addModule(this.templateFile, this.outputChannel, this.isNewSolution, moduleInfo, Constants.MARKETPLACE_MODULE);
+            await vscode.commands.executeCommand("azure-iot-edge.internal.addModule", this.templateFile, this.isNewSolution, moduleInfo, Constants.MARKETPLACE_MODULE);
         }, undefined, this.context.subscriptions);
     }
 
-    private setStatus(edgeManager: EdgeManager, templateFile: string, outputChannel: vscode.OutputChannel, isNewSolution: boolean, modules: string[]) {
+    private setStatus(templateFile: string, isNewSolution: boolean, modules: string[]) {
         this.localServer.modules = modules;
-        this.edgeManager = edgeManager;
         this.templateFile = templateFile;
-        this.outputChannel = outputChannel;
         this.isNewSolution = isNewSolution;
-        this.modules = modules;
     }
 }

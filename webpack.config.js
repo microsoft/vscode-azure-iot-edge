@@ -58,6 +58,11 @@ const config = {
             false,
             /$^/
         ),
+        new webpack.ContextReplacementPlugin(
+            /express[\/\\]lib/,
+            false,
+            /$^/
+        ),
         // Fail on warnings so that CI can report new warnings which requires attention
         new failOnErrorsPlugin({
             failOnErrors: true,

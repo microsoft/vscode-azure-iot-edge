@@ -8,6 +8,7 @@ import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
 import { LearnMoreError } from "./common/LearnMoreError";
+import { ModuleInfo } from "./common/moduleInfo";
 import { NSAT } from "./common/nsat";
 import { Platform } from "./common/platform";
 import { TelemetryClient } from "./common/telemetryClient";
@@ -19,6 +20,7 @@ import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionIte
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
 import { ConfigHoverProvider } from "./intelliSense/configHoverProvider";
+import { Marketplace } from "./marketplace/marketplace";
 import { IDeviceItem } from "./typings/IDeviceItem";
 
 // Work around TLS issue in Node.js >= 8.6.0
@@ -30,7 +32,6 @@ export function activate(context: vscode.ExtensionContext) {
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     Simulator.validateSimulatorUpdated(outputChannel);
     const edgeManager = new EdgeManager(context);
-
     const simulator = new Simulator(context);
     const containerManager = new ContainerManager(simulator);
 
@@ -176,6 +177,12 @@ export function activate(context: vscode.ExtensionContext) {
         "azure-iot-edge.initializeSample",
         async (name: string, url: string, platform: string): Promise<void> => {
             return edgeManager.initializeSample(name, url, platform, outputChannel);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.internal.addModule",
+        async (templateFile: string, isNewSolution: boolean, moduleInfo: ModuleInfo, template: string): Promise<void> => {
+            return edgeManager.addModule(templateFile, outputChannel, isNewSolution, moduleInfo, template);
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

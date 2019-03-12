@@ -771,9 +771,9 @@ export class EdgeManager {
     }
 
     private async populateStaticEnv(envFile: string, usernameEnv: string, passwordEnv: string, debugUsernameEnv?: string, debugPasswordEnv?: string): Promise<void> {
-        let envContent = `${usernameEnv}=\n${passwordEnv}=\n`;
+        let envContent = `\n${usernameEnv}=\n${passwordEnv}=\n`;
         if (debugUsernameEnv && debugUsernameEnv !== usernameEnv) {
-            envContent = `${envContent}${debugUsernameEnv}=\n${debugPasswordEnv}=\n`;
+            envContent = `\n${envContent}${debugUsernameEnv}=\n${debugPasswordEnv}=\n`;
         }
         await fse.ensureFile(envFile);
         await fse.appendFile(envFile, envContent, { encoding: "utf8" });
@@ -790,9 +790,9 @@ export class EdgeManager {
             console.error(err);
         }
         if (cred && cred.username !== undefined) {
-            let envContent = `${usernameEnv}=${cred.username}\n${passwordEnv}=${cred.password}\n`;
+            let envContent = `\n${usernameEnv}=${cred.username}\n${passwordEnv}=${cred.password}\n`;
             if (debugUsernameEnv && debugUsernameEnv !== usernameEnv) {
-                envContent = `${envContent}${debugUsernameEnv}=${cred.username}\n${debugPasswordEnv}=${cred.password}\n`;
+                envContent = `\n${envContent}${debugUsernameEnv}=${cred.username}\n${debugPasswordEnv}=${cred.password}\n`;
             }
             await fse.ensureFile(envFile);
             await fse.appendFile(envFile, envContent, { encoding: "utf8" });

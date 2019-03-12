@@ -294,6 +294,16 @@
         }
       }
     },
+    "jsonValidation": [
+      {
+        "fileMatch": "deployment.template.json",
+        "url": "http://json.schemastore.org/azure-iot-edge-deployment-template-1.0"
+      },
+      {
+        "fileMatch": "deployment.*.template.json",
+        "url": "http://json.schemastore.org/azure-iot-edge-deployment-template-1.0"
+      }
+    ],
     "debuggers": [
       {
         "type": "edge-coreclr",

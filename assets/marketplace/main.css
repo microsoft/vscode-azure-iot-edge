@@ -176,6 +176,20 @@ body {
     background-color: #F7F7F7;
 }
 
+#module-detail-container {
+    display: flex;
+    max-width: 1200px;
+}
+
+#module-detail .info-item {
+    flex: 3;
+}
+
+#module-detail .learn-more-item {
+    flex: 1;
+    padding-left: 30px;
+}
+
 #module-detail .title {
     font-size: 24px;
     line-height: 28px;
@@ -194,7 +208,7 @@ body {
 
 #module-detail .description {
     padding-top: 5px;
-    font-size: 15px;
+    font-size: 13px;
 }
 
 #module-detail .inputs {
@@ -259,7 +273,7 @@ body {
     font-size: 18px;
     letter-spacing: 0;
     line-height: 22px;
-    margin-top: 20px;
+    margin-top: 5px;
 }
 
 #module-detail .learn-more-links {

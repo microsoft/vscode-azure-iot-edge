@@ -31,15 +31,14 @@ const app = new Vue({
         getModuleMetadata: async function (module) {
             const data = (await axios.get(module.iotEdgeMetadataUrl)).data;
             let repository = data.containerUri;
-            let defaultTag = data.tagsOrDigests[0];
+            let defaultTag = data.tagsOrDigests.includes("latest") ? "latest" : data.tagsOrDigests[0];
             let splitArr = data.containerUri.split(":");
             if (splitArr.length > 1) {
-                const tag = splitArr.pop();
-                if (data.tagsOrDigests.includes(tag)) {
-                    repository = splitArr.join(":");
-                    defaultTag = tag;
+                defaultTag = splitArr.pop();
+                repository = splitArr.join(":");
+                if (!data.tagsOrDigests.includes(defaultTag)) {
+                    data.tagsOrDigests.push(defaultTag);
                 }
-                
             }
 
             data.repository = repository;
@@ -84,10 +83,15 @@ const app = new Vue({
                     "properties.desired": twinObject
                 }
             }
+            let createOptions = this.selectedModule.metadata.createOptions;
+            try {
+                createOptions = JSON.parse(createOptions);
+            } catch (error) {}
             vscode.postMessage({
+                id: this.selectedModule.id,
                 moduleName: this.moduleName,
                 imageName: this.selectedModule.metadata.repository + ":" + this.selectedTag,
-                createOptions: this.selectedModule.metadata.createOptions,
+                createOptions,
                 routes: this.selectedModule.metadata.routes,
                 twins,
                 environmentVariables,

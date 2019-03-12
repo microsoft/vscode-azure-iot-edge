@@ -13,7 +13,12 @@
                 <div v-if="!errorMessageInitialization">
                     <header>
                         <div id="title-area">
-                            <h1>You are importing IoT Edge modules from Azure Marketplace</h1>
+                            <div v-if="!searchInput">
+                                <h1>Azure IoT Edge Module Marketplace ({{ this.filteredModules.length }})</h1>
+                            </div>
+                            <div v-else>
+                                <h1>Result for {{ searchInput }} ({{ this.filteredModules.length }})</h1>
+                            </div>
                             <input id="search-box" v-model="searchInput" placeholder="Search">
                         </div>
                     </header>
@@ -37,38 +42,44 @@
                 </div>
             </div>
             <div id="module-detail" v-if="selectedModule.id">
-                <div class="title"> {{ selectedModule.displayName }} </div>
-                <div class="publisher">By {{ selectedModule.publisherDisplayName }}</div>
-                <div class="description">{{ selectedModule.longSummary }}</div>
-                <div class="inputs">
-                    <div class="input">
-                        <label>Module Name: </label>
-                        <input v-model="moduleName">
+                <div id="module-detail-container">
+                    <div class="info-item">
+                        <div class="title"> {{ selectedModule.displayName }} </div>
+                        <div class="publisher">By {{ selectedModule.publisherDisplayName }}</div>
+                        <div class="description" v-html="selectedModule.description"></div>
+                        <div class="inputs">
+                            <div class="input">
+                                <label>Module Name: </label>
+                                <input v-model="moduleName">
+                            </div>
+                            <div class="error" v-if="errorMessageModuleName">
+                                {{ errorMessageModuleName }}
+                            </div>
+                            <div class="input">
+                                <label>Tags: </label>
+                                <select v-model="selectedTag">
+                                    <option v-for="tag in selectedModule.metadata.tagsOrDigests">{{ tag }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="action">
+                            <button v-on:click="importModule()">Import</button>
+                            <button v-on:click="selectedModule.id=''">Cancel</button>
+                        </div>
+                        <div class="term-of-use">
+                            I agree to the provider's <a :href="selectedModule.legalTermsUri">Term of Use</a> and <a :href="selectedModule.privacyPolicyUri">Privacy
+                                Policy</a> and understand that the rights to use this product do not come from Microsoft,
+                            unless Microsoft is the provider. Use of Azure Marketplace is governed by separate <a href="https://aka.ms/azuremarketplaceterms">terms</a>.
+                        </div>
                     </div>
-                    <div class="error" v-if="errorMessageModuleName">
-                        {{ errorMessageModuleName }}
-                    </div>
-                    <div class="input">
-                        <label>Tags: </label>
-                        <select v-model="selectedTag">
-                            <option v-for="tag in selectedModule.metadata.tagsOrDigests">{{ tag }}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="action">
-                    <button v-on:click="importModule()">Import</button>
-                    <button v-on:click="selectedModule.id=''">Cancel</button>
-                </div>
-                <div class="term-of-use">
-                    I agree to the provider's <a :href="selectedModule.legalTermsUri">Term of Use</a> and <a :href="selectedModule.privacyPolicyUri">Privacy
-                        Policy</a> and understand that the rights to use this product do not come from Microsoft,
-                    unless Microsoft is the provider. Use of Azure Marketplace is governed by separate <a href="https://aka.ms/azuremarketplaceterms">terms</a>.
-                </div>
-                <div v-if="selectedModule.links && selectedModule.links.length > 0">
-                    <div class="learn-more"> Learn more </div>
-                    <div class="learn-more-links">
-                        <div v-for="link in selectedModule.links" class="link">
-                            <a :href="link.uri">{{ link.displayName }}</a>
+                    <div class="learn-more-item">
+                        <div v-if="selectedModule.links && selectedModule.links.length > 0">
+                            <div class="learn-more"> Learn more </div>
+                            <div class="learn-more-links">
+                                <div v-for="link in selectedModule.links" class="link">
+                                    <a :href="link.uri">{{ link.displayName }}</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

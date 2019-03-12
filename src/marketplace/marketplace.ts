@@ -59,12 +59,12 @@ export class Marketplace {
         }
 
         this.panel.webview.onDidReceiveMessage(async (message) => {
+            TelemetryClient.sendEvent("addMarketplaceModule", { moduleId: message.id });
             this.panel.dispose();
             const repositoryName = Utility.getRepositoryNameFromImageName(message.imageName);
             const moduleInfo = new ModuleInfo(message.moduleName, repositoryName, message.imageName, message.twins, message.createOptions,
                 message.imageName, message.createOptions, message.routes, message.environmentVariables);
             await vscode.commands.executeCommand("azure-iot-edge.internal.addModule", this.templateFile, this.isNewSolution, moduleInfo, Constants.MARKETPLACE_MODULE);
-            TelemetryClient.sendEvent("addMarketplaceModule", { moduleId: message.id });
         }, undefined, this.context.subscriptions);
     }
 

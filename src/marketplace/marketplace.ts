@@ -7,8 +7,8 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { ModuleInfo } from "../common/moduleInfo";
+import { TelemetryClient } from "../common/telemetryClient";
 import { Utility } from "../common/utility";
-import { EdgeManager } from "../edge/edgeManager";
 import { LocalServer } from "./localserver";
 
 export class Marketplace {
@@ -59,6 +59,7 @@ export class Marketplace {
         }
 
         this.panel.webview.onDidReceiveMessage(async (message) => {
+            TelemetryClient.sendEvent("addMarketplaceModule", { moduleId: message.id });
             this.panel.dispose();
             const repositoryName = Utility.getRepositoryNameFromImageName(message.imageName);
             const moduleInfo = new ModuleInfo(message.moduleName, repositoryName, message.imageName, message.twins, message.createOptions,

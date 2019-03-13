@@ -218,7 +218,6 @@ body {
 
 #module-detail .input {
     margin-top: 10px;
-    width: 200px;
 }
 
 #module-detail .input label {
@@ -227,9 +226,13 @@ body {
     float: left;
 }
 
+#module-detail input {
+    padding-left: 5px;
+}
+
 #module-detail input,
 #module-detail select {
-    
+    width: 200px;
     border-style: none;
 }
 .vscode-dark #module-detail input,

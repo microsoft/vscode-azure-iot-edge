@@ -217,7 +217,8 @@ body {
 }
 
 #module-detail .input {
-    margin-top: 10px
+    margin-top: 10px;
+    width: 200px;
 }
 
 #module-detail .input label {

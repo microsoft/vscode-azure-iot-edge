@@ -51,6 +51,7 @@ const app = new Vue({
             const metadata = await this.getModuleMetadata(module);
             this.selectedModule = Object.assign({}, module);
             this.selectedModule.metadata = metadata;
+            this.moduleName = this.selectedModule.displayName.replace(/[^a-zA-Z]/g, '');
             this.selectedTag = this.selectedModule.metadata.defaultTag;
         },
         importModule: async function () {

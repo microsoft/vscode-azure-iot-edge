@@ -78,7 +78,11 @@ const app = new Vue({
             if (this.selectedModule.metadata.twins && this.selectedModule.metadata.twins.length > 0) {
                 const twinObject = {};
                 for (const twin of this.selectedModule.metadata.twins) {
-                    twinObject[twin.name] =  twin.value
+                    let twinValue = twin.value;
+                    try {
+                        twinValue = JSON.parse(twinValue);
+                    } catch (error) {}
+                    twinObject[twin.name] =  twinValue;
                 }
                 twins = {
                     "properties.desired": twinObject

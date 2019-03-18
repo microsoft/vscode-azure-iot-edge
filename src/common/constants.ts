@@ -14,6 +14,7 @@ export class Constants {
     public static deploymentTemplatePattern = "**/deployment.template.json";
     public static debugDeploymentTemplatePattern = "**/deployment.debug.template.json";
     public static tsonPattern = "**/*.template.json";
+    public static deploymentTsonPattern = "**/deploymemt.?(*.)template.json";
     public static tson = ".template.json";
     public static deploymentTemplateDesc = "Deployment Template file";
     public static deploymentFilePattern = "**/deployment.json";

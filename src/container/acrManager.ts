@@ -103,7 +103,11 @@ export class AcrManager {
     }
 
     private async selectAcrRepo(registryUrl: string, session: AzureSession): Promise<vscode.QuickPickItem> {
-        const acrRepoItem: vscode.QuickPickItem = await vscode.window.showQuickPick(this.loadAcrRepoItems(registryUrl, session), { placeHolder: "Select Repository", ignoreFocusOut: true });
+        const repoItems = await this.loadAcrRepoItems(registryUrl, session);
+        if (repoItems === undefined) {
+            return;
+        }
+        const acrRepoItem: vscode.QuickPickItem = await vscode.window.showQuickPick(repoItems, { placeHolder: "Select Repository", ignoreFocusOut: true });
         return acrRepoItem;
     }
 
@@ -121,6 +125,12 @@ export class AcrManager {
 
             const repoItems: vscode.QuickPickItem[] = [];
             const repos = JSON.parse(catalogResponse).repositories;
+
+            if (!repos) {
+                vscode.window.showWarningMessage("There is no repository in the registry.");
+                return;
+            }
+
             repos.map((repo) => {
                 repoItems.push({
                     label: repo,

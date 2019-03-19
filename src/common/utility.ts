@@ -566,6 +566,10 @@ export class Utility {
         if (name.match(/[^a-zA-Z0-9\_]/)) {
             return "The name must contain only alphanumeric characters or the symbol _";
         }
+        if (name.match(/^\d/)) {
+            return "The name cannot start with number";
+        }
+
         if (parentPath) {
             const folderPath = path.join(parentPath, name);
             if (await fse.pathExists(folderPath)) {

@@ -563,11 +563,8 @@ export class Utility {
         if (name.startsWith("_") || name.endsWith("_")) {
             return "The name must not start or end with the symbol _";
         }
-        if (name.match(/[^a-zA-Z0-9\_]/)) {
-            return "The name must contain only alphanumeric characters or the symbol _";
-        }
-        if (name.match(/^\d/)) {
-            return "The name cannot start with number";
+        if (!name.match(/^[a-zA-Z][a-zA-Z0-9_]*$/)) {
+            return "The name must contain only alphanumeric characters or the symbol _, and cannot start with number";
         }
 
         if (parentPath) {

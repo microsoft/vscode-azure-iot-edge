@@ -103,16 +103,12 @@ export class AcrManager {
     }
 
     private async selectAcrRepo(registryUrl: string, session: AzureSession): Promise<vscode.QuickPickItem> {
-        const repoItems = await this.loadAcrRepoItems(registryUrl, session);
-        if (!repoItems) {
-            vscode.window.showWarningMessage("There is no repository in the registry.");
-            return;
-        }
-        const acrRepoItem: vscode.QuickPickItem = await vscode.window.showQuickPick(repoItems, { placeHolder: "Select Repository", ignoreFocusOut: true });
+        const acrRepoItem: vscode.QuickPickItem = await vscode.window.showQuickPick(this.loadAcrRepoItems(registryUrl, session), { placeHolder: "Select Repository", ignoreFocusOut: true });
         return acrRepoItem;
     }
 
     private async loadAcrRepoItems(registryUrl: string, session: AzureSession): Promise<vscode.QuickPickItem[]> {
+        let isEmptyRegistry = false;
         try {
             const { aadAccessToken, aadRefreshToken } = await Utility.acquireAadToken(session);
             this.acrRefreshToken = await this.acquireAcrRefreshToken(registryUrl, session.tenantId, aadRefreshToken, aadAccessToken);
@@ -128,7 +124,8 @@ export class AcrManager {
             const repos = JSON.parse(catalogResponse).repositories;
 
             if (!repos) {
-                return null;
+                isEmptyRegistry = true;
+                throw new Error("There is no repository in the registry.");
             }
 
             repos.map((repo) => {
@@ -142,7 +139,7 @@ export class AcrManager {
         } catch (error) {
             error.message = `Error fetching repository list: ${error.message}`;
 
-            if (error.statusCode === 404) {
+            if (error.statusCode === 404 || isEmptyRegistry) {
                 error.message = `Please make sure that there is at least one repository in the registry. ${error.message}`;
             }
 

@@ -309,7 +309,7 @@ export class EdgeManager {
             }
         }
 
-        await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
+        const isProjCreated = await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
 
         const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleName, extraProps);
         if (debugGenerated) {
@@ -341,7 +341,7 @@ export class EdgeManager {
 
         if (!isNewSolution) {
             const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "are updated.";
-            const moduleCreationMessage = template === Constants.EXISTING_MODULE ? "" : `Module '${moduleName}' has been created. `;
+            const moduleCreationMessage = isProjCreated ? `Module '${moduleName}' has been created. ` : "";
             const deploymentTemlateMessage = debugExist ? "deployment.template.json, deployment.debug.template.json" : "deployment.template.json";
             vscode.window.showInformationMessage(`${moduleCreationMessage} ${deploymentTemlateMessage} ${launchUpdated}`);
         }
@@ -458,7 +458,9 @@ export class EdgeManager {
         }
 
         let result = { registries: {}, usernameEnv: undefined, passwordEnv: undefined };
-        result = await this.updateRegistrySettings(address, registries, envFilePath);
+        if (!moduleInfo.isPublic) {
+            result = await this.updateRegistrySettings(address, registries, envFilePath);
+        }
 
         const imageName = isDebug ? moduleInfo.debugImageName : moduleInfo.imageName;
         const createOptions = isDebug ? moduleInfo.debugCreateOptions : moduleInfo.createOptions;
@@ -498,8 +500,9 @@ export class EdgeManager {
     private async addModuleProj(parent: string, name: string,
                                 repositoryName: string, template: string,
                                 outputChannel: vscode.OutputChannel,
-                                extraProps?: Map<string, string>): Promise<void> {
+                                extraProps?: Map<string, string>): Promise<boolean> {
         // TODO command to create module;
+        let projCreated: boolean = true;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
                 if (Versions.installCSharpTemplate()) {
@@ -599,9 +602,12 @@ export class EdgeManager {
                         .replace(new RegExp(`\\${Constants.moduleNameSubstitution}`, "g"), name)
                         .replace(new RegExp(`\\${Constants.repositoryNameSubstitution}`, "g"), repositoryName);
                     await Executor.executeCMD(outputChannel, command, { cwd: `${parent}`, shell: true }, "");
+                } else {
+                    projCreated = false;
                 }
                 break;
         }
+        return projCreated;
     }
 
     private async updateRepositoryName(parent: string, name: string, repositoryName: string) {

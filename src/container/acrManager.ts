@@ -121,6 +121,13 @@ export class AcrManager {
 
             const repoItems: vscode.QuickPickItem[] = [];
             const repos = JSON.parse(catalogResponse).repositories;
+
+            if (!repos) {
+                const error: any = new Error("There is no repository in the registry.");
+                error.statusCode = 404;
+                throw error;
+            }
+
             repos.map((repo) => {
                 repoItems.push({
                     label: repo,

@@ -25,6 +25,7 @@ import { Marketplace } from "../marketplace/marketplace";
 
 export class EdgeManager {
 
+    private panel: vscode.WebviewPanel;
     constructor(private context: vscode.ExtensionContext) {
     }
 
@@ -182,30 +183,38 @@ export class EdgeManager {
     }
 
     public async loadWebView(outputChannel: vscode.OutputChannel) {
-      const panel = vscode.window.createWebviewPanel(Constants.galleryPanelViewType, Constants.galleryPanelViewTitle, vscode.ViewColumn.One, {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-      });
+        if (!this.panel) {
+            this.panel = vscode.window.createWebviewPanel(Constants.galleryPanelViewType, Constants.galleryPanelViewTitle, vscode.ViewColumn.One, {
+                enableScripts: true,
+                retainContextWhenHidden: true,
+            });
 
-      const srcPath: string = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.galleryAssetsFolder, Constants.galleryIndexHtmlName));
-      panel.webview.html = await this.getWebViewContent(srcPath);
+            const srcPath: string = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.galleryAssetsFolder, Constants.galleryIndexHtmlName));
+            this.panel.webview.html = await this.getWebViewContent(srcPath);
 
-      // Handle messages from the webview
-      panel.webview.onDidReceiveMessage(async (message) => {
-        switch (message.command) {
-          case "openSample":
-            if (message.name && message.url) {
-              await vscode.commands.executeCommand("azure-iot-edge.initializeSample", message.name, message.url, message.platform);
-            }
-            break;
-          case "openLink":
-            if (message.url) {
-              TelemetryClient.sendEvent(Constants.openSampleUrlEvent, {Url: message.url});
-              await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(message.url));
-            }
-            break;
+            // Handle messages from the webview
+            this.panel.webview.onDidReceiveMessage(async (message) => {
+                switch (message.command) {
+                case "openSample":
+                    if (message.name && message.url) {
+                    await vscode.commands.executeCommand("azure-iot-edge.initializeSample", message.name, message.url, message.platform);
+                    }
+                    break;
+                case "openLink":
+                    if (message.url) {
+                    TelemetryClient.sendEvent(Constants.openSampleUrlEvent, {Url: message.url});
+                    await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(message.url));
+                    }
+                    break;
+                }
+            }, undefined, this.context.subscriptions);
+
+            this.panel.onDidDispose(() => {
+                this.panel = null;
+            });
+        } else {
+            this.panel.reveal();
         }
-      }, undefined, this.context.subscriptions);
     }
 
     public async getWebViewContent(templatePath: string): Promise<string> {

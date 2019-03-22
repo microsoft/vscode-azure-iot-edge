@@ -15,10 +15,10 @@
 
 ![Added](images/multipleplatform.gif)
 
-## What's New (v1.10.0)
+## What's New (v1.11.0)
 ### Added
-* Add sample gallery page. User can view and create Azure IoT Edge solution based on samples.
-* Add issue template
+* Add IoT Edge Marketplace page. User can view and create IoT Edge modules from Azure Marketplace.
+* Add json schema validation for deployment.*.template.json file.
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

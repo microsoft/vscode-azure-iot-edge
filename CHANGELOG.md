@@ -1,4 +1,9 @@
 # Change Log
+## 1.11.0 - 2019-03-22
+### Added
+* Add IoT Edge marketplace. User can view and create Edge modules from marketplace.
+* Add json schema validation for deployment.*.template.json file.
+
 ## 1.10.0 - 2019-02-19
 ### Added
 * Add sample gallery page. User can view and create Azure IoT Edge solution based on samples.

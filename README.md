@@ -17,7 +17,7 @@
 
 ## What's New (v1.11.0)
 ### Added
-* Add IoT Edge marketplace. User can view and create IoT Edge modules from Azure Marketplace.
+* Add IoT Edge Marketplace page. User can view and create IoT Edge modules from Azure Marketplace.
 * Add json schema validation for deployment.*.template.json file.
 
 ## Known Issues

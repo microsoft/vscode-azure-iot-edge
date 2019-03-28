@@ -16,11 +16,11 @@ import { UserCancelledError } from "./common/UserCancelledError";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
 import { Simulator } from "./edge/simulator";
+import { Gallery } from "./gallery/gallery";
 import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionItemProvider";
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
 import { ConfigHoverProvider } from "./intelliSense/configHoverProvider";
-import { Marketplace } from "./marketplace/marketplace";
 import { IDeviceItem } from "./typings/IDeviceItem";
 
 // Work around TLS issue in Node.js >= 8.6.0
@@ -32,6 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
     Simulator.validateSimulatorUpdated(outputChannel);
     const edgeManager = new EdgeManager(context);
+    const gallery = new Gallery(context);
     const simulator = new Simulator(context);
     const containerManager = new ContainerManager(simulator);
 
@@ -170,13 +171,13 @@ export function activate(context: vscode.ExtensionContext) {
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.showGallery",
         async (): Promise<void> => {
-          return edgeManager.loadWebView(outputChannel);
+          return gallery.loadWebView();
         });
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.initializeSample",
         async (name: string, url: string, platform: string): Promise<void> => {
-            return edgeManager.initializeSample(name, url, platform, outputChannel);
+            return gallery.initializeSample(name, url, platform, outputChannel);
         });
 
     initCommandAsync(context, outputChannel,

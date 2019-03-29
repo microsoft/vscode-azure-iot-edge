@@ -582,6 +582,58 @@ export class Utility {
         return undefined;
     }
 
+    public static async getSolutionParentFolder(): Promise<string | undefined> {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        const defaultFolder: vscode.Uri | undefined = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri : undefined;
+        const selectedUri: vscode.Uri[] | undefined = await vscode.window.showOpenDialog({
+            defaultUri: defaultFolder,
+            openLabel: Constants.parentFolderLabel,
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+        });
+
+        if (!selectedUri || selectedUri.length === 0) {
+            return undefined;
+        }
+
+        return selectedUri[0].fsPath;
+    }
+
+    public static async inputSolutionName(parentPath: string, defaultName: string): Promise<string> {
+        const validateFunc = async (name: string): Promise<string> => {
+            return await Utility.validateSolutionName(name, parentPath);
+        };
+        return await Utility.showInputBox(Constants.solutionName,
+            Constants.solutionNamePrompt,
+            validateFunc, defaultName);
+    }
+
+    public static async inputModuleName(parentPath?: string, modules?: string[]): Promise<string> {
+        const validateFunc = async (name: string): Promise<string> => {
+            return await Utility.validateInputName(name, parentPath) || Utility.validateModuleExistence(name, modules);
+        };
+        return await Utility.showInputBox(Constants.moduleName,
+            Constants.moduleNamePrompt,
+            validateFunc, Constants.moduleNameDft);
+    }
+
+    private static async validateSolutionName(name: string, parentPath?: string): Promise<string | undefined> {
+        if (!name || name.trim() === "") {
+            return "The name could not be empty";
+        }
+        if (name.match(/[/\\:*?\"<>|]/)) {
+            return "Solution name can't contain characters: /\:*?<>|";
+        }
+        if (parentPath) {
+            const folderPath = path.join(parentPath, name);
+            if (await fse.pathExists(folderPath)) {
+                return `${name} already exists under ${parentPath}`;
+            }
+        }
+        return undefined;
+    }
+
     private static expandPlacesHolders(pattern: RegExp, input: string, valMap: Map<string, string>): string {
         return input.replace(pattern, (matched) => {
             const key: string = matched.replace(/\$|{|}/g, "");

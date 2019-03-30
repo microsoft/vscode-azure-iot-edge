@@ -96,13 +96,16 @@ export class LocalServer {
                         } else {
                             item.iotEdgeMetadataUrl = null;
                         }
+                    }
 
-                        const iconFileUris = item.iconFileUris;
-                        if (iconFileUris && iconFileUris.small) {
-                            item.icon = iconFileUris.small;
-                        } else {
-                            item.icon = null;
-                        }
+                    const iconFileUris = item.iconFileUris;
+                    if (iconFileUris && iconFileUris.small) {
+                        item.icon = iconFileUris.small;
+                    } else {
+                        item.icon = null;
+                    }
+
+                    if (item.iotEdgeMetadataUrl) {
                         result.push(item);
                     }
                 }

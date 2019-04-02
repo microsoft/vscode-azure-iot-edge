@@ -1,4 +1,8 @@
 # Change Log
+## 1.11.1 - 2019-03-30
+### Changed
+* Marketplace integration hotfix
+
 ## 1.11.0 - 2019-03-22
 ### Added
 * Add IoT Edge Marketplace page. User can view and create IoT Edge modules from Azure Marketplace.
@@ -68,7 +72,7 @@
 ## 1.2.0 - 2018-08-09
 ### Changed
 * `Azure IoT Edge: Build IoT Edge Solution` does not push images anymore
-  
+
 ### Added
 * Integerate with [iotedgehubdev](https://pypi.org/project/iotedgehubdev/) tool
 * Azure IoT Edge: Build and Push IoT Edge Solution
@@ -98,7 +102,7 @@
 ## 1.0.0 - 2018-06-27
 ### Added
 * Add "Add IoT Edge Module" item to the context menu of "modules" folder
-* Add support for Node.js module 
+* Add support for Node.js module
 
 ### Changed
 * Default route is added into deployment.template.json when adding module

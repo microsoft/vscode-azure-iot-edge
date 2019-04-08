@@ -17,4 +17,9 @@ export class Configuration {
     public static async setWorkspaceConfigurationProperty(id: string, value: any): Promise<void> {
         await Configuration.getConfiguration().update(id, value, false);
     }
+
+    public static getIotHubConnectionString(): string | undefined {
+        const toolkitConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("azure-iot-toolkit");
+        return toolkitConfig ? toolkitConfig.get("iotHubConnectionString") : undefined;
+    }
 }

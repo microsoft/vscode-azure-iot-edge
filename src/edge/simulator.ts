@@ -161,7 +161,14 @@ export class Simulator {
         return await this.callWithInstallationCheck(outputChannel, async () => {
             deviceItem = await Utility.getInputDevice(deviceItem, outputChannel);
             if (deviceItem) {
-                Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev setup -c "${deviceItem.connectionString}"`));
+                let commandStr = `iotedgehubdev setup -c "${deviceItem.connectionString}"`;
+                if (await this.isModuleTwinSupported()) {
+                    const iotHubConnectionStr = Configuration.getIotHubConnectionString();
+                    if (iotHubConnectionStr) {
+                        commandStr = `${commandStr} -i "${iotHubConnectionStr}"`;
+                    }
+                }
+                Executor.runInTerminal(Utility.adjustTerminalCommand(commandStr));
             }
         });
     }
@@ -214,6 +221,18 @@ export class Simulator {
             Executor.runInTerminal(Utility.combineCommands(commands), this.getRunCmdTerminalTitle());
             return;
         });
+    }
+
+    private async isModuleTwinSupported(): Promise<boolean> {
+        let isSupported = false;
+        try {
+            const output = await Executor.executeCMD(undefined, "iotedgehubdev", { shell: true }, "--version");
+            const version: string | null = Simulator.extractVersion(output);
+            if (version && semver.valid(version)) {
+                isSupported =  semver.gte(version, "0.8.0");
+            }
+        } catch (err) {}
+        return isSupported;
     }
 
     private constructRunCmd(deployFile: string): string {

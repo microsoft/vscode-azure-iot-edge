@@ -1,4 +1,11 @@
 # Change Log
+## 1.12.0 - 2019-04-XX
+### Added
+* Integrate the new setup option from [iotedgehubdev v0.8.0](https://github.com/Azure/iotedgehubdev/releases/tag/v0.8.0) to setup Azure IoT Hub connection string. So now module twin will be updated automatically when running deployment in simulator.
+
+### Changed
+* Only one sample gallery page will be opened in VS Code [#414](https://github.com/Microsoft/vscode-azure-iot-edge/issues/414)
+
 ## 1.11.1 - 2019-03-30
 ### Changed
 * Marketplace integration hotfix

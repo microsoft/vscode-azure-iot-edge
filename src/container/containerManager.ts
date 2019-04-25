@@ -72,7 +72,7 @@ export class ContainerManager {
         const imageToBuildSettings: Map<string, BuildSettings> = new Map();
         const slnPath: string = path.dirname(templateFile);
         await Utility.loadEnv(path.join(slnPath, Constants.envFile));
-        await Utility.setSlnModulesMap(slnPath, moduleToImageMap, imageToBuildSettings);
+        await Utility.setSlnModulesMap(slnPath, templateFile, moduleToImageMap, imageToBuildSettings);
         const configPath: string = path.join(slnPath, Constants.outputConfig);
         const deployment: any = await this.generateDeploymentInfo(templateFile, configPath, moduleToImageMap);
         const dpManifest: any = deployment.manifestObj;

@@ -238,21 +238,22 @@ export class Utility {
     }
 
     public static async setSlnModulesMap(slnPath: string,
+                                         templateFilePath: string,
                                          moduleToImageMap: Map<string, string>,
                                          imageToBuildSettings?: Map<string, BuildSettings>): Promise<void> {
-        const modulesPath: string = path.join(slnPath, Constants.moduleFolder);
-        if (!await fse.pathExists(modulesPath)) {
-            return;
-        }
-        const stat: fse.Stats = await fse.lstat(modulesPath);
-        if (!stat.isDirectory()) {
-            return;
-        }
-
-        const moduleDirs: string[] = await Utility.getSubDirectories(modulesPath);
+        const moduleDirs: string[] = await Utility.getSubModules(slnPath);
         await Promise.all(
-            moduleDirs.map(async (module) => {
-                await this.setModuleMap(module, moduleToImageMap, imageToBuildSettings);
+            moduleDirs.map(async (modulePath) => {
+                await Utility.setModuleMap(modulePath, path.basename(modulePath), moduleToImageMap, imageToBuildSettings);
+            }),
+        );
+        const externalModuleDirs: string[] = await Utility.getExternalModules(slnPath, templateFilePath);
+        await Promise.all(
+            externalModuleDirs.map(async (module) => {
+                if (module) {
+                    const moduleFullPath = path.resolve(slnPath, module);
+                    await Utility.setModuleMap(moduleFullPath, module, moduleToImageMap, imageToBuildSettings, true);
+                }
             }),
         );
     }
@@ -267,33 +268,32 @@ export class Utility {
         return new BuildSettings(dockerFilePath, context, optionArray);
     }
 
-    public static async setModuleMap(modulePath: string,
+    public static async setModuleMap(moduleFullPath: string,
+                                     moduleKey: string,
                                      moduleToImageMap: Map<string, string>,
-                                     imageToBuildSettings?: Map<string, BuildSettings>): Promise<void> {
-        const moduleFile = path.join(modulePath, Constants.moduleManifest);
-        const name: string = path.basename(modulePath);
+                                     imageToBuildSettings?: Map<string, BuildSettings>,
+                                     isExternal: boolean = false): Promise<void> {
+        const moduleFile = path.join(moduleFullPath, Constants.moduleManifest);
+        // const name: string = isExternal ? modulePath : path.basename(modulePath);
         if (await fse.pathExists(moduleFile)) {
             const module = await Utility.readJsonAndExpandEnv(moduleFile, Constants.moduleSchemaVersion);
             const platformKeys: string[] = Object.keys(module.image.tag.platforms);
             const repo: string = module.image.repository;
             const version: string = module.image.tag.version;
             platformKeys.map((platform) => {
-                const moduleKey: string = Utility.getModuleKey(name, platform);
+                const imageKey: string = Utility.getImageKeyWithPlatform(moduleKey, platform, isExternal);
                 const image: string = Utility.getImage(repo, version, platform);
-                moduleToImageMap.set(moduleKey, image);
+                const imageKeyNoPlatform = Utility.getImageKeyWithoutPlatform(moduleKey, platform, isExternal);
+                moduleToImageMap.set(imageKey, image);
+                if (imageKeyNoPlatform) {
+                    moduleToImageMap.set(imageKeyNoPlatform, image);
+                }
                 if (imageToBuildSettings !== undefined) {
-                    const dockerFilePath = path.resolve(modulePath, module.image.tag.platforms[platform]);
+                    const dockerFilePath = path.resolve(moduleFullPath, module.image.tag.platforms[platform]);
                     imageToBuildSettings.set(
                         image,
-                        Utility.getBuildSettings(modulePath,
+                        Utility.getBuildSettings(moduleFullPath,
                             dockerFilePath, module.image.buildOptions, module.image.contextPath));
-                }
-
-                const defaultPlatform: Platform = Platform.getDefaultPlatform();
-                if (platform === defaultPlatform.platform) {
-                    moduleToImageMap.set(Utility.getModuleKeyNoPlatform(name, false), image);
-                } else if (platform === `${defaultPlatform.platform}.debug`) {
-                    moduleToImageMap.set(Utility.getModuleKeyNoPlatform(name, true), image);
                 }
             });
         }
@@ -616,6 +616,61 @@ export class Utility {
         return await Utility.showInputBox(Constants.moduleName,
             Constants.moduleNamePrompt,
             validateFunc, Constants.moduleNameDft);
+    }
+
+    private static async getSubModules(slnPath: string): Promise<string[]> {
+        const modulesPath: string = path.join(slnPath, Constants.moduleFolder);
+        if (!await fse.pathExists(modulesPath)) {
+            return [];
+        }
+        const stat: fse.Stats = await fse.lstat(modulesPath);
+        if (!stat.isDirectory()) {
+            return [];
+        }
+        return await Utility.getSubDirectories(modulesPath);
+    }
+
+    private static async getExternalModules(slnPath: string, templateFilePath: string): Promise<string[]> {
+        const modules = [];
+        if (!templateFilePath || !await fse.pathExists(templateFilePath)) {
+            return modules;
+        }
+        const input: string = await fse.readFile(templateFilePath, "utf8");
+        const externalModules: string[] = input.match(Constants.externalModulePlaceholderPattern);
+
+        if (externalModules) {
+            externalModules.map((placeholder) => {
+                if (placeholder) {
+                    modules.push(placeholder.replace(Constants.replaceExtPlacehoderPattern, "").trim());
+                }
+            });
+        }
+        return modules;
+    }
+
+    private static getImageKeyWithPlatform(moduleKey: string, platform: string, isExternal: boolean = false): string {
+        if (isExternal) {
+            return `PATH.${platform}^${moduleKey}`;
+        } else {
+            return Utility.getModuleKey(moduleKey, platform);
+        }
+    }
+
+    private static getImageKeyWithoutPlatform(moduleKey: string, platform: string, isExternal: boolean = false): string|undefined {
+        const defaultPlatform: Platform = Platform.getDefaultPlatform();
+        let key;
+        if (platform !== defaultPlatform.platform && platform !== `${defaultPlatform.platform}.debug`) {
+            return key;
+        }
+
+        const isDebug: boolean = (platform === `${defaultPlatform.platform}.debug`);
+        if (isExternal) {
+            key =  isDebug ? `PATH.debug^${moduleKey}` : `PATH^${moduleKey}`;
+        } else {
+            key =  Utility.getModuleKeyNoPlatform(moduleKey, isDebug);
+        }
+
+        return key;
     }
 
     private static async validateSolutionName(name: string, parentPath?: string): Promise<string | undefined> {

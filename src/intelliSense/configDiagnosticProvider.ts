@@ -36,7 +36,7 @@ export class ConfigDiagnosticProvider {
         const moduleToImageMap: Map<string, string> = new Map();
 
         try {
-            await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), moduleToImageMap);
+            await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), document.uri.fsPath, moduleToImageMap);
 
             const rootNode: parser.Node = parser.parseTree(document.getText());
             const moduleJsonPath: string[] = Constants.moduleDeploymentManifestJsonPath.slice(0, - 1); // remove the trailing "*" element

@@ -26,8 +26,10 @@ export class Constants {
     public static groupIDPlaceholder = "%GROUP_ID%";
     public static repositoryPlaceholder = "%REPOSITORY%";
     public static dllPlaceholder = "%DLLNAME%";
-    public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}/g);
+    public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}|\${PATH(\..+)?(\.debug)?\^.+}/g);
     public static versionPlaceholderPattern: RegExp = new RegExp(/\${VERSION\..+}/g);
+    public static externalModulePlaceholderPattern: RegExp = new RegExp(/\${PATH(\..+)?(\.debug)?\^.+}/g);
+    public static replaceExtPlacehoderPattern: RegExp = new RegExp(/\${PATH(\..+)?(\.debug)?\^|{|}/g);
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
     public static LANGUAGE_CSHARP = "C# Module";

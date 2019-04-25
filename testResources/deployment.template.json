@@ -119,6 +119,16 @@
               "image": "${MODULES.SampleModule.amd64}",
               "createOptions": "{}"
             }
+          },
+          "externalmodule": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${PATH.debug^./module1}",
+              "createOptions": {}
+            }
           }
         }
       }

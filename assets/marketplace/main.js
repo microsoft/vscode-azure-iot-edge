@@ -90,6 +90,7 @@ const app = new Vue({
             }
             let createOptions = this.selectedModule.metadata.createOptions;
             try {
+                createOptions = createOptions ? unescape(createOptions) : "";
                 createOptions = JSON.parse(createOptions);
             } catch (error) {}
             vscode.postMessage({

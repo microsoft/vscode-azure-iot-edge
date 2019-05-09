@@ -290,7 +290,7 @@ export class EdgeManager {
             default:
                 break;
         }
-        const debugImageName = `\${${Utility.getModuleKeyNoPlatform(moduleName, true)}}`;
+        const debugImageName = `\${${Utility.getDefaultModuleKey(moduleName, true)}}`;
         return { debugImageName, debugCreateOptions };
     }
 
@@ -582,11 +582,11 @@ export class EdgeManager {
             if (thirdPartyModuleTemplate.command && thirdPartyModuleTemplate.command.includes(Constants.repositoryNameSubstitution)) {
                 repositoryName = await this.inputRepository(module);
             }
-            imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;
-            debugImageName = `\${${Utility.getModuleKeyNoPlatform(module, true)}}`;
+            imageName = `\${${Utility.getDefaultModuleKey(module, false)}}`;
+            debugImageName = `\${${Utility.getDefaultModuleKey(module, true)}}`;
         } else {
             repositoryName = await this.inputRepository(module);
-            imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;
+            imageName = `\${${Utility.getDefaultModuleKey(module, false)}}`;
             const debugSettings = await this.generateDebugCreateOptions(module, template);
             debugImageName = debugSettings.debugImageName;
             debugCreateOptions = debugSettings.debugCreateOptions;

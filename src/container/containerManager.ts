@@ -105,10 +105,14 @@ export class ContainerManager {
     private async generateDeploymentInfo(templateFile: string,
                                          configPath: string,
                                          moduleToImageMap: Map<string, string>): Promise<any> {
-        const data: string = await fse.readFile(templateFile, "utf8");
+        const data: string = JSON.stringify(await fse.readJSON(templateFile), null, 2);
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
         const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream", Constants.SchemaTemplate];
         const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, ...exceptStr);
+        moduleToImageMap.forEach((v, k) => {
+            // tslint:disable-next-line:no-console
+            console.info(`key:${k}, value:${v}`);
+        });
         const dpManifest = Utility.convertCreateOptions(Utility.updateSchema(JSON.parse(generatedDeployFile)));
         const templateSchemaVersion = dpManifest[Constants.SchemaTemplate];
         delete dpManifest[Constants.SchemaTemplate];

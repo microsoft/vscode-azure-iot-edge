@@ -126,7 +126,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${PATH.debug^./module1}",
+              "image": "${MODULEDIR<./module1>.debug}",
               "createOptions": {}
             }
           }

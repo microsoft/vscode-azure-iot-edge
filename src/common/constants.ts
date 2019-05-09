@@ -26,10 +26,14 @@ export class Constants {
     public static groupIDPlaceholder = "%GROUP_ID%";
     public static repositoryPlaceholder = "%REPOSITORY%";
     public static dllPlaceholder = "%DLLNAME%";
-    public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}|\${PATH(\..+)?(\.debug)?\^.+}/g);
+    public static externalModulePlaceholderPattern: RegExp = new RegExp(/\${MODULEDIR<(.+)>(\..+)?}/g);
+    public static subModulePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}/g);
+    // public static imagePlaceholderPattern: RegExp = new RegExp(
+    //     Constants.subModulePlaceholderPattern + "|" + Constants.externalModulePlaceholderPattern);
+    public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}|\${MODULEDIR<(.+)>(\..+)?}/g);
     public static versionPlaceholderPattern: RegExp = new RegExp(/\${VERSION\..+}/g);
-    public static externalModulePlaceholderPattern: RegExp = new RegExp(/\${PATH(\..+)?(\.debug)?\^.+}/g);
-    public static replaceExtPlacehoderPattern: RegExp = new RegExp(/\${PATH(\..+)?(\.debug)?\^|{|}/g);
+
+   // public static replaceExtPlacehoderPattern: RegExp = new RegExp(/\${PATH(\..+)?(\.debug)?\^|{|}/g);
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
     public static LANGUAGE_CSHARP = "C# Module";
@@ -172,6 +176,14 @@ export class Constants {
 
     public static openSampleEvent = "openSample";
     public static openSampleUrlEvent = "openSampleUrl";
+
+    public static subModuleKeyPrefixTemplate(name: string): string {
+        return `MODULES.${name}`;
+    }
+
+    public static extModuleKeyPrefixTemplate(dir: string): string {
+        return `MODULEDIR<${dir}>`;
+    }
 }
 
 export enum ContainerState {

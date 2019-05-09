@@ -204,12 +204,22 @@ export class Utility {
         return moduleFolderName.replace(pattern, "_");
     }
 
-    public static getModuleKey(name: string, platform: string): string {
-        return `MODULES.${name}.${platform}`;
+    public static getModuleKey(keyPrefix: string, platform: string): string {
+        return `${keyPrefix}.${platform}`;
     }
 
-    public static getModuleKeyNoPlatform(name: string, isDebug: boolean): string {
-        return isDebug ? `MODULES.${name}.debug` : `MODULES.${name}`;
+    // public static getModuleKeyNoPlatform(keyPrefix: string, platform: string): string|undefined {
+    //     const defaultPlatform: Platform = Platform.getDefaultPlatform();
+    //     if (platform !== defaultPlatform.platform && platform !== `${defaultPlatform.platform}.debug`) {
+    //         return undefined;
+    //     }
+
+    //     const isDebug: boolean = (platform === `${defaultPlatform.platform}.debug`);
+    //     return isDebug ? `${keyPrefix}.debug` : keyPrefix;
+    // }
+
+    public static getDefaultModuleKey(keyPrefix: string, isDebug: boolean) {
+        return isDebug ? `${keyPrefix}.debug` : keyPrefix;
     }
 
     public static getImage(repo: string, version: string, platform: string): string {
@@ -244,7 +254,8 @@ export class Utility {
         const moduleDirs: string[] = await Utility.getSubModules(slnPath);
         await Promise.all(
             moduleDirs.map(async (modulePath) => {
-                await Utility.setModuleMap(modulePath, path.basename(modulePath), moduleToImageMap, imageToBuildSettings);
+                const keyPrefix = Constants.subModuleKeyPrefixTemplate(path.basename(modulePath));
+                await Utility.setModuleMap(modulePath, keyPrefix, moduleToImageMap, imageToBuildSettings);
             }),
         );
         const externalModuleDirs: string[] = await Utility.getExternalModules(slnPath, templateFilePath);
@@ -252,7 +263,8 @@ export class Utility {
             externalModuleDirs.map(async (module) => {
                 if (module) {
                     const moduleFullPath = path.resolve(slnPath, module);
-                    await Utility.setModuleMap(moduleFullPath, module, moduleToImageMap, imageToBuildSettings, true);
+                    const keyPrefix = Constants.extModuleKeyPrefixTemplate(module);
+                    await Utility.setModuleMap(moduleFullPath, keyPrefix, moduleToImageMap, imageToBuildSettings);
                 }
             }),
         );
@@ -269,10 +281,9 @@ export class Utility {
     }
 
     public static async setModuleMap(moduleFullPath: string,
-                                     moduleKey: string,
+                                     moduleKeyPrefix: string,
                                      moduleToImageMap: Map<string, string>,
-                                     imageToBuildSettings?: Map<string, BuildSettings>,
-                                     isExternal: boolean = false): Promise<void> {
+                                     imageToBuildSettings?: Map<string, BuildSettings>): Promise<void> {
         const moduleFile = path.join(moduleFullPath, Constants.moduleManifest);
         // const name: string = isExternal ? modulePath : path.basename(modulePath);
         if (await fse.pathExists(moduleFile)) {
@@ -281,13 +292,11 @@ export class Utility {
             const repo: string = module.image.repository;
             const version: string = module.image.tag.version;
             platformKeys.map((platform) => {
-                const imageKey: string = Utility.getImageKeyWithPlatform(moduleKey, platform, isExternal);
                 const image: string = Utility.getImage(repo, version, platform);
-                const imageKeyNoPlatform = Utility.getImageKeyWithoutPlatform(moduleKey, platform, isExternal);
-                moduleToImageMap.set(imageKey, image);
-                if (imageKeyNoPlatform) {
-                    moduleToImageMap.set(imageKeyNoPlatform, image);
-                }
+                const imageKeys: string[] = Utility.getModuleKeyFromPlatform(moduleKeyPrefix, platform);
+                imageKeys.map((key) => {
+                    moduleToImageMap.set(key, image);
+                });
                 if (imageToBuildSettings !== undefined) {
                     const dockerFilePath = path.resolve(moduleFullPath, module.image.tag.platforms[platform]);
                     imageToBuildSettings.set(
@@ -641,36 +650,50 @@ export class Utility {
         if (externalModules) {
             externalModules.map((placeholder) => {
                 if (placeholder) {
-                    modules.push(placeholder.replace(Constants.replaceExtPlacehoderPattern, "").trim());
+                    const start = "${MODULEDIR<".length;
+                    const end = placeholder.lastIndexOf(">");
+                    placeholder.substring(start, end);
+                    modules.push(placeholder.substring(start, end).trim());
                 }
             });
         }
         return modules;
     }
 
-    private static getImageKeyWithPlatform(moduleKey: string, platform: string, isExternal: boolean = false): string {
-        if (isExternal) {
-            return `PATH.${platform}^${moduleKey}`;
-        } else {
-            return Utility.getModuleKey(moduleKey, platform);
-        }
-    }
+    // private static getImageKeyWithPlatform(moduleKey: string, platform: string, isExternal: boolean = false): string {
+    //     if (isExternal) {
+    //         return `PATH.${platform}^${moduleKey}`;
+    //     } else {
+    //         return Utility.getModuleKey(moduleKey, platform);
+    //     }
+    // }
 
-    private static getImageKeyWithoutPlatform(moduleKey: string, platform: string, isExternal: boolean = false): string|undefined {
+    // private static getImageKeyWithoutPlatform(moduleKey: string, platform: string, isExternal: boolean = false): string|undefined {
+    //     const defaultPlatform: Platform = Platform.getDefaultPlatform();
+    //     let key;
+    //     if (platform !== defaultPlatform.platform && platform !== `${defaultPlatform.platform}.debug`) {
+    //         return key;
+    //     }
+
+    //     const isDebug: boolean = (platform === `${defaultPlatform.platform}.debug`);
+    //     if (isExternal) {
+    //         key =  isDebug ? `PATH.debug^${moduleKey}` : `PATH^${moduleKey}`;
+    //     } else {
+    //         key =  Utility.getModuleKeyNoPlatform(moduleKey, isDebug);
+    //     }
+
+    //     return key;
+    // }
+    private static getModuleKeyFromPlatform(keyPrefix: string, platform: string): string[] {
+        const keys: string[] = [`${keyPrefix}.${platform}`];
         const defaultPlatform: Platform = Platform.getDefaultPlatform();
-        let key;
         if (platform !== defaultPlatform.platform && platform !== `${defaultPlatform.platform}.debug`) {
-            return key;
+            return keys;
         }
 
         const isDebug: boolean = (platform === `${defaultPlatform.platform}.debug`);
-        if (isExternal) {
-            key =  isDebug ? `PATH.debug^${moduleKey}` : `PATH^${moduleKey}`;
-        } else {
-            key =  Utility.getModuleKeyNoPlatform(moduleKey, isDebug);
-        }
-
-        return key;
+        keys.push(isDebug ? `${keyPrefix}.debug` : keyPrefix);
+        return keys;
     }
 
     private static async validateSolutionName(name: string, parentPath?: string): Promise<string | undefined> {

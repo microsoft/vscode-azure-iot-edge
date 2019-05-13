@@ -634,8 +634,8 @@ export class Utility {
         if (!templateFilePath || !await fse.pathExists(templateFilePath)) {
             return modules;
         }
-        const input: string = JSON.stringify(await fse.readJSON(templateFilePath), null, 2);
 
+        const input: string = JSON.stringify(await fse.readJSON(templateFilePath), null, 2);
         const externalModules: string[] = input.match(Constants.externalModulePlaceholderPattern);
 
         if (externalModules) {

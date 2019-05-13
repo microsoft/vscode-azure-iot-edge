@@ -22,6 +22,7 @@ export class ContainerManager {
         if (moduleConfigFilePath) {
             const directory = path.dirname(moduleConfigFilePath);
             await Utility.loadEnv(path.join(directory, "..", "..", Constants.envFile));
+            await Utility.loadEnv(path.join(directory, Constants.envFile));
             const moduleConfig = await Utility.readJsonAndExpandEnv(moduleConfigFilePath, Constants.moduleSchemaVersion);
             const platforms = moduleConfig.image.tag.platforms;
             const platform = await vscode.window.showQuickPick(Object.keys(platforms), { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
@@ -105,7 +106,7 @@ export class ContainerManager {
     private async generateDeploymentInfo(templateFile: string,
                                          configPath: string,
                                          moduleToImageMap: Map<string, string>): Promise<any> {
-        const data: string = JSON.stringify(await fse.readJSON(templateFile), null, 2);
+        const data: any = await fse.readJSON(templateFile);
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
         const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream", Constants.SchemaTemplate];
         const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, ...exceptStr);

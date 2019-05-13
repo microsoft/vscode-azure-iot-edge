@@ -27,9 +27,6 @@ export class Constants {
     public static repositoryPlaceholder = "%REPOSITORY%";
     public static dllPlaceholder = "%DLLNAME%";
     public static externalModulePlaceholderPattern: RegExp = new RegExp(/\${MODULEDIR<(.+)>(\..+)?}/g);
-    public static subModulePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}/g);
-    // public static imagePlaceholderPattern: RegExp = new RegExp(
-    //     Constants.subModulePlaceholderPattern + "|" + Constants.externalModulePlaceholderPattern);
     public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}|\${MODULEDIR<(.+)>(\..+)?}/g);
     public static versionPlaceholderPattern: RegExp = new RegExp(/\${VERSION\..+}/g);
 

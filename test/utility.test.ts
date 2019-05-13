@@ -25,7 +25,7 @@ suite("utility tests", () => {
   }).timeout(60 * 1000);
 
   test("expandModules", async () => {
-    const input: string = await fse.readFile(path.resolve(__dirname, "../../testResources/deployment.template.json"), "utf8");
+    const input = await fse.readJSON(path.resolve(__dirname, "../../testResources/deployment.template.json"));
     const mapObj: Map<string, string> = new Map<string, string>();
     mapObj.set("MODULES.SampleModule.amd64", "test.az.io/filter:0.0.1-amd64");
     const generated: string = Utility.expandModules(input, mapObj);

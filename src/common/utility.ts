@@ -176,7 +176,8 @@ export class Utility {
         return JSON.parse(expandedContent);
     }
 
-    public static expandModules(input: string, moduleMap: Map<string, string>): string {
+    public static expandModules(inputJSON: any, moduleMap: Map<string, string>): string {
+        const input = JSON.stringify(inputJSON, null, 2);
         return Utility.expandPlacesHolders(Constants.imagePlaceholderPattern, input, moduleMap);
     }
 
@@ -258,7 +259,7 @@ export class Utility {
                 await Utility.setModuleMap(modulePath, keyPrefix, moduleToImageMap, imageToBuildSettings);
             }),
         );
-        const externalModuleDirs: string[] = await Utility.getExternalModules(slnPath, templateFilePath);
+        const externalModuleDirs: string[] = await Utility.getExternalModules(templateFilePath);
         await Promise.all(
             externalModuleDirs.map(async (module) => {
                 if (module) {
@@ -639,12 +640,13 @@ export class Utility {
         return await Utility.getSubDirectories(modulesPath);
     }
 
-    private static async getExternalModules(slnPath: string, templateFilePath: string): Promise<string[]> {
+    private static async getExternalModules(templateFilePath: string): Promise<string[]> {
         const modules = [];
         if (!templateFilePath || !await fse.pathExists(templateFilePath)) {
             return modules;
         }
-        const input: string = await fse.readFile(templateFilePath, "utf8");
+        const input: string = JSON.stringify(await fse.readJSON(templateFilePath), null, 2);
+
         const externalModules: string[] = input.match(Constants.externalModulePlaceholderPattern);
 
         if (externalModules) {
@@ -660,30 +662,6 @@ export class Utility {
         return modules;
     }
 
-    // private static getImageKeyWithPlatform(moduleKey: string, platform: string, isExternal: boolean = false): string {
-    //     if (isExternal) {
-    //         return `PATH.${platform}^${moduleKey}`;
-    //     } else {
-    //         return Utility.getModuleKey(moduleKey, platform);
-    //     }
-    // }
-
-    // private static getImageKeyWithoutPlatform(moduleKey: string, platform: string, isExternal: boolean = false): string|undefined {
-    //     const defaultPlatform: Platform = Platform.getDefaultPlatform();
-    //     let key;
-    //     if (platform !== defaultPlatform.platform && platform !== `${defaultPlatform.platform}.debug`) {
-    //         return key;
-    //     }
-
-    //     const isDebug: boolean = (platform === `${defaultPlatform.platform}.debug`);
-    //     if (isExternal) {
-    //         key =  isDebug ? `PATH.debug^${moduleKey}` : `PATH^${moduleKey}`;
-    //     } else {
-    //         key =  Utility.getModuleKeyNoPlatform(moduleKey, isDebug);
-    //     }
-
-    //     return key;
-    // }
     private static getModuleKeyFromPlatform(keyPrefix: string, platform: string): string[] {
         const keys: string[] = [`${keyPrefix}.${platform}`];
         const defaultPlatform: Platform = Platform.getDefaultPlatform();

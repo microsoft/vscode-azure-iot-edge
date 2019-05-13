@@ -29,8 +29,6 @@ export class Constants {
     public static externalModulePlaceholderPattern: RegExp = new RegExp(/\${MODULEDIR<(.+)>(\..+)?}/g);
     public static imagePlaceholderPattern: RegExp = new RegExp(/\${MODULES\..+}|\${MODULEDIR<(.+)>(\..+)?}/g);
     public static versionPlaceholderPattern: RegExp = new RegExp(/\${VERSION\..+}/g);
-
-   // public static replaceExtPlacehoderPattern: RegExp = new RegExp(/\${PATH(\..+)?(\.debug)?\^|{|}/g);
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
     public static LANGUAGE_CSHARP = "C# Module";

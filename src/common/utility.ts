@@ -205,10 +205,6 @@ export class Utility {
         return moduleFolderName.replace(pattern, "_");
     }
 
-    public static getModuleKey(keyPrefix: string, platform: string): string {
-        return `${keyPrefix}.${platform}`;
-    }
-
     public static getDefaultModuleKey(keyPrefix: string, isDebug: boolean) {
         return isDebug ? `${keyPrefix}.debug` : keyPrefix;
     }

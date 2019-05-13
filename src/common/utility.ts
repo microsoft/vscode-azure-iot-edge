@@ -209,16 +209,6 @@ export class Utility {
         return `${keyPrefix}.${platform}`;
     }
 
-    // public static getModuleKeyNoPlatform(keyPrefix: string, platform: string): string|undefined {
-    //     const defaultPlatform: Platform = Platform.getDefaultPlatform();
-    //     if (platform !== defaultPlatform.platform && platform !== `${defaultPlatform.platform}.debug`) {
-    //         return undefined;
-    //     }
-
-    //     const isDebug: boolean = (platform === `${defaultPlatform.platform}.debug`);
-    //     return isDebug ? `${keyPrefix}.debug` : keyPrefix;
-    // }
-
     public static getDefaultModuleKey(keyPrefix: string, isDebug: boolean) {
         return isDebug ? `${keyPrefix}.debug` : keyPrefix;
     }
@@ -286,7 +276,6 @@ export class Utility {
                                      moduleToImageMap: Map<string, string>,
                                      imageToBuildSettings?: Map<string, BuildSettings>): Promise<void> {
         const moduleFile = path.join(moduleFullPath, Constants.moduleManifest);
-        // const name: string = isExternal ? modulePath : path.basename(modulePath);
         if (await fse.pathExists(moduleFile)) {
             const module = await Utility.readJsonAndExpandEnv(moduleFile, Constants.moduleSchemaVersion);
             const platformKeys: string[] = Object.keys(module.image.tag.platforms);

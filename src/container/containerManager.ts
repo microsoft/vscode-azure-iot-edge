@@ -110,10 +110,6 @@ export class ContainerManager {
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
         const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream", Constants.SchemaTemplate];
         const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, ...exceptStr);
-        moduleToImageMap.forEach((v, k) => {
-            // tslint:disable-next-line:no-console
-            console.info(`key:${k}, value:${v}`);
-        });
         const dpManifest = Utility.convertCreateOptions(Utility.updateSchema(JSON.parse(generatedDeployFile)));
         const templateSchemaVersion = dpManifest[Constants.SchemaTemplate];
         delete dpManifest[Constants.SchemaTemplate];

@@ -24,7 +24,7 @@ export class IntelliSenseUtility {
             const imageToBuildSettingsMap: Map<string, BuildSettings> = new Map();
 
             try {
-                await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), document.uri.fsPath, moduleToImageMap, imageToBuildSettingsMap);
+                await Utility.setSlnModulesMap(document.uri.fsPath, moduleToImageMap, imageToBuildSettingsMap);
 
                 const node: parser.Node = location.previousNode;
                 const imagePlaceholder: string = Utility.unwrapImagePlaceholder(node.value);

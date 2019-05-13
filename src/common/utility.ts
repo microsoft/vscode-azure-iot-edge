@@ -238,10 +238,10 @@ export class Utility {
         }
     }
 
-    public static async setSlnModulesMap(slnPath: string,
-                                         templateFilePath: string,
+    public static async setSlnModulesMap(templateFilePath: string,
                                          moduleToImageMap: Map<string, string>,
                                          imageToBuildSettings?: Map<string, BuildSettings>): Promise<void> {
+        const slnPath: string = path.dirname(templateFilePath);
         const moduleDirs: string[] = await Utility.getSubModules(slnPath);
         await Promise.all(
             moduleDirs.map(async (modulePath) => {

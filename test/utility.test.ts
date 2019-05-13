@@ -153,7 +153,7 @@ suite("utility tests", () => {
     const templateFile = path.join(slnDir, "deployment.template.json");
     const moduleToImageMap: Map<string, string> = new Map();
     const imageToBuildSettings: Map<string, BuildSettings> = new Map();
-    await Utility.setSlnModulesMap(slnDir, templateFile, moduleToImageMap, imageToBuildSettings);
+    await Utility.setSlnModulesMap(templateFile, moduleToImageMap, imageToBuildSettings);
     assert.equal(moduleToImageMap.size, 7);
     assert.equal(moduleToImageMap.get("MODULEDIR<./module1>"), "localhost:5000/samplemodule:0.0.1-arm32v7");
     assert.equal(moduleToImageMap.get("MODULEDIR<./module1>.debug"), "localhost:5000/samplemodule:0.0.1-arm32v7.debug");

@@ -51,7 +51,7 @@ export class ConfigCompletionItemProvider implements vscode.CompletionItemProvid
 
         if (IntelliSenseUtility.locationMatch(location, Constants.imgDeploymentManifestJsonPath)) {
             const moduleToImageMap: Map<string, string> = new Map();
-            await Utility.setSlnModulesMap(path.dirname(document.uri.fsPath), document.uri.fsPath, moduleToImageMap);
+            await Utility.setSlnModulesMap(document.uri.fsPath, moduleToImageMap);
             return this.getCompletionItems(Array.from(moduleToImageMap.keys()), document, position, location);
         }
 

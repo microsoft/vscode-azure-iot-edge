@@ -631,7 +631,7 @@ export class Utility {
             return modules;
         }
 
-        const input: string = JSON.stringify(await fse.readJSON(templateFilePath), null, 2);
+        const input: string = JSON.stringify(await fse.readJson(templateFilePath), null, 2);
         const externalModules: string[] = input.match(Constants.externalModulePlaceholderPattern);
 
         if (externalModules) {

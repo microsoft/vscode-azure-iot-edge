@@ -106,7 +106,7 @@ export class ContainerManager {
     private async generateDeploymentInfo(templateFile: string,
                                          configPath: string,
                                          moduleToImageMap: Map<string, string>): Promise<any> {
-        const data: any = await fse.readJSON(templateFile);
+        const data: any = await fse.readJson(templateFile);
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
         const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream", Constants.SchemaTemplate];
         const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, ...exceptStr);

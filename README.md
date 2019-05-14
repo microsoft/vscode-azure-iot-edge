@@ -38,6 +38,7 @@
     pip install --upgrade iotedgehubdev
     ```
 - It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manage your IoT Edge Docker images, containers and registries. 
+- The current user must have permissions to manage Docker. By default this is not the case on Linux, check the [FAQ section](#FAQ) to avoid `permission denied` errors.
 
 ## Quickstart
 Click the links below to learn how to develop, debug and deploy IoT Edge modules.
@@ -64,6 +65,14 @@ Click the links below to learn how to develop, debug and deploy IoT Edge modules
 > **Q:** Help me understand IoT Edge deployment manifest.
 >
 > **A:** [Learn how to use deployment manifests to deploy modules and establish routes](https://docs.microsoft.com/azure/iot-edge/module-composition)
+
+> **Q:** If I run this extension on Linux (e.g. Ubuntu), when executing docker commands (e.g. the `Build IoT Edge Module Image` command), the terminal shows `permission denied` errors. How can I fix this, and avoid having to prefix every command manually with `sudo`?
+>
+> **A:** This extension assumes the current user has sufficient privileges to run docker commands. On Linux you can add the current user to the `docker` group by executing the following commands:
+> - To create the group: `sudo groupadd docker`
+> - To add the current user to it: `sudo usermod -aG docker $USER`
+>
+> After executing these commands exit your Terminal session and restart Docker (`sudo systemctl restart docker`). Or you can reboot the machine completely. Check the [Post-installation steps for Linux](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user) in the Docker documentation for more information on how to manage Docker as a non-root user.
 
 ## Commands
 

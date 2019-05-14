@@ -25,7 +25,7 @@ suite("utility tests", () => {
   }).timeout(60 * 1000);
 
   test("expandModules", async () => {
-    const input: string = await fse.readFile(path.resolve(__dirname, "../../testResources/deployment.template.json"), "utf8");
+    const input = await fse.readJson(path.resolve(__dirname, "../../testResources/deployment.template.json"));
     const mapObj: Map<string, string> = new Map<string, string>();
     mapObj.set("MODULES.SampleModule.amd64", "test.az.io/filter:0.0.1-amd64");
     const generated: string = Utility.expandModules(input, mapObj);
@@ -136,12 +136,30 @@ suite("utility tests", () => {
     const moduleDir = path.resolve(__dirname, "../../testResources/module1");
     const moduleToImageMap: Map<string, string> = new Map();
     const imageToBuildSettings: Map<string, BuildSettings> = new Map();
-    await Utility.setModuleMap(moduleDir, moduleToImageMap, imageToBuildSettings);
+    await Utility.setModuleMap(moduleDir, Constants.subModuleKeyPrefixTemplate(path.basename(moduleDir)), moduleToImageMap, imageToBuildSettings);
     assert.equal(moduleToImageMap.size, 7);
     assert.equal(moduleToImageMap.get("MODULES.module1"), "localhost:5000/samplemodule:0.0.1-arm32v7");
     assert.equal(moduleToImageMap.get("MODULES.module1.debug"), "localhost:5000/samplemodule:0.0.1-arm32v7.debug");
     assert.equal(imageToBuildSettings.size, 5);
     assert.equal(imageToBuildSettings.get("localhost:5000/samplemodule:0.0.1-amd64").options.length, 8);
+    sinon.restore();
+  }).timeout(60 * 1000);
+
+  test("setSlnModulesMap", async () => {
+    sinon.stub(Platform, "getDefaultPlatform").callsFake(() => {
+      return new Platform("arm32v7", "camera");
+    });
+    const slnDir = path.resolve(__dirname, "../../testResources");
+    const templateFile = path.join(slnDir, "deployment.template.json");
+    const moduleToImageMap: Map<string, string> = new Map();
+    const imageToBuildSettings: Map<string, BuildSettings> = new Map();
+    await Utility.setSlnModulesMap(templateFile, moduleToImageMap, imageToBuildSettings);
+    assert.equal(moduleToImageMap.size, 7);
+    assert.equal(moduleToImageMap.get("MODULEDIR<./module1>"), "localhost:5000/samplemodule:0.0.1-arm32v7");
+    assert.equal(moduleToImageMap.get("MODULEDIR<./module1>.debug"), "localhost:5000/samplemodule:0.0.1-arm32v7.debug");
+    assert.equal(imageToBuildSettings.size, 5);
+    assert.equal(imageToBuildSettings.get("localhost:5000/samplemodule:0.0.1-amd64").options.length, 8);
+    sinon.restore();
   }).timeout(60 * 1000);
 
   test("getDisplayName", () => {

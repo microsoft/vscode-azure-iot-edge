@@ -579,6 +579,7 @@ export class EdgeManager {
             moduleTwin = JobInfo.twin.content;
             env = JobInfo.env;
             debugCreateOptions = createOptions = JobInfo.settings.createOptions ? JobInfo.settings.createOptions : {};
+            repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else if (thirdPartyModuleTemplate) {
             if (thirdPartyModuleTemplate.command && thirdPartyModuleTemplate.command.includes(Constants.repositoryNameSubstitution)) {
                 repositoryName = await this.inputRepository(module);

@@ -1,4 +1,8 @@
 # Change Log
+## 1.13.0 - 2019-05-XX
+### Added
+* Support relative path schema for the reference of external custom module. The schema is like ${MODULEDIR\<RelativePathToModuleFolder\>}
+
 ## 1.12.0 - 2019-04-26
 ### Added
 * Integrate the new setup option from [iotedgehubdev v0.8.0](https://github.com/Azure/iotedgehubdev/releases/tag/v0.8.0) to setup Azure IoT Hub connection string. So now module twin will be updated automatically when running deployment in simulator.

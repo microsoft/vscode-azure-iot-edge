@@ -309,9 +309,8 @@ export class Utility {
             if (!workspaceFolder) {
                 return;
             }
-            const directory = path.dirname(envFilePath);
-            // Check whether .env file is in the root folder of solution
-            if (await fse.pathExists(path.join(directory, Constants.deploymentTemplate)) && await fse.pathExists(envFilePath)) {
+
+            if (await fse.pathExists(envFilePath)) {
                 TelemetryClient.sendEvent("envFileDetected");
                 const envConfig = dotenv.parse(await fse.readFile(envFilePath));
                 for (const k of Object.keys(envConfig)) {

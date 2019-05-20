@@ -290,7 +290,7 @@ export class EdgeManager {
             default:
                 break;
         }
-        const debugImageName = `\${${Utility.getModuleKeyNoPlatform(moduleName, true)}}`;
+        const debugImageName = `\${${Utility.getDefaultModuleKey(Constants.subModuleKeyPrefixTemplate(moduleName), true)}}`;
         return { debugImageName, debugCreateOptions };
     }
 
@@ -558,6 +558,7 @@ export class EdgeManager {
         let debugImageName: string = "";
         let debugCreateOptions: any = {};
         let env: object = null;
+        const moduleKeyPrefix = Constants.subModuleKeyPrefixTemplate(module);
         const thirdPartyModuleTemplate = this.get3rdPartyModuleTemplateByName(template);
         if (template === Constants.ACR_MODULE) {
             const acrManager = new AcrManager();
@@ -578,15 +579,16 @@ export class EdgeManager {
             moduleTwin = JobInfo.twin.content;
             env = JobInfo.env;
             debugCreateOptions = createOptions = JobInfo.settings.createOptions ? JobInfo.settings.createOptions : {};
+            repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else if (thirdPartyModuleTemplate) {
             if (thirdPartyModuleTemplate.command && thirdPartyModuleTemplate.command.includes(Constants.repositoryNameSubstitution)) {
                 repositoryName = await this.inputRepository(module);
             }
-            imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;
-            debugImageName = `\${${Utility.getModuleKeyNoPlatform(module, true)}}`;
+            imageName = `\${${Utility.getDefaultModuleKey(moduleKeyPrefix, false)}}`;
+            debugImageName = `\${${Utility.getDefaultModuleKey(moduleKeyPrefix, true)}}`;
         } else {
             repositoryName = await this.inputRepository(module);
-            imageName = `\${${Utility.getModuleKeyNoPlatform(module, false)}}`;
+            imageName = `\${${Utility.getDefaultModuleKey(moduleKeyPrefix, false)}}`;
             const debugSettings = await this.generateDebugCreateOptions(module, template);
             debugImageName = debugSettings.debugImageName;
             debugCreateOptions = debugSettings.debugCreateOptions;

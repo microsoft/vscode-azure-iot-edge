@@ -15,12 +15,9 @@
 
 ![Added](images/multipleplatform.gif)
 
-## What's New (v1.12.0)
+## What's New (v1.13.0)
 ### Added
-* Integrate the new setup option from [iotedgehubdev v0.8.0](https://github.com/Azure/iotedgehubdev/releases/tag/v0.8.0) to setup Azure IoT Hub connection string. So now module twin will be updated automatically when running deployment in simulator.
-
-### Changed
-* Only one sample gallery page will be opened in VS Code [#414](https://github.com/Microsoft/vscode-azure-iot-edge/issues/414)
+* Support relative path schema for the reference of external custom module. The schema is like ${MODULEDIR\<RelativePathToModuleFolder\>}
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

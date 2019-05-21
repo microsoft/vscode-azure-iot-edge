@@ -233,7 +233,8 @@ export class EdgeManager {
             }
         }
 
-        const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, isNewSolution);
+        const isTempsensorNeeded = isNewSolution && this.isCustomModule(template);
+        const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, isTempsensorNeeded);
 
         const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
         const debugTemplateEnv = { usernameEnv: undefined, passwordEnv: undefined };
@@ -241,7 +242,7 @@ export class EdgeManager {
         if (await fse.pathExists(templateDebugFile)) {
             debugExist = true;
             const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
-            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, isNewSolution, true);
+            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, isTempsensorNeeded, true);
             debugTemplateEnv.usernameEnv = envs.usernameEnv;
             debugTemplateEnv.passwordEnv = envs.passwordEnv;
         }
@@ -348,7 +349,7 @@ export class EdgeManager {
     }
 
     private async addModuleToDeploymentTemplate(templateJson: any, templateFile: string, envFilePath: string,
-                                                moduleInfo: ModuleInfo, isNewSolution: boolean, isDebug: boolean = false): Promise<{ usernameEnv: string, passwordEnv: string }> {
+                                                moduleInfo: ModuleInfo, isTempsensorNeeded: boolean, isDebug: boolean = false): Promise<{ usernameEnv: string, passwordEnv: string }> {
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
         const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
         const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
@@ -392,7 +393,19 @@ export class EdgeManager {
             const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
             routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
         }
-        if (isNewSolution) {
+
+        if (isTempsensorNeeded) {
+            const tempSensor = {
+                version: "1.0",
+                type: "docker",
+                status: "running",
+                restartPolicy: "always",
+                settings: {
+                  image: `mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:${Versions.tempSensorVersion()}`,
+                  createOptions: {},
+                },
+            };
+            modules.tempSensor = tempSensor;
             const tempSensorToModule = `sensorTo${moduleInfo.moduleName}`;
             routes[tempSensorToModule] =
                 `FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/${moduleInfo.moduleName}/inputs/input1\")`;
@@ -402,6 +415,20 @@ export class EdgeManager {
             usernameEnv: result.usernameEnv,
             passwordEnv: result.passwordEnv,
         };
+    }
+
+    private isCustomModule(template: string): boolean {
+        switch (template) {
+            case Constants.LANGUAGE_C:
+            case Constants.LANGUAGE_CSHARP:
+            case Constants.CSHARP_FUNCTION:
+            case Constants.LANGUAGE_JAVA:
+            case Constants.LANGUAGE_NODE:
+            case Constants.LANGUAGE_PYTHON:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private async addModuleProj(parent: string, name: string,

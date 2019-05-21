@@ -46,16 +46,16 @@ export class Versions {
         return Versions.getValue(Constants.versionNodeModule) as string;
     }
 
+    public static tempSensorVersion(): string {
+        return Versions.getValue(Constants.versionTempSensor, "1.0") as string;
+    }
+
     private static edgeAgentVersion(): string {
         return Versions.getValue(Constants.versionEdgeAgent) as string;
     }
 
     private static edgeHubVersion(): string {
         return Versions.getValue(Constants.versionEdgeHub, "1.0") as string;
-    }
-
-    private static tempSensorVersion(): string {
-        return Versions.getValue(Constants.versionTempSensor, "1.0") as string;
     }
 
     private static getValue(key: string, defaultVal: string|boolean = null): string | boolean {

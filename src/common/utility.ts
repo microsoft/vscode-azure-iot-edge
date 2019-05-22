@@ -294,8 +294,9 @@ export class Utility {
         }
     }
 
-    // Remove the wrapping "${" and "}" of a image placeholder
+    // Escape JSON string and remove the wrapping "${" and "}" of a image placeholder
     public static unwrapImagePlaceholder(imagePlaceholder: string): string {
+        imagePlaceholder = JSON.stringify(imagePlaceholder).slice(1, -1);
         if (imagePlaceholder.search(Constants.imagePlaceholderPattern) === 0 && imagePlaceholder.endsWith("}")) {
             return imagePlaceholder.slice(2, -1);
         }

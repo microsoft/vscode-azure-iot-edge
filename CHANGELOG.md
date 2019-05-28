@@ -1,5 +1,5 @@
 # Change Log
-## 1.13.0 - 2019-05-XX
+## 1.13.0 - 2019-05-28
 ### Added
 * Support relative path schema for the reference of external custom module. The schema is like ${MODULEDIR\<RelativePathToModuleFolder\>}
 

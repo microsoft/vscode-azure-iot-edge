@@ -6,7 +6,6 @@ export class Versions {
         const verMap: Map<string, string> = new Map();
         verMap.set(Constants.edgeAgentVerPlaceHolder, Versions.edgeAgentVersion());
         verMap.set(Constants.edgeHubVerPlaceHolder, Versions.edgeHubVersion());
-        verMap.set(Constants.tempSensorVerPlaceHolder, Versions.tempSensorVersion());
         return verMap;
     }
 

@@ -54,8 +54,10 @@ export class EdgeManager {
         templateContent = Utility.expandVersions(templateContent, versionMap);
         await fse.writeFile(templateFile, templateContent, { encoding: "utf8" });
         await fse.writeFile(debugTemplateFile, templateContent, { encoding: "utf8" });
-
-        await this.addModule(templateFile, outputChannel, true);
+        const template = await this.selectModuleTemplate(undefined, true);
+        if (template !== Constants.EMPTY_SOLUTION) {
+            await this.addModule(templateFile, outputChannel, true, template);
+        }
     }
 
     public async addModuleForSolution(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
@@ -76,7 +78,8 @@ export class EdgeManager {
             }
         }
 
-        await this.addModule(templateFile, outputChannel, false);
+        const template = await this.selectModuleTemplate();
+        await this.addModule(templateFile, outputChannel, false, template);
     }
 
     public async checkRegistryEnv(folder: vscode.WorkspaceFolder): Promise<void> {
@@ -184,8 +187,8 @@ export class EdgeManager {
     public async addModule(templateFile: string,
                            outputChannel: vscode.OutputChannel,
                            isNewSolution: boolean,
-                           moduleInfo: ModuleInfo = null,
-                           template: string = ""): Promise<void> {
+                           template: string,
+                           moduleInfo: ModuleInfo = null): Promise<void> {
         const templateJson = Utility.updateSchema(await fse.readJson(templateFile));
         const slnPath: string = path.dirname(templateFile);
 
@@ -194,9 +197,6 @@ export class EdgeManager {
         await fse.ensureDir(targetModulePath);
         const envFilePath = path.join(slnPath, Constants.envFile);
 
-        if (!template) {
-            template = await this.selectModuleTemplate();
-        }
         const extraProps: Map<string, string> = new Map<string, string>();
         if (template === Constants.LANGUAGE_JAVA) {
             const grpId = await this.inputJavaModuleGrpId();
@@ -724,7 +724,7 @@ export class EdgeManager {
         return { exists, keySet };
     }
 
-    private async selectModuleTemplate(label?: string): Promise<string> {
+    private async selectModuleTemplate(label?: string, isNewSolution: boolean = false): Promise<string> {
         const templatePicks: vscode.QuickPickItem[] = [
             {
                 label: Constants.LANGUAGE_C,
@@ -771,6 +771,12 @@ export class EdgeManager {
                 description: Constants.MARKETPLACE_MODULE_DESCRIPTION,
             },
         ];
+        if (isNewSolution) {
+            templatePicks.push({
+                label: Constants.EMPTY_SOLUTION,
+                description: Constants.EMPTY_SLN_DESCRIPTION,
+            });
+        }
         const templates = this.get3rdPartyModuleTemplates();
         if (templates) {
             templates.forEach((template) => {

@@ -38,18 +38,7 @@
             }
           }
         },
-        "modules": {
-          "tempSensor": {
-            "version": "1.0",
-            "type": "docker",
-            "status": "running",
-            "restartPolicy": "always",
-            "settings": {
-              "image": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:${VERSION.tempSensor}",
-              "createOptions": {}
-            }
-          }
-        }
+        "modules": {}
       }
     },
     "$edgeHub": {

@@ -54,7 +54,6 @@ export class EdgeManager {
         templateContent = Utility.expandVersions(templateContent, versionMap);
         await fse.writeFile(templateFile, templateContent, { encoding: "utf8" });
         await fse.writeFile(debugTemplateFile, templateContent, { encoding: "utf8" });
-
         await this.addModule(templateFile, outputChannel, true);
     }
 
@@ -183,42 +182,52 @@ export class EdgeManager {
 
     public async addModule(templateFile: string,
                            outputChannel: vscode.OutputChannel,
-                           isNewSolution: boolean,
-                           moduleInfo: ModuleInfo = null,
-                           template: string = ""): Promise<void> {
-        const templateJson = Utility.updateSchema(await fse.readJson(templateFile));
+                           isNewSolution: boolean): Promise<void> {
+        const template = await this.selectModuleTemplate(undefined, isNewSolution);
         const slnPath: string = path.dirname(templateFile);
+        if (template === Constants.EMPTY_SOLUTION) {
+            if (isNewSolution) {
+                await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
+            }
+            return;
+        }
+
+        const templateJson = Utility.updateSchema(await fse.readJson(templateFile));
+        const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
+        if (template === Constants.MARKETPLACE_MODULE) {
+            const marketplace = Marketplace.getInstance(this.context);
+            await marketplace.openMarketplacePage(templateFile, isNewSolution, Object.keys(modules));
+            return;
+        }
+        const targetModulePath = path.join(slnPath, Constants.moduleFolder);
+        const moduleName: string = Utility.getValidModuleName(await Utility.inputModuleName(targetModulePath, Object.keys(modules)));
+        const moduleInfo: ModuleInfo = await this.inputImage(moduleName, template);
+
+        this.addModuleInfo(templateFile, outputChannel, isNewSolution, template, moduleInfo);
+    }
+
+    public async addModuleInfo(templateFile: string,
+                               outputChannel: vscode.OutputChannel,
+                               isNewSolution: boolean,
+                               template: string,
+                               moduleInfo: ModuleInfo): Promise<void> {
+        const slnPath: string = path.dirname(templateFile);
+        const templateJson = Utility.updateSchema(await fse.readJson(templateFile));
 
         const sourceSolutionPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.solutionFolder));
         const targetModulePath = path.join(slnPath, Constants.moduleFolder);
         await fse.ensureDir(targetModulePath);
         const envFilePath = path.join(slnPath, Constants.envFile);
 
-        if (!template) {
-            template = await this.selectModuleTemplate();
-        }
         const extraProps: Map<string, string> = new Map<string, string>();
         if (template === Constants.LANGUAGE_JAVA) {
             const grpId = await this.inputJavaModuleGrpId();
             extraProps.set(Constants.groupId, grpId);
         }
 
-        const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
-        let moduleName: string = "";
-        if (!moduleInfo) {
-            if (template === Constants.MARKETPLACE_MODULE) {
-                const marketplace = Marketplace.getInstance(this.context);
-                await marketplace.openMarketplacePage(templateFile, isNewSolution, Object.keys(modules));
-                return;
-            } else {
-                moduleName = Utility.getValidModuleName(await Utility.inputModuleName(targetModulePath, Object.keys(modules)));
-                moduleInfo = await this.inputImage(moduleName, template);
-            }
-        }
+        const isProjCreated = await this.addModuleProj(targetModulePath, moduleInfo.moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
 
-        const isProjCreated = await this.addModuleProj(targetModulePath, moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
-
-        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleName, extraProps);
+        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleInfo.moduleName, extraProps);
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
@@ -233,7 +242,8 @@ export class EdgeManager {
             }
         }
 
-        const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, isNewSolution);
+        const isTempsensorNeeded = isNewSolution && this.isCustomModule(template);
+        const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, isTempsensorNeeded);
 
         const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
         const debugTemplateEnv = { usernameEnv: undefined, passwordEnv: undefined };
@@ -241,14 +251,14 @@ export class EdgeManager {
         if (await fse.pathExists(templateDebugFile)) {
             debugExist = true;
             const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
-            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, isNewSolution, true);
+            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, isTempsensorNeeded, true);
             debugTemplateEnv.usernameEnv = envs.usernameEnv;
             debugTemplateEnv.passwordEnv = envs.passwordEnv;
         }
 
         if (!isNewSolution) {
             const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "are updated.";
-            const moduleCreationMessage = isProjCreated ? `Module '${moduleName}' has been created. ` : "";
+            const moduleCreationMessage = isProjCreated ? `Module '${moduleInfo.moduleName}' has been created. ` : "";
             const deploymentTemlateMessage = debugExist ? "deployment.template.json, deployment.debug.template.json" : "deployment.template.json";
             vscode.window.showInformationMessage(`${moduleCreationMessage} ${deploymentTemlateMessage} ${launchUpdated}`);
         }
@@ -348,7 +358,7 @@ export class EdgeManager {
     }
 
     private async addModuleToDeploymentTemplate(templateJson: any, templateFile: string, envFilePath: string,
-                                                moduleInfo: ModuleInfo, isNewSolution: boolean, isDebug: boolean = false): Promise<{ usernameEnv: string, passwordEnv: string }> {
+                                                moduleInfo: ModuleInfo, isTempsensorNeeded: boolean, isDebug: boolean = false): Promise<{ usernameEnv: string, passwordEnv: string }> {
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
         const routes = templateJson.modulesContent.$edgeHub["properties.desired"].routes;
         const runtimeSettings = templateJson.modulesContent.$edgeAgent["properties.desired"].runtime.settings;
@@ -392,7 +402,19 @@ export class EdgeManager {
             const newModuleToUpstream = `${moduleInfo.moduleName}ToIoTHub`;
             routes[newModuleToUpstream] = `FROM /messages/modules/${moduleInfo.moduleName}/outputs/* INTO $upstream`;
         }
-        if (isNewSolution) {
+
+        if (isTempsensorNeeded) {
+            const tempSensor = {
+                version: "1.0",
+                type: "docker",
+                status: "running",
+                restartPolicy: "always",
+                settings: {
+                  image: `mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:${Versions.tempSensorVersion()}`,
+                  createOptions: {},
+                },
+            };
+            modules.tempSensor = tempSensor;
             const tempSensorToModule = `sensorTo${moduleInfo.moduleName}`;
             routes[tempSensorToModule] =
                 `FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/${moduleInfo.moduleName}/inputs/input1\")`;
@@ -402,6 +424,20 @@ export class EdgeManager {
             usernameEnv: result.usernameEnv,
             passwordEnv: result.passwordEnv,
         };
+    }
+
+    private isCustomModule(template: string): boolean {
+        switch (template) {
+            case Constants.LANGUAGE_C:
+            case Constants.LANGUAGE_CSHARP:
+            case Constants.CSHARP_FUNCTION:
+            case Constants.LANGUAGE_JAVA:
+            case Constants.LANGUAGE_NODE:
+            case Constants.LANGUAGE_PYTHON:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private async addModuleProj(parent: string, name: string,
@@ -697,7 +733,7 @@ export class EdgeManager {
         return { exists, keySet };
     }
 
-    private async selectModuleTemplate(label?: string): Promise<string> {
+    private async selectModuleTemplate(label?: string, isNewSolution: boolean = false): Promise<string> {
         const templatePicks: vscode.QuickPickItem[] = [
             {
                 label: Constants.LANGUAGE_C,
@@ -744,6 +780,12 @@ export class EdgeManager {
                 description: Constants.MARKETPLACE_MODULE_DESCRIPTION,
             },
         ];
+        if (isNewSolution) {
+            templatePicks.push({
+                label: Constants.EMPTY_SOLUTION,
+                description: Constants.EMPTY_SLN_DESCRIPTION,
+            });
+        }
         const templates = this.get3rdPartyModuleTemplates();
         if (templates) {
             templates.forEach((template) => {

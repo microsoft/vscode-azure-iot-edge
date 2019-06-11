@@ -37,6 +37,30 @@
 - It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manage your IoT Edge Docker images, containers and registries. 
 - The current user must have permissions to manage Docker. By default this is not the case on Linux, check the [FAQ section](#FAQ) to avoid `permission denied` errors.
 
+  ##### C# module prerequisites
+  - [C# for Visual Studio Code (powered by OmniSharp) extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
+  - [.NET Core 2.1 SDK](https://www.microsoft.com/net/download)
+
+  ##### C# Functions on IoT Edge prerequisites
+  - [C# for Visual Studio Code (powered by OmniSharp) extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
+  - [.NET Core 2.1 SDK](https://www.microsoft.com/net/download)
+
+  ##### Python module prerequisites
+  - [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) for Visual Studio Code
+  - [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+  - [Pip](https://pip.pypa.io/en/stable/installing/#installation) for installing Python packages (typically included with your Python installation)
+
+  ##### Node.js module prerequisites
+  - [Node.js and npm](https://nodejs.org/)
+
+  ##### Java module prerequisites
+  - [Java Extension Pack](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) for Visual Studio Code.
+  - [Java SE Development Kit 10](https://aka.ms/azure-jdks), and [set the JAVA_HOME environment variable](https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/) to point to your JDK installation.
+  - [Maven](https://maven.apache.org/)
+
+  ##### C module prerequisites
+  - [C/C++ extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) for Visual Studio Code.
+
 ## Quickstart
 Click the links below to learn how to develop, debug and deploy IoT Edge modules.
 

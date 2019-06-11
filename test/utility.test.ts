@@ -17,7 +17,7 @@ suite("utility tests", () => {
     process.env.IMAGE = imageString;
     process.env.edgeAgent = "test";
     const exceptStr: string[] = ["$edgeHub", "$edgeAgent", "$upstream"];
-    const generated: string = Utility.expandEnv(input, ...exceptStr);
+    const generated: string = Utility.expandEnv(input, {}, ...exceptStr);
     const generatedObj = JSON.parse(generated);
     assert.equal(generatedObj.modulesContent
       .$edgeAgent["properties.desired"]

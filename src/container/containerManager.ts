@@ -22,8 +22,8 @@ export class ContainerManager {
         if (moduleConfigFilePath) {
             const directory = path.dirname(moduleConfigFilePath);
             await Utility.loadEnv(path.join(directory, "..", "..", Constants.envFile));
-            await Utility.loadEnv(path.join(directory, Constants.envFile));
-            const moduleConfig = await Utility.readJsonAndExpandEnv(moduleConfigFilePath, Constants.moduleSchemaVersion);
+            const overrideEnvs = await Utility.parseEnv(path.join(directory, Constants.envFile));
+            const moduleConfig = await Utility.readJsonAndExpandEnv(moduleConfigFilePath, overrideEnvs, Constants.moduleSchemaVersion);
             const platforms = moduleConfig.image.tag.platforms;
             const platform = await vscode.window.showQuickPick(Object.keys(platforms), { placeHolder: Constants.selectPlatform, ignoreFocusOut: true });
             if (platform) {
@@ -109,7 +109,7 @@ export class ContainerManager {
         const data: any = await fse.readJson(templateFile);
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
         const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream", Constants.SchemaTemplate];
-        const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, ...exceptStr);
+        const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, {}, ...exceptStr);
         const dpManifest = Utility.convertCreateOptions(Utility.updateSchema(JSON.parse(generatedDeployFile)));
         const templateSchemaVersion = dpManifest[Constants.SchemaTemplate];
         delete dpManifest[Constants.SchemaTemplate];

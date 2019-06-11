@@ -158,21 +158,24 @@ export class Utility {
         });
     }
 
-    public static expandEnv(input: string, ...exceptKeys: string[]): string {
+    public static expandEnv(input: string, overrideKVs: {[name: string]: string} = {}, ...exceptKeys: string[]): string {
         const pattern: RegExp = new RegExp(/\$([a-zA-Z0-9_]+)|\${([a-zA-Z0-9_]+)}/g);
         const exceptSet: Set<string> = new Set(exceptKeys);
+        if (!overrideKVs) {
+            overrideKVs = {};
+        }
         return input.replace(pattern, (matched) => {
             if (exceptKeys && exceptSet.has(matched)) {
                 return matched;
             }
             const key: string = matched.replace(/\$|{|}/g, "");
-            return process.env[key] || matched;
+            return overrideKVs[key] || process.env[key] || matched;
         });
     }
 
-    public static async readJsonAndExpandEnv(filePath: string, ...exceptKeys: string[]): Promise<any> {
+    public static async readJsonAndExpandEnv(filePath: string, overrideKVs: {[name: string]: string} = {}, ...exceptKeys: string[]): Promise<any> {
         const content: string = await fse.readFile(filePath, "utf8");
-        const expandedContent = Utility.expandEnv(content, ...exceptKeys);
+        const expandedContent = Utility.expandEnv(content, overrideKVs, ...exceptKeys);
         return JSON.parse(expandedContent);
     }
 
@@ -273,7 +276,8 @@ export class Utility {
                                      imageToBuildSettings?: Map<string, BuildSettings>): Promise<void> {
         const moduleFile = path.join(moduleFullPath, Constants.moduleManifest);
         if (await fse.pathExists(moduleFile)) {
-            const module = await Utility.readJsonAndExpandEnv(moduleFile, Constants.moduleSchemaVersion);
+            const overrideEnvs = await Utility.parseEnv(path.join(moduleFullPath, Constants.envFile));
+            const module = await Utility.readJsonAndExpandEnv(moduleFile, overrideEnvs, Constants.moduleSchemaVersion);
             const platformKeys: string[] = Object.keys(module.image.tag.platforms);
             const repo: string = module.image.repository;
             const version: string = module.image.tag.version;
@@ -305,20 +309,25 @@ export class Utility {
     }
 
     public static async loadEnv(envFilePath: string) {
+        const envConfig = await Utility.parseEnv(envFilePath);
+        for (const k of Object.keys(envConfig)) {
+            process.env[k] = envConfig[k];
+        }
+    }
+
+    public static async parseEnv(envFilePath: string): Promise<{[name: string]: string}> {
         try {
             const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(envFilePath));
-            if (!workspaceFolder) {
-                return;
+            if (!workspaceFolder || !(await fse.pathExists(envFilePath))) {
+                return {};
             }
 
-            if (await fse.pathExists(envFilePath)) {
-                TelemetryClient.sendEvent("envFileDetected");
-                const envConfig = dotenv.parse(await fse.readFile(envFilePath));
-                for (const k of Object.keys(envConfig)) {
-                    process.env[k] = envConfig[k];
-                }
-            }
-        } catch (error) { }
+            TelemetryClient.sendEvent("envFileDetected");
+            const envConfig = dotenv.parse(await fse.readFile(envFilePath));
+            return envConfig;
+        } catch (error) {
+            return {};
+        }
     }
 
     public static async initLocalRegistry(images: string[]) {

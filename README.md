@@ -28,15 +28,7 @@
 * [Node.js module template version is not applied when another version is installed globally](https://github.com/Microsoft/vscode-azure-iot-edge/issues/340)
 
 ## Prerequisites
-
-- [Docker](https://www.docker.com/)
-- [iotedgehubdev](https://pypi.org/project/iotedgehubdev/)
-    ```
-    pip install --upgrade iotedgehubdev
-    ```
-- It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manage your IoT Edge Docker images, containers and registries. 
-- The current user must have permissions to manage Docker. By default this is not the case on Linux, check the [FAQ section](#FAQ) to avoid `permission denied` errors.
-
+To develop IoT Edge modules you need to install following prerequisites for specific language:
   #### C# module prerequisites
   - [C# for Visual Studio Code (powered by OmniSharp) extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
   - [.NET Core 2.1 SDK](https://www.microsoft.com/net/download)
@@ -46,12 +38,13 @@
   - [.NET Core 2.1 SDK](https://www.microsoft.com/net/download)
 
   #### Python module prerequisites
+  - [Python](https://www.python.org/downloads/) and [Pip](https://pip.pypa.io/en/stable/installing/#installation)
   - [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) for Visual Studio Code
-  - [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-  - [Pip](https://pip.pypa.io/en/stable/installing/#installation) for installing Python packages (typically included with your Python installation)
+  - [Git](https://git-scm.com/downloads) for cloning module template from GitHub
 
   #### Node.js module prerequisites
   - [Node.js and npm](https://nodejs.org/)
+  - [Yeoman](https://yeoman.io/)
 
   #### Java module prerequisites
   - [Java Extension Pack](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) for Visual Studio Code.
@@ -60,6 +53,18 @@
 
   #### C module prerequisites
   - [C/C++ extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) for Visual Studio Code.
+  - [Git](https://git-scm.com/downloads) for cloning module template from GitHub
+  
+
+You also need to install prerequisites below to make Azure IoT Edge extension work: 
+- [Docker](https://www.docker.com/)
+- [Python](https://www.python.org/downloads/) and [Pip](https://pip.pypa.io/en/stable/installing/#installation)
+- [iotedgehubdev](https://pypi.org/project/iotedgehubdev/)
+    ```
+    pip install --upgrade iotedgehubdev
+    ```
+- It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manage your IoT Edge Docker images, containers and registries. 
+- The current user must have permissions to manage Docker. By default this is not the case on Linux, check the [FAQ section](#FAQ) to avoid `permission denied` errors.
 
 ## Quickstart
 Click the links below to learn how to develop, debug and deploy IoT Edge modules.

@@ -214,6 +214,14 @@ function initCommand(context: vscode.ExtensionContext,
     initCommandAsync(context, outputChannel, commandId, async (...args) => callback(...args));
 }
 
+async function showLearnMoreError(error: LearnMoreError): Promise<void> {
+    const learnMore: vscode.MessageItem = { title: Constants.learnMore };
+    const items: vscode.MessageItem[] = [ learnMore ];
+    if (await vscode.window.showErrorMessage(error.message, ...items) === learnMore) {
+        await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(error.url));
+    }
+}
+
 function initCommandAsync(context: vscode.ExtensionContext,
                           outputChannel: vscode.OutputChannel,
                           commandId: string, callback: (...args: any[]) => Promise<any>): void {
@@ -232,16 +240,11 @@ function initCommandAsync(context: vscode.ExtensionContext,
                 outputChannel.appendLine(Constants.userCancelled);
             } else {
                 properties.result = "Failed";
+                errorData = new ErrorData(error);
+                outputChannel.appendLine(`Error: ${errorData.message}`);
                 if (error instanceof LearnMoreError) {
-                    const learnMore: vscode.MessageItem = { title: Constants.learnMore };
-                    const items: vscode.MessageItem[] = [ learnMore ];
-                    outputChannel.appendLine(`Error: ${error.message}`);
-                    if (await vscode.window.showErrorMessage(error.message, ...items) === learnMore) {
-                        await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(error.url));
-                    }
+                    showLearnMoreError(error);
                 } else {
-                    errorData = new ErrorData(error);
-                    outputChannel.appendLine(`Error: ${errorData.message}`);
                     vscode.window.showErrorMessage(errorData.message);
                 }
             }

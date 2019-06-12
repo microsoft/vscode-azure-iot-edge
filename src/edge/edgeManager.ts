@@ -12,6 +12,7 @@ import * as vscode from "vscode";
 import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
+import { LearnMoreError } from "../common/LearnMoreError";
 import { ModuleInfo } from "../common/moduleInfo";
 import { Platform } from "../common/platform";
 import { TelemetryClient } from "../common/telemetryClient";
@@ -203,7 +204,7 @@ export class EdgeManager {
         const moduleName: string = Utility.getValidModuleName(await Utility.inputModuleName(targetModulePath, Object.keys(modules)));
         const moduleInfo: ModuleInfo = await this.inputImage(moduleName, template);
 
-        this.addModuleInfo(templateFile, outputChannel, isNewSolution, template, moduleInfo);
+        await this.addModuleInfo(templateFile, outputChannel, isNewSolution, template, moduleInfo);
     }
 
     public async addModuleInfo(templateFile: string,
@@ -448,96 +449,120 @@ export class EdgeManager {
         let projCreated: boolean = true;
         switch (template) {
             case Constants.LANGUAGE_CSHARP:
-                if (Versions.installCSharpTemplate()) {
-                    const csversion = Versions.csTemplateVersion();
-                    const installCmd = csversion != null ? `new -i Microsoft.Azure.IoT.Edge.Module::${csversion}` : "new -i Microsoft.Azure.IoT.Edge.Module";
-                    await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, installCmd);
-                }
-                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
-                break;
-            case Constants.CSHARP_FUNCTION:
-                if (Versions.installCSFunctionTemplate()) {
-                    const csfuncversion = Versions.csFunctionTemplateVersion();
-                    const installCmd = csfuncversion != null ? `new -i Microsoft.Azure.IoT.Edge.Function::${csfuncversion}` : "new -i Microsoft.Azure.IoT.Edge.Function";
-                    await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, installCmd);
-                }
-                await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
-                break;
-            case Constants.LANGUAGE_PYTHON:
-                await new Promise((resolve, reject) => {
-                    tmp.dir({ unsafeCleanup: true }, (err, tmpDir, cleanupCallback) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            const moduleContentDirName = "{{cookiecutter.module_name}}";
-                            const moduleContentDir = path.join(tmpDir, moduleContentDirName);
-                            download(`github:Azure/cookiecutter-azure-iot-edge-module#${Versions.pythonTemplateVersion()}`, tmpDir, async (downloadErr) => {
-                                if (downloadErr) {
-                                    reject(downloadErr);
-                                } else {
-                                    try {
-                                        await this.updateRepositoryName(tmpDir, moduleContentDirName, repositoryName);
-                                        await fse.move(moduleContentDir, path.join(parent, name));
-                                        resolve();
-                                    } catch (error) {
-                                        reject(error);
-                                    }
-                                }
-                                cleanupCallback();
-                            });
-                        }
-                    });
-                });
-                break;
-            case Constants.LANGUAGE_NODE:
-                if (Versions.installNodeTemplate()) {
-                    // Have to install Node.js module template and Yeoman in the same space (either global or npx environment)
-                    // https://github.com/Microsoft/vscode-azure-iot-edge/issues/326
-                    const nodeModuleVersion = Versions.nodeTemplateVersion();
-                    const nodeVersionConfig = nodeModuleVersion != null ? `@${nodeModuleVersion}` : "";
-                    if (os.platform() === "win32") {
-                        await Executor.executeCMD(outputChannel, "npm", { cwd: `${parent}`, shell: true },
-                            `i -g generator-azure-iot-edge-module${nodeVersionConfig}`);
-                        await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
-                    } else {
-                        await Executor.executeCMD(outputChannel, "npx", { cwd: `${parent}`, shell: true },
-                            `-p yo -p generator-azure-iot-edge-module${nodeVersionConfig} -- yo azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                try {
+                    if (Versions.installCSharpTemplate()) {
+                        const csversion = Versions.csTemplateVersion();
+                        const installCmd = csversion != null ? `new -i Microsoft.Azure.IoT.Edge.Module::${csversion}` : "new -i Microsoft.Azure.IoT.Edge.Module";
+                        await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, installCmd);
                     }
-                } else {
-                    await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                    await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgemodule -n "${name}" -r ${repositoryName}`);
+                    break;
+                } catch (error) {
+                    throw new LearnMoreError(`${Constants.SCAFFOLDING_PREREQUISITES} for C# module. ${error}`, "https://aka.ms/edge-csharp-module-prerequisites");
                 }
-                break;
-            case Constants.LANGUAGE_C:
-                await new Promise((resolve, reject) => {
-                    download(`github:Azure/azure-iot-edge-c-module#${Versions.cTemplateVersion()}`, path.join(parent, name), (err) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve();
-                        }
+            case Constants.CSHARP_FUNCTION:
+                try {
+                    if (Versions.installCSFunctionTemplate()) {
+                        const csfuncversion = Versions.csFunctionTemplateVersion();
+                        const installCmd = csfuncversion != null ? `new -i Microsoft.Azure.IoT.Edge.Function::${csfuncversion}` : "new -i Microsoft.Azure.IoT.Edge.Function";
+                        await Executor.executeCMD(outputChannel, "dotnet", { shell: true }, installCmd);
+                    }
+                    await Executor.executeCMD(outputChannel, "dotnet", { cwd: `${parent}`, shell: true }, `new aziotedgefunction -n "${name}" -r ${repositoryName}`);
+                    break;
+                } catch (error) {
+                    throw new LearnMoreError(`${Constants.SCAFFOLDING_PREREQUISITES} for C# Functions module. ${error}`, "https://aka.ms/edge-csharp-functions-prerequisites");
+                }
+            case Constants.LANGUAGE_PYTHON:
+                try {
+                    await new Promise((resolve, reject) => {
+                        tmp.dir({ unsafeCleanup: true }, (err, tmpDir, cleanupCallback) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                const moduleContentDirName = "{{cookiecutter.module_name}}";
+                                const moduleContentDir = path.join(tmpDir, moduleContentDirName);
+                                download(`github:Azure/cookiecutter-azure-iot-edge-module#${Versions.pythonTemplateVersion()}`, tmpDir, async (downloadErr) => {
+                                    if (downloadErr) {
+                                        reject(downloadErr);
+                                    } else {
+                                        try {
+                                            await this.updateRepositoryName(tmpDir, moduleContentDirName, repositoryName);
+                                            await fse.move(moduleContentDir, path.join(parent, name));
+                                            resolve();
+                                        } catch (error) {
+                                            reject(error);
+                                        }
+                                    }
+                                    cleanupCallback();
+                                });
+                            }
+                        });
                     });
-                });
-                await this.updateRepositoryName(parent, name, repositoryName);
-                break;
+                    break;
+                } catch (error) {
+                    throw new LearnMoreError(`${Constants.SCAFFOLDING_PREREQUISITES} for Python module. ${error}`, "https://aka.ms/edge-python-module-prerequisites");
+                }
+            case Constants.LANGUAGE_NODE:
+                try {
+                    if (Versions.installNodeTemplate()) {
+                        // Have to install Node.js module template and Yeoman in the same space (either global or npx environment)
+                        // https://github.com/Microsoft/vscode-azure-iot-edge/issues/326
+                        const nodeModuleVersion = Versions.nodeTemplateVersion();
+                        const nodeVersionConfig = nodeModuleVersion != null ? `@${nodeModuleVersion}` : "";
+                        if (os.platform() === "win32") {
+                            await Executor.executeCMD(outputChannel, "npm", { cwd: `${parent}`, shell: true },
+                                `i -g generator-azure-iot-edge-module${nodeVersionConfig}`);
+                            await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                        } else {
+                            await Executor.executeCMD(outputChannel, "npx", { cwd: `${parent}`, shell: true },
+                                `-p yo -p generator-azure-iot-edge-module${nodeVersionConfig} -- yo azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                        }
+                    } else {
+                        await Executor.executeCMD(outputChannel, "yo", { cwd: `${parent}`, shell: true }, `azure-iot-edge-module -n "${name}" -r ${repositoryName}`);
+                    }
+                    break;
+                } catch (error) {
+                    throw new LearnMoreError(`${Constants.SCAFFOLDING_PREREQUISITES} for Node.js module. ${error}`, "https://aka.ms/edge-nodejs-module-prerequisites");
+                }
+            case Constants.LANGUAGE_C:
+                try {
+                    await new Promise((resolve, reject) => {
+                        download(`github:Azure/azure-iot-edge-c-module#${Versions.cTemplateVersion()}`, path.join(parent, name), (err) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    });
+                    await this.updateRepositoryName(parent, name, repositoryName);
+                    break;
+                } catch (error) {
+                    throw new LearnMoreError(`${Constants.SCAFFOLDING_PREREQUISITES} for C module. ${error}`, "https://aka.ms/edge-c-module-prerequisites");
+                }
             case Constants.LANGUAGE_JAVA:
-                const groupId = extraProps.get(Constants.groupId);
-                const packageName = groupId;
-                const javaversion = Versions.javaTemplateVersion();
-                const javaTemplateVersionConfig = javaversion != null ? `-DarchetypeVersion=${javaversion}` : "";
-                await Executor.executeCMD(outputChannel,
-                    "mvn",
-                    { cwd: `${parent}`, shell: true },
-                    "archetype:generate",
-                    '-DarchetypeGroupId="com.microsoft.azure"',
-                    '-DarchetypeArtifactId="azure-iot-edge-archetype"',
-                    `${javaTemplateVersionConfig}`,
-                    `-DgroupId="${groupId}"`,
-                    `-DartifactId="${name}"`,
-                    `-Dversion="1.0.0-SNAPSHOT"`,
-                    `-Dpackage="${packageName}"`,
-                    `-Drepository="${repositoryName}"`,
-                    "-B");
-                break;
+                try {
+                    const groupId = extraProps.get(Constants.groupId);
+                    const packageName = groupId;
+                    const javaversion = Versions.javaTemplateVersion();
+                    const javaTemplateVersionConfig = javaversion != null ? `-DarchetypeVersion=${javaversion}` : "";
+                    await Executor.executeCMD(outputChannel,
+                        "mvn",
+                        { cwd: `${parent}`, shell: true },
+                        "archetype:generate",
+                        '-DarchetypeGroupId="com.microsoft.azure"',
+                        '-DarchetypeArtifactId="azure-iot-edge-archetype"',
+                        `${javaTemplateVersionConfig}`,
+                        `-DgroupId="${groupId}"`,
+                        `-DartifactId="${name}"`,
+                        `-Dversion="1.0.0-SNAPSHOT"`,
+                        `-Dpackage="${packageName}"`,
+                        `-Drepository="${repositoryName}"`,
+                        "-B");
+                    break;
+                } catch (error) {
+                    throw new LearnMoreError(`${Constants.SCAFFOLDING_PREREQUISITES} for Java module. ${error}`, "https://aka.ms/edge-java-module-prerequisites");
+                }
             default:
                 const thirdPartyModuleTemplate = this.get3rdPartyModuleTemplateByName(template);
                 if (thirdPartyModuleTemplate) {

@@ -55,6 +55,7 @@ export class Constants {
     public static ACR_MODULE_DESCRIPTION = "Import an existing module image from your Azure Container Registry";
     public static EXISTING_MODULE_DESCRIPTION = "Import an existing module image from any container registry";
     public static MARKETPLACE_MODULE_DESCRIPTION = "Import an existing module image from Azure Marketplace";
+    public static SCAFFOLDING_PREREQUISITES = "Please make sure the scaffolding prerequisites installed";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";

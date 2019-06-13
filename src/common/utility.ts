@@ -626,7 +626,6 @@ export class Utility {
     The following code is based on VS Code from https://github.com/microsoft/vscode/blob/5c65d9bfa4c56538150d7f3066318e0db2c6151f/src/vs/workbench/contrib/terminal/node/terminal.ts#L12-L55
     This is only a fall back to identify the default shell used by VSC.
     On Windows, determine the default shell.
-    On others, default to bash.
     */
    private static _TERMINAL_DEFAULT_SHELL_WINDOWS: string | null = null;
    private static getDefaultWindowsShell(): string {

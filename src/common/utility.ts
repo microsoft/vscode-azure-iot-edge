@@ -34,7 +34,7 @@ export class Utility {
 
     public static adjustFilePath(filePath: string): string {
         if (os.platform() === "win32") {
-            const windowsShell = vscode.workspace.getConfiguration("terminal").get<string>("integrated.shell.windows");
+            const windowsShell = Utility.getWindowsShell();
             const terminalRoot = Configuration.getConfiguration().get<string>("terminalRoot");
             if (windowsShell && terminalRoot) {
                 filePath = filePath
@@ -58,7 +58,7 @@ export class Utility {
     public static combineCommands(commands: string[]): string {
         let isPowerShell = false;
         if (os.platform() === "win32") {
-            const windowsShell = vscode.workspace.getConfiguration("terminal").get<string>("integrated.shell.windows");
+            const windowsShell = Utility.getWindowsShell();
             if (windowsShell && windowsShell.toLowerCase().indexOf("powershell") > -1) {
                 isPowerShell = true;
             }
@@ -620,6 +620,34 @@ export class Utility {
         return await Utility.showInputBox(Constants.moduleName,
             Constants.moduleNamePrompt,
             validateFunc, Constants.moduleNameDft);
+    }
+
+    /*
+    The following code is based on VS Code from https://github.com/microsoft/vscode/blob/5c65d9bfa4c56538150d7f3066318e0db2c6151f/src/vs/workbench/contrib/terminal/node/terminal.ts#L12-L55
+    This is only a fall back to identify the default shell used by VSC.
+    On Windows, determine the default shell.
+    */
+   private static _TERMINAL_DEFAULT_SHELL_WINDOWS: string | null = null;
+   private static getDefaultWindowsShell(): string {
+        if (!Utility._TERMINAL_DEFAULT_SHELL_WINDOWS) {
+           const isAtLeastWindows10 = os.platform() === "win32" && parseFloat(os.release()) >= 10;
+           const is32ProcessOn64Windows = process.env.hasOwnProperty("PROCESSOR_ARCHITEW6432");
+           const powerShellPath = `${process.env.windir}\\${is32ProcessOn64Windows ? "Sysnative" : "System32"}\\WindowsPowerShell\\v1.0\\powershell.exe`;
+           Utility._TERMINAL_DEFAULT_SHELL_WINDOWS = isAtLeastWindows10 ? powerShellPath : Utility.getDefaultOldVerWindowsShell();
+        }
+        return Utility._TERMINAL_DEFAULT_SHELL_WINDOWS;
+    }
+
+    private static getDefaultOldVerWindowsShell(): string {
+        return process.env.comspec || "cmd.exe";
+    }
+
+    private static getWindowsShell(): string {
+        let windowsShell = vscode.workspace.getConfiguration("terminal").get<string>("integrated.shell.windows");
+        if (!windowsShell) {
+            windowsShell = Utility.getDefaultWindowsShell();
+        }
+        return windowsShell;
     }
 
     private static async getSubModules(slnPath: string): Promise<string[]> {

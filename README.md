@@ -1,6 +1,11 @@
 # Azure IoT Edge for Visual Studio Code
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-blue.svg)](https://gitter.im/Microsoft/vscode-azure-iot-edge)
 
+*[Azure IoT Edge extension](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-edge) is now part of [Azure IoT Tools](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-tools) extension pack. We highly recommend installing [Azure IoT Tools](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-tools) extension pack, which makes it easy to discover and interact with Azure IoT Hub that power your IoT Edge and device applications. This extension pack can help you:*
+- *Develop and connect your [Azure loT Applications](https://azure.microsoft.com/en-us/overview/iot/) to Azure. With this extension, you can interact with an Azure loT Hub, manage connected devices, and enable distributed tracing for your Azure loT applications.*
+- *Develop and debug [Certifies Azure loT Devices](https://catalog.azureiotsolutions.com/alldevices) (including [MXChip loT DevKit](http://www.mxchip.com/az3166), [ESP32](https://catalog.azureiotsolutions.com/details?title=ESP32_DevKitC&source=all-devices-page), [Raspberry Pi](https://www.adafruit.com/category/288)) to Azure. This extension pack makes it easy to code, build, deploy and debug your loT applications with popular loT development boards.*
+- *Develop and deploy artificial intelligence and your custom logic to (Azure loT Edge)[https://azure.microsoft.com/en-us/services/iot-edge/]. This extension pack makes it easy to code, build, deploy, and debug your loT Edge applications.*
+
 ## Overview
 [Azure IoT Edge extension](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-edge) makes it easy to code, build, deploy, and debug your [IoT Edge](https://docs.microsoft.com/azure/iot-edge/how-iot-edge-works) solutions in Visual Studio Code, by providing a rich set of functionalities:
 

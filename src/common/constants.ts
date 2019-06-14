@@ -42,7 +42,7 @@ export class Constants {
     public static ACR_MODULE = "Existing Module (Import from ACR)";
     public static EXISTING_MODULE = "Existing Module (Enter Full Image URL)";
     public static MARKETPLACE_MODULE = "Module from Azure Marketplace";
-    public static EMPTY_SOLUTION = "Empty Azure IoT Edge Solution";
+    public static EMPTY_SOLUTION = "Empty Solution";
     public static EMPTY_SLN_DESCRIPTION = "Create an empty Azure IoT Edge Solution without adding any module";
     public static LANGUAGE_CSHARP_DESCRIPTION = "Use Azure IoT C# SDK to build a module";
     public static LANGUAGE_NODE_DESCRIPTION = "Use Azure IoT Node.js SDK to build a module";
@@ -55,7 +55,7 @@ export class Constants {
     public static ACR_MODULE_DESCRIPTION = "Import an existing module image from your Azure Container Registry";
     public static EXISTING_MODULE_DESCRIPTION = "Import an existing module image from any container registry";
     public static MARKETPLACE_MODULE_DESCRIPTION = "Import an existing module image from Azure Marketplace";
-    public static SCAFFOLDING_PREREQUISITES = "Please make sure the scaffolding prerequisites installed";
+    public static SCAFFOLDING_PREREQUISITES = "Please make sure the prerequisites are installed";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
     public static deploymentTemplate = "deployment.template.json";

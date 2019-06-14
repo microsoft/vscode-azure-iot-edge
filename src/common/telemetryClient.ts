@@ -13,16 +13,16 @@ const aiKey: string = packageJSON.aiKey;
 export class TelemetryClient {
     public static sendEvent(eventName: string, properties?: { [key: string]: string; }): void {
         if (properties) {
-            properties[Constants.isInternalPropertyName] = this.isInternal === true ? "true" : "false";
+            properties[Constants.isInternalPropertyName] = this._isInternal === true ? "true" : "false";
         } else {
             properties = {
-                [Constants.isInternalPropertyName] : this.isInternal === true ? "true" : "false",
+                [Constants.isInternalPropertyName] : this._isInternal === true ? "true" : "false",
             };
         }
         this._client.sendTelemetryEvent(eventName, properties);
     }
 
-    private static isInternal: boolean = TelemetryClient.isInternalUser();
+    private static _isInternal: boolean = TelemetryClient.isInternalUser();
 
     private static _client = new TelemetryReporter(Constants.ExtensionId, extensionVersion, aiKey);
 

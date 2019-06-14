@@ -622,11 +622,6 @@ export class Utility {
             validateFunc, Constants.moduleNameDft);
     }
 
-    public static isInternalUser(): boolean {
-        let userDomain = process.env.USERDNSDOMAIN ? process.env.USERDNSDOMAIN.toLowerCase() : '';
-        return userDomain.endsWith('microsoft.com');
-    }
-
     /*
     The following code is based on VS Code from https://github.com/microsoft/vscode/blob/5c65d9bfa4c56538150d7f3066318e0db2c6151f/src/vs/workbench/contrib/terminal/node/terminal.ts#L12-L55
     This is only a fall back to identify the default shell used by VSC.

@@ -13,10 +13,10 @@ const aiKey: string = packageJSON.aiKey;
 export class TelemetryClient {
     public static sendEvent(eventName: string, properties?: { [key: string]: string; }): void {
         if (properties) {
-            properties[Constants.isInternalPropertyName] = TelemetryClient.isInternal === true ? "true" : "false";
+            properties[Constants.isInternalPropertyName] = this.isInternal === true ? "true" : "false";
         } else {
             properties = {
-                [Constants.isInternalPropertyName] : TelemetryClient.isInternal === true ? "true" : "false",
+                [Constants.isInternalPropertyName] : this.isInternal === true ? "true" : "false",
             };
         }
         this._client.sendTelemetryEvent(eventName, properties);

@@ -174,6 +174,8 @@ export class Constants {
     public static openSampleEvent = "openSample";
     public static openSampleUrlEvent = "openSampleUrl";
 
+    public static isInternalPropertyName = "isInternal";
+
     public static subModuleKeyPrefixTemplate(name: string): string {
         return `MODULES.${name}`;
     }

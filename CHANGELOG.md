@@ -1,4 +1,12 @@
 # Change Log
+## 1.14.0 - 2019-06-XX
+### Added
+* Support create an Azure IoT Edge Solution without any module.
+
+### Changed
+* Only add tempSensor module when adding custom module.
+* Fixed the issue command broken on VSCode 1.35.0+ [#459](https://github.com/microsoft/vscode-azure-iot-edge/issues/459).
+
 ## 1.13.0 - 2019-05-28
 ### Added
 * Support relative path schema for the reference of external custom module. The schema is like ${MODULEDIR\<RelativePathToModuleFolder\>}

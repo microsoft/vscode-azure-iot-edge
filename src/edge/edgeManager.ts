@@ -738,7 +738,7 @@ export class EdgeManager {
     }
 
     private checkAddressExist(address: string, registriesObj: any): { exists: boolean, keySet: Set<string> } {
-        const keySet = new Set();
+        const keySet = new Set<string>();
         let exists = false;
         if (registriesObj === undefined) {
             return { exists, keySet };

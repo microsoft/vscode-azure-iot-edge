@@ -32,7 +32,7 @@
 * ["Entry not found in cache" error when importing ACR and ASA modules](https://github.com/Microsoft/vscode-azure-iot-edge/issues/161)
 * [Node.js module template version is not applied when another version is installed globally](https://github.com/Microsoft/vscode-azure-iot-edge/issues/340)
 
-## Prerequisites
+## Prerequisites for Azure IoT Edge extension
 
 You need to install prerequisites below to make Azure IoT Edge extension work: 
 - [Docker](https://www.docker.com/)
@@ -44,32 +44,39 @@ You need to install prerequisites below to make Azure IoT Edge extension work:
 - It's also recommended to install [Docker Support for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker) to manage your IoT Edge Docker images, containers and registries. 
 - The current user must have permissions to manage Docker. By default this is not the case on Linux, check the [FAQ section](#FAQ) to avoid `permission denied` errors.
 
+## Prerequisites for specific language
 To develop IoT Edge modules you also need to install following prerequisites for specific language:
   #### C# module prerequisites
   - [.NET Core 2.1 SDK](https://www.microsoft.com/net/download)
   - [C# for Visual Studio Code (powered by OmniSharp) extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
+  - [Prerequisites for Azure IoT Edge extension](#Prerequisites-for-azure-iot-edge-extension)
 
   #### C# Functions on IoT Edge prerequisites
   - [.NET Core 2.1 SDK](https://www.microsoft.com/net/download)
   - [C# for Visual Studio Code (powered by OmniSharp) extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
+  - [Prerequisites for Azure IoT Edge extension](#Prerequisites-for-azure-iot-edge-extension)
 
   #### Python module prerequisites
   - [Python](https://www.python.org/downloads/) and [Pip](https://pip.pypa.io/en/stable/installing/#installation)
   - [Git](https://git-scm.com/downloads) for cloning module template from GitHub
   - [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) for Visual Studio Code
+  - [Prerequisites for Azure IoT Edge extension](#Prerequisites-for-azure-iot-edge-extension)
 
   #### Node.js module prerequisites
   - [Node.js and npm](https://nodejs.org/)
   - [Yeoman](https://yeoman.io/)
+  - [Prerequisites for Azure IoT Edge extension](#Prerequisites-for-azure-iot-edge-extension)
 
   #### Java module prerequisites
   - [Java SE Development Kit](https://aka.ms/azure-jdks), and [set the JAVA_HOME environment variable](https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/) to point to your JDK installation.
   - [Maven](https://maven.apache.org/)
   - [Java Extension Pack](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) for Visual Studio Code.
+  - [Prerequisites for Azure IoT Edge extension](#Prerequisites-for-azure-iot-edge-extension)
 
   #### C module prerequisites
   - [Git](https://git-scm.com/downloads) for cloning module template from GitHub
   - [C/C++ extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) for Visual Studio Code.
+  - [Prerequisites for Azure IoT Edge extension](#Prerequisites-for-azure-iot-edge-extension)
 
 ## Quickstart
 Click the links below to learn how to develop, debug and deploy IoT Edge modules.

@@ -103,7 +103,7 @@ export class Constants {
     public static routeDeploymentManifestJsonPath = ["modulesContent", "$edgeHub", "properties.desired", "routes", "*"];
     public static moduleTypes = ["docker"];
     public static moduleStatuses = ["running", "stopped"];
-    public static moduleRestartPolicies = ["always", "never", "on-failed", "on-unhealthy"];
+    public static moduleRestartPolicies = ["always", "never", "on-failure", "on-unhealthy"];
     public static moduleSnippetLabel = "edgeModule";
     public static moduleSnippetDetail = "Module for edgeAgent to start";
     public static routeSnippetLabel = "edgeRoute";

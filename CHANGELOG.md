@@ -1,5 +1,5 @@
 # Change Log
-## 1.14.0 - 2019-06-XX
+## 1.14.0 - 2019-06-25
 ### Added
 * Support create an Azure IoT Edge Solution without any module.
 

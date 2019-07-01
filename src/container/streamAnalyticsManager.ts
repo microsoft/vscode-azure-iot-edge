@@ -14,6 +14,7 @@ import { StreamAnalyticsPickItem } from "./models/streamAnalyticsPickItem";
 
 export class StreamAnalyticsManager {
     private readonly azureAccount: AzureAccount;
+    private readonly MaximumRetryCount: number = 3;
 
     constructor() {
         this.azureAccount = vscode.extensions.getExtension<AzureAccount>("ms-vscode.azure-account")!.exports;
@@ -45,16 +46,33 @@ export class StreamAnalyticsManager {
 
             const operationResultUrl = publishResponse.headers.location;
 
-            await this.sleep(1000);
+            let retryTimes = 0;
+            while (true) {
+                await this.sleep(1000);
 
-            const jobInfoResult = await request.get(operationResultUrl, {
-                auth: {
-                    bearer: aadAccessToken,
-                },
-            });
+                const jobInfoResult = await request.get(operationResultUrl, {
+                    auth: {
+                        bearer: aadAccessToken,
+                    },
+                });
 
-            const info = JSON.parse(JSON.parse(jobInfoResult).manifest);
-            return info;
+                if (!jobInfoResult) {
+                    if (retryTimes < this.MaximumRetryCount) {
+                        retryTimes++;
+                        continue;
+                    } else {
+                        throw new Error(Constants.queryASAJobInfoFailedMsg);
+                    }
+                }
+
+                const result = JSON.parse(jobInfoResult);
+                if (result.status === "Succeeded") {
+                    const info = JSON.parse(result.manifest);
+                    return info;
+                } else {
+                    throw new Error(result.error.message);
+                }
+            }
         } catch (error) {
             error.message = `Cannot parse Stream Analytics publish job information: ${error.message}`;
             throw error;

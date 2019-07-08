@@ -192,6 +192,12 @@ export class EdgeManager {
             }
             return;
         }
+        if (template === Constants.EVENT_GRID) {
+            await fse.copy(this.context.asAbsolutePath(path.join("assets", "eventGridQuickStart")), slnPath, {overwrite: true, recursive: true});
+            await fse.remove(path.join(slnPath, Constants.deploymentDebugTemplate));
+            await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
+            return;
+        }
 
         const templateJson = Utility.updateSchema(await fse.readJson(templateFile));
         const modules = templateJson.modulesContent.$edgeAgent["properties.desired"].modules;
@@ -807,6 +813,9 @@ export class EdgeManager {
         ];
         if (isNewSolution) {
             templatePicks.push({
+                label: Constants.EVENT_GRID,
+                description: Constants.EVENT_GRID_DESCRIPTION,
+            }, {
                 label: Constants.EMPTY_SOLUTION,
                 description: Constants.EMPTY_SLN_DESCRIPTION,
             });

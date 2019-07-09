@@ -4,6 +4,7 @@
 "use strict";
 import * as tls from "tls";
 import * as vscode from "vscode";
+import { ConfigNotSetError } from "./common/ConfigNotSetError";
 import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
@@ -222,6 +223,21 @@ async function showLearnMoreError(error: LearnMoreError): Promise<void> {
     }
 }
 
+async function guideUserToSetupIotedgehubdev(outputChannel: vscode.OutputChannel) {
+    const setup: vscode.MessageItem = { title: Constants.Setup };
+    const cancel: vscode.MessageItem = { title: Constants.Cancel };
+    const items: vscode.MessageItem[] = [setup, cancel];
+    const input = await vscode.window.showWarningMessage(Constants.needSetupSimulatorMsg, ...items);
+    const telemetryName = "guideUserSetupConnectionString";
+
+    if (input === setup) {
+        TelemetryClient.sendEvent(`${telemetryName}.${Constants.Setup.toLocaleLowerCase()}`);
+        await vscode.commands.executeCommand("azure-iot-edge.setupIotedgehubdev", undefined);
+    } else {
+        TelemetryClient.sendEvent(`${telemetryName}.${Constants.Cancel.toLocaleLowerCase()}`);
+    }
+}
+
 function initCommandAsync(context: vscode.ExtensionContext,
                           outputChannel: vscode.OutputChannel,
                           commandId: string, callback: (...args: any[]) => Promise<any>): void {
@@ -244,6 +260,8 @@ function initCommandAsync(context: vscode.ExtensionContext,
                 outputChannel.appendLine(`Error: ${errorData.message}`);
                 if (error instanceof LearnMoreError) {
                     showLearnMoreError(error);
+                } else if (error instanceof ConfigNotSetError) {
+                    guideUserToSetupIotedgehubdev(outputChannel);
                 } else {
                     vscode.window.showErrorMessage(errorData.message);
                 }

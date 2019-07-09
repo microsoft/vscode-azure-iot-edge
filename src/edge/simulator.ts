@@ -9,6 +9,7 @@ import * as path from "path";
 import * as request from "request-promise";
 import * as semver from "semver";
 import * as vscode from "vscode";
+import { ConfigNotSetError } from "../common/ConfigNotSetError";
 import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
@@ -175,7 +176,7 @@ export class Simulator {
 
     public async startEdgeHubSingleModule(outputChannel: vscode.OutputChannel): Promise<void> {
         return await this.callWithInstallationCheck(outputChannel, async () => {
-            await this.checkAndGuideUserToSetupIotedgehubdev(outputChannel);
+            await this.checkIoTedgehubdevConnectionString(outputChannel);
             const inputs = await this.inputInputNames();
             await this.setModuleCred(outputChannel);
             await Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev start -i "${inputs}"`));
@@ -207,7 +208,7 @@ export class Simulator {
 
     public async runSolution(outputChannel: vscode.OutputChannel, deployFileUri?: vscode.Uri, commands: string[] = []): Promise<void> {
         return await this.callWithInstallationCheck(outputChannel, async () => {
-            await this.checkAndGuideUserToSetupIotedgehubdev(outputChannel);
+            await this.checkIoTedgehubdevConnectionString(outputChannel);
             const pattern = "{**/deployment.*.json,**/deployment.json,**/deployment.*.debug.json,**/config/*.json}";
             const excludePattern = `{${Constants.tsonPattern}}`;
             const deployFile: string = await Utility.getInputFilePath(deployFileUri,
@@ -225,25 +226,12 @@ export class Simulator {
         });
     }
 
-    private async checkAndGuideUserToSetupIotedgehubdev(outputChannel: vscode.OutputChannel) {
+    private async checkIoTedgehubdevConnectionString(outputChannel: vscode.OutputChannel) {
         if (await this.isValidateConfigSupported()) {
             try {
                 await Executor.executeCMD(null, "iotedgehubdev", { shell: true }, "validateconfig");
             } catch (error) {
-                const setup: vscode.MessageItem = { title: Constants.Setup };
-                const cancel: vscode.MessageItem = { title: Constants.Cancel };
-                const items: vscode.MessageItem[] = [setup, cancel];
-                const input = await vscode.window.showWarningMessage(Constants.needSetupSimulatorMsg, ...items);
-                const telemetryName = "guideUserSetupConnectionString";
-
-                if (input === setup) {
-                    TelemetryClient.sendEvent(`${telemetryName}.${Constants.Setup.toLocaleLowerCase()}`);
-                    await this.setupIotedgehubdev(undefined, outputChannel);
-                } else {
-                    TelemetryClient.sendEvent(`${telemetryName}.${Constants.Cancel.toLocaleLowerCase()}`);
-                }
-
-                throw new UserCancelledError();
+                throw new ConfigNotSetError(error.message);
             }
         }
     }

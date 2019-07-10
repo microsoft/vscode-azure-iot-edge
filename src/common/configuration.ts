@@ -1,5 +1,6 @@
 "use strict";
 import * as vscode from "vscode";
+import { Utility } from "./utility";
 
 export class Configuration {
     public static getConfiguration(): vscode.WorkspaceConfiguration {
@@ -18,8 +19,12 @@ export class Configuration {
         await Configuration.getConfiguration().update(id, value, false);
     }
 
-    public static getIotHubConnectionString(): string | undefined {
-        const toolkitConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("azure-iot-toolkit");
-        return toolkitConfig ? toolkitConfig.get("iotHubConnectionString") : undefined;
+    public static async getIotHubConnectionString(): Promise<string | undefined> {
+        const toolkit = Utility.getToolkit();
+        try {
+            return toolkit.exports.azureIoTExplorer.getIotHubConnectionString();
+        } catch (error) {
+            return undefined;
+        }
     }
 }

@@ -418,14 +418,19 @@ export class Utility {
             return deviceItem;
         }
 
-        const toolkit = vscode.extensions.getExtension("vsciot-vscode.azure-iot-toolkit");
-        if (toolkit === undefined) {
-            throw new Error("Error loading Azure IoT Toolkit extension");
-        }
+        const toolkit = Utility.getToolkit();
 
         // TODO: only get Edge devices when Toolkit API supports this parameter
         deviceItem = await toolkit.exports.azureIoTExplorer.getDevice(undefined, undefined, outputChannel);
         return deviceItem;
+    }
+
+    public static getToolkit(): vscode.Extension<any> {
+        const toolkit = vscode.extensions.getExtension("vsciot-vscode.azure-iot-toolkit");
+        if (toolkit === undefined) {
+            throw new Error("Error loading Azure IoT Toolkit extension");
+        }
+        return toolkit;
     }
 
     public static async waitForAzLogin(azureAccount: AzureAccount): Promise<void> {

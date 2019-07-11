@@ -163,7 +163,7 @@ export class Simulator {
             if (deviceItem) {
                 let commandStr = `iotedgehubdev setup -c "${deviceItem.connectionString}"`;
                 if (await this.isModuleTwinSupported()) {
-                    const iotHubConnectionStr = Configuration.getIotHubConnectionString();
+                    const iotHubConnectionStr = await Configuration.getIotHubConnectionString();
                     if (iotHubConnectionStr) {
                         commandStr = `${commandStr} -i "${iotHubConnectionStr}"`;
                     }

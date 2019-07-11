@@ -415,10 +415,10 @@ export class EdgeManager {
                   createOptions: {},
                 },
             };
-            modules.tempSensor = tempSensor;
+            modules.SimulatedTemperatureSensor = tempSensor;
             const tempSensorToModule = `sensorTo${moduleInfo.moduleName}`;
             routes[tempSensorToModule] =
-                `FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/${moduleInfo.moduleName}/inputs/input1\")`;
+                `FROM /messages/modules/SimulatedTemperatureSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/${moduleInfo.moduleName}/inputs/input1\")`;
         }
         await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
         return {

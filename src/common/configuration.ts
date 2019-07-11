@@ -24,7 +24,8 @@ export class Configuration {
         try {
             return toolkit.exports.azureIoTExplorer.getIotHubConnectionString();
         } catch (error) {
-            return undefined;
+            const toolkitConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("azure-iot-toolkit");
+            return toolkitConfig ? toolkitConfig.get("iotHubConnectionString") : undefined;
         }
     }
 }

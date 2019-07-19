@@ -1,5 +1,5 @@
 # Change Log
-## 1.15.0
+## 1.15.0 - 2019-07-19
 ### Changed
 * ASA error message improvement
 * Rename 'tempSensor' to 'SimulatedTemperatureSensor'

@@ -504,7 +504,7 @@ export class EdgeManager {
                 }
             case Constants.LANGUAGE_NODE:
                 try {
-                    outputChannel.appendLine("Node.js Module creation may take some time.");
+                    outputChannel.appendLine("Node.js Module creation may take about 1 minute.");
                     if (Versions.installNodeTemplate()) {
                         // Have to install Node.js module template and Yeoman in the same space (either global or npx environment)
                         // https://github.com/Microsoft/vscode-azure-iot-edge/issues/326

@@ -35,6 +35,7 @@
 * [ASA module may fail sending message](https://github.com/Microsoft/vscode-azure-iot-edge/issues/213)
 * ["Entry not found in cache" error when importing ACR and ASA modules](https://github.com/Microsoft/vscode-azure-iot-edge/issues/161)
 * [Node.js module template version is not applied when another version is installed globally](https://github.com/Microsoft/vscode-azure-iot-edge/issues/340)
+* [Access is denied when debugging C# module on macOS](https://github.com/Azure/iotedgehubdev/issues/30#issuecomment-514964933)
 
 ## Prerequisites for Azure IoT Edge extension
 

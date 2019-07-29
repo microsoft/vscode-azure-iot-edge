@@ -52,7 +52,7 @@ You need to install prerequisites below to make Azure IoT Edge extension work:
 ## Prerequisites for specific language
 To develop IoT Edge modules you also need to install following prerequisites for specific language:
   #### C# module prerequisites
-  - [.NET Core 2.1 SDK or higher](https://www.microsoft.com/net/download). [.NET Core 3.0 SDK or higher](https://dotnet.microsoft.com/download/dotnet-core/3.0) is required for ARM64 support.
+  - [.NET Core 2.1 SDK or higher](https://www.microsoft.com/net/download). ([.NET Core 3.0 SDK or higher](https://dotnet.microsoft.com/download/dotnet-core/3.0) is required for ARM64 (preview) support. Please read the instruction [here](https://devblogs.microsoft.com/iotdev/develop-and-debug-arm64-iot-edge-modules-in-visual-studio-code-preview/) for more details).
   - [C# for Visual Studio Code (powered by OmniSharp) extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
   - [Prerequisites for Azure IoT Edge extension](#Prerequisites-for-azure-iot-edge-extension)
 

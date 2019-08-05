@@ -246,6 +246,8 @@ function initCommandAsync(context: vscode.ExtensionContext,
         let errorData: ErrorData | undefined;
         const properties: { [key: string]: string; } = {};
         properties.result = "Succeeded";
+        properties.fromCommandPalette = (!args || !args[0]).toString();
+
         TelemetryClient.sendEvent(`${commandId}.start`);
         outputChannel.appendLine(`${commandId}: `);
         try {

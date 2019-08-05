@@ -1,4 +1,10 @@
 # Change Log
+## 1.15.0 - 2019-07-19
+### Changed
+* ASA error message improvement
+* Rename 'tempSensor' to 'SimulatedTemperatureSensor'
+* Read connection string from API of Azure IoT Hub Toolkit
+
 ## 1.14.0 - 2019-06-25
 ### Added
 * Support create an Azure IoT Edge Solution without any module.

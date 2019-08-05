@@ -35,6 +35,7 @@
 * [ASA module may fail sending message](https://github.com/Microsoft/vscode-azure-iot-edge/issues/213)
 * ["Entry not found in cache" error when importing ACR and ASA modules](https://github.com/Microsoft/vscode-azure-iot-edge/issues/161)
 * [Node.js module template version is not applied when another version is installed globally](https://github.com/Microsoft/vscode-azure-iot-edge/issues/340)
+* [Access is denied when debugging C# module on macOS](https://github.com/Azure/iotedgehubdev/issues/30#issuecomment-514964933)
 
 ## Prerequisites for Azure IoT Edge extension
 
@@ -51,12 +52,12 @@ You need to install prerequisites below to make Azure IoT Edge extension work:
 ## Prerequisites for specific language
 To develop IoT Edge modules you also need to install following prerequisites for specific language:
   #### C# module prerequisites
-  - [.NET Core 2.1 SDK](https://www.microsoft.com/net/download)
+  - [.NET Core 2.1 SDK or higher](https://www.microsoft.com/net/download). ([.NET Core 3.0 SDK or higher](https://dotnet.microsoft.com/download/dotnet-core/3.0) is required for ARM64 (preview) support. Please read the instruction [here](https://devblogs.microsoft.com/iotdev/develop-and-debug-arm64-iot-edge-modules-in-visual-studio-code-preview/) for more details).
   - [C# for Visual Studio Code (powered by OmniSharp) extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
   - [Prerequisites for Azure IoT Edge extension](#Prerequisites-for-azure-iot-edge-extension)
 
   #### C# Functions on IoT Edge prerequisites
-  - [.NET Core 2.1 SDK](https://www.microsoft.com/net/download)
+  - [.NET Core 2.1 SDK or higher](https://www.microsoft.com/net/download)
   - [C# for Visual Studio Code (powered by OmniSharp) extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
   - [Prerequisites for Azure IoT Edge extension](#Prerequisites-for-azure-iot-edge-extension)
 

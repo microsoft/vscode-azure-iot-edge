@@ -21,7 +21,7 @@ suite("utility tests", () => {
     const generatedObj = JSON.parse(generated);
     assert.equal(generatedObj.modulesContent
       .$edgeAgent["properties.desired"]
-      .modules.tempSensor.settings.image, imageString);
+      .modules.SimulatedTemperatureSensor.settings.image, imageString);
   }).timeout(60 * 1000);
 
   test("expandModules", async () => {
@@ -38,7 +38,7 @@ suite("utility tests", () => {
   test("convertCreateOptions", async () => {
     const input: string = await fse.readFile(path.resolve(__dirname, "../../testResources/deployment.template.json"), "utf8");
     let deployment = JSON.parse(input);
-    const oldOptionObj = deployment.modulesContent.$edgeAgent["properties.desired"].modules.tempSensor.settings.createOptions;
+    const oldOptionObj = deployment.modulesContent.$edgeAgent["properties.desired"].modules.SimulatedTemperatureSensor.settings.createOptions;
     deployment = Utility.convertCreateOptions(deployment);
     const depStr = JSON.stringify(deployment, null, 2);
     assert.equal(
@@ -46,7 +46,7 @@ suite("utility tests", () => {
       deployment.modulesContent.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions,
     );
 
-    const settings = deployment.modulesContent.$edgeAgent["properties.desired"].modules.tempSensor.settings;
+    const settings = deployment.modulesContent.$edgeAgent["properties.desired"].modules.SimulatedTemperatureSensor.settings;
     assert.equal(settings.hasOwnProperty("createOptions"), true);
     assert.equal(settings.hasOwnProperty("createOptions01"), true);
     assert.equal(settings.hasOwnProperty("createOptions02"), true);

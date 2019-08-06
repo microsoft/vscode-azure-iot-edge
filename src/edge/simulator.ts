@@ -9,6 +9,7 @@ import * as path from "path";
 import * as request from "request-promise";
 import * as semver from "semver";
 import * as vscode from "vscode";
+import { ConfigNotSetError } from "../common/ConfigNotSetError";
 import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
@@ -175,6 +176,7 @@ export class Simulator {
 
     public async startEdgeHubSingleModule(outputChannel: vscode.OutputChannel): Promise<void> {
         return await this.callWithInstallationCheck(outputChannel, async () => {
+            await this.checkIoTedgehubdevConnectionString(outputChannel);
             const inputs = await this.inputInputNames();
             await this.setModuleCred(outputChannel);
             await Executor.runInTerminal(Utility.adjustTerminalCommand(`iotedgehubdev start -i "${inputs}"`));
@@ -206,6 +208,7 @@ export class Simulator {
 
     public async runSolution(outputChannel: vscode.OutputChannel, deployFileUri?: vscode.Uri, commands: string[] = []): Promise<void> {
         return await this.callWithInstallationCheck(outputChannel, async () => {
+            await this.checkIoTedgehubdevConnectionString(outputChannel);
             const pattern = "{**/deployment.*.json,**/deployment.json,**/deployment.*.debug.json,**/config/*.json}";
             const excludePattern = `{${Constants.tsonPattern}}`;
             const deployFile: string = await Utility.getInputFilePath(deployFileUri,
@@ -223,13 +226,31 @@ export class Simulator {
         });
     }
 
+    private async checkIoTedgehubdevConnectionString(outputChannel: vscode.OutputChannel) {
+        if (await this.isValidateConfigSupported()) {
+            try {
+                await Executor.executeCMD(null, "iotedgehubdev", { shell: true }, "validateconfig");
+            } catch (error) {
+                throw new ConfigNotSetError(error.message);
+            }
+        }
+    }
+
     private async isModuleTwinSupported(): Promise<boolean> {
+        return this.isSupported("0.8.0");
+    }
+
+    private async isValidateConfigSupported(): Promise<boolean> {
+        return this.isSupported("0.10.0");
+    }
+
+    private async isSupported(supportedVersion: string): Promise<boolean> {
         let isSupported = false;
         try {
             const output = await Executor.executeCMD(undefined, "iotedgehubdev", { shell: true }, "--version");
             const version: string | null = Simulator.extractVersion(output);
             if (version && semver.valid(version)) {
-                isSupported =  semver.gte(version, "0.8.0");
+                isSupported = semver.gte(version, supportedVersion);
             }
         } catch (err) {}
         return isSupported;

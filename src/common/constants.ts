@@ -165,9 +165,12 @@ export class Constants {
     public static installFailedMsg = "'iotedgehubdev' tool installation has failed. Please install it manually for IoT Edge Simulator.";
     public static installManuallyMsg = "Please install 'iotedgehubdev' tool first for IoT Edge Simulator.";
     public static queryASAJobInfoFailedMsg = "The maximum retry count has been exceeded with empty response from the Stream Analytics.";
+    public static needSetupSimulatorMsg = "Please setup iotedgehubdev first before starting simulator.";
     public static skipForNow = "Skip for Now";
     public static learnMore = "Learn More";
     public static install = "Install";
+    public static Setup = "Setup";
+    public static Cancel = "Cancel";
 
     public static noWorkspaceSetDefaultPlatformMsg = "No workspace is opened for setting default platform. Please open a workspace and try again.";
     public static noWorkspaceMsg = "This extension only works when folders are opened.";

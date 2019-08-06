@@ -1,7 +1,7 @@
 # Change Log
 ## 1.16.0 - 2019-08-xx
 ### Added
-* Guide user to setup connection string from UI when start simulator failed
+* Guide user to setup connection string from UI when failed to start simulator
 
 ## 1.15.0 - 2019-07-19
 ### Changed

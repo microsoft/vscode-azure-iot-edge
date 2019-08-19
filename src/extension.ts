@@ -22,6 +22,7 @@ import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionIte
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
 import { ConfigHoverProvider } from "./intelliSense/configHoverProvider";
+import { ASAModuleUpdateCodeLensProvider } from "./providers/ASAModuleUpdateCodeLensProvider";
 import { IDeviceItem } from "./typings/IDeviceItem";
 
 // Work around TLS issue in Node.js >= 8.6.0
@@ -76,6 +77,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-coreclr", {resolveDebugConfiguration}));
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-node", {resolveDebugConfiguration}));
+
+    context.subscriptions.push(vscode.languages.registerCodeLensProvider({ pattern: `**/deployment*template.json` }, new ASAModuleUpdateCodeLensProvider()));
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildModuleImage",
@@ -185,6 +188,12 @@ export function activate(context: vscode.ExtensionContext) {
         "azure-iot-edge.internal.addModule",
         async (templateFile: string, isNewSolution: boolean, moduleInfo: ModuleInfo, template: string): Promise<void> => {
             return edgeManager.addModuleInfo(templateFile, outputChannel, isNewSolution, template, moduleInfo);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.checkUpdateForASAModule",
+        async (templateFile: string, moduleName: string): Promise<void> => {
+            return edgeManager.checkAndUpdateASAJob(templateFile, moduleName);
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

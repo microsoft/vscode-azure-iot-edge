@@ -185,6 +185,11 @@
         "command": "azure-iot-edge.showGallery",
         "title": "Show Sample Gallery",
         "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.checkUpdateForASAModule",
+        "title": "Check Update for ASA Module",
+        "category": "Azure IoT Edge"
       }
     ],
     "configuration": {
@@ -475,19 +480,20 @@
     "azure-arm-containerregistry": "^2.2.0",
     "azure-arm-machinelearningservices": "^1.0.0-preview",
     "azure-arm-streamanalytics": "^1.0.0-preview",
+    "body-parser": "^1.18.2",
     "dotenv": "^5.0.1",
     "download-git-repo": "^1.0.2",
+    "express": "^4.16.3",
     "fs-extra": "^4.0.2",
     "is-port-reachable": "^2.0.0",
+    "json-source-map": "^0.6.1",
     "jsonc-parser": "^1.0.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "semver": "^5.6.0",
     "strip-json-comments": "^2.0.1",
     "tmp": "0.0.33",
-    "vscode-extension-telemetry": "0.0.18",
-    "body-parser": "^1.18.2",
-    "express": "^4.16.3"
+    "vscode-extension-telemetry": "0.0.18"
   },
   "extensionDependencies": [
     "ms-vscode.azure-account",

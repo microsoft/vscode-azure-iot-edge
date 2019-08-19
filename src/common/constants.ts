@@ -165,6 +165,8 @@ export class Constants {
     public static installFailedMsg = "'iotedgehubdev' tool installation has failed. Please install it manually for IoT Edge Simulator.";
     public static installManuallyMsg = "Please install 'iotedgehubdev' tool first for IoT Edge Simulator.";
     public static queryASAJobInfoFailedMsg = "The maximum retry count has been exceeded with empty response from the Stream Analytics.";
+    public static newASAJobAvailableMsg = "Stream Analytics Job has been updated, do you want to update it now?";
+    public static noNewASAJobFoundMsg = "No update has been found for Stream Analytics Job.";
     public static needSetupSimulatorMsg = "Please setup iotedgehubdev first before starting simulator.";
     public static skipForNow = "Skip for Now";
     public static learnMore = "Learn More";

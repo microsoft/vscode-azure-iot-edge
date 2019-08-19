@@ -4,12 +4,13 @@
 import StreamAnalyticsManagementClient = require("azure-arm-streamanalytics");
 import { StreamingJob } from "azure-arm-streamanalytics/lib/models";
 import { StreamingJobs } from "azure-arm-streamanalytics/lib/operations";
+import * as fse from "fs-extra";
 import * as request from "request-promise";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
-import { AzureAccount } from "../typings/azure-account.api";
+import { AzureAccount, AzureSession, AzureSubscription } from "../typings/azure-account.api";
 import { StreamAnalyticsPickItem } from "./models/streamAnalyticsPickItem";
 
 export class StreamAnalyticsManager {
@@ -30,14 +31,58 @@ export class StreamAnalyticsManager {
         return job;
     }
 
-    public async getJobInfo(streamingJob: StreamAnalyticsPickItem): Promise<object> {
+    public async getJobInfo(streamingJob: StreamAnalyticsPickItem): Promise<any> {
+        return await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: "Querying Stream Analytics Job information",
+        }, async (): Promise<object> =>  {
+            const ASAJobResourceId: string = streamingJob.job.id;
+            return await this.queryASAJobInfo(ASAJobResourceId, streamingJob.azureSubscription.session);
+        });
+    }
+
+    public async updateJobInfo(templateFile: string, moduleName: string): Promise<any> {
+        return await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: "Updating Stream Analytics Job information",
+        }, async (): Promise<object> => {
+            const ASAInfo = await this.getJobInfoFromDeploymentTemplate(templateFile, moduleName);
+            const subscription = await this.getJobSubscription(ASAInfo);
+            const ASAJobResourceId: string = ASAInfo.ASAJobResourceId;
+            return await this.queryASAJobInfo(ASAJobResourceId, subscription.session);
+        });
+    }
+
+    public async isASAJobUpdateAvailable(templateFile: string, moduleName: string): Promise<boolean> {
+        await Utility.waitForAzLogin(this.azureAccount);
+
+        return await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: "Checking configurations update for Stream Analytics Job",
+        }, async (): Promise<boolean> => {
+            const ASAInfo = await this.getJobInfoFromDeploymentTemplate(templateFile, moduleName);
+            const GetASAJobApiUrl: string = `https://management.azure.com${ASAInfo.ASAJobResourceId}?api-version=2019-06-01`;
+            const curEtag = ASAInfo.ASAJobEtag;
+            const subscription = await this.getJobSubscription(ASAInfo);
+            const { aadAccessToken } = await Utility.acquireAadToken(subscription.session);
+            const jobInfo = await request.get(GetASAJobApiUrl, {
+                auth: {
+                    bearer: aadAccessToken,
+                },
+                resolveWithFullResponse: true,
+            });
+
+            const latestETag = jobInfo.headers.etag;
+            return latestETag !== curEtag;
+        });
+    }
+
+    private async queryASAJobInfo(resourceId: string, session: AzureSession) {
         try {
-            const id: string = streamingJob.job.id;
-            const publishJobUrl: string = `https://management.azure.com${id}/publishedgepackage?api-version=2017-04-01-preview`;
+            const apiUrl: string = `https://management.azure.com${resourceId}/publishedgepackage?api-version=2017-04-01-preview`;
+            const { aadAccessToken } = await Utility.acquireAadToken(session);
 
-            const { aadAccessToken } = await Utility.acquireAadToken(streamingJob.azureSubscription.session);
-
-            const publishResponse = await request.post(publishJobUrl, {
+            const publishResponse = await request.post(apiUrl, {
                 auth: {
                     bearer: aadAccessToken,
                 },
@@ -74,9 +119,27 @@ export class StreamAnalyticsManager {
                 }
             }
         } catch (error) {
-            error.message = `Cannot parse Stream Analytics publish job information: ${error.message}`;
+            error.message = `Parse Stream Analytics jobs info failed: ${error.message}`;
             throw error;
         }
+    }
+
+    private async getJobSubscription(ASAInfo): Promise<AzureSubscription> {
+        await this.azureAccount.waitForFilters();
+        for (const azureSubscription of this.azureAccount.subscriptions) {
+            if (ASAInfo.ASAJobResourceId.indexOf(azureSubscription.subscription.id) >= 0) {
+                return azureSubscription;
+            }
+        }
+
+        const ASAJobName: string = ASAInfo.ASAJobResourceId.split("/").pop();
+        throw new Error(`Cannot find Stream Analytics Job '${ASAJobName}' in your Azure account, please make sure to login to the right acount.`);
+    }
+
+    private async getJobInfoFromDeploymentTemplate(templateFile: string, moduleName) {
+        const templateJson = await fse.readJson(templateFile);
+        const ASAInfo = templateJson.modulesContent[moduleName]["properties.desired"];
+        return ASAInfo;
     }
 
     private async loadAllStreamingJobs(): Promise<StreamAnalyticsPickItem[]> {

@@ -108,6 +108,12 @@
           "when": "view == iotHubDevices && viewItem == edge",
           "group": "azure-iot-toolkit-edge@2"
         }
+      ],
+      "commandPalette": [
+        {
+          "command": "azure-iot-edge.checkUpdateForASAModule",
+          "when": "never"
+        }
       ]
     },
     "commands": [

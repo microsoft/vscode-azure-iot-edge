@@ -289,14 +289,14 @@ export class EdgeManager {
                 this.asaUpdateStatus = ASAUpdateStatus.Idle;
                 if (isUpdateAvailable) {
                     const yesOption = "Yes";
-                    const option = await vscode.window.showInformationMessage(Constants.newASAJobAvailableMsg, yesOption);
+                    const option = await vscode.window.showInformationMessage(Constants.newASAJobAvailableMsg(moduleName), yesOption);
                     if (option === yesOption) {
                         this.asaUpdateStatus = ASAUpdateStatus.Updating;
                         await this.updateASAJobInfoModuleTwin(templateFile, moduleName, saManager);
                         this.asaUpdateStatus = ASAUpdateStatus.Idle;
                     }
                 } else {
-                    await vscode.window.showInformationMessage(Constants.noNewASAJobFoundMsg);
+                    await vscode.window.showInformationMessage(Constants.noNewASAJobFoundMsg(moduleName));
                 }
             } catch (err) {
                 this.asaUpdateStatus = ASAUpdateStatus.Idle;

@@ -32,7 +32,7 @@ export class ASAModuleUpdateCodeLensProvider implements vscode.CodeLensProvider 
             const range = new vscode.Range(lineNum, 0, lineNum, 100);
             const cmd: vscode.Command = {
                 title: "Check Configurations Update for ASA Job",
-                command: "azure-iot-edge.checkUpdateForASAModule",
+                command: "azure-iot-edge.internal.checkUpdateForASAModule",
                 arguments: [this.templateFilePath, name],
             };
             codeLensArr.push(new vscode.CodeLens(range, cmd));

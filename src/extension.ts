@@ -18,11 +18,11 @@ import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
 import { Simulator } from "./edge/simulator";
 import { Gallery } from "./gallery/gallery";
+import { ASAModuleUpdateCodeLensProvider } from "./intelliSense/ASAModuleUpdateCodeLensProvider";
 import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionItemProvider";
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
 import { ConfigHoverProvider } from "./intelliSense/configHoverProvider";
-import { ASAModuleUpdateCodeLensProvider } from "./providers/ASAModuleUpdateCodeLensProvider";
 import { IDeviceItem } from "./typings/IDeviceItem";
 
 // Work around TLS issue in Node.js >= 8.6.0
@@ -78,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-coreclr", {resolveDebugConfiguration}));
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-node", {resolveDebugConfiguration}));
 
-    context.subscriptions.push(vscode.languages.registerCodeLensProvider({ pattern: `**/deployment*template.json` }, new ASAModuleUpdateCodeLensProvider()));
+    context.subscriptions.push(vscode.languages.registerCodeLensProvider({ pattern: `**/{deployment.*.template.json,deployment.template.json}` }, new ASAModuleUpdateCodeLensProvider()));
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildModuleImage",
@@ -191,7 +191,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
     initCommandAsync(context, outputChannel,
-        "azure-iot-edge.checkUpdateForASAModule",
+        "azure-iot-edge.internal.checkUpdateForASAModule",
         async (templateFile: string, moduleName: string): Promise<void> => {
             return edgeManager.checkAndUpdateASAJob(templateFile, moduleName);
         });

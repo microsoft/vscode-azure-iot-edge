@@ -24,18 +24,9 @@ import { AmlManager } from "../container/amlManager";
 import { StreamAnalyticsManager } from "../container/streamAnalyticsManager";
 import { Marketplace } from "../marketplace/marketplace";
 
-enum ASAUpdateStatus {
-    Idle,
-    CheckingUpdate,
-    Updating,
-}
-
 export class EdgeManager {
 
-    private asaUpdateStatus: ASAUpdateStatus;
-
     constructor(private context: vscode.ExtensionContext) {
-        this.asaUpdateStatus = ASAUpdateStatus.Idle;
     }
 
     public async createEdgeSolution(outputChannel: vscode.OutputChannel,
@@ -281,36 +272,8 @@ export class EdgeManager {
     }
 
     public async checkAndUpdateASAJob(templateFile: string, moduleName: string) {
-        if (this.asaUpdateStatus === ASAUpdateStatus.Idle) {
-            try {
-                this.asaUpdateStatus = ASAUpdateStatus.CheckingUpdate;
-                const saManager = new StreamAnalyticsManager();
-                const isUpdateAvailable = await saManager.isASAJobUpdateAvailable(templateFile, moduleName);
-                this.asaUpdateStatus = ASAUpdateStatus.Idle;
-                if (isUpdateAvailable) {
-                    const yesOption = "Yes";
-                    const option = await vscode.window.showInformationMessage(Constants.newASAJobAvailableMsg(moduleName), yesOption);
-                    if (option === yesOption) {
-                        this.asaUpdateStatus = ASAUpdateStatus.Updating;
-                        await this.updateASAJobInfoModuleTwin(templateFile, moduleName, saManager);
-                        this.asaUpdateStatus = ASAUpdateStatus.Idle;
-                    }
-                } else {
-                    await vscode.window.showInformationMessage(Constants.noNewASAJobFoundMsg(moduleName));
-                }
-            } catch (err) {
-                this.asaUpdateStatus = ASAUpdateStatus.Idle;
-                throw err;
-            }
-        }
-    }
-
-    private async updateASAJobInfoModuleTwin(templateFile: string, moduleName: string, saManager: StreamAnalyticsManager) {
-        const jobInfo = await saManager.updateJobInfo(templateFile, moduleName);
-        const moduleTwin = jobInfo.twin.content;
-        const templateJson = await fse.readJson(templateFile);
-        templateJson.modulesContent[moduleName] = moduleTwin;
-        await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
+        const saManager = new StreamAnalyticsManager();
+        await saManager.checkAndUpdateASAJob(templateFile, moduleName);
     }
 
     private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: any }> {

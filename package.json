@@ -108,12 +108,6 @@
           "when": "view == iotHubDevices && viewItem == edge",
           "group": "azure-iot-toolkit-edge@2"
         }
-      ],
-      "commandPalette": [
-        {
-          "command": "azure-iot-edge.checkUpdateForASAModule",
-          "when": "never"
-        }
       ]
     },
     "commands": [
@@ -190,11 +184,6 @@
       {
         "command": "azure-iot-edge.showGallery",
         "title": "Show Sample Gallery",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.checkUpdateForASAModule",
-        "title": "Check Update for ASA Module",
         "category": "Azure IoT Edge"
       }
     ],

@@ -20,26 +20,31 @@ export enum ASAUpdateStatus {
 }
 
 export class StreamAnalyticsManager {
+    public static getInstance(): StreamAnalyticsManager {
+        if (!StreamAnalyticsManager.instance) {
+            StreamAnalyticsManager.instance = new StreamAnalyticsManager();
+            return StreamAnalyticsManager.instance;
+        }
+        return StreamAnalyticsManager.instance;
+    }
+
+    private static instance: StreamAnalyticsManager;
     private readonly azureAccount: AzureAccount;
     private readonly MaximumRetryCount: number = 3;
     private asaUpdateStatus: ASAUpdateStatus;
 
-    constructor() {
+    private constructor() {
         this.azureAccount = vscode.extensions.getExtension<AzureAccount>("ms-vscode.azure-account")!.exports;
         this.asaUpdateStatus = ASAUpdateStatus.Idle;
     }
 
-    public async selectStreamingJob(): Promise<StreamAnalyticsPickItem> {
+    public async getJobInfo(): Promise<any> {
         await Utility.waitForAzLogin(this.azureAccount);
-
-        const job: StreamAnalyticsPickItem = await vscode.window.showQuickPick(this.loadAllStreamingJobs(), { placeHolder: `Select ${Constants.asaJobDesc}`, ignoreFocusOut: true });
-        if (!job) {
+        const streamingJob: StreamAnalyticsPickItem = await vscode.window.showQuickPick(this.loadAllStreamingJobs(), { placeHolder: `Select ${Constants.asaJobDesc}`, ignoreFocusOut: true });
+        if (!streamingJob) {
             throw new UserCancelledError();
         }
-        return job;
-    }
 
-    public async getJobInfo(streamingJob: StreamAnalyticsPickItem): Promise<any> {
         return await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: "Querying Stream Analytics Job information",
@@ -51,17 +56,17 @@ export class StreamAnalyticsManager {
 
     public async checkAndUpdateASAJob(templateFile: string, moduleName: string) {
         if (this.asaUpdateStatus === ASAUpdateStatus.Idle) {
+            await Utility.waitForAzLogin(this.azureAccount);
             try {
                 this.asaUpdateStatus = ASAUpdateStatus.CheckingUpdate;
-                const saManager = new StreamAnalyticsManager();
-                const isUpdateAvailable = await saManager.isASAJobUpdateAvailable(templateFile, moduleName);
+                const isUpdateAvailable = await this.isASAJobUpdateAvailable(templateFile, moduleName);
                 this.asaUpdateStatus = ASAUpdateStatus.Idle;
                 if (isUpdateAvailable) {
                     const yesOption = "Yes";
                     const option = await vscode.window.showInformationMessage(Constants.newASAJobAvailableMsg(moduleName), yesOption);
                     if (option === yesOption) {
                         this.asaUpdateStatus = ASAUpdateStatus.Updating;
-                        await this.updateASAJobInfoModuleTwin(templateFile, moduleName, saManager);
+                        await this.updateASAJobInfoModuleTwin(templateFile, moduleName);
                         this.asaUpdateStatus = ASAUpdateStatus.Idle;
                     }
                 } else {
@@ -87,8 +92,6 @@ export class StreamAnalyticsManager {
     }
 
     private async isASAJobUpdateAvailable(templateFile: string, moduleName: string): Promise<boolean> {
-        await Utility.waitForAzLogin(this.azureAccount);
-
         return await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: "Checking configurations update for Stream Analytics Job",
@@ -110,8 +113,8 @@ export class StreamAnalyticsManager {
         });
     }
 
-    private async updateASAJobInfoModuleTwin(templateFile: string, moduleName: string, saManager: StreamAnalyticsManager) {
-        const jobInfo = await saManager.updateJobInfo(templateFile, moduleName);
+    private async updateASAJobInfoModuleTwin(templateFile: string, moduleName: string) {
+        const jobInfo = await this.updateJobInfo(templateFile, moduleName);
         const moduleTwin = jobInfo.twin.content;
         const templateJson = await fse.readJson(templateFile);
         templateJson.modulesContent[moduleName] = moduleTwin;
@@ -166,7 +169,6 @@ export class StreamAnalyticsManager {
     }
 
     private async getJobSubscription(ASAInfo): Promise<AzureSubscription> {
-        await this.azureAccount.waitForFilters();
         for (const azureSubscription of this.azureAccount.subscriptions) {
             if (ASAInfo.ASAJobResourceId.indexOf(azureSubscription.subscription.id) >= 0) {
                 return azureSubscription;

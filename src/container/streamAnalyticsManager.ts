@@ -120,7 +120,7 @@ export class StreamAnalyticsManager {
 
     private async queryASAJobInfo(resourceId: string, session: AzureSession) {
         try {
-            const apiUrl: string = `https://management.azure.com${resourceId}/publishedgepackage?api-version=2017-04-01-preview`;
+            const apiUrl: string = `https://management.azure.com${resourceId}/publishedgepackage?api-version=2019-06-01`;
             const { aadAccessToken } = await Utility.acquireAadToken(session);
 
             const publishResponse = await request.post(apiUrl, {

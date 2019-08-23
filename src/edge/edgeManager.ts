@@ -271,6 +271,11 @@ export class EdgeManager {
         }
     }
 
+    public async checkAndUpdateASAJob(templateFile: string, moduleName: string) {
+        const saManager = StreamAnalyticsManager.getInstance();
+        await saManager.checkAndUpdateASAJob(templateFile, moduleName);
+    }
+
     private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: any }> {
         let debugCreateOptions = {};
         switch (template) {
@@ -634,9 +639,8 @@ export class EdgeManager {
             debugImageName = imageName = await amlManager.selectAmlImage();
             repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else if (template === Constants.STREAM_ANALYTICS) {
-            const saManager = new StreamAnalyticsManager();
-            const job = await saManager.selectStreamingJob();
-            const JobInfo: any = await saManager.getJobInfo(job);
+            const saManager = StreamAnalyticsManager.getInstance();
+            const JobInfo: any = await saManager.getJobInfo();
             debugImageName = imageName = JobInfo.settings.image;
             moduleTwin = JobInfo.twin.content;
             env = JobInfo.env;

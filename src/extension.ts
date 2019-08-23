@@ -18,6 +18,7 @@ import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
 import { Simulator } from "./edge/simulator";
 import { Gallery } from "./gallery/gallery";
+import { ASAModuleUpdateCodeLensProvider } from "./intelliSense/ASAModuleUpdateCodeLensProvider";
 import { ConfigCompletionItemProvider } from "./intelliSense/configCompletionItemProvider";
 import { ConfigDefinitionProvider } from "./intelliSense/configDefinitionProvider";
 import { ConfigDiagnosticProvider } from "./intelliSense/configDiagnosticProvider";
@@ -76,6 +77,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-coreclr", {resolveDebugConfiguration}));
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-node", {resolveDebugConfiguration}));
+
+    context.subscriptions.push(vscode.languages.registerCodeLensProvider({ pattern: `**/{deployment.*.template.json,deployment.template.json}` }, new ASAModuleUpdateCodeLensProvider()));
 
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.buildModuleImage",
@@ -185,6 +188,12 @@ export function activate(context: vscode.ExtensionContext) {
         "azure-iot-edge.internal.addModule",
         async (templateFile: string, isNewSolution: boolean, moduleInfo: ModuleInfo, template: string): Promise<void> => {
             return edgeManager.addModuleInfo(templateFile, outputChannel, isNewSolution, template, moduleInfo);
+        });
+
+    initCommandAsync(context, outputChannel,
+        "azure-iot-edge.internal.checkUpdateForASAModule",
+        async (templateFile: string, moduleName: string): Promise<void> => {
+            return edgeManager.checkAndUpdateASAJob(templateFile, moduleName);
         });
 
     context.subscriptions.push(vscode.window.onDidCloseTerminal((closedTerminal: vscode.Terminal) => {

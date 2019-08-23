@@ -187,6 +187,14 @@ export class Constants {
     public static extModuleKeyPrefixTemplate(dir: string): string {
         return `MODULEDIR<${dir}>`;
     }
+
+    public static newASAJobAvailableMsg(asaModuleName: string): string {
+        return `Configurations of Stream Analytics Job "${asaModuleName}" have been changed, do you want to update them now?`;
+    }
+
+    public static noNewASAJobFoundMsg(asaModuleName: string): string {
+        return `No configuration changes has been found for Stream Analytics Job: "${asaModuleName}".`;
+    }
 }
 
 export enum ContainerState {

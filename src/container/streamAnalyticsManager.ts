@@ -23,7 +23,6 @@ export class StreamAnalyticsManager {
     public static getInstance(): StreamAnalyticsManager {
         if (!StreamAnalyticsManager.instance) {
             StreamAnalyticsManager.instance = new StreamAnalyticsManager();
-            return StreamAnalyticsManager.instance;
         }
         return StreamAnalyticsManager.instance;
     }

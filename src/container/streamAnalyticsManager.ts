@@ -49,7 +49,7 @@ export class StreamAnalyticsManager {
             title: "Querying Stream Analytics Job information",
         }, async (): Promise<object> =>  {
             const ASAJobResourceId: string = streamingJob.job.id;
-            return await this.queryASAJobInfo(ASAJobResourceId, streamingJob.azureSubscription.session);
+            return await this.publishAndQueryASAJobInfo(ASAJobResourceId, streamingJob.azureSubscription.session);
         });
     }
 
@@ -86,7 +86,7 @@ export class StreamAnalyticsManager {
             const ASAInfo = await this.getJobInfoFromDeploymentTemplate(templateFile, moduleName);
             const subscription = await this.getJobSubscription(ASAInfo);
             const ASAJobResourceId: string = ASAInfo.ASAJobResourceId;
-            return await this.queryASAJobInfo(ASAJobResourceId, subscription.session);
+            return await this.publishAndQueryASAJobInfo(ASAJobResourceId, subscription.session);
         });
     }
 
@@ -120,7 +120,7 @@ export class StreamAnalyticsManager {
         await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
     }
 
-    private async queryASAJobInfo(resourceId: string, session: AzureSession) {
+    private async publishAndQueryASAJobInfo(resourceId: string, session: AzureSession) {
         try {
             const apiUrl: string = `https://management.azure.com${resourceId}/publishedgepackage?api-version=2019-06-01`;
             const { aadAccessToken } = await Utility.acquireAadToken(session);

@@ -455,7 +455,7 @@
     "@types/node": "^6.0.40",
     "@types/request-promise": "^4.1.41",
     "@types/semver": "^5.5.0",
-    "@types/sinon": "^5.0.5",
+    "@types/sinon": "^7.0.13",
     "@types/strip-json-comments": "0.0.30",
     "@types/tmp": "0.0.33",
     "azure-arm-resource": "^3.1.1-preview",

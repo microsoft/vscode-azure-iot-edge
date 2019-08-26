@@ -20,13 +20,12 @@
 
 ![Added](images/multipleplatform.gif)
 
-## What's New (v1.14.0)
+## What's New (v1.17.0)
 ### Added
-* Support create an Azure IoT Edge Solution without any module.
+* Add CodeLens to help user update ASA job information.
 
 ### Changed
-* Only add tempSensor module when adding custom module.
-* Fixed the issue command broken on VSCode 1.35.0+ [#459](https://github.com/microsoft/vscode-azure-iot-edge/issues/459).
+* Fix broken link in README.md.
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

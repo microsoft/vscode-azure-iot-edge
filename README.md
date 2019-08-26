@@ -24,7 +24,7 @@
 ### Added
 * Add CodeLens to help user update ASA job information.
 
-### Changed
+### Fixed
 * Fix broken link in README.md.
 
 ## Known Issues

@@ -1,5 +1,5 @@
 # Change Log
-## 1.17.0 - 2019-08-xx
+## 1.17.0 - 2019-08-29
 ### Added
 * Add CodeLens to help user update ASA job information
 

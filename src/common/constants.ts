@@ -193,7 +193,7 @@ export class Constants {
     }
 
     public static noNewASAJobFoundMsg(asaModuleName: string): string {
-        return `No configuration changes has been found for Stream Analytics Job: "${asaModuleName}".`;
+        return `No configuration changes have been found for Stream Analytics Job: "${asaModuleName}".`;
     }
 }
 

@@ -1,3 +1,14 @@
+let vscode;
+try {
+    vscode = acquireVsCodeApi();
+} catch (error) {
+
+}
+
+var message, moduleNode, route, deleteconn, modifyconn;
+var modifyflag = false;
+var routings = new Map();
+
 function createSystem() {
     var hubPro = message.$edgeAgent["properties.desired"].systemModules.edgeHub;
     var agentPro = message.$edgeAgent["properties.desired"].systemModules.edgeAgent;
@@ -243,7 +254,6 @@ jsPlumb.ready(function() {
     var endpointHoverStyle = {
         strokeStyle: "#216477"
     };
-
     var connection = {
         anchor: "LeftMiddle",
         endpoint: ["Dot", { radius: 3 }],
@@ -314,7 +324,11 @@ jsPlumb.ready(function() {
             return true;
         }
     });
-
-    display(connection, connectionnew);
-
+    vscode.postMessage({ text: "start" })
+    window.addEventListener('message', event => {
+        message = event.data;
+        moduleNode = message.$edgeAgent["properties.desired"].modules;
+        route = message.$edgeHub["properties.desired"].routes;
+        display(connection, connectionnew);
+    })
 });

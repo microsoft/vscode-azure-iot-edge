@@ -1,497 +1,497 @@
 {
-  "name": "azure-iot-edge",
-  "displayName": "Azure IoT Edge",
-  "description": "Develop, deploy, debug, and manage your IoT Edge solution",
-  "version": "1.17.0",
-  "publisher": "vsciot-vscode",
-  "aiKey": "95b20d64-f54f-4de3-8ad5-165a75a6c6fe",
-  "icon": "logo.png",
-  "engines": {
-    "vscode": "^1.23.0"
-  },
-  "license": "SEE LICENSE IN LICENSE.txt",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Microsoft/vscode-azure-iot-edge.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Microsoft/vscode-azure-iot-edge/issues"
-  },
-  "homepage": "https://github.com/Microsoft/vscode-azure-iot-edge/blob/master/README.md",
-  "categories": [
-    "Azure",
-    "Debuggers",
-    "Programming Languages"
-  ],
-  "keywords": [
-    "azure",
-    "iot",
-    "debug",
-    "IoT Edge",
-    "cloud",
-    "multi-root ready"
-  ],
-  "activationEvents": [
-    "onCommand:azure-iot-edge.buildSolution",
-    "onCommand:azure-iot-edge.buildAndPushSolution",
-    "onCommand:azure-iot-edge.buildAndRunSolution",
-    "onCommand:azure-iot-edge.runSolution",
-    "onCommand:azure-iot-edge.buildModuleImage",
-    "onCommand:azure-iot-edge.buildAndPushModuleImage",
-    "onCommand:azure-iot-edge.newSolution",
-    "onCommand:azure-iot-edge.generateDeployment",
-    "onCommand:azure-iot-edge.addModule",
-    "onCommand:azure-iot-edge.stopSolution",
-    "onCommand:azure-iot-edge.setupIotedgehubdev",
-    "onCommand:azure-iot-edge.startEdgeHubSingle",
-    "onCommand:azure-iot-edge.setModuleCred",
-    "onCommand:azure-iot-edge.setDefaultPlatform",
-    "onCommand:azure-iot-edge.showGallery",
-    "workspaceContains:**/deployment.template.json"
-  ],
-  "main": "./dist/extension",
-  "contributes": {
-    "menus": {
-      "explorer/context": [
-        {
-          "when": "resourceFilename == module.json",
-          "command": "azure-iot-edge.buildModuleImage",
-          "group": "edge@0"
-        },
-        {
-          "when": "resourceFilename == module.json",
-          "command": "azure-iot-edge.buildAndPushModuleImage",
-          "group": "edge@1"
-        },
-        {
-          "when": "explorerResourceIsFolder == true",
-          "command": "azure-iot-edge.newSolution"
-        },
-        {
-          "when": "resourceFilename == deployment.template.json",
-          "command": "azure-iot-edge.addModule",
-          "group": "edge@0"
-        },
-        {
-          "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
-          "command": "azure-iot-edge.buildSolution",
-          "group": "edge@1"
-        },
-        {
-          "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
-          "command": "azure-iot-edge.buildAndPushSolution",
-          "group": "edge@2"
-        },
-        {
-          "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
-          "command": "azure-iot-edge.buildAndRunSolution",
-          "group": "edge@3"
-        },
-        {
-          "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
-          "command": "azure-iot-edge.generateDeployment",
-          "group": "edge@4"
-        },
-        {
-          "when": "resourceFilename =~ /^deployment(?!.*\\.template\\.json)(\\.debug)?(\\..+)*\\.json$/",
-          "command": "azure-iot-edge.runSolution",
-          "group": "edge@0"
-        },
-        {
-          "when": "explorerResourceIsFolder && resourceFilename == modules",
-          "command": "azure-iot-edge.addModule"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "azure-iot-edge.setupIotedgehubdev",
-          "when": "view == iotHubDevices && viewItem == edge",
-          "group": "azure-iot-toolkit-edge@2"
-        }
-      ]
+    "name": "azure-iot-edge",
+    "displayName": "Azure IoT Edge",
+    "description": "Develop, deploy, debug, and manage your IoT Edge solution",
+    "version": "1.17.0",
+    "publisher": "vsciot-vscode",
+    "aiKey": "95b20d64-f54f-4de3-8ad5-165a75a6c6fe",
+    "icon": "logo.png",
+    "engines": {
+        "vscode": "^1.23.0"
     },
-    "commands": [
-      {
-        "command": "azure-iot-edge.buildModuleImage",
-        "title": "Build IoT Edge Module Image",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.buildAndPushModuleImage",
-        "title": "Build and Push IoT Edge Module Image",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.newSolution",
-        "title": "New IoT Edge Solution",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.buildSolution",
-        "title": "Build IoT Edge Solution",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.buildAndPushSolution",
-        "title": "Build and Push IoT Edge Solution",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.buildAndRunSolution",
-        "title": "Build and Run IoT Edge Solution in Simulator",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.runSolution",
-        "title": "Run IoT Edge Solution in Simulator",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.stopSolution",
-        "title": "Stop IoT Edge Simulator",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.generateDeployment",
-        "title": "Generate IoT Edge Deployment Manifest",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.addModule",
-        "title": "Add IoT Edge Module",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.setupIotedgehubdev",
-        "title": "Setup IoT Edge Simulator",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.startEdgeHubSingle",
-        "title": "Start IoT Edge Hub Simulator for Single Module",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.setModuleCred",
-        "title": "Set Module Credentials to User Settings",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.setDefaultPlatform",
-        "title": "Set Default Target Platform for Edge Solution",
-        "category": "Azure IoT Edge"
-      },
-      {
-        "command": "azure-iot-edge.showGallery",
-        "title": "Show Sample Gallery",
-        "category": "Azure IoT Edge"
-      }
-    ],
-    "configuration": {
-      "type": "object",
-      "title": "Azure IoT Edge configuration",
-      "properties": {
-        "azure-iot-edge.version.edgeHub": {
-          "type": "string",
-          "default": "1.0",
-          "description": "Set the edgeHub image version, which will be referenced in deployment manifest."
-        },
-        "azure-iot-edge.version.edgeAgent": {
-          "type": "string",
-          "default": "1.0",
-          "description": "Set the edgeAgent image version, which will be referenced in deployment manifest."
-        },
-        "azure-iot-edge.version.tempSensor": {
-          "type": "string",
-          "default": "1.0",
-          "description": "Set the tempSensor image version, which will be referenced in deployment manifest."
-        },
-        "azure-iot-edge.version.cmodule": {
-          "type": "string",
-          "default": "master",
-          "description": "Set the C module template version, which will be referenced during scaffolding C module."
-        },
-        "azure-iot-edge.version.pythonmodule": {
-          "type": "string",
-          "default": "master",
-          "description": "Set the Python module template version, which will be referenced during scaffolding Python module."
-        },
-        "azure-iot-edge.version.csharpmodule": {
-          "type": "string",
-          "default": null,
-          "description": "Set the C# module template version, which will be referenced during scaffolding C# module."
-        },
-        "azure-iot-edge.templateInstall.csharpmodule": {
-          "type": "boolean",
-          "default": true,
-          "description": "Switch to install C# module template before scaffolding. Default is true."
-        },
-        "azure-iot-edge.templateInstall.csfunctionmodule": {
-          "type": "boolean",
-          "default": true,
-          "description": "Switch to install C# function module template before scaffolding. Default is true."
-        },
-        "azure-iot-edge.templateInstall.nodemodule": {
-          "type": "boolean",
-          "default": true,
-          "description": "Switch to install Node.js module template before scaffolding. Default is true."
-        },
-        "azure-iot-edge.version.csfunctionmodule": {
-          "type": "string",
-          "default": null,
-          "description": "Set the C# function module template version, which will be referenced during scaffolding C# function module."
-        },
-        "azure-iot-edge.version.javamodule": {
-          "type": "string",
-          "default": null,
-          "description": "Set the Java module template version, which will be referenced during scaffolding Java module."
-        },
-        "azure-iot-edge.version.nodemodule": {
-          "type": "string",
-          "default": null,
-          "description": "Set the Node.js module template version, which will be referenced during scaffolding Node.js module."
-        },
-        "azure-iot-edge.terminalRoot": {
-          "type": "string",
-          "default": "",
-          "description": "(Windows Only) Replace the Windows style drive letter in the command with a Unix style root when using a custom shell as the terminal, like Bash on Windows, Git Bash or Cgywin. Example: For Bash on Windows, setting this to '/mnt/' will replace 'C:\\foo\\bar' with '/mnt/c/foo/bar'"
-        },
-        "azure-iot-edge.EdgeHubConnectionString": {
-          "type": "string",
-          "default": "",
-          "description": "Module Connection String"
-        },
-        "azure-iot-edge.EdgeModuleCACertificateFile": {
-          "type": "string",
-          "default": "",
-          "description": "Edge Module CA path"
-        },
-        "azure-iot-edge.platforms": {
-          "type": "object",
-          "default": {
-            "amd64": [],
-            "arm32v7": [],
-            "windows-amd64": []
-          },
-          "description": "Edge Module target platforms"
-        },
-        "azure-iot-edge.defaultPlatform": {
-          "type": "object",
-          "default": {
-            "platform": "amd64",
-            "alias": null
-          },
-          "description": "Current default target platform for Edge Module"
-        },
-        "azure-iot-edge.3rdPartyModuleTemplates": {
-          "type": "object",
-          "default": {},
-          "description": "Templates for third party modules"
-        },
-        "azure-iot-edge.executor.env": {
-          "type": "object",
-          "description": "Environment variables for the command executor and Azure IoT Edge terminals"
-        }
-      }
+    "license": "SEE LICENSE IN LICENSE.txt",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Microsoft/vscode-azure-iot-edge.git"
     },
-    "jsonValidation": [
-      {
-        "fileMatch": "deployment.template.json",
-        "url": "http://json.schemastore.org/azure-iot-edge-deployment-template-2.0"
-      },
-      {
-        "fileMatch": "deployment.*.template.json",
-        "url": "http://json.schemastore.org/azure-iot-edge-deployment-template-2.0"
-      }
+    "bugs": {
+        "url": "https://github.com/Microsoft/vscode-azure-iot-edge/issues"
+    },
+    "homepage": "https://github.com/Microsoft/vscode-azure-iot-edge/blob/master/README.md",
+    "categories": [
+        "Azure",
+        "Debuggers",
+        "Programming Languages"
     ],
-    "debuggers": [
-      {
-        "type": "edge-coreclr",
-        "label": "IoT Edge (.NET Core)",
-        "initialConfigurations": [
-          {
-            "name": "Remote Debug IoT Edge Module (.NET Core)",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickRemoteProcess}",
-            "pipeTransport": {
-              "pipeProgram": "docker",
-              "pipeArgs": [
-                "exec",
-                "-i",
-                "<container_name>",
-                "sh",
-                "-c"
-              ],
-              "debuggerPath": "~/vsdbg/vsdbg",
-              "pipeCwd": "${workspaceFolder}",
-              "quoteArgs": true
+    "keywords": [
+        "azure",
+        "iot",
+        "debug",
+        "IoT Edge",
+        "cloud",
+        "multi-root ready"
+    ],
+    "activationEvents": [
+        "onCommand:azure-iot-edge.buildSolution",
+        "onCommand:azure-iot-edge.buildAndPushSolution",
+        "onCommand:azure-iot-edge.buildAndRunSolution",
+        "onCommand:azure-iot-edge.runSolution",
+        "onCommand:azure-iot-edge.buildModuleImage",
+        "onCommand:azure-iot-edge.buildAndPushModuleImage",
+        "onCommand:azure-iot-edge.newSolution",
+        "onCommand:azure-iot-edge.generateDeployment",
+        "onCommand:azure-iot-edge.addModule",
+        "onCommand:azure-iot-edge.modifyJson",
+        "onCommand:azure-iot-edge.stopSolution",
+        "onCommand:azure-iot-edge.setupIotedgehubdev",
+        "onCommand:azure-iot-edge.startEdgeHubSingle",
+        "onCommand:azure-iot-edge.setModuleCred",
+        "onCommand:azure-iot-edge.setDefaultPlatform",
+        "onCommand:azure-iot-edge.showGallery",
+        "workspaceContains:**/deployment.template.json"
+    ],
+    "main": "./dist/extension",
+    "contributes": {
+        "menus": {
+            "explorer/context": [{
+                    "when": "resourceFilename == module.json",
+                    "command": "azure-iot-edge.buildModuleImage",
+                    "group": "edge@0"
+                },
+                {
+                    "when": "resourceFilename == module.json",
+                    "command": "azure-iot-edge.buildAndPushModuleImage",
+                    "group": "edge@1"
+                },
+                {
+                    "when": "explorerResourceIsFolder == true",
+                    "command": "azure-iot-edge.newSolution"
+                },
+                {
+                    "when": "resourceFilename == deployment.template.json",
+                    "command": "azure-iot-edge.addModule",
+                    "group": "edge@0"
+                },
+                {
+                    "when": "resourceFilename == deployment.template.json",
+                    "command": "azure-iot-edge.modifyJson",
+                    "group": "edge@0"
+                },
+                {
+                    "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
+                    "command": "azure-iot-edge.buildSolution",
+                    "group": "edge@1"
+                },
+                {
+                    "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
+                    "command": "azure-iot-edge.buildAndPushSolution",
+                    "group": "edge@2"
+                },
+                {
+                    "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
+                    "command": "azure-iot-edge.buildAndRunSolution",
+                    "group": "edge@3"
+                },
+                {
+                    "when": "resourceFilename =~ /^deployment(\\..+)?\\.template\\.json$/",
+                    "command": "azure-iot-edge.generateDeployment",
+                    "group": "edge@4"
+                },
+                {
+                    "when": "resourceFilename =~ /^deployment(?!.*\\.template\\.json)(\\.debug)?(\\..+)*\\.json$/",
+                    "command": "azure-iot-edge.runSolution",
+                    "group": "edge@0"
+                },
+                {
+                    "when": "explorerResourceIsFolder && resourceFilename == modules",
+                    "command": "azure-iot-edge.addModule"
+                }
+            ],
+            "view/item/context": [{
+                "command": "azure-iot-edge.setupIotedgehubdev",
+                "when": "view == iotHubDevices && viewItem == edge",
+                "group": "azure-iot-toolkit-edge@2"
+            }]
+        },
+        "commands": [{
+                "command": "azure-iot-edge.buildModuleImage",
+                "title": "Build IoT Edge Module Image",
+                "category": "Azure IoT Edge"
             },
-            "sourceFileMap": {
-              "/app": "${workspaceFolder}"
+            {
+                "command": "azure-iot-edge.buildAndPushModuleImage",
+                "title": "Build and Push IoT Edge Module Image",
+                "category": "Azure IoT Edge"
             },
-            "justMyCode": true
-          },
-          {
-            "name": "Launch IoT Edge Module (.NET Core)",
-            "type": "coreclr",
-            "request": "launch",
-            "program": "${workspaceRoot}/bin/Debug/<target-framework>/<project-name.dll>",
-            "args": [],
-            "cwd": "${workspaceRoot}",
-            "internalConsoleOptions": "openOnSessionStart",
-            "stopAtEntry": false,
-            "console": "internalConsole",
-            "env": {
-              "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
-              "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+            {
+                "command": "azure-iot-edge.newSolution",
+                "title": "New IoT Edge Solution",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.buildSolution",
+                "title": "Build IoT Edge Solution",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.buildAndPushSolution",
+                "title": "Build and Push IoT Edge Solution",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.buildAndRunSolution",
+                "title": "Build and Run IoT Edge Solution in Simulator",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.runSolution",
+                "title": "Run IoT Edge Solution in Simulator",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.stopSolution",
+                "title": "Stop IoT Edge Simulator",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.generateDeployment",
+                "title": "Generate IoT Edge Deployment Manifest",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.addModule",
+                "title": "Add IoT Edge Module",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.modifyJson",
+                "title": "Modity IoT Edge Deployment Manifest",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.setupIotedgehubdev",
+                "title": "Setup IoT Edge Simulator",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.startEdgeHubSingle",
+                "title": "Start IoT Edge Hub Simulator for Single Module",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.setModuleCred",
+                "title": "Set Module Credentials to User Settings",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.setDefaultPlatform",
+                "title": "Set Default Target Platform for Edge Solution",
+                "category": "Azure IoT Edge"
+            },
+            {
+                "command": "azure-iot-edge.showGallery",
+                "title": "Show Sample Gallery",
+                "category": "Azure IoT Edge"
             }
-          }
         ],
-        "configurationSnippets": [
-          {
-            "label": ".NET: Remote Debug IoT Edge Module",
-            "body": {
-              "name": "Remote Debug IoT Edge Module (.NET Core)",
-              "type": "coreclr",
-              "request": "attach",
-              "processId": "^\"\\${command:pickRemoteProcess}\"",
-              "pipeTransport": {
-                "pipeProgram": "docker",
-                "pipeArgs": [
-                  "exec",
-                  "-i",
-                  "<container_name>",
-                  "sh",
-                  "-c"
+        "configuration": {
+            "type": "object",
+            "title": "Azure IoT Edge configuration",
+            "properties": {
+                "azure-iot-edge.version.edgeHub": {
+                    "type": "string",
+                    "default": "1.0",
+                    "description": "Set the edgeHub image version, which will be referenced in deployment manifest."
+                },
+                "azure-iot-edge.version.edgeAgent": {
+                    "type": "string",
+                    "default": "1.0",
+                    "description": "Set the edgeAgent image version, which will be referenced in deployment manifest."
+                },
+                "azure-iot-edge.version.tempSensor": {
+                    "type": "string",
+                    "default": "1.0",
+                    "description": "Set the tempSensor image version, which will be referenced in deployment manifest."
+                },
+                "azure-iot-edge.version.cmodule": {
+                    "type": "string",
+                    "default": "master",
+                    "description": "Set the C module template version, which will be referenced during scaffolding C module."
+                },
+                "azure-iot-edge.version.pythonmodule": {
+                    "type": "string",
+                    "default": "master",
+                    "description": "Set the Python module template version, which will be referenced during scaffolding Python module."
+                },
+                "azure-iot-edge.version.csharpmodule": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Set the C# module template version, which will be referenced during scaffolding C# module."
+                },
+                "azure-iot-edge.templateInstall.csharpmodule": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Switch to install C# module template before scaffolding. Default is true."
+                },
+                "azure-iot-edge.templateInstall.csfunctionmodule": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Switch to install C# function module template before scaffolding. Default is true."
+                },
+                "azure-iot-edge.templateInstall.nodemodule": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Switch to install Node.js module template before scaffolding. Default is true."
+                },
+                "azure-iot-edge.version.csfunctionmodule": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Set the C# function module template version, which will be referenced during scaffolding C# function module."
+                },
+                "azure-iot-edge.version.javamodule": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Set the Java module template version, which will be referenced during scaffolding Java module."
+                },
+                "azure-iot-edge.version.nodemodule": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Set the Node.js module template version, which will be referenced during scaffolding Node.js module."
+                },
+                "azure-iot-edge.terminalRoot": {
+                    "type": "string",
+                    "default": "",
+                    "description": "(Windows Only) Replace the Windows style drive letter in the command with a Unix style root when using a custom shell as the terminal, like Bash on Windows, Git Bash or Cgywin. Example: For Bash on Windows, setting this to '/mnt/' will replace 'C:\\foo\\bar' with '/mnt/c/foo/bar'"
+                },
+                "azure-iot-edge.EdgeHubConnectionString": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Module Connection String"
+                },
+                "azure-iot-edge.EdgeModuleCACertificateFile": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Edge Module CA path"
+                },
+                "azure-iot-edge.platforms": {
+                    "type": "object",
+                    "default": {
+                        "amd64": [],
+                        "arm32v7": [],
+                        "windows-amd64": []
+                    },
+                    "description": "Edge Module target platforms"
+                },
+                "azure-iot-edge.defaultPlatform": {
+                    "type": "object",
+                    "default": {
+                        "platform": "amd64",
+                        "alias": null
+                    },
+                    "description": "Current default target platform for Edge Module"
+                },
+                "azure-iot-edge.3rdPartyModuleTemplates": {
+                    "type": "object",
+                    "default": {},
+                    "description": "Templates for third party modules"
+                },
+                "azure-iot-edge.executor.env": {
+                    "type": "object",
+                    "description": "Environment variables for the command executor and Azure IoT Edge terminals"
+                }
+            }
+        },
+        "jsonValidation": [{
+                "fileMatch": "deployment.template.json",
+                "url": "http://json.schemastore.org/azure-iot-edge-deployment-template-2.0"
+            },
+            {
+                "fileMatch": "deployment.*.template.json",
+                "url": "http://json.schemastore.org/azure-iot-edge-deployment-template-2.0"
+            }
+        ],
+        "debuggers": [{
+                "type": "edge-coreclr",
+                "label": "IoT Edge (.NET Core)",
+                "initialConfigurations": [{
+                        "name": "Remote Debug IoT Edge Module (.NET Core)",
+                        "type": "coreclr",
+                        "request": "attach",
+                        "processId": "${command:pickRemoteProcess}",
+                        "pipeTransport": {
+                            "pipeProgram": "docker",
+                            "pipeArgs": [
+                                "exec",
+                                "-i",
+                                "<container_name>",
+                                "sh",
+                                "-c"
+                            ],
+                            "debuggerPath": "~/vsdbg/vsdbg",
+                            "pipeCwd": "${workspaceFolder}",
+                            "quoteArgs": true
+                        },
+                        "sourceFileMap": {
+                            "/app": "${workspaceFolder}"
+                        },
+                        "justMyCode": true
+                    },
+                    {
+                        "name": "Launch IoT Edge Module (.NET Core)",
+                        "type": "coreclr",
+                        "request": "launch",
+                        "program": "${workspaceRoot}/bin/Debug/<target-framework>/<project-name.dll>",
+                        "args": [],
+                        "cwd": "${workspaceRoot}",
+                        "internalConsoleOptions": "openOnSessionStart",
+                        "stopAtEntry": false,
+                        "console": "internalConsole",
+                        "env": {
+                            "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+                            "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+                        }
+                    }
                 ],
-                "debuggerPath": "~/vsdbg/vsdbg",
-                "pipeCwd": "^\"\\${workspaceFolder}\"",
-                "quoteArgs": true
-              },
-              "sourceFileMap": {
-                "/app": "^\"\\${workspaceFolder}\""
-              },
-              "justMyCode": true
+                "configurationSnippets": [{
+                        "label": ".NET: Remote Debug IoT Edge Module",
+                        "body": {
+                            "name": "Remote Debug IoT Edge Module (.NET Core)",
+                            "type": "coreclr",
+                            "request": "attach",
+                            "processId": "^\"\\${command:pickRemoteProcess}\"",
+                            "pipeTransport": {
+                                "pipeProgram": "docker",
+                                "pipeArgs": [
+                                    "exec",
+                                    "-i",
+                                    "<container_name>",
+                                    "sh",
+                                    "-c"
+                                ],
+                                "debuggerPath": "~/vsdbg/vsdbg",
+                                "pipeCwd": "^\"\\${workspaceFolder}\"",
+                                "quoteArgs": true
+                            },
+                            "sourceFileMap": {
+                                "/app": "^\"\\${workspaceFolder}\""
+                            },
+                            "justMyCode": true
+                        }
+                    },
+                    {
+                        "label": ".NET: Launch a local .NET Core IoT Edge Module",
+                        "body": {
+                            "name": "Launch IoT Edge Module (.NET Core)",
+                            "type": "coreclr",
+                            "request": "launch",
+                            "program": "^\"\\${workspaceRoot}/bin/Debug/<target-framework>/<project-name.dll>\"",
+                            "args": [],
+                            "cwd": "^\"\\${workspaceRoot}\"",
+                            "internalConsoleOptions": "openOnSessionStart",
+                            "stopAtEntry": false,
+                            "console": "internalConsole",
+                            "env": {
+                                "EdgeHubConnectionString": "^\"\\${config:azure-iot-edge.EdgeHubConnectionString}\"",
+                                "EdgeModuleCACertificateFile": "^\"\\${config:azure-iot-edge.EdgeModuleCACertificateFile}\""
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "edge-node",
+                "label": "IoT Edge (Node.js)",
+                "initialConfigurations": [{
+                        "type": "node",
+                        "request": "attach",
+                        "name": "Remote Debug IoT Edge Module (Node.js)",
+                        "address": "<TCP/IP address of the docker container process>",
+                        "port": 9229,
+                        "localRoot": "${workspaceFolder}",
+                        "remoteRoot": "<Absolute path of the program in the docker container>"
+                    },
+                    {
+                        "name": "Launch IoT Edge Module (Node.js)",
+                        "type": "node",
+                        "request": "launch",
+                        "program": "${workspaceRoot}/app.js",
+                        "console": "integratedTerminal",
+                        "env": {
+                            "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+                            "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+                        }
+                    }
+                ],
+                "configurationSnippets": [{
+                    "label": "Node.js: Launch a local IoT Edge Module",
+                    "body": {
+                        "name": "Launch IoT Edge Module (Node.js)",
+                        "type": "node",
+                        "request": "launch",
+                        "program": "^\"\\${workspaceRoot}/app.js\"",
+                        "console": "integratedTerminal",
+                        "env": {
+                            "EdgeHubConnectionString": "^\"\\${config:azure-iot-edge.EdgeHubConnectionString}\"",
+                            "EdgeModuleCACertificateFile": "^\"\\${config:azure-iot-edge.EdgeModuleCACertificateFile}\""
+                        }
+                    }
+                }]
             }
-          },
-          {
-            "label": ".NET: Launch a local .NET Core IoT Edge Module",
-            "body": {
-              "name": "Launch IoT Edge Module (.NET Core)",
-              "type": "coreclr",
-              "request": "launch",
-              "program": "^\"\\${workspaceRoot}/bin/Debug/<target-framework>/<project-name.dll>\"",
-              "args": [],
-              "cwd": "^\"\\${workspaceRoot}\"",
-              "internalConsoleOptions": "openOnSessionStart",
-              "stopAtEntry": false,
-              "console": "internalConsole",
-              "env": {
-                "EdgeHubConnectionString": "^\"\\${config:azure-iot-edge.EdgeHubConnectionString}\"",
-                "EdgeModuleCACertificateFile": "^\"\\${config:azure-iot-edge.EdgeModuleCACertificateFile}\""
-              }
-            }
-          }
         ]
-      },
-      {
-        "type": "edge-node",
-        "label": "IoT Edge (Node.js)",
-        "initialConfigurations": [
-          {
-            "type": "node",
-            "request": "attach",
-            "name": "Remote Debug IoT Edge Module (Node.js)",
-            "address": "<TCP/IP address of the docker container process>",
-            "port": 9229,
-            "localRoot": "${workspaceFolder}",
-            "remoteRoot": "<Absolute path of the program in the docker container>"
-          },
-          {
-            "name": "Launch IoT Edge Module (Node.js)",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/app.js",
-            "console": "integratedTerminal",
-            "env": {
-              "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
-              "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
-            }
-          }
-        ],
-        "configurationSnippets": [
-          {
-            "label": "Node.js: Launch a local IoT Edge Module",
-            "body": {
-              "name": "Launch IoT Edge Module (Node.js)",
-              "type": "node",
-              "request": "launch",
-              "program": "^\"\\${workspaceRoot}/app.js\"",
-              "console": "integratedTerminal",
-              "env": {
-                "EdgeHubConnectionString": "^\"\\${config:azure-iot-edge.EdgeHubConnectionString}\"",
-                "EdgeModuleCACertificateFile": "^\"\\${config:azure-iot-edge.EdgeModuleCACertificateFile}\""
-              }
-            }
-          }
-        ]
-      }
+    },
+    "scripts": {
+        "vscode:prepublish": "webpack --mode production",
+        "compile": "tsc -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "tslint": "tslint -t verbose src/**/*.ts",
+        "test": "node ./node_modules/vscode/bin/test",
+        "webpack": "webpack --mode development",
+        "webpack-dev": "webpack --mode development --watch"
+    },
+    "devDependencies": {
+        "@types/dotenv": "^4.0.3",
+        "@types/fs-extra": "^4.0.3",
+        "@types/mocha": "^2.2.32",
+        "@types/node": "^6.0.40",
+        "@types/request-promise": "^4.1.41",
+        "@types/semver": "^5.5.0",
+        "@types/sinon": "^7.0.13",
+        "@types/strip-json-comments": "0.0.30",
+        "@types/tmp": "0.0.33",
+        "azure-arm-resource": "^3.1.1-preview",
+        "fail-on-errors-webpack-plugin": "^3.0.0",
+        "mocha": "^5.1.1",
+        "sinon": "^7.2.3",
+        "ts-loader": "^4.4.2",
+        "tslint": "^5.16.0",
+        "typescript": "^2.0.3",
+        "vscode": "^1.1.33",
+        "webpack": "^4.19.1",
+        "webpack-cli": "^3.1.0",
+        "@types/express": "^4.11.1",
+        "@types/body-parser": "^1.16.8"
+    },
+    "dependencies": {
+        "azure-arm-containerregistry": "^2.2.0",
+        "azure-arm-machinelearningservices": "^1.0.0-preview",
+        "azure-arm-streamanalytics": "^1.0.0-preview",
+        "body-parser": "^1.18.2",
+        "dotenv": "^5.0.1",
+        "download-git-repo": "^1.0.2",
+        "express": "^4.16.3",
+        "fs-extra": "^4.0.2",
+        "is-port-reachable": "^2.0.0",
+        "json-source-map": "^0.6.1",
+        "jsonc-parser": "^1.0.1",
+        "request": "^2.88.0",
+        "request-promise": "^4.2.2",
+        "semver": "^5.6.0",
+        "strip-json-comments": "^2.0.1",
+        "tmp": "0.0.33",
+        "vscode-extension-telemetry": "0.0.18"
+    },
+    "extensionDependencies": [
+        "ms-vscode.azure-account",
+        "vsciot-vscode.azure-iot-toolkit"
     ]
-  },
-  "scripts": {
-    "vscode:prepublish": "webpack --mode production",
-    "compile": "tsc -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "tslint": "tslint -t verbose src/**/*.ts",
-    "test": "node ./node_modules/vscode/bin/test",
-    "webpack": "webpack --mode development",
-    "webpack-dev": "webpack --mode development --watch"
-  },
-  "devDependencies": {
-    "@types/dotenv": "^4.0.3",
-    "@types/fs-extra": "^4.0.3",
-    "@types/mocha": "^2.2.32",
-    "@types/node": "^6.0.40",
-    "@types/request-promise": "^4.1.41",
-    "@types/semver": "^5.5.0",
-    "@types/sinon": "^7.0.13",
-    "@types/strip-json-comments": "0.0.30",
-    "@types/tmp": "0.0.33",
-    "azure-arm-resource": "^3.1.1-preview",
-    "fail-on-errors-webpack-plugin": "^3.0.0",
-    "mocha": "^5.1.1",
-    "sinon": "^7.2.3",
-    "ts-loader": "^4.4.2",
-    "tslint": "^5.16.0",
-    "typescript": "^2.0.3",
-    "vscode": "^1.1.33",
-    "webpack": "^4.19.1",
-    "webpack-cli": "^3.1.0",
-    "@types/express": "^4.11.1",
-    "@types/body-parser": "^1.16.8"
-  },
-  "dependencies": {
-    "azure-arm-containerregistry": "^2.2.0",
-    "azure-arm-machinelearningservices": "^1.0.0-preview",
-    "azure-arm-streamanalytics": "^1.0.0-preview",
-    "body-parser": "^1.18.2",
-    "dotenv": "^5.0.1",
-    "download-git-repo": "^1.0.2",
-    "express": "^4.16.3",
-    "fs-extra": "^4.0.2",
-    "is-port-reachable": "^2.0.0",
-    "json-source-map": "^0.6.1",
-    "jsonc-parser": "^1.0.1",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2",
-    "semver": "^5.6.0",
-    "strip-json-comments": "^2.0.1",
-    "tmp": "0.0.33",
-    "vscode-extension-telemetry": "0.0.18"
-  },
-  "extensionDependencies": [
-    "ms-vscode.azure-account",
-    "vsciot-vscode.azure-iot-toolkit"
-  ]
 }

@@ -1,0 +1,261 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{root}}/assets/deployment/style.css" />
+    <script type="text/javascript" src="{{root}}/assets/deployment/load.js"></script>
+</head>
+
+<body>
+    <div class="wrapperc">
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="height: 60px;">
+            <div class="collapse navbar-collapse" id="navbarsExample03">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" style="outline: none;" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Add a module</a>
+                        <div class="dropdown-menu" aria-labelledby="dropdown03">
+                            <a class="dropdown-item" href="#" style="outline: none;">Marketplace Module</a>
+                            <a class="dropdown-item" href="#" style="outline: none;">Custom Module</a>
+                        </div>
+                    </li>
+                </ul>
+                <a class="btn btn-outline-primary" href="#" id="pagesave">Save</a>
+            </div>
+        </nav>
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" id="pop-up">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLabel">Routing message</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="txt_departmentname">Output</label>
+                            <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_output">
+                        </div>
+                        <div class="form-group">
+                            <label for="txt_departmentname">Input</label>
+                            <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_input">
+                        </div>
+                        <div class="form-group">
+                            <label for="txt_departmentname">Condition</label>
+                            <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_cdt">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="popsave" data-dismiss="modal">Save</button>
+                        <button type="button" class="btn btn-secondary" id="popclose" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="delpop" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Notification</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>The routing will be deteled. Click Yes to continue the deleting operation, or click No to exit.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="deletecon" data-dismiss="modal">Yes</button>
+                        <button type="button" class="btn btn-primary" id="nodeletecon" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="mdyUnsave" tabindex="-1" role="dialog" id="delpop" data-triggermdl="">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Notification</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Want to save your changes?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="mdysave" data-dismiss="modal">Save</button>
+                        <button type="button" class="btn btn-primary" id="mdydel" data-dismiss="modal">Don't
+                            save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="wrapperr">
+            <nav style="padding:0;min-width:300px;max-width:300px;">
+                <nav id="hub-property" class="sidebar" style="display: block;">
+                    <div class="sidebar-header">
+                        <h4>System Properties</h4>
+                    </div>
+                    <ul>
+                        <li class="active">
+                            <a href="#homeSubmenu" style="outline: none;" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">EdgeHub</a>
+                            <ul class="collapse show" id="homeSubmenu">
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">Name</span>
+                                        </div>
+                                        <input type="text" class="form-control" value="EdgeHub" aria-label="Username" aria-describedby="basic-addon1" readonly="readonly">
+                                    </div>
+                                </li>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">Image</span>
+                                        </div>
+                                        <input type="text" class="form-control" id="hubImg" aria-label="Username" aria-describedby="basic-addon1">
+                                    </div>
+                                </li>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="hubStatus">Desired
+                                                Status</label>
+                                        </div>
+                                        <select id="hubStatus" class="custom-select">
+                                            <option value="running">running</option>
+                                            <option value="stopped">stopped</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="hubPolicy">Restart Policy</label>
+                                        </div>
+                                        <select id="hubPolicy" class="custom-select">
+                                            <option value="always">always</option>
+                                            <option value="never">never</option>
+                                            <option value="on-failure">on-failure</option>
+                                            <option value="on-unhealthy">on-unhealthy</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <label for="basic-url" style="font-size: 0.7em;">Create Options</label>
+                                    <div class="input-group">
+                                        <textarea class="form-control" id="hubCo" rows="3"></textarea>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="active">
+                            <a href="#pageSubmenu" style="outline: none;" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">edgeAgent</a>
+                            <ul class="collapse show list-unstyled" id="pageSubmenu">
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">Name</span>
+                                        </div>
+                                        <input type="text" class="form-control" id="agentName" value="EdgeAgent" aria-label="Username" aria-describedby="basic-addon1" readonly="readonly">
+                                    </div>
+                                </li>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">Image</span>
+                                        </div>
+                                        <input type="text" class="form-control" id="agentImg" aria-label="Username" aria-describedby="basic-addon1">
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="syssave">Update</button>
+                    </div>
+                </nav>
+                <nav id="module-property" style="display: none;" class="sidebar">
+                    <div class="sidebar-header">
+                        <h4>Module Properties</h4>
+                    </div>
+                    <ul class="list-unstyled components">
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1">Name</span>
+                                </div>
+                                <input type="text" class="form-control" id="mdlName" aria-label="Username" aria-describedby="basic-addon1" readonly="readonly">
+                            </div>
+                        </li>
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1">Image</span>
+                                </div>
+                                <input type="text" class="form-control" id="mdlImg" aria-label="Username" aria-describedby="basic-addon1">
+                            </div>
+                        </li>
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="mdlStatus">Desired
+                                        Status</label>
+                                </div>
+                                <select id="mdlStatus" class="custom-select">
+                                    <option value="running">running</option>
+                                    <option value="stopped">stopped</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="mdlPolicy">Restart Policy</label>
+                                </div>
+                                <select id="mdlPolicy" class="custom-select">
+                                    <option value="always">always</option>
+                                    <option value="never">never</option>
+                                    <option value="on-failure">on-failure</option>
+                                    <option value="on-unhealthy">on-unhealthy</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <label for="basic-url">Create Options</label>
+                            <div class="input-group">
+                                <textarea class="form-control" id="mdlCo" rows="3"></textarea>
+                            </div>
+                        </li>
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <label for="basic-url">Module Twin</label>
+                            <div class="input-group">
+                                <textarea class="form-control" id="mdlMt" rows="3"></textarea>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="mdlsave">Update</button>
+                    </div>
+                </nav>
+            </nav>
+            <main id="canvas">
+            </main>
+
+            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+            <script type="text/javascript" src="https://cdn.bootcss.com/jsPlumb/1.7.6/jquery.jsPlumb.min.js"></script>
+            <script src="https://cdn.bootcss.com/popper.js/1.12.5/umd/popper.min.js"></script>
+            <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+            <script src="{{root}}/assets/deployment/func.js"></script>
+        </div>
+    </div>
+</body>
+
+</html>

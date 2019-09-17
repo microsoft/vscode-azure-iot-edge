@@ -16,23 +16,22 @@
                 <a class="btn btn-outline-primary" href="#" id="pagesave">Save</a>
             </div>
         </nav>
-        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-newline="false">
             <div class="modal-dialog" role="document">
                 <div class="modal-content" id="pop-up">
                     <div class="modal-header">
                         <h4 class="modal-title" id="exampleModalLabel">Routing message</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none;">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label for="txt_departmentname">Output</label>
-                            <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_output">
+                        <div class="form-group was-validated">
+                            <label for="txt_departmentname">Output<em style="color: red;">*</em></label>
+                            <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_output" required />
+                            <div class="invalid-feedback">Please fill in output name, or the routing will be deleted.</div>
                         </div>
-                        <div class="form-group">
-                            <label for="txt_departmentname">Input</label>
-                            <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_input">
+                        <div class="form-group was-validated">
+                            <label for="txt_departmentname">Input<em style="color: red;">*</em></label>
+                            <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_input" required />
+                            <div class="invalid-feedback">Please fill in input name, or the routing will be deleted.</div>
                         </div>
                         <div class="form-group">
                             <label for="txt_departmentname">Condition</label>
@@ -40,8 +39,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="popsave" data-dismiss="modal">Save</button>
-                        <button type="button" class="btn btn-secondary" id="popclose" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="popsave" data-dismiss="modal">Ok</button>
+                        <button type="button" class="btn btn-secondary" id="popclose" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -51,9 +50,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Notification</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none;">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
                     </div>
                     <div class="modal-body">
                         <p>The routing will be deteled. Click Yes to continue the deleting operation, or click No to exit.
@@ -71,9 +67,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Notification</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none;">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
                     </div>
                     <div class="modal-body">
                         <p>Want to save your changes?</p>

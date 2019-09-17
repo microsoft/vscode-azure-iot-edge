@@ -5,27 +5,28 @@ try {
 
 }
 
-var templateFile, moduleNode, route, deleteconn, modifyconn;
-var modifyflag = false;
+var templatefile, modulenode, route, deleteconn, modifyconn;
+var modifyattr = false;
+var modifyroute = false;
 var routings = new Map();
 
 function createSystem() {
-    var hubPro = templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub;
-    var agentPro = templateFile.$edgeAgent["properties.desired"].systemModules.edgeAgent;
-    var hubstatus = hubPro.status;
-    var hubpolicy = hubPro.restartPolicy;
-    $("#hubImg").val(hubPro.settings.image);
-    $("#hubCo").val(JSON.stringify(hubPro.settings.createOptions));
+    var hubpro = templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub;
+    var agentpro = templatefile.$edgeAgent["properties.desired"].systemModules.edgeAgent;
+    var hubstatus = hubpro.status;
+    var hubpolicy = hubpro.restartPolicy;
+    $("#hubImg").val(hubpro.settings.image);
+    $("#hubCo").val(JSON.stringify(hubpro.settings.createOptions));
     $("#hubStatus").find("option:contains(\"" + hubstatus + "\")").prop("selected", true);
     $("#hubPolicy").find("option:contains(\"" + hubpolicy + "\")").prop("selected", true);
-    $("#agentImg").val(agentPro.settings.image);
+    $("#agentImg").val(agentpro.settings.image);
 }
 
 function createUpstream(i, connection, connectionnew) {
     var $canvas = $("#canvas");
     var $newdiv = $("<div class='module' id= 'IoTHub'></div>");
     $newdiv.text("upstream");
-    $newdiv.css({ position: "absolute", top: 70 + i * 70, left: 70 + i * 30, 'background-color': "rgb(40, 104, 187)" });
+    $newdiv.css({ position: "absolute", top: 70 + i * 70, left: 70, 'background-color': "rgb(40, 104, 187)" });
     $canvas.append($newdiv);
     jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubports" }, connection);
     jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubportt" }, connectionnew);
@@ -37,15 +38,15 @@ function createModules(key, i, connection, connectionnew) {
     var $canvas = $("#canvas");
     var $newdiv = $("<div class='module' id=\"" + key + "\"></div>");
     $newdiv.text(key);
-    $newdiv.css({ position: "absolute", 'top': 70 + i * 70, 'left': 70 + i * 30 });
+    $newdiv.css({ position: "absolute", 'top': 70 + i * 70, 'left': 70 + i * 70 });
     $canvas.append($newdiv);
     $newdiv.bind("dblclick", function() {
         var key = $(this).attr("id");
         var mdltwin = {};
-        if (templateFile.hasOwnProperty(key)) {
-            mdltwin = templateFile[key]["properties.desired"];
+        if (templatefile.hasOwnProperty(key)) {
+            mdltwin = templatefile[key]["properties.desired"];
         }
-        if (modifyflag) {
+        if (modifyattr) {
             $("#mdyUnsave").data("data-triggermdl", $(this).attr("id"));
             $("#mdyUnsave").modal();
         } else {
@@ -60,12 +61,12 @@ function createModules(key, i, connection, connectionnew) {
             }
             $("#mdlName").text(key);
             $("#mdlName").val(key);
-            $("#mdlImg").val(moduleNode[key].settings.image);
-            $("#mdlCo").val(JSON.stringify(moduleNode[key].settings.createOptions));
+            $("#mdlImg").val(modulenode[key].settings.image);
+            $("#mdlCo").val(JSON.stringify(modulenode[key].settings.createOptions));
             $("#mdlMt").val(JSON.stringify(mdltwin));
-            var mdlstatus = moduleNode[key].status;
+            var mdlstatus = modulenode[key].status;
             $("#mdlStatus").find("option:contains(\"" + mdlstatus + "\")").prop("selected", true);
-            var mdlpolicy = moduleNode[key].restartPolicy;
+            var mdlpolicy = modulenode[key].restartPolicy;
             $("#mdlPolicy").find("option:contains(\"" + mdlpolicy + "\")").prop("selected", true);
         }
     });
@@ -115,7 +116,7 @@ function setRoute(route, connection) {
 function display(connection, connectionnew) {
     createSystem();
     var i = 1;
-    for (var key in moduleNode) {
+    for (var key in modulenode) {
         createModules(key, i, connection, connectionnew);
         i++;
     }
@@ -129,23 +130,36 @@ $("#deletecon").click(function() {
 })
 
 $("#popsave").click(function() {
-    if (modifyflag) {
-        var connid = modifyconn;
-        routings.get(connid).spt = $("#txt_departmentname_output").val();
-        routings.get(connid).tpt = $("#txt_departmentname_input").val();
-        routings.get(connid).cdt = $("#txt_departmentname_cdt").val();
-        modifyflag = false;
+    if (modifyroute) {
+        modifyroute = false;
+        $("#exampleModal").data("data-newline", "false");
+        if ($("#txt_departmentname_output").val() == "" || $("#txt_departmentname_input").val() == "") {
+            deleteconn = modifyconn;
+            routings.delete(deleteconn.id);
+            jsPlumb.detach(deleteconn);
+        } else {
+            var connid = modifyconn.id;
+            routings.get(connid).spt = $("#txt_departmentname_output").val();
+            routings.get(connid).tpt = $("#txt_departmentname_input").val();
+            routings.get(connid).cdt = $("#txt_departmentname_cdt").val();
+        }
     }
 })
 
 $("#popclose").click(function() {
-    if (modifyflag) {
-        modifyflag = false;
+    if (modifyroute) {
+        modifyroute = false;
+        if ($("#txt_departmentname_output").val() == "" || $("#txt_departmentname_input").val() == "" || $("#exampleModal").data("data-newline") == "true") {
+            $("#exampleModal").data("data-newline", "false");
+            deleteconn = modifyconn;
+            routings.delete(deleteconn.id);
+            jsPlumb.detach(deleteconn);
+        }
     }
 })
 
 $("#pagesave").click(function() {
-    if (modifyflag) {
+    if (modifyattr) {
         $("#mdyUnsave").data("data-triggerpage", "true");
         var sysdpl = $("#hub-property")[0].style.display;
         if (sysdpl != "none") {
@@ -172,39 +186,39 @@ $("#pagesave").click(function() {
             }
         }
         routings.forEach(readrouting);
-        templateFile.$edgeHub["properties.desired"].routes = route;
-        vscode.postMessage({ text: templateFile })
+        templatefile.$edgeHub["properties.desired"].routes = route;
+        vscode.postMessage({ text: templatefile })
     }
 })
 
 $("#syssave").click(function() {
-    templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.image = $('#hubImg').val();
-    templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.status = $("#hubStatus").val();
-    templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.restartPolicy = $("#hubPolicy").val();
-    templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions = JSON.parse($('#hubCo').val());
-    templateFile.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.image = $('#agentImg').val();
-    modifyflag = false;
+    templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.image = $('#hubImg').val();
+    templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.status = $("#hubStatus").val();
+    templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.restartPolicy = $("#hubPolicy").val();
+    templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions = JSON.parse($('#hubCo').val());
+    templatefile.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.image = $('#agentImg').val();
+    modifyattr = false;
 
 })
 
 $("#mdlsave").click(function() {
     var key = $("#mdlName").text();
-    moduleNode[key].restartPolicy = $("#mdlPolicy").val();
-    moduleNode[key].settings.createOptions = JSON.parse($("#mdlCo").val());
-    moduleNode[key].settings.image = $("#mdlImg").val();
-    moduleNode[key].status = $("#mdlStatus").val();
-    if (templateFile.hasOwnProperty(key)) {
-        templateFile[key]["properties.desired"] = JSON.parse($("#mdlMt").val());
+    modulenode[key].restartPolicy = $("#mdlPolicy").val();
+    modulenode[key].settings.createOptions = JSON.parse($("#mdlCo").val());
+    modulenode[key].settings.image = $("#mdlImg").val();
+    modulenode[key].status = $("#mdlStatus").val();
+    if (templatefile.hasOwnProperty(key)) {
+        templatefile[key]["properties.desired"] = JSON.parse($("#mdlMt").val());
     } else if ($("#mdlMt").val() != "") {
         var mdltwin = { "properties.desired": {} };
         mdltwin["properties.desired"] = JSON.parse($("#mdlMt").val());
-        templateFile[key] = mdltwin;
+        templatefile[key] = mdltwin;
     }
-    modifyflag = false;
+    modifyattr = false;
 })
 
 $("#mdysave").click(function() {
-    modifyflag = false;
+    modifyattr = false;
     var mdldpl = $("#module-property")[0].style.display;
     var sysdpl = $("#hub-property")[0].style.display;
     if (sysdpl != "none") {
@@ -227,7 +241,7 @@ $("#mdysave").click(function() {
 })
 
 $("#mdydel").click(function() {
-    modifyflag = false;
+    modifyattr = false;
     var mdldpl = $("#module-property")[0].style.display;
     var sysdpl = $("#hub-property")[0].style.display;
     if (sysdpl != "none") {
@@ -251,11 +265,16 @@ $("#mdydel").click(function() {
 })
 
 $(".custom-select").change(function() {
-    modifyflag = true;
+    modifyattr = true;
 })
 
 $(".form-control").on("input", function() {
-    modifyflag = true;
+    var triggerelement = $(this).attr("id");
+    if (triggerelement.startsWith("txt")) {
+        modifyroute = true;
+    } else {
+        modifyattr = true;
+    }
 })
 
 jsPlumb.ready(function() {
@@ -312,8 +331,20 @@ jsPlumb.ready(function() {
             ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
         ]
     });
+    $('#exampleModal').on('show.bs.modal', function() {
+        if (modifyconn.targetId == "IoTHub") {
+            $('#txt_departmentname_input').attr("placeholder", "$upstream");
+        } else {
+            $('#txt_departmentname_input').attr("placeholder", "");
+        }
+        if (modifyconn.sourceId == "IoTHub") {
+            $('#txt_departmentname_output').attr("placeholder", "$upstream");
+        } else {
+            $('#txt_departmentname_output').attr("placeholder", "");
+        }
+    })
     jsPlumb.bind("click", function(conn) {
-        modifyconn = conn.id;
+        modifyconn = conn;
         var outputPort = routings.get(conn.id).spt;
         var inputPort = routings.get(conn.id).tpt;
         var condition = routings.get(conn.id).cdt;
@@ -330,10 +361,12 @@ jsPlumb.ready(function() {
         if (connInfo.sourceId === connInfo.targetId) {
             return false
         } else {
+            modifyroute = true;
+            $("#exampleModal").data("data-newline", "true");
             var outputmdl = connInfo.sourceId;
             var inputmdl = connInfo.targetId;
             connInfo.connection.id = outputmdl + "To" + inputmdl;
-            modifyconn = connInfo.connection.id;
+            modifyconn = connInfo.connection;
             var rjson = { "smdl": outputmdl, "spt": "", "tmdl": inputmdl, "tpt": "", "cdt": "" };
             routings.set(connInfo.connection.id, rjson);
             $('#txt_departmentname_output').val("");
@@ -345,9 +378,9 @@ jsPlumb.ready(function() {
     });
     vscode.postMessage({ text: "start" })
     window.addEventListener('message', event => {
-        templateFile = event.data;
-        moduleNode = templateFile.$edgeAgent["properties.desired"].modules;
-        route = templateFile.$edgeHub["properties.desired"].routes;
+        templatefile = event.data;
+        modulenode = templatefile.$edgeAgent["properties.desired"].modules;
+        route = templatefile.$edgeHub["properties.desired"].routes;
         display(connection, connectionnew);
     })
 });

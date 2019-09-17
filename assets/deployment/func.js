@@ -5,13 +5,13 @@ try {
 
 }
 
-var message, moduleNode, route, deleteconn, modifyconn;
+var templateFile, moduleNode, route, deleteconn, modifyconn;
 var modifyflag = false;
 var routings = new Map();
 
 function createSystem() {
-    var hubPro = message.$edgeAgent["properties.desired"].systemModules.edgeHub;
-    var agentPro = message.$edgeAgent["properties.desired"].systemModules.edgeAgent;
+    var hubPro = templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub;
+    var agentPro = templateFile.$edgeAgent["properties.desired"].systemModules.edgeAgent;
     var hubstatus = hubPro.status;
     var hubpolicy = hubPro.restartPolicy;
     $("#hubImg").val(hubPro.settings.image);
@@ -42,8 +42,8 @@ function createModules(key, i, connection, connectionnew) {
     $newdiv.bind("dblclick", function() {
         var key = $(this).attr("id");
         var mdltwin = {};
-        if (message.hasOwnProperty(key)) {
-            mdltwin = message[key]["properties.desired"];
+        if (templateFile.hasOwnProperty(key)) {
+            mdltwin = templateFile[key]["properties.desired"];
         }
         if (modifyflag) {
             $("#mdyUnsave").data("data-triggermdl", $(this).attr("id"));
@@ -54,7 +54,7 @@ function createModules(key, i, connection, connectionnew) {
             if (sysdpl !== "none") {
                 $("#module-property")[0].style.display = sysdpl;
                 $("#hub-property")[0].style.display = "none";
-            } else if ($("#mdlName").val() === key) {
+            } else if ($("#mdlName").val() === key && $("#mdyUnsave").data("data-triggerpage") != "true") {
                 $("#hub-property")[0].style.display = mdldpl;
                 $("#module-property")[0].style.display = "none";
             }
@@ -146,37 +146,43 @@ $("#popclose").click(function() {
 
 $("#pagesave").click(function() {
     if (modifyflag) {
-        var triggermdl = $("#mdlName").val();
-        $("#" + triggermdl).dblclick();
-        $("#module-property")[0].style.display = $("#hub-property")[0].style.display;
-        $("#hub-property")[0].style.display = "none";
-    }
-    route = {};
+        $("#mdyUnsave").data("data-triggerpage", "true");
+        var sysdpl = $("#hub-property")[0].style.display;
+        if (sysdpl != "none") {
+            $("#mdyUnsave").modal();
+        } else {
+            var triggermdl = $("#mdlName").val();
+            $("#mdyUnsave").data("data-triggermdl", $("#" + triggermdl).attr("id"));
+            $("#mdyUnsave").modal();
+        }
+    } else {
+        route = {};
 
-    function readrouting(value, key, map) {
-        var target;
-        if (value.tmdl === "IoTHub") {
-            target = " INTO $upstream";
-        } else {
-            target = " INTO BrokeredEndpoint(\"/modules/" + value.tmdl + "/inputs/" + value.tpt + "\")";
+        function readrouting(value, key, map) {
+            var target;
+            if (value.tmdl === "IoTHub") {
+                target = " INTO $upstream";
+            } else {
+                target = " INTO BrokeredEndpoint(\"/modules/" + value.tmdl + "/inputs/" + value.tpt + "\")";
+            }
+            if (value.cdt !== "") {
+                route[key] = "FROM /messages/modules/" + value.smdl + "/outputs/" + value.spt + " WHERE " + value.cdt + target;
+            } else {
+                route[key] = "FROM /messages/modules/" + value.smdl + "/outputs/" + value.spt + target;
+            }
         }
-        if (value.cdt !== "") {
-            route[key] = "FROM /messages/modules/" + value.smdl + "/outputs/" + value.spt + " WHERE " + value.cdt + target;
-        } else {
-            route[key] = "FROM /messages/modules/" + value.smdl + "/outputs/" + value.spt + target;
-        }
+        routings.forEach(readrouting);
+        templateFile.$edgeHub["properties.desired"].routes = route;
+        vscode.postMessage({ text: templateFile })
     }
-    routings.forEach(readrouting);
-    message.$edgeHub["properties.desired"].routes = route;
-    vscode.postMessage({ text: message })
 })
 
 $("#syssave").click(function() {
-    message.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.image = $('#hubImg').val();
-    message.$edgeAgent["properties.desired"].systemModules.edgeHub.status = $("#hubStatus").val();
-    message.$edgeAgent["properties.desired"].systemModules.edgeHub.restartPolicy = $("#hubPolicy").val();
-    message.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions = JSON.parse($('#hubCo').val());
-    message.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.image = $('#agentImg').val();
+    templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.image = $('#hubImg').val();
+    templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.status = $("#hubStatus").val();
+    templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.restartPolicy = $("#hubPolicy").val();
+    templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions = JSON.parse($('#hubCo').val());
+    templateFile.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.image = $('#agentImg').val();
     modifyflag = false;
 
 })
@@ -187,17 +193,18 @@ $("#mdlsave").click(function() {
     moduleNode[key].settings.createOptions = JSON.parse($("#mdlCo").val());
     moduleNode[key].settings.image = $("#mdlImg").val();
     moduleNode[key].status = $("#mdlStatus").val();
-    if (message.hasOwnProperty(key)) {
-        message[key]["properties.desired"] = JSON.parse($("#mdlMt").val());
+    if (templateFile.hasOwnProperty(key)) {
+        templateFile[key]["properties.desired"] = JSON.parse($("#mdlMt").val());
     } else if ($("#mdlMt").val() != "") {
         var mdltwin = { "properties.desired": {} };
         mdltwin["properties.desired"] = JSON.parse($("#mdlMt").val());
-        message[key] = mdltwin;
+        templateFile[key] = mdltwin;
     }
     modifyflag = false;
 })
 
 $("#mdysave").click(function() {
+    modifyflag = false;
     var mdldpl = $("#module-property")[0].style.display;
     var sysdpl = $("#hub-property")[0].style.display;
     if (sysdpl != "none") {
@@ -205,11 +212,17 @@ $("#mdysave").click(function() {
         $("#" + $("#mdyUnsave").data("data-triggermdl")).dblclick();
     } else if ($("#mdyUnsave").data("data-triggermdl") === $("#mdlName").text()) {
         $("#mdlsave").click();
-        $("#hub-property")[0].style.display = mdldpl;
-        $("#module-property")[0].style.display = "none";
+        if ($("#mdyUnsave").data("data-triggerpage") != "true") {
+            $("#hub-property")[0].style.display = mdldpl;
+            $("#module-property")[0].style.display = "none";
+        }
     } else {
         $("#mdlsave").click();
         $("#" + $("#mdyUnsave").data("data-triggermdl")).dblclick();
+    }
+    if ($("#mdyUnsave").data("data-triggerpage") === "true") {
+        $("#mdyUnsave").data("data-triggerpage", "false");
+        $("#pagesave").click();
     }
 })
 
@@ -222,12 +235,18 @@ $("#mdydel").click(function() {
         $("#" + $("#mdyUnsave").data("data-triggermdl")).dblclick();
     } else if ($("#mdyUnsave").data("data-triggermdl") === $("#mdlName").text()) {
         $("#" + $("#mdyUnsave").data("data-triggermdl")).dblclick();
-        createSystem();
-        $("#hub-property")[0].style.display = mdldpl;
-        $("#module-property")[0].style.display = "none";
+        if ($("#mdyUnsave").data("data-triggerpage") != "true") {
+            createSystem();
+            $("#hub-property")[0].style.display = mdldpl;
+            $("#module-property")[0].style.display = "none";
+        }
     } else {
         $("#" + $("#mdlName").val()).dblclick();
         $("#" + $("#mdyUnsave").data("data-triggermdl")).dblclick();
+    }
+    if ($("#mdyUnsave").data("data-triggerpage") === "true") {
+        $("#mdyUnsave").data("data-triggerpage", "false");
+        $("#pagesave").click();
     }
 })
 
@@ -326,9 +345,9 @@ jsPlumb.ready(function() {
     });
     vscode.postMessage({ text: "start" })
     window.addEventListener('message', event => {
-        message = event.data;
-        moduleNode = message.$edgeAgent["properties.desired"].modules;
-        route = message.$edgeHub["properties.desired"].routes;
+        templateFile = event.data;
+        moduleNode = templateFile.$edgeAgent["properties.desired"].modules;
+        route = templateFile.$edgeHub["properties.desired"].routes;
         display(connection, connectionnew);
     })
 });

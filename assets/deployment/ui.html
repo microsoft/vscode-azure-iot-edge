@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -16,7 +17,7 @@
                 <a class="btn btn-outline-primary" href="#" id="pagesave">Save</a>
             </div>
         </nav>
-        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-newline="false">
+        <div class="modal fade" id="routeattr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-newline="false">
             <div class="modal-dialog" role="document">
                 <div class="modal-content" id="pop-up">
                     <div class="modal-header">
@@ -26,12 +27,14 @@
                         <div class="form-group was-validated">
                             <label for="txt_departmentname">Output<em style="color: red;">*</em></label>
                             <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_output" required />
-                            <div class="invalid-feedback">Please fill in output name, or the routing will be deleted.</div>
+                            <div class="invalid-feedback">Please fill in output name, or the routing will be deleted.
+                            </div>
                         </div>
                         <div class="form-group was-validated">
                             <label for="txt_departmentname">Input<em style="color: red;">*</em></label>
                             <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_input" required />
-                            <div class="invalid-feedback">Please fill in input name, or the routing will be deleted.</div>
+                            <div class="invalid-feedback">Please fill in input name, or the routing will be deleted.
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="txt_departmentname">Condition</label>
@@ -45,7 +48,7 @@
                 </div>
             </div>
         </div>
-        <div class="modal" id="delpop" tabindex="-1" role="dialog">
+        <div class="modal" id="routedelete" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -111,7 +114,9 @@
                                             <label class="input-group-text" for="hubStatus">Desired
                                                 Status</label>
                                         </div>
+                                        <!-- <select id="hubStatus" class="custom-select"> -->
                                         <select id="hubStatus" class="custom-select">
+                                            <option value=""></option>
                                             <option value="running">running</option>
                                             <option value="stopped">stopped</option>
                                         </select>
@@ -232,15 +237,15 @@
             </nav>
             <main id="canvas">
             </main>
-
-            <script type="text/javascript" src="{{root}}/assets/deployment/jquery.min.js"></script>
-            <script type="text/javascript" src="{{root}}/assets/deployment/jquery-ui.min.js"></script>
-            <script type="text/javascript" src="{{root}}/assets/deployment/jsPlumb.min.js"></script>
-            <script type="text/javascript" src="{{root}}/assets/deployment/popper.min.js"></script>
-            <script type="text/javascript" src="{{root}}/assets/deployment/bootstrap.min.js"></script>
-            <script type="text/javascript" src="{{root}}/assets/deployment/func.js"></script>
         </div>
     </div>
+    <script type="text/javascript" src="{{root}}/assets/deployment/jquery.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/jsPlumb.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/popper.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/marketplace/vue.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/func.js"></script>
 </body>
 
 </html>

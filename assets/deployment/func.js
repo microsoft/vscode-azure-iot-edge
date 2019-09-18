@@ -9,6 +9,10 @@ var templatefile, modulenode, route, deleteconn, modifyconn;
 var modifyattr = false;
 var modifyroute = false;
 var routings = new Map();
+const posbase = 70;
+const posoffset = 70;
+const curvinessbase = 90;
+const curvinessoffset = 30;
 
 function createSystem() {
     var hubpro = templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub;
@@ -22,23 +26,23 @@ function createSystem() {
     $("#agentImg").val(agentpro.settings.image);
 }
 
-function createUpstream(i, connection, connectionnew) {
+function createUpstream(i, endpointsource, endpointtarget) {
     var $canvas = $("#canvas");
     var $newdiv = $("<div class='module' id= 'IoTHub'></div>");
     $newdiv.text("upstream");
-    $newdiv.css({ position: "absolute", top: 70 + i * 70, left: 70, 'background-color': "rgb(40, 104, 187)" });
+    $newdiv.css({ position: "absolute", top: posbase + i * posoffset, left: posbase, 'background-color': "rgb(40, 104, 187)" });
     $canvas.append($newdiv);
-    jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubports" }, connection);
-    jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubportt" }, connectionnew);
+    jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubports" }, endpointsource);
+    jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubportt" }, endpointtarget);
     var divsWithWindowClass = jsPlumb.getSelector(".module");
     jsPlumb.draggable(divsWithWindowClass);
 }
 
-function createModules(key, i, connection, connectionnew) {
+function createModules(key, i, endpointsource, endpointtarget) {
     var $canvas = $("#canvas");
     var $newdiv = $("<div class='module' id=\"" + key + "\"></div>");
     $newdiv.text(key);
-    $newdiv.css({ position: "absolute", 'top': 70 + i * 70, 'left': 70 + i * 70 });
+    $newdiv.css({ position: "absolute", 'top': posbase + i * posoffset, 'left': posbase + i * posoffset });
     $canvas.append($newdiv);
     $newdiv.bind("dblclick", function() {
         var key = $(this).attr("id");
@@ -70,13 +74,13 @@ function createModules(key, i, connection, connectionnew) {
             $("#mdlPolicy").find("option:contains(\"" + mdlpolicy + "\")").prop("selected", true);
         }
     });
-    jsPlumb.addEndpoint(key, { uuid: key + "ports" }, connection);
-    jsPlumb.addEndpoint(key, { uuid: key + "portt" }, connectionnew);
+    jsPlumb.addEndpoint(key, { uuid: key + "ports" }, endpointsource);
+    jsPlumb.addEndpoint(key, { uuid: key + "portt" }, endpointtarget);
     var divsWithWindowClass = jsPlumb.getSelector(".module");
     jsPlumb.draggable(divsWithWindowClass);
 }
 
-function setRoute(route, connection) {
+function setRoute(route) {
     for (var key in route) {
         var iMdlName, iMdlPort, oMdlName, oMdlPort, cdt = "";
         var routeMsg = JSON.stringify(route[key]);
@@ -100,28 +104,40 @@ function setRoute(route, connection) {
         if (routeMsg.indexOf("WHERE") != -1) {
             cdt = routeMsg.slice(routeMsg.indexOf("WHERE") + 6, routeMsg.indexOf("INTO") - 1);
         }
-        var conn = jsPlumb.connect({
-            uuids: [oMdlName + "ports", iMdlName + "portt", ],
-            connection,
-            overlays: [
-                ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
-            ]
-        });
-        conn.id = oMdlName + "To" + iMdlName;
+        var curconnection = jsPlumb.getConnections({ source: oMdlName, target: iMdlName });
+        var conn;
+        if (curconnection.length === 0) {
+            var connectorline = ["Bezier", { curviness: curvinessbase }];
+            conn = jsPlumb.connect({
+                uuids: [oMdlName + "ports", iMdlName + "portt"],
+                connector: connectorline
+            });
+        } else {
+            var connectorline = ["Bezier", { curviness: curvinessbase + curvinessoffset * curconnection.length }];
+            conn = jsPlumb.connect({
+                uuids: [oMdlName + "ports", iMdlName + "portt"],
+                connector: connectorline
+            });
+        }
+        if (routings.size === 0) {
+            conn.id = 1;
+        } else {
+            conn.id = [...routings][routings.size - 1][0] + 1;
+        }
         var rjson = { "smdl": oMdlName, "spt": oMdlPort, "tmdl": iMdlName, "tpt": iMdlPort, "cdt": cdt };
         routings.set(conn.id, rjson);
     }
 }
 
-function display(connection, connectionnew) {
+function display(endpointsource, endpointtarget) {
     createSystem();
     var i = 1;
     for (var key in modulenode) {
-        createModules(key, i, connection, connectionnew);
+        createModules(key, i, endpointsource, endpointtarget);
         i++;
     }
-    createUpstream(i, connection, connectionnew);
-    setRoute(route, connection);
+    createUpstream(i, endpointsource, endpointtarget);
+    setRoute(route);
 }
 
 $("#deletecon").click(function() {
@@ -132,7 +148,7 @@ $("#deletecon").click(function() {
 $("#popsave").click(function() {
     if (modifyroute) {
         modifyroute = false;
-        $("#exampleModal").data("data-newline", "false");
+        $("#routeattr").data("data-newline", "false");
         if ($("#txt_departmentname_output").val() == "" || $("#txt_departmentname_input").val() == "") {
             deleteconn = modifyconn;
             routings.delete(deleteconn.id);
@@ -149,8 +165,8 @@ $("#popsave").click(function() {
 $("#popclose").click(function() {
     if (modifyroute) {
         modifyroute = false;
-        if ($("#txt_departmentname_output").val() == "" || $("#txt_departmentname_input").val() == "" || $("#exampleModal").data("data-newline") == "true") {
-            $("#exampleModal").data("data-newline", "false");
+        if ($("#txt_departmentname_output").val() == "" || $("#txt_departmentname_input").val() == "" || $("#routeattr").data("data-newline") == "true") {
+            $("#routeattr").data("data-newline", "false");
             deleteconn = modifyconn;
             routings.delete(deleteconn.id);
             jsPlumb.detach(deleteconn);
@@ -186,6 +202,23 @@ $("#pagesave").click(function() {
             }
         }
         routings.forEach(readrouting);
+        var routenameset = new Set();
+        for (var key of routings.keys()) {
+            var routenamekey = routings.get(key).smdl + "To" + routings.get(key).tmdl;
+            if (routenameset.has(routenamekey)) {
+                var routenamenum = 2;
+                while (routenameset.has(routenamekey + routenamenum)) {
+                    routenamenum++;
+                }
+                routenameset.add(routenamekey + routenamenum);
+                routenamekey = routenamekey + routenamenum;
+            } else {
+                routenameset.add(routenamekey);
+            }
+            delete Object.assign(route, {
+                [routenamekey]: route[key]
+            })[key];
+        }
         templatefile.$edgeHub["properties.desired"].routes = route;
         vscode.postMessage({ text: templatefile })
     }
@@ -278,6 +311,7 @@ $(".form-control").on("input", function() {
 })
 
 jsPlumb.ready(function() {
+    // $('.custom-select').select2();
     var exampleDropOptions = {
         hoverClass: "dropHover",
     };
@@ -292,46 +326,43 @@ jsPlumb.ready(function() {
     var endpointHoverStyle = {
         strokeStyle: "#216477"
     };
-    var connection = {
+    var endpointsource = {
         anchor: "LeftMiddle",
         endpoint: ["Dot", { radius: 3 }],
         paintStyle: { fillStyle: "#316b31" },
         isSource: true,
-        scope: "green dot",
+        deleteEndpointsOnDetach: false,
+        maxConnections: -1,
         connectorStyle: connectorPaintStyle,
         hoverPaintStyle: endpointHoverStyle,
         connectorHoverStyle: connectorHoverStyle,
-        connector: ["Bezier", { curviness: 63 }],
         dropOptions: exampleDropOptions,
-        deleteEndpointsOnDetach: false,
-        maxConnections: -1,
         ConnectionOverlays: [
             ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
         ]
     };
-    var connectionnew = {
+    var endpointtarget = {
         anchor: "Right",
         endpoint: ["Dot", { radius: 3 }],
         paintStyle: { fillStyle: "#316b31" },
-        scope: "green dot",
+        isTarget: true,
+        deleteEndpointsOnDetach: false,
+        maxConnections: -1,
         connectorStyle: connectorPaintStyle,
         hoverPaintStyle: endpointHoverStyle,
         connectorHoverStyle: connectorHoverStyle,
-        connector: ["Bezier", { curviness: 63 }],
-        isTarget: true,
         dropOptions: exampleDropOptions,
-        deleteEndpointsOnDetach: false,
-        maxConnections: -1,
         ConnectionOverlays: [
             ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
         ]
     };
+
     jsPlumb.importDefaults({
         ConnectionOverlays: [
             ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
         ]
     });
-    $('#exampleModal').on('show.bs.modal', function() {
+    $('#routeattr').on('show.bs.modal', function() {
         if (modifyconn.targetId == "IoTHub") {
             $('#txt_departmentname_input').attr("placeholder", "$upstream");
         } else {
@@ -351,28 +382,40 @@ jsPlumb.ready(function() {
         $('#txt_departmentname_output').val(outputPort);
         $('#txt_departmentname_input').val(inputPort);
         $('#txt_departmentname_cdt').val(condition);
-        $('#exampleModal').modal();
+        $('#routeattr').modal();
     });
     jsPlumb.bind("contextmenu", function(conn) {
         deleteconn = conn;
-        $('#delpop').modal();
+        $('#routedelete').modal();
     });
     jsPlumb.bind("beforeDrop", function(connInfo) {
         if (connInfo.sourceId === connInfo.targetId) {
             return false
         } else {
+            var curconnection = jsPlumb.getConnections({ source: connInfo.sourceId, target: connInfo.targetId });
+            if (curconnection.length != 0) {
+                var connectorstyle = ["Bezier", { curviness: curvinessbase + curvinessoffset * curconnection.length }];
+                connInfo.connection.setConnector(connectorstyle);
+            } else {
+                var connectorstyle = ["Bezier", { curviness: curvinessbase }];
+                connInfo.connection.setConnector(connectorstyle);
+            }
             modifyroute = true;
-            $("#exampleModal").data("data-newline", "true");
+            $("#routeattr").data("data-newline", "true");
             var outputmdl = connInfo.sourceId;
             var inputmdl = connInfo.targetId;
-            connInfo.connection.id = outputmdl + "To" + inputmdl;
+            if (routings.size === 0) {
+                connInfo.connection.id = 1;
+            } else {
+                connInfo.connection.id = [...routings][routings.size - 1][0] + 1;
+            }
             modifyconn = connInfo.connection;
             var rjson = { "smdl": outputmdl, "spt": "", "tmdl": inputmdl, "tpt": "", "cdt": "" };
             routings.set(connInfo.connection.id, rjson);
             $('#txt_departmentname_output').val("");
             $('#txt_departmentname_input').val("");
             $('#txt_departmentname_cdt').val("");
-            $('#exampleModal').modal();
+            $('#routeattr').modal();
             return true;
         }
     });
@@ -381,6 +424,6 @@ jsPlumb.ready(function() {
         templatefile = event.data;
         modulenode = templatefile.$edgeAgent["properties.desired"].modules;
         route = templatefile.$edgeHub["properties.desired"].routes;
-        display(connection, connectionnew);
+        display(endpointsource, endpointtarget);
     })
 });

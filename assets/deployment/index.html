@@ -9,46 +9,46 @@
 </head>
 
 <body>
-    <div class="wrapperc">
+    <div id="app" class="wrapperc" v-cloak>
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="height: 60px;">
-            <div class="collapse navbar-collapse" id="navbarsExample03">
+            <div class="collapse navbar-collapse">
                 <ul class="navbar-nav mr-auto">
                 </ul>
-                <a class="btn btn-outline-primary" href="#" id="pagesave">Save</a>
+                <a class="btn btn-outline-primary" id="pagesave" @click="pagesave()">Save</a>
             </div>
         </nav>
-        <div class="modal fade" id="routeattr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-newline="false">
+        <div class="modal fade" ref="routeattr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-newline="false">
             <div class="modal-dialog" role="document">
-                <div class="modal-content" id="pop-up">
+                <div class="modal-content" :routemodal="pop-up">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="exampleModalLabel">Routing message</h4>
+                        <h4 class="modal-title">Routing message</h4>
                     </div>
                     <div class="modal-body">
                         <div class="form-group was-validated">
                             <label for="txt_departmentname">Output<em style="color: red;">*</em></label>
-                            <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_output" required />
+                            <input type="text" class="form-control" name="txt_output" v-model="outputname" required />
                             <div class="invalid-feedback">Please fill in output name, or the routing will be deleted.
                             </div>
                         </div>
                         <div class="form-group was-validated">
                             <label for="txt_departmentname">Input<em style="color: red;">*</em></label>
-                            <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_input" required />
+                            <input type="text" class="form-control" name="txt_input" v-model="inputname" required />
                             <div class="invalid-feedback">Please fill in input name, or the routing will be deleted.
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="txt_departmentname">Condition</label>
-                            <input type="text" name="txt_departmentname" class="form-control" id="txt_departmentname_cdt">
+                            <input type="text" class="form-control" name="txt_cdt" v-model="cdt">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="popsave" data-dismiss="modal">Ok</button>
-                        <button type="button" class="btn btn-secondary" id="popclose" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="popsave" data-dismiss="modal" @click="popsave()">Ok</button>
+                        <button type="button" class="btn btn-secondary" id="popclose" data-dismiss="modal" @click="popclose()">Cancel</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="modal" id="routedelete" tabindex="-1" role="dialog">
+        <div class="modal" ref="routedelete" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -59,13 +59,13 @@
                         </p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="deletecon" data-dismiss="modal">Yes</button>
-                        <button type="button" class="btn btn-primary" id="nodeletecon" data-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-secondary" id="deletecon" data-dismiss="modal" @click="deletecon()">Yes</button>
+                        <button type="button" class="btn btn-primary" id="nodeletecon" data-dismiss="modal" @click="nodeletecon()">No</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="modal" id="mdyUnsave" tabindex="-1" role="dialog" data-triggermdl="" data-triggerpage="false">
+        <div class="modal" ref="mdyUnsave" tabindex="-1" role="dialog" :data-triggermdl="triggermdl" :data-triggerpage="triggerpage">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -75,16 +75,16 @@
                         <p>Want to save your changes?</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="mdysave" data-dismiss="modal">Save</button>
-                        <button type="button" class="btn btn-primary" id="mdydel" data-dismiss="modal">Don't
-                            save</button>
+                        <button type="button" class="btn btn-secondary" id="mdysave" data-dismiss="modal" @click="mdysave()">Save</button>
+                        <button type="button" class="btn btn-primary" id="mdydel" data-dismiss="modal" @click="mdydel()">Don't
+                                save</button>
                     </div>
                 </div>
             </div>
         </div>
         <div class="wrapperr">
             <nav style="padding:0;min-width:300px;max-width:300px;">
-                <nav id="hub-property" class="sidebar" style="display: block;">
+                <nav v-if="display" id="hub-property" class="sidebar" style="display: block;">
                     <div class="sidebar-header">
                         <h4>System Properties</h4>
                     </div>
@@ -105,21 +105,20 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="basic-addon1">Image</span>
                                         </div>
-                                        <input type="text" class="form-control" id="hubImg" aria-label="Username" aria-describedby="basic-addon1">
+                                        <input type="text" class="form-control" id="hubImg" v-model="hubimg" aria-label="Username" aria-describedby="basic-addon1">
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <label class="input-group-text" for="hubStatus">Desired
-                                                Status</label>
+                                                    Status</label>
                                         </div>
-                                        <!-- <select id="hubStatus" class="custom-select"> -->
-                                        <select id="hubStatus" class="custom-select">
-                                            <option value=""></option>
-                                            <option value="running">running</option>
-                                            <option value="stopped">stopped</option>
-                                        </select>
+                                        <select id="hubStatus" v-model="hubstatus" class="custom-select">
+                                                <option value=""></option>
+                                                <option value="running">running</option>
+                                                <option value="stopped">stopped</option>
+                                            </select>
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -127,18 +126,18 @@
                                         <div class="input-group-prepend">
                                             <label class="input-group-text" for="hubPolicy">Restart Policy</label>
                                         </div>
-                                        <select id="hubPolicy" class="custom-select">
-                                            <option value="always">always</option>
-                                            <option value="never">never</option>
-                                            <option value="on-failure">on-failure</option>
-                                            <option value="on-unhealthy">on-unhealthy</option>
-                                        </select>
+                                        <select id="hubPolicy" v-model="hubpolicy" class="custom-select">
+                                                <option value="always">always</option>
+                                                <option value="never">never</option>
+                                                <option value="on-failure">on-failure</option>
+                                                <option value="on-unhealthy">on-unhealthy</option>
+                                            </select>
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                                     <label for="basic-url" style="font-size: 0.7em;">Create Options</label>
                                     <div class="input-group">
-                                        <textarea class="form-control" id="hubCo" rows="3"></textarea>
+                                        <textarea class="form-control" id="hubCo" v-model="hubco" rows="3"></textarea>
                                     </div>
                                 </li>
                             </ul>
@@ -160,7 +159,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="basic-addon1">Image</span>
                                         </div>
-                                        <input type="text" class="form-control" id="agentImg" aria-label="Username" aria-describedby="basic-addon1">
+                                        <input type="text" class="form-control" id="agentImg" v-model="agentimg" aria-label="Username" aria-describedby="basic-addon1">
                                     </div>
                                 </li>
                             </ul>
@@ -168,10 +167,10 @@
 
                     </ul>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="syssave">Update</button>
+                        <button type="button" class="btn btn-primary" id="syssave" @click="syssave()">Update</button>
                     </div>
                 </nav>
-                <nav id="module-property" style="display: none;" class="sidebar">
+                <nav v-else id="module-property" style="display: none;" class="sidebar">
                     <div class="sidebar-header">
                         <h4>Module Properties</h4>
                     </div>
@@ -181,7 +180,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon1">Name</span>
                                 </div>
-                                <input type="text" class="form-control" id="mdlName" aria-label="Username" aria-describedby="basic-addon1" readonly="readonly">
+                                <input type="text" class="form-control" id="mdlName" v-model="mdlname" aria-label="Username" aria-describedby="basic-addon1" readonly="readonly">
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -189,19 +188,19 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon1">Image</span>
                                 </div>
-                                <input type="text" class="form-control" id="mdlImg" aria-label="Username" aria-describedby="basic-addon1">
+                                <input type="text" class="form-control" id="mdlImg" v-model="mdlimg" aria-label="Username" aria-describedby="basic-addon1">
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <label class="input-group-text" for="mdlStatus">Desired
-                                        Status</label>
+                                            Status</label>
                                 </div>
-                                <select id="mdlStatus" class="custom-select">
-                                    <option value="running">running</option>
-                                    <option value="stopped">stopped</option>
-                                </select>
+                                <select id="mdlStatus" v-model="mdlstatus" class="custom-select">
+                                        <option value="running">running</option>
+                                        <option value="stopped">stopped</option>
+                                    </select>
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -209,29 +208,29 @@
                                 <div class="input-group-prepend">
                                     <label class="input-group-text" for="mdlPolicy">Restart Policy</label>
                                 </div>
-                                <select id="mdlPolicy" class="custom-select">
-                                    <option value="always">always</option>
-                                    <option value="never">never</option>
-                                    <option value="on-failure">on-failure</option>
-                                    <option value="on-unhealthy">on-unhealthy</option>
-                                </select>
+                                <select id="mdlPolicy" v-model="mdlpolicy" class="custom-select">
+                                        <option value="always">always</option>
+                                        <option value="never">never</option>
+                                        <option value="on-failure">on-failure</option>
+                                        <option value="on-unhealthy">on-unhealthy</option>
+                                    </select>
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <label for="basic-url">Create Options</label>
                             <div class="input-group">
-                                <textarea class="form-control" id="mdlCo" rows="3"></textarea>
+                                <textarea class="form-control" id="mdlCo" v-model="mdlco" rows="3"></textarea>
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <label for="basic-url">Module Twin</label>
                             <div class="input-group">
-                                <textarea class="form-control" id="mdlMt" rows="3"></textarea>
+                                <textarea class="form-control" id="mdlMt" v-model="mdlmt" rows="3"></textarea>
                             </div>
                         </li>
                     </ul>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="mdlsave">Update</button>
+                        <button type="button" class="btn btn-primary" id="mdlsave" @click="mdlsave()">Update</button>
                     </div>
                 </nav>
             </nav>
@@ -239,13 +238,14 @@
             </main>
         </div>
     </div>
+
     <script type="text/javascript" src="{{root}}/assets/deployment/jquery.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/jquery-ui.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/jsPlumb.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/popper.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/bootstrap.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/marketplace/vue.min.js"></script>
-    <script type="text/javascript" src="{{root}}/assets/deployment/func.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/main.js"></script>
 </body>
 
 </html>

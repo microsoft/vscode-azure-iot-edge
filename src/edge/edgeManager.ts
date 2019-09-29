@@ -100,7 +100,7 @@ export class EdgeManager {
                 retainContextWhenHidden: true,
             },
         );
-        let html = await fse.readFile(this.context.asAbsolutePath(path.join("assets", "deployment", "ui.html")), "utf8");
+        let html = await fse.readFile(this.context.asAbsolutePath(path.join("assets", "deployment", "index.html")), "utf8");
         html = html.replace(/{{root}}/g, vscode.Uri.file(this.context.asAbsolutePath(".")).with({ scheme: "vscode-resource" }).toString());
         panel.webview.html = html;
         panel.webview.onDidReceiveMessage((message) => {

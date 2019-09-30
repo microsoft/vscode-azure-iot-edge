@@ -58,12 +58,18 @@ var endpointtarget = {
     ]
 };
 var modulebox = Vue.extend({
-    template: "<div class='module' @dblclick='handleClick' :ref='mdl' :id='id' style=\" position: 'absolute', 'top': posbase + i * posoffset, 'left': posbase + i * posoffset \">{{mdl}}</div>",
+    // template: "<div class='module' @dblclick='handleClick' :ref='mdl' :id='id' ：style=\"{ position: 'absolute', 'top': posbase + 'i' * posoffset, 'left': posbase + 'i' * posoffset }\">{{mdl}}</div>",
+    template: "<div class='module' @dblclick='handleClick' :ref='mdl' :id='id' :style='stylebject'>{{mdl}}</div>",
     data: function() {
         return {
             mdl: "",
             i: 0,
-            id: ""
+            id: "",
+            stylebject: {
+                position: 'absolute',
+                top: (posbase + this.i * posoffset) + 'px',
+                left: posbase + 'px'
+            }
         }
     },
 
@@ -75,20 +81,22 @@ var modulebox = Vue.extend({
                 mdltwin = templatefile[key]["properties.desired"];
             }
             if (modifyattr) {
-                this.triggermdl = this.id;
-                this.$refs.mdyUnsave.show();
+                console.log(app.triggermdl);
+                app.triggermdl = this.id;
+                app.$refs.mdyUnsave.show();
             } else {
-                if (this.displayflag === true) {
-                    this.displayflag = false;
-                } else if (this.mdlname === key && this.triggerpage != true) {
-                    this.displayflag = true;
+                if (app.displayflag === true) {
+                    console.log(app.displayflag);
+                    app.displayflag = false;
+                } else if (app.mdlname === key && app.triggerpage != true) {
+                    app.displayflag = true;
                 }
-                this.mdlname = key;
-                this.mdlimg = modulenode[key].settings.image;
-                this.mdlco = JSON.stringify(modulenode[key].settings.createOptions);
-                this.mdlmt = JSON.stringify(mdltwin);
-                this.mdlstatus = modulenode[key].status;
-                this.mdlpolicy = modulenode[key].restartPolicy;
+                app.mdlname = key;
+                app.mdlimg = modulenode[key].settings.image;
+                app.mdlco = JSON.stringify(modulenode[key].settings.createOptions);
+                app.mdlmt = JSON.stringify(mdltwin);
+                app.mdlstatus = modulenode[key].status;
+                app.mdlpolicy = modulenode[key].restartPolicy;
             }
         }
     }
@@ -116,12 +124,10 @@ const app = new Vue({
         mdlpolicy: "",
         mdlco: "",
         mdltw: "",
-        routemodal: false,
         newline: false,
         policylist: ['always', 'never', 'on-failure', 'on-unhealthy'],
         statuslist: ['running', 'stopped'],
         jsPlumb: null,
-        popup: ""
     },
     mounted: async function() {
         this.jspready();
@@ -155,9 +161,6 @@ const app = new Vue({
             this.$refs.routeattr.show()
         },
         jspready: async function() {
-            // jsPlumb.bind("click", function(conn) {
-            //     this.jspclick(conn);
-            // });
             jsPlumb.ready(function() {
                 jsPlumb.importDefaults({
                     ConnectionOverlays: [
@@ -170,16 +173,15 @@ const app = new Vue({
                     var outputPort = routings.get(conn.id).spt;
                     var inputPort = routings.get(conn.id).tpt;
                     var condition = routings.get(conn.id).cdt;
-                    console.log(this.outputname);
-                    this.outputname = outputPort;
-                    this.inputname = inputPort;
-                    this.cdt = condition;
-                    // this.$refs.routeattr.show();
-                    this.routemodal = true;
+                    app.outputname = outputPort;
+                    app.inputname = inputPort;
+                    app.cdt = condition;
+                    app.$refs.routeattr.show();
+
                 });
                 jsPlumb.bind("contextmenu", function(conn) {
                     deleteconn = conn;
-                    this.$refs.routedelete.show()
+                    app.$refs.routedelete.show()
                 });
                 jsPlumb.bind("beforeDrop", function(connInfo) {
                     if (connInfo.sourceId === connInfo.targetId) {
@@ -194,7 +196,7 @@ const app = new Vue({
                             connInfo.connection.setConnector(connectorstyle);
                         }
                         modifyroute = true;
-                        this.newline = true;
+                        app.newline = true;
                         var outputmdl = connInfo.sourceId;
                         var inputmdl = connInfo.targetId;
                         if (routings.size === 0) {
@@ -205,10 +207,10 @@ const app = new Vue({
                         modifyconn = connInfo.connection;
                         var rjson = { "smdl": outputmdl, "spt": "", "tmdl": inputmdl, "tpt": "", "cdt": "" };
                         routings.set(connInfo.connection.id, rjson);
-                        this.outputname = "";
-                        this.inputname = "";
-                        this.cdt = "";
-                        this.$refs.routeattr.show()
+                        app.outputname = "";
+                        app.inputname = "";
+                        app.cdt = "";
+                        app.$refs.routeattr.show()
                         return true;
                     }
                 });
@@ -346,30 +348,24 @@ const app = new Vue({
             }
         },
         popsave: async function() {
-            if (modifyroute) {
-                modifyroute = false;
-                this.newline = false;
-                if (this.outputname == "" || this.inputname == "") {
-                    deleteconn = modifyconn;
-                    routings.delete(deleteconn.id);
-                    jsPlumb.detach(deleteconn);
-                } else {
-                    var connid = modifyconn.id;
-                    routings.get(connid).spt = this.outputname;
-                    routings.get(connid).tpt = this.inputname;
-                    routings.get(connid).cdt = this.cdt;
-                }
+            this.newline = false;
+            if (this.outputname == "" || this.inputname == "") {
+                deleteconn = modifyconn;
+                routings.delete(deleteconn.id);
+                jsPlumb.detach(deleteconn);
+            } else {
+                var connid = modifyconn.id;
+                routings.get(connid).spt = this.outputname;
+                routings.get(connid).tpt = this.inputname;
+                routings.get(connid).cdt = this.cdt;
             }
         },
         popclose: async function() {
-            if (modifyroute) {
-                modifyroute = false;
-                if (this.outputname == "" || this.inputname == "" || this.newline == true) {
-                    this.newline = false;
-                    deleteconn = modifyconn;
-                    routings.delete(deleteconn.id);
-                    jsPlumb.detach(deleteconn);
-                }
+            if (this.outputname == "" || this.inputname == "" || this.newline == true) {
+                this.newline = false;
+                deleteconn = modifyconn;
+                routings.delete(deleteconn.id);
+                jsPlumb.detach(deleteconn);
             }
         },
         deletecon: async function() {

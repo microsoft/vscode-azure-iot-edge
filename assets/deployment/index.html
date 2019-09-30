@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" type="text/css" href="{{root}}/assets/deployment/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{root}}/assets/deployment/bootstrap-vue.min.css">
     <link rel="stylesheet" type="text/css" href="{{root}}/assets/deployment/style.css" />
 </head>
 
@@ -14,88 +15,37 @@
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav mr-auto">
                 </ul>
-                <a class="btn btn-outline-primary" id="pagesave" @click="pagesave()">Apply</a>
+                <a class="btn btn-outline-primary" id="pagesave" @click="pagesave">Apply</a>
             </div>
         </nav>
-        <div>
-            <b-button v-b-modal.modal-1>Launch demo modal</b-button>
-
-            <b-modal id="modal-1" title="BootstrapVue">
-                <p class="my-4">Hello from modal!</p>
-            </b-modal>
-        </div>
-        <!-- <div class="modal fade" ref="routeattr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" :data-newline="newline" v-modal="routemodal">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content" :routemodal="popup">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Routing message</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group was-validated">
-                            <label for="txt_departmentname">Output<em style="color: red;">*</em></label>
-                            <input type="text" class="form-control" name="txt_output" v-model="outputname" required />
-                            <div class="invalid-feedback">Please fill in output name, or the routing will be deleted.
-                            </div>
-                        </div>
-                        <div class="form-group was-validated">
-                            <label for="txt_departmentname">Input<em style="color: red;">*</em></label>
-                            <input type="text" class="form-control" name="txt_input" v-model="inputname" required />
-                            <div class="invalid-feedback">Please fill in input name, or the routing will be deleted.
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="txt_departmentname">Condition</label>
-                            <input type="text" class="form-control" name="txt_cdt" v-model="cdt">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="popsave" data-dismiss="modal" @click="popsave()">Ok</button>
-                        <button type="button" class="btn btn-secondary" id="popclose" data-dismiss="modal" @click="popclose()">Cancel</button>
-                    </div>
+        <b-modal ref="routeattr" @ok="popsave" @hidden="popclose" :data-newline="newline" title="Routing message" :no-close-on-backdrop="true" :hide-header-close="true">
+            <div class="form-group was-validated">
+                <label for="txt_departmentname">Output<em style="color: red;">*</em></label>
+                <input type="text" class="form-control" name="txt_output" v-model="outputname" required />
+                <div class="invalid-feedback">Please fill in output name, or the routing will be deleted.
                 </div>
             </div>
-        </div> -->
-        <!-- <b-modal ref="routeattr" id="routeattr" :data-newline="newline" v-modal="routemodal" title="Routing message">
-            
-        </b-modal> -->
-        <routeattrmodal></routeattrmodal>
-        <div class="modal" ref="routedelete" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Notification</h5>
-                    </div>
-                    <div class="modal-body">
-                        <p>The routing will be deteled. Click Yes to continue the deleting operation, or click No to exit.
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="deletecon" data-dismiss="modal" @click="deletecon()">Yes</button>
-                        <button type="button" class="btn btn-primary" id="nodeletecon" data-dismiss="modal" @click="nodeletecon()">No</button>
-                    </div>
+            <div class="form-group was-validated">
+                <label for="txt_departmentname">Input<em style="color: red;">*</em></label>
+                <input type="text" class="form-control" name="txt_input" v-model="inputname" required />
+                <div class="invalid-feedback">Please fill in input name, or the routing will be deleted.
                 </div>
             </div>
-        </div>
-        <div class="modal" ref="mdyUnsave" tabindex="-1" role="dialog" :data-triggermdl="triggermdl" :data-triggerpage="triggerpage">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Notification</h5>
-                    </div>
-                    <div class="modal-body">
-                        <p>Want to save your changes?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="mdysave" data-dismiss="modal" @click="mdysave()">Save</button>
-                        <button type="button" class="btn btn-primary" id="mdydel" data-dismiss="modal" @click="mdydel()">Don't
-                            save</button>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label for="txt_departmentname">Condition</label>
+                <input type="text" class="form-control" name="txt_cdt" v-model="cdt">
             </div>
-        </div>
+        </b-modal>
+        <b-modal ref="routedelete" @ok="deletecon" @hidden="nodeletecon" title="Notification" :no-close-on-backdrop="true" :hide-header-close="true">
+            <p>The routing will be deteled. Click Yes to continue the deleting operation, or click No to exit.
+            </p>
+        </b-modal>
+        <b-modal ref="mdyUnsave" @ok="mdysave" @hidden="mdydel" title="Notification" :no-close-on-backdrop="true" :hide-header-close="true">
+            <p>Want to save your changes?</p>
+        </b-modal>
         <div class="wrapperr">
             <nav style="padding:0;min-width:300px;max-width:300px;">
-                <nav v-if="display" id="hub-property" class="sidebar" style="display: block;">
+                <nav v-if="displayflag" id="hub-property" class="sidebar" style="display: block;">
                     <div class="sidebar-header">
                         <h4>System Properties</h4>
                     </div>
@@ -126,8 +76,6 @@
                                                 Status</label>
                                         </div>
                                         <select id="hubStatus" v-model="hubstatus" @change="propchange" class="custom-select">
-                                            <!-- <option value="running">running</option>
-                                                <option value="stopped">stopped</option> -->
                                             <option v-for="item in statuslist">{{ item }}</option>
                                         </select>
                                     </div>
@@ -139,10 +87,6 @@
                                         </div>
                                         <select id="hubPolicy" v-model="hubpolicy" @change="propchange" class="custom-select">
                                             <option v-for="item in policylist">{{ item }}</option>
-                                            <!-- <option value="always">always</option>
-                                                <option value="never">never</option>
-                                                <option value="on-failure">on-failure</option>
-                                                <option value="on-unhealthy">on-unhealthy</option> -->
                                         </select>
                                     </div>
                                 </li>
@@ -183,7 +127,7 @@
                         <button type="button" class="btn btn-primary" id="syssave" @click="syssave()">Discard</button>
                     </div>
                 </nav>
-                <nav v-else id="module-property" style="display: none;" class="sidebar">
+                <nav v-else id="module-property" class="sidebar">
                     <div class="sidebar-header">
                         <h4>Module Properties</h4>
                     </div>
@@ -211,8 +155,6 @@
                                         Status</label>
                                 </div>
                                 <select id="mdlStatus" v-model="mdlstatus" @change="propchange" class="custom-select">
-                                    <!-- <option value="running">running</option>
-                                                <option value="stopped">stopped</option> -->
                                     <option v-for="item in statuslist">{{ item }}</option>
                                 </select>
                             </div>
@@ -224,10 +166,6 @@
                                 </div>
                                 <select id="mdlPolicy" v-model="mdlpolicy" @change="propchange" class="custom-select">
                                     <option v-for="item in policylist">{{ item }}</option>
-                                    <!-- <option value="always">always</option>
-                                                <option value="never">never</option>
-                                                <option value="on-failure">on-failure</option>
-                                                <option value="on-unhealthy">on-unhealthy</option> -->
                                 </select>
                             </div>
                         </li>
@@ -260,7 +198,8 @@
     <script type="text/javascript" src="{{root}}/assets/deployment/jsPlumb.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/popper.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/bootstrap.min.js"></script>
-    <script type="text/javascript" src="{{root}}/assets/marketplace/vue.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/vue.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/bootstrap-vue.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/main.js"></script>
 </body>
 

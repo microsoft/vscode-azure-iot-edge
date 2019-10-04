@@ -112,7 +112,7 @@ button {
     flex-grow: 1;
     width: 100%;
     height: 100%;
-    background-color: rgb(234, 242, 245);
+    /* background-color: rgb(234, 242, 245); */
     border: 1px;
     display: flex;
     flex-direction: row;
@@ -121,18 +121,22 @@ button {
 .wrapperc {
     display: flex;
     width: 100%;
+    height: 100%;
     flex-direction: column;
     align-items: stretch;
+    background-color: rgb(234, 242, 245);
 }
 
 .wrapperr {
     display: flex;
     width: 100%;
     height: 100%;
-    flex-direction: row-reverse;
+    /* height: 100vh; */
+    /* flex-direction: row-reverse; */
+    flex-direction: row;
     align-items: stretch;
-    max-height: 900px;
-    min-height: 900px;
+    /* max-height: 900px;
+    min-height: 900px; */
     flex-shrink: 1;
     flex-grow: 1;
     margin: 0;

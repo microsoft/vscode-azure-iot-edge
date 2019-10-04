@@ -6,7 +6,8 @@ try {
 }
 
 var templatefile, modulenode, route, deleteconn, modifyconn;
-var modifyattr = false;
+var modifymdl = false;
+var modifysys = false;
 var modifyroute = false;
 var routings = new Map();
 const posbase = 70;
@@ -58,51 +59,72 @@ var endpointtarget = {
     ]
 };
 var modulebox = Vue.extend({
-    // template: "<div class='module' @dblclick='handleClick' :ref='mdl' :id='id' ：style=\"{ position: 'absolute', 'top': posbase + 'i' * posoffset, 'left': posbase + 'i' * posoffset }\">{{mdl}}</div>",
     template: "<div class='module' @dblclick='handleClick' :ref='mdl' :id='id' :style='stylebject'>{{mdl}}</div>",
-    data: function() {
+    data: function () {
         return {
             mdl: "",
             i: 0,
             id: "",
             stylebject: {
                 position: 'absolute',
-                top: (posbase + this.i * posoffset) + 'px',
-                left: posbase + 'px'
+                top: '',
+                left: ''
             }
         }
     },
-
+    mounted: function () {
+        this.stylebject.top = (posbase + this.i * posoffset) + 'px';
+        this.stylebject.left = (posbase + this.i * posoffset) + 'px';
+    },
     methods: {
-        handleClick: async function() {
+        handleClick() {
             var key = this.id;
+            app.triggermdl = this.id;
             var mdltwin = {};
             if (templatefile.hasOwnProperty(key)) {
                 mdltwin = templatefile[key]["properties.desired"];
             }
-            if (modifyattr) {
-                console.log(app.triggermdl);
-                app.triggermdl = this.id;
+            if (modifymdl) {
                 app.$refs.mdyUnsave.show();
             } else {
-                if (app.displayflag === true) {
-                    console.log(app.displayflag);
-                    app.displayflag = false;
-                } else if (app.mdlname === key && app.triggerpage != true) {
-                    app.displayflag = true;
+                if (app.mdlname === key && app.triggerpage != true) {
+                    app.displaymdl = false;
+                    app.mdlname = '';
+                } else {
+                    app.displaymdl = true;
+                    app.mdlname = key;
+                    app.mdlimg = modulenode[key].settings.image;
+                    app.mdlco = JSON.stringify(modulenode[key].settings.createOptions);
+                    app.mdlmt = JSON.stringify(mdltwin);
+                    app.mdlstatus = modulenode[key].status;
+                    app.mdlpolicy = modulenode[key].restartPolicy;
                 }
-                app.mdlname = key;
-                app.mdlimg = modulenode[key].settings.image;
-                app.mdlco = JSON.stringify(modulenode[key].settings.createOptions);
-                app.mdlmt = JSON.stringify(mdltwin);
-                app.mdlstatus = modulenode[key].status;
-                app.mdlpolicy = modulenode[key].restartPolicy;
             }
         }
     }
 })
-
+var upstreambox = Vue.extend({
+    template: "<div class='module' :ref='mdl' :id='id' :style='stylebject'>{{mdl}}</div>",
+    data: function () {
+        return {
+            mdl: "",
+            i: 0,
+            id: "",
+            stylebject: {
+                position: 'absolute',
+                top: '',
+                left: '',
+                'background-color': 'rgb(40, 104, 187)'
+            }
+        }
+    },
+    mounted: function () {
+        this.stylebject.top = (posbase + this.i * posoffset) + 'px';
+        this.stylebject.left = posbase + 'px';
+    }
+})
 Vue.component('modulebox', modulebox)
+Vue.component('upstreambox', upstreambox)
 
 const app = new Vue({
     el: '#app',
@@ -112,7 +134,8 @@ const app = new Vue({
         cdt: "",
         triggermdl: "",
         triggerpage: false,
-        displayflag: true,
+        displaymdl: true,
+        displaysys: false,
         hubimg: "",
         hubstatus: "",
         hubpolicy: "",
@@ -123,13 +146,13 @@ const app = new Vue({
         mdlstatus: "",
         mdlpolicy: "",
         mdlco: "",
-        mdltw: "",
+        mdlmt: "",
         newline: false,
         policylist: ['always', 'never', 'on-failure', 'on-unhealthy'],
         statuslist: ['running', 'stopped'],
         jsPlumb: null,
     },
-    mounted: async function() {
+    mounted: async function () {
         this.jspready();
         vscode.postMessage({ text: "start" })
         window.addEventListener('message', event => {
@@ -140,17 +163,23 @@ const app = new Vue({
         })
     },
     methods: {
-        display: async function() {
+        display: async function () {
             this.createSystem();
             var i = 1;
             for (var key in modulenode) {
                 this.createModules(key, i);
+                if (i === 1) {
+                    this.triggermdl = key;
+                    this.reloadModule();
+                    this.trigermdl = '';
+                    this.mdlname = key;
+                }
                 i++;
             }
             this.createUpstream(i);
             this.setRoute(route);
         },
-        jspclick: function(conn) {
+        jspclick: function (conn) {
             modifyconn = conn;
             var outputPort = routings.get(conn.id).spt;
             var inputPort = routings.get(conn.id).tpt;
@@ -160,15 +189,15 @@ const app = new Vue({
             this.cdt = condition;
             this.$refs.routeattr.show()
         },
-        jspready: async function() {
-            jsPlumb.ready(function() {
+        jspready: async function () {
+            jsPlumb.ready(function () {
                 jsPlumb.importDefaults({
                     ConnectionOverlays: [
                         ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
                     ]
                 });
 
-                jsPlumb.bind("click", function(conn) {
+                jsPlumb.bind("click", function (conn) {
                     modifyconn = conn;
                     var outputPort = routings.get(conn.id).spt;
                     var inputPort = routings.get(conn.id).tpt;
@@ -179,11 +208,11 @@ const app = new Vue({
                     app.$refs.routeattr.show();
 
                 });
-                jsPlumb.bind("contextmenu", function(conn) {
+                jsPlumb.bind("contextmenu", function (conn) {
                     deleteconn = conn;
                     app.$refs.routedelete.show()
                 });
-                jsPlumb.bind("beforeDrop", function(connInfo) {
+                jsPlumb.bind("beforeDrop", function (connInfo) {
                     if (connInfo.sourceId === connInfo.targetId) {
                         return false
                     } else {
@@ -216,7 +245,7 @@ const app = new Vue({
                 });
             })
         },
-        createSystem: async function() {
+        createSystem: async function () {
             var hubpro = templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub;
             var agentpro = templatefile.$edgeAgent["properties.desired"].systemModules.edgeAgent;
             var hubstatus = hubpro.status;
@@ -227,7 +256,7 @@ const app = new Vue({
             this.hubpolicy = hubpolicy;
             this.agentimg = agentpro.settings.image;
         },
-        createModules: async function(key, i) {
+        createModules: async function (key, i) {
             var upstreammodule = new modulebox();
             upstreammodule.$data.mdl = key;
             upstreammodule.$data.i = i;
@@ -239,8 +268,8 @@ const app = new Vue({
             var divsWithWindowClass = jsPlumb.getSelector(".module");
             jsPlumb.draggable(divsWithWindowClass);
         },
-        createUpstream: async function(i) {
-            var upstreammodule = new modulebox();
+        createUpstream: async function (i) {
+            var upstreammodule = new upstreambox();
             upstreammodule.$data.mdl = "upstream";
             upstreammodule.$data.i = i;
             upstreammodule.$data.id = "IoTHub";
@@ -251,7 +280,7 @@ const app = new Vue({
             var divsWithWindowClass = jsPlumb.getSelector(".module");
             jsPlumb.draggable(divsWithWindowClass);
         },
-        setRoute: async function(route) {
+        setRoute: async function (route) {
             for (var key in route) {
                 var iMdlName, iMdlPort, oMdlName, oMdlPort, cdt = "";
                 var routeMsg = JSON.stringify(route[key]);
@@ -299,19 +328,26 @@ const app = new Vue({
                 routings.set(conn.id, rjson);
             }
         },
-        pagesave: async function() {
-            if (modifyattr) {
+        reloadModule: async function () {
+            var key = this.triggermdl;
+            var mdltwin = {};
+            if (templatefile.hasOwnProperty(key)) {
+                mdltwin = templatefile[key]["properties.desired"];
+            }
+            this.mdlname = key;
+            this.mdlimg = modulenode[key].settings.image;
+            this.mdlco = JSON.stringify(modulenode[key].settings.createOptions);
+            this.mdlmt = JSON.stringify(mdltwin);
+            this.mdlstatus = modulenode[key].status;
+            this.mdlpolicy = modulenode[key].restartPolicy;
+        },
+        pagesave: async function () {
+            if (modifymdl || modifysys) {
                 this.triggerpage = true;
-                var sysdpl = this.displayflag;
-                if (sysdpl == true) {
-                    this.$refs.mdyUnsave.show()
-                } else {
-                    this.triggermdl = this.mdlname;
-                    this.$refs.mdyUnsave.show()
-                }
+                this.triggermdl = this.mdlname;
+                this.$refs.mdyUnsave.show();
             } else {
                 route = {};
-
                 function readrouting(value, key, map) {
                     var target;
                     if (value.tmdl === "IoTHub") {
@@ -347,7 +383,7 @@ const app = new Vue({
                 vscode.postMessage({ text: templatefile })
             }
         },
-        popsave: async function() {
+        popsave: async function () {
             this.newline = false;
             if (this.outputname == "" || this.inputname == "") {
                 deleteconn = modifyconn;
@@ -360,7 +396,7 @@ const app = new Vue({
                 routings.get(connid).cdt = this.cdt;
             }
         },
-        popclose: async function() {
+        popclose: async function () {
             if (this.outputname == "" || this.inputname == "" || this.newline == true) {
                 this.newline = false;
                 deleteconn = modifyconn;
@@ -368,64 +404,61 @@ const app = new Vue({
                 jsPlumb.detach(deleteconn);
             }
         },
-        deletecon: async function() {
+        deletecon: async function () {
             routings.delete(deleteconn.id);
             jsPlumb.detach(deleteconn);
         },
-        nodeletecon: async function() {
-
-        },
-        mdysave: async function() {
-            modifyattr = false;
-            var triggermdl = this.triggermdl;
-            if (this.displayflag) {
-                await this.syssave();
-                this.$refs.triggermdl.handleClick();
-            } else if (this.triggermdl === this.mdlname) {
-                await this.mdlsave();
-                if (this.triggerpage != true) {
-                    this.displayflag = true;
+        mdysave: async function () {
+            await this.mdlsave();
+            if (!this.triggerpage) {
+                if (this.triggermdl === this.mdlname) {
+                    this.displaymdl = false;
+                    this.mdlname = '';
+                } else {
+                    this.reloadModule();
                 }
             } else {
-                await this.mdlsave();
-                this.$refs.triggermdl.handleClick();
-            }
-            if (this.triggerpage === true) {
                 this.triggerpage = false;
+                modifysys = false;
+                this.syssave();
                 this.pagesave();
             }
         },
-        mdydel: async function() {
-            modifyattr = false;
-            var triggermdl = this.triggermdl;
-            if (this.displayflag) {
+        mdydel: async function () {
+            modifymdl = false;
+            if (!this.triggerpage) {
+                if (this.triggermdl === this.mdlname) {
+                    this.reloadModule();
+                    this.displaymdl = false;
+                    this.mdlname = '';
+                } else {
+                    var targetmdl = this.triggermdl;
+                    this.triggermdl = this.mdlname;
+                    this.reloadModule();
+                    this.triggermdl = targetmdl;
+                    this.reloadModule();
+                }
+            } else {
+                this.reloadModule();
+                this.triggerpage = false;
+                modifysys = false;
                 this.createSystem();
-                this.$refs.triggermdl.handleClick();
-            } else if (this.triggermdl === this.mdlName) {
-                this.$refs.triggermdl.handleClick();
-                if (!this.triggerpage) {
-                    this.createSystem();
-                    this.displayflag = false;
-                }
-            } else {
-                var mdlname = this.mdlname;
-                this.$refs.mdlname.handleClick();
-                this.$refs.triggermdl.handleClick();
-            }
-            if (this.triggerpage === true) {
-                this.triggerpage = false;
                 this.pagesave();
             }
         },
-        syssave: function() {
+        syssave: function () {
             templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.image = $('#hubImg').val();
             templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.status = $("#hubStatus").val();
             templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.restartPolicy = $("#hubPolicy").val();
             templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions = JSON.parse($('#hubCo').val());
             templatefile.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.image = $('#agentImg').val();
-            modifyattr = false;
+            modifysys = false;
         },
-        mdlsave: function() {
+        sysdiscard: function () {
+            this.createSystem();
+            modifysys = false;
+        },
+        mdlsave: function () {
             var key = this.mdlname;
             modulenode[key].restartPolicy = this.mdlpolicy;
             modulenode[key].settings.createOptions = JSON.parse(this.mdlco);
@@ -438,13 +471,17 @@ const app = new Vue({
                 mdltwin["properties.desired"] = JSON.parse(this.mdlmt);
                 templatefile[key] = mdltwin;
             }
-            modifyattr = false;
+            modifymdl = false;
         },
-        propchange: async function() {
-            modifyattr = true;
+        mdldiscard: function () {
+            this.reloadModule();
+            modifymdl = false;
+        },
+        mdlchange: async function () {
+            modifymdl = true;
+        },
+        syschange: async function () {
+            modifysys = true;
         }
-    },
-    computed: {
-
     }
 })

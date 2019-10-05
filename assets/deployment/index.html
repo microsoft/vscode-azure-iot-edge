@@ -14,7 +14,8 @@
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="height: 60px;">
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav mr-auto">
-                    <a class="btn btn-outline-primary" id="pagesave" @click="displaysys=~displaysys">Edit System Properties</a>
+                    <a class="btn btn-outline-primary" id="pagesave" @click="displaysys=~displaysys">Edit System
+                        Properties</a>
                 </ul>
                 <a class="btn btn-outline-primary" id="pagesave" @click="pagesave">Apply</a>
             </div>
@@ -38,8 +39,8 @@
                 <input type="text" class="form-control" name="txt_cdt" v-model="cdt">
             </div>
         </b-modal>
-        <b-modal ref="routedelete" @ok="deletecon" title="Notification"
-            :no-close-on-backdrop="true" :hide-header-close="true">
+        <b-modal ref="routedelete" @ok="deletecon" @cancel="nodeletecon" title="Notification" :no-close-on-backdrop="true"
+            :hide-header-close="true">
             <p>The routing will be deteled. Click Yes to continue the deleting operation, or click No to exit.
             </p>
         </b-modal>
@@ -48,8 +49,8 @@
             <p>Want to save your changes?</p>
         </b-modal>
         <div class="wrapperr">
-            <nav style="padding:0;min-width:300px;max-width:300px;">
-                <nav v-if="displaysys" id="hub-property" class="sidebar" style="display: block;">
+            <nav v-if="displaysys" class="property" style="padding-right: 20px">
+                <nav id="hub-property" class="sidebar" style="display: block;">
                     <div class="sidebar-header">
                         <h4>System Properties</h4>
                     </div>
@@ -141,8 +142,8 @@
             </nav>
             <main id="canvas" ref="canvas">
             </main>
-            <nav style="padding:0;min-width:300px;max-width:300px;">
-                <nav v-if="displaymdl" id="module-property" class="sidebar">
+            <nav v-if="displaymdl" class="property" style="padding-left: 20px">
+                <nav id="module-property" class="sidebar">
                     <div class="sidebar-header">
                         <h4>Module Properties</h4>
                     </div>
@@ -161,8 +162,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon1">Image</span>
                                 </div>
-                                <input type="text" class="form-control" id="mdlImg" v-model="mdlimg"
-                                    @change="mdlchange" aria-label="Username" aria-describedby="basic-addon1">
+                                <input type="text" class="form-control" id="mdlImg" v-model="mdlimg" @change="mdlchange"
+                                    aria-label="Username" aria-describedby="basic-addon1">
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">

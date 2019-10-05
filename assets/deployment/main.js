@@ -9,8 +9,11 @@ var templatefile, modulenode, route, deleteconn, modifyconn;
 var modifymdl = false;
 var modifysys = false;
 var modifyroute = false;
+var beforedropopen = false;
+var connectiondrapstop = false;
 var routings = new Map();
-const posbase = 70;
+const posbasetop = 100;
+const posbaseleft = 330;
 const posoffset = 70;
 const curvinessbase = 90;
 const curvinessoffset = 30;
@@ -28,6 +31,9 @@ var connectorHoverStyle = {
 var endpointHoverStyle = {
     strokeStyle: "#216477"
 };
+var connectionOverlays =
+    ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
+
 var endpointsource = {
     anchor: "LeftMiddle",
     endpoint: ["Dot", { radius: 3 }],
@@ -39,9 +45,6 @@ var endpointsource = {
     hoverPaintStyle: endpointHoverStyle,
     connectorHoverStyle: connectorHoverStyle,
     dropOptions: exampleDropOptions,
-    ConnectionOverlays: [
-        ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
-    ]
 };
 var endpointtarget = {
     anchor: "Right",
@@ -54,9 +57,6 @@ var endpointtarget = {
     hoverPaintStyle: endpointHoverStyle,
     connectorHoverStyle: connectorHoverStyle,
     dropOptions: exampleDropOptions,
-    ConnectionOverlays: [
-        ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
-    ]
 };
 var modulebox = Vue.extend({
     template: "<div class='module' @dblclick='handleClick' :ref='mdl' :id='id' :style='stylebject'>{{mdl}}</div>",
@@ -73,8 +73,8 @@ var modulebox = Vue.extend({
         }
     },
     mounted: function () {
-        this.stylebject.top = (posbase + this.i * posoffset) + 'px';
-        this.stylebject.left = (posbase + this.i * posoffset) + 'px';
+        this.stylebject.top = (posbasetop + this.i * posoffset) + 'px';
+        this.stylebject.left = (posbaseleft + this.i * posoffset) + 'px';
     },
     methods: {
         handleClick() {
@@ -119,8 +119,8 @@ var upstreambox = Vue.extend({
         }
     },
     mounted: function () {
-        this.stylebject.top = (posbase + this.i * posoffset) + 'px';
-        this.stylebject.left = posbase + 'px';
+        this.stylebject.top = (posbasetop + this.i * posoffset) + 'px';
+        this.stylebject.left = posbaseleft + 'px';
     }
 })
 Vue.component('modulebox', modulebox)
@@ -179,24 +179,13 @@ const app = new Vue({
             this.createUpstream(i);
             this.setRoute(route);
         },
-        jspclick: function (conn) {
-            modifyconn = conn;
-            var outputPort = routings.get(conn.id).spt;
-            var inputPort = routings.get(conn.id).tpt;
-            var condition = routings.get(conn.id).cdt;
-            this.outputname = outputPort;
-            this.inputname = inputPort;
-            this.cdt = condition;
-            this.$refs.routeattr.show()
-        },
         jspready: async function () {
             jsPlumb.ready(function () {
                 jsPlumb.importDefaults({
                     ConnectionOverlays: [
-                        ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
+                        connectionOverlays
                     ]
                 });
-
                 jsPlumb.bind("click", function (conn) {
                     modifyconn = conn;
                     var outputPort = routings.get(conn.id).spt;
@@ -212,36 +201,55 @@ const app = new Vue({
                     deleteconn = conn;
                     app.$refs.routedelete.show()
                 });
-                jsPlumb.bind("beforeDrop", function (connInfo) {
-                    if (connInfo.sourceId === connInfo.targetId) {
-                        return false
+                jsPlumb.bind("beforeDrop", function (conn) {
+                    beforedropopen = true;
+                    if (conn.sourceId === conn.targetId) {
+                        return false;
                     } else {
-                        var curconnection = jsPlumb.getConnections({ source: connInfo.sourceId, target: connInfo.targetId });
-                        if (curconnection.length != 0) {
-                            var connectorstyle = ["Bezier", { curviness: curvinessbase + curvinessoffset * curconnection.length }];
-                            connInfo.connection.setConnector(connectorstyle);
-                        } else {
-                            var connectorstyle = ["Bezier", { curviness: curvinessbase }];
-                            connInfo.connection.setConnector(connectorstyle);
-                        }
                         modifyroute = true;
                         app.newline = true;
-                        var outputmdl = connInfo.sourceId;
-                        var inputmdl = connInfo.targetId;
-                        if (routings.size === 0) {
-                            connInfo.connection.id = 1;
+                        var outputmdl = conn.sourceId;
+                        var inputmdl = conn.targetId;
+                        var curve = curvinessbase;
+
+                        if (isNaN(conn.connection.id)) {
+                            var curconnection = jsPlumb.getConnections({ source: conn.sourceId, target: conn.targetId });
+                            console.log(curconnection.length);
+                            if (curconnection.length != 0) {
+                                curve = curvinessbase + curvinessoffset * curconnection.length;
+                            }
+                            var connectorstyle = ["Bezier", { curviness: curve }];
+                            conn.connection.setConnector(connectorstyle);
+                            conn.connection.addOverlay(connectionOverlays);
+                            if (routings.size === 0) {
+                                conn.connection.id = 1;
+                            } else {
+                                conn.connection.id = [...routings][routings.size - 1][0] + 1;
+                            }
                         } else {
-                            connInfo.connection.id = [...routings][routings.size - 1][0] + 1;
+                            var curconnection = jsPlumb.getConnections({ source: conn.sourceId, target: conn.targetId });
+                            console.log(curconnection.length);
+                            if (curconnection.length != 1) {
+                                curve = curvinessbase + curvinessoffset * (curconnection.length - 1);
+                            }
+                            var connectorstyle = ["Bezier", { curviness: curve }];
+                            conn.connection.setConnector(connectorstyle);
+                            conn.connection.addOverlay(connectionOverlays);
                         }
-                        modifyconn = connInfo.connection;
-                        var rjson = { "smdl": outputmdl, "spt": "", "tmdl": inputmdl, "tpt": "", "cdt": "" };
-                        routings.set(connInfo.connection.id, rjson);
-                        app.outputname = "";
-                        app.inputname = "";
-                        app.cdt = "";
-                        app.$refs.routeattr.show()
+                        modifyconn = conn.connection;
+                        var rjson = { "smdl": outputmdl, "spt": "", "tmdl": inputmdl, "tpt": "", "cdt": "", "cur":curve };
+                        routings.set(conn.connection.id, rjson);
+                        app.routeattrshow();
                         return true;
                     }
+                });
+                jsPlumb.bind("connectionDragStop", function (conn) {
+                    if (!isNaN(conn.id) && !beforedropopen) {
+                        connectiondrapstop = true;
+                        deleteconn = conn;
+                        app.$refs.routedelete.show();
+                    }
+                    beforedropopen = false;
                 });
             })
         },
@@ -266,7 +274,9 @@ const app = new Vue({
             jsPlumb.addEndpoint(key, { uuid: key + "ports" }, endpointsource);
             jsPlumb.addEndpoint(key, { uuid: key + "portt" }, endpointtarget);
             var divsWithWindowClass = jsPlumb.getSelector(".module");
-            jsPlumb.draggable(divsWithWindowClass);
+            jsPlumb.draggable(divsWithWindowClass, {
+                containment: $("#canvas")
+            });
         },
         createUpstream: async function (i) {
             var upstreammodule = new upstreambox();
@@ -275,10 +285,12 @@ const app = new Vue({
             upstreammodule.$data.id = "IoTHub";
             upstreammodule.$mount()
             this.$refs.canvas.appendChild(upstreammodule.$el)
-            jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubports" }, endpointsource);
+            // jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubports" }, endpointsource);
             jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubportt" }, endpointtarget);
             var divsWithWindowClass = jsPlumb.getSelector(".module");
-            jsPlumb.draggable(divsWithWindowClass);
+            jsPlumb.draggable(divsWithWindowClass, {
+                containment: $("#canvas")
+            });
         },
         setRoute: async function (route) {
             for (var key in route) {
@@ -306,25 +318,21 @@ const app = new Vue({
                 }
                 var curconnection = jsPlumb.getConnections({ source: oMdlName, target: iMdlName });
                 var conn;
-                if (curconnection.length === 0) {
-                    var connectorline = ["Bezier", { curviness: curvinessbase }];
-                    conn = jsPlumb.connect({
-                        uuids: [oMdlName + "ports", iMdlName + "portt"],
-                        connector: connectorline
-                    });
-                } else {
-                    var connectorline = ["Bezier", { curviness: curvinessbase + curvinessoffset * curconnection.length }];
-                    conn = jsPlumb.connect({
-                        uuids: [oMdlName + "ports", iMdlName + "portt"],
-                        connector: connectorline
-                    });
+                var curve = curvinessbase;
+                if (curconnection.length != 0) {
+                    curve = curvinessbase + curvinessoffset * curconnection.length;
                 }
+                var connectorline = ["Bezier", { curviness: curve }];
+                conn = jsPlumb.connect({
+                    uuids: [oMdlName + "ports", iMdlName + "portt"],
+                    connector: connectorline
+                });
                 if (routings.size === 0) {
                     conn.id = 1;
                 } else {
                     conn.id = [...routings][routings.size - 1][0] + 1;
                 }
-                var rjson = { "smdl": oMdlName, "spt": oMdlPort, "tmdl": iMdlName, "tpt": iMdlPort, "cdt": cdt };
+                var rjson = { "smdl": oMdlName, "spt": oMdlPort, "tmdl": iMdlName, "tpt": iMdlPort, "cdt": cdt, "cur":curve };
                 routings.set(conn.id, rjson);
             }
         },
@@ -341,6 +349,22 @@ const app = new Vue({
             this.mdlstatus = modulenode[key].status;
             this.mdlpolicy = modulenode[key].restartPolicy;
         },
+        routeattrshow: async function () {
+            if (modifyconn.sourceId === 'IoTHub') {
+                app.outputname = "$upstream";
+                app.inputname = "";
+                app.cdt = "";
+            } else if (modifyconn.targetId === 'IoTHub') {
+                app.outputname = "";;
+                app.inputname = "$upstream";
+                app.cdt = "";
+            } else {
+                app.outputname = "";
+                app.inputname = "";
+                app.cdt = "";
+            }
+            app.$refs.routeattr.show();
+        },
         pagesave: async function () {
             if (modifymdl || modifysys) {
                 this.triggerpage = true;
@@ -349,17 +373,19 @@ const app = new Vue({
             } else {
                 route = {};
                 function readrouting(value, key, map) {
-                    var target;
+                    var source, target, cdt;
+                    source = "FROM /messages/modules/" + value.smdl + "/outputs/" + value.spt;
                     if (value.tmdl === "IoTHub") {
                         target = " INTO $upstream";
                     } else {
                         target = " INTO BrokeredEndpoint(\"/modules/" + value.tmdl + "/inputs/" + value.tpt + "\")";
                     }
                     if (value.cdt !== "") {
-                        route[key] = "FROM /messages/modules/" + value.smdl + "/outputs/" + value.spt + " WHERE " + value.cdt + target;
+                        cdt = " WHERE " + value.cdt;
                     } else {
-                        route[key] = "FROM /messages/modules/" + value.smdl + "/outputs/" + value.spt + target;
+                        cdt = '';
                     }
+                    route[key] = source + cdt + target;
                 }
                 routings.forEach(readrouting);
                 var routenameset = new Set();
@@ -406,7 +432,25 @@ const app = new Vue({
         },
         deletecon: async function () {
             routings.delete(deleteconn.id);
-            jsPlumb.detach(deleteconn);
+            if (connectiondrapstop) {
+                connectiondrapstop = false;
+            } else {
+                jsPlumb.detach(deleteconn);
+            }
+        },
+        nodeletecon: async function () {
+            if (connectiondrapstop) {
+                var smdl = deleteconn.sourceId;
+                var tmdl = deleteconn.targetId;
+                var curve=routings.get(deleteconn.id).cur;                
+                var connectorline = ["Bezier", { curviness: curve }];
+                    conn = jsPlumb.connect({
+                        uuids: [smdl + "ports", tmdl + "portt"],
+                        connector: connectorline
+                    });
+                conn.id = deleteconn.id;
+                connectiondrapstop = false;
+            }
         },
         mdysave: async function () {
             await this.mdlsave();

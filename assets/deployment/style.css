@@ -108,14 +108,13 @@ button {
     outline: none;
 }
 
-#canvas {
-    flex-grow: 1;
+#canvas {  
     width: 100%;
     height: 100%;
-    /* background-color: rgb(234, 242, 245); */
     border: 1px;
-    display: flex;
-    flex-direction: row;
+    /* display: flex;
+    flex-direction: row; */
+    flex-grow: 1;
 }
 
 .wrapperc {
@@ -131,18 +130,18 @@ button {
     display: flex;
     width: 100%;
     height: 100%;
-    /* height: 100vh; */
-    /* flex-direction: row-reverse; */
     flex-direction: row;
     align-items: stretch;
-    /* max-height: 900px;
-    min-height: 900px; */
     flex-shrink: 1;
     flex-grow: 1;
     margin: 0;
     padding: 0;
 }
-
+.property{
+    padding:0;
+    min-width:300px;
+    max-width:300px;
+}
 .module {
     margin: 0 auto;
     background: #FF5A44;

@@ -63,7 +63,6 @@ var modulebox = Vue.extend({
     data: function () {
         return {
             mdl: "",
-            i: 0,
             id: "",
             stylebject: {
                 position: 'absolute',
@@ -71,10 +70,6 @@ var modulebox = Vue.extend({
                 left: ''
             }
         }
-    },
-    mounted: function () {
-        this.stylebject.top = (posbasetop + this.i * posoffset) + 'px';
-        this.stylebject.left = (posbaseleft + this.i * posoffset) + 'px';
     },
     methods: {
         handleClick() {
@@ -108,7 +103,6 @@ var upstreambox = Vue.extend({
     data: function () {
         return {
             mdl: "",
-            i: 0,
             id: "",
             stylebject: {
                 position: 'absolute',
@@ -117,10 +111,6 @@ var upstreambox = Vue.extend({
                 'background-color': 'rgb(40, 104, 187)'
             }
         }
-    },
-    mounted: function () {
-        this.stylebject.top = (posbasetop + this.i * posoffset) + 'px';
-        this.stylebject.left = posbaseleft + 'px';
     }
 })
 Vue.component('modulebox', modulebox)
@@ -214,7 +204,6 @@ const app = new Vue({
 
                         if (isNaN(conn.connection.id)) {
                             var curconnection = jsPlumb.getConnections({ source: conn.sourceId, target: conn.targetId });
-                            console.log(curconnection.length);
                             if (curconnection.length != 0) {
                                 curve = curvinessbase + curvinessoffset * curconnection.length;
                             }
@@ -228,7 +217,6 @@ const app = new Vue({
                             }
                         } else {
                             var curconnection = jsPlumb.getConnections({ source: conn.sourceId, target: conn.targetId });
-                            console.log(curconnection.length);
                             if (curconnection.length != 1) {
                                 curve = curvinessbase + curvinessoffset * (curconnection.length - 1);
                             }
@@ -237,7 +225,7 @@ const app = new Vue({
                             conn.connection.addOverlay(connectionOverlays);
                         }
                         modifyconn = conn.connection;
-                        var rjson = { "smdl": outputmdl, "spt": "", "tmdl": inputmdl, "tpt": "", "cdt": "", "cur":curve };
+                        var rjson = { "smdl": outputmdl, "spt": "", "tmdl": inputmdl, "tpt": "", "cdt": "", "cur": curve };
                         routings.set(conn.connection.id, rjson);
                         app.routeattrshow();
                         return true;
@@ -267,22 +255,25 @@ const app = new Vue({
         createModules: async function (key, i) {
             var upstreammodule = new modulebox();
             upstreammodule.$data.mdl = key;
-            upstreammodule.$data.i = i;
             upstreammodule.$data.id = key;
+            upstreammodule.$data.stylebject.top = (posbasetop + i * posoffset) + 'px';
+            upstreammodule.$data.stylebject.left=(posbaseleft + i * posoffset) + 'px';
             upstreammodule.$mount()
             this.$refs.canvas.appendChild(upstreammodule.$el)
-            jsPlumb.addEndpoint(key, { uuid: key + "ports" }, endpointsource);
-            jsPlumb.addEndpoint(key, { uuid: key + "portt" }, endpointtarget);
             var divsWithWindowClass = jsPlumb.getSelector(".module");
             jsPlumb.draggable(divsWithWindowClass, {
                 containment: $("#canvas")
             });
+            jsPlumb.addEndpoint(key, { uuid: key + "ports" }, endpointsource);
+            jsPlumb.addEndpoint(key, { uuid: key + "portt" }, endpointtarget);
+            
         },
         createUpstream: async function (i) {
             var upstreammodule = new upstreambox();
             upstreammodule.$data.mdl = "upstream";
-            upstreammodule.$data.i = i;
             upstreammodule.$data.id = "IoTHub";
+            upstreammodule.$data.stylebject.top = (posbasetop + i * posoffset) + 'px';
+            upstreammodule.$data.stylebject.left = posbaseleft + 'px';
             upstreammodule.$mount()
             this.$refs.canvas.appendChild(upstreammodule.$el)
             // jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubports" }, endpointsource);
@@ -332,7 +323,7 @@ const app = new Vue({
                 } else {
                     conn.id = [...routings][routings.size - 1][0] + 1;
                 }
-                var rjson = { "smdl": oMdlName, "spt": oMdlPort, "tmdl": iMdlName, "tpt": iMdlPort, "cdt": cdt, "cur":curve };
+                var rjson = { "smdl": oMdlName, "spt": oMdlPort, "tmdl": iMdlName, "tpt": iMdlPort, "cdt": cdt, "cur": curve };
                 routings.set(conn.id, rjson);
             }
         },
@@ -442,12 +433,12 @@ const app = new Vue({
             if (connectiondrapstop) {
                 var smdl = deleteconn.sourceId;
                 var tmdl = deleteconn.targetId;
-                var curve=routings.get(deleteconn.id).cur;                
+                var curve = routings.get(deleteconn.id).cur;
                 var connectorline = ["Bezier", { curviness: curve }];
-                    conn = jsPlumb.connect({
-                        uuids: [smdl + "ports", tmdl + "portt"],
-                        connector: connectorline
-                    });
+                conn = jsPlumb.connect({
+                    uuids: [smdl + "ports", tmdl + "portt"],
+                    connector: connectorline
+                });
                 conn.id = deleteconn.id;
                 connectiondrapstop = false;
             }

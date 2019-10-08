@@ -31,8 +31,7 @@ var connectorHoverStyle = {
 var endpointHoverStyle = {
     strokeStyle: "#216477"
 };
-var connectionOverlays =
-    ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
+var connectionOverlays = ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
 
 var endpointsource = {
     anchor: "LeftMiddle",
@@ -60,7 +59,7 @@ var endpointtarget = {
 };
 var modulebox = Vue.extend({
     template: "<div class='module' @dblclick='handleClick' :ref='mdl' :id='id' :style='stylebject'>{{mdl}}</div>",
-    data: function () {
+    data: function() {
         return {
             mdl: "",
             id: "",
@@ -100,7 +99,7 @@ var modulebox = Vue.extend({
 })
 var upstreambox = Vue.extend({
     template: "<div class='module' :ref='mdl' :id='id' :style='stylebject'>{{mdl}}</div>",
-    data: function () {
+    data: function() {
         return {
             mdl: "",
             id: "",
@@ -142,7 +141,7 @@ const app = new Vue({
         statuslist: ['running', 'stopped'],
         jsPlumb: null,
     },
-    mounted: async function () {
+    mounted: async function() {
         this.jspready();
         vscode.postMessage({ text: "start" })
         window.addEventListener('message', event => {
@@ -153,7 +152,7 @@ const app = new Vue({
         })
     },
     methods: {
-        display: async function () {
+        display: async function() {
             this.createSystem();
             var i = 1;
             for (var key in modulenode) {
@@ -169,14 +168,14 @@ const app = new Vue({
             this.createUpstream(i);
             this.setRoute(route);
         },
-        jspready: async function () {
-            jsPlumb.ready(function () {
+        jspready: async function() {
+            jsPlumb.ready(function() {
                 jsPlumb.importDefaults({
                     ConnectionOverlays: [
                         connectionOverlays
                     ]
                 });
-                jsPlumb.bind("click", function (conn) {
+                jsPlumb.bind("click", function(conn) {
                     modifyconn = conn;
                     var outputPort = routings.get(conn.id).spt;
                     var inputPort = routings.get(conn.id).tpt;
@@ -187,11 +186,11 @@ const app = new Vue({
                     app.$refs.routeattr.show();
 
                 });
-                jsPlumb.bind("contextmenu", function (conn) {
+                jsPlumb.bind("contextmenu", function(conn) {
                     deleteconn = conn;
                     app.$refs.routedelete.show()
                 });
-                jsPlumb.bind("beforeDrop", function (conn) {
+                jsPlumb.bind("beforeDrop", function(conn) {
                     beforedropopen = true;
                     if (conn.sourceId === conn.targetId) {
                         return false;
@@ -201,12 +200,23 @@ const app = new Vue({
                         var outputmdl = conn.sourceId;
                         var inputmdl = conn.targetId;
                         var curve = curvinessbase;
-
                         if (isNaN(conn.connection.id)) {
                             var curconnection = jsPlumb.getConnections({ source: conn.sourceId, target: conn.targetId });
-                            if (curconnection.length != 0) {
-                                curve = curvinessbase + curvinessoffset * curconnection.length;
-                            }
+                            var curvearray = new Array();
+                            curconnection.forEach(function(item, index, array) {
+                                curvearray.push(routings.get(item.id).cur);
+                            });
+                            curvearray.sort(function(a, b) {
+                                return a - b
+                            });
+                            for (var cur = 0; cur < curvearray.length; cur++) {
+                                console.log(curvearray[cur]);
+                                if (curve === curvearray[cur]) {
+                                    curve += curvinessoffset;
+                                } else {
+                                    break;
+                                }
+                            };
                             var connectorstyle = ["Bezier", { curviness: curve }];
                             conn.connection.setConnector(connectorstyle);
                             conn.connection.addOverlay(connectionOverlays);
@@ -231,7 +241,7 @@ const app = new Vue({
                         return true;
                     }
                 });
-                jsPlumb.bind("connectionDragStop", function (conn) {
+                jsPlumb.bind("connectionDragStop", function(conn) {
                     if (!isNaN(conn.id) && !beforedropopen) {
                         connectiondrapstop = true;
                         deleteconn = conn;
@@ -241,7 +251,7 @@ const app = new Vue({
                 });
             })
         },
-        createSystem: async function () {
+        createSystem: async function() {
             var hubpro = templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub;
             var agentpro = templatefile.$edgeAgent["properties.desired"].systemModules.edgeAgent;
             var hubstatus = hubpro.status;
@@ -252,12 +262,12 @@ const app = new Vue({
             this.hubpolicy = hubpolicy;
             this.agentimg = agentpro.settings.image;
         },
-        createModules: async function (key, i) {
+        createModules: async function(key, i) {
             var upstreammodule = new modulebox();
             upstreammodule.$data.mdl = key;
             upstreammodule.$data.id = key;
             upstreammodule.$data.stylebject.top = (posbasetop + i * posoffset) + 'px';
-            upstreammodule.$data.stylebject.left=(posbaseleft + i * posoffset) + 'px';
+            upstreammodule.$data.stylebject.left = (posbaseleft + i * posoffset) + 'px';
             upstreammodule.$mount()
             this.$refs.canvas.appendChild(upstreammodule.$el)
             var divsWithWindowClass = jsPlumb.getSelector(".module");
@@ -266,9 +276,9 @@ const app = new Vue({
             });
             jsPlumb.addEndpoint(key, { uuid: key + "ports" }, endpointsource);
             jsPlumb.addEndpoint(key, { uuid: key + "portt" }, endpointtarget);
-            
+
         },
-        createUpstream: async function (i) {
+        createUpstream: async function(i) {
             var upstreammodule = new upstreambox();
             upstreammodule.$data.mdl = "upstream";
             upstreammodule.$data.id = "IoTHub";
@@ -276,14 +286,14 @@ const app = new Vue({
             upstreammodule.$data.stylebject.left = posbaseleft + 'px';
             upstreammodule.$mount()
             this.$refs.canvas.appendChild(upstreammodule.$el)
-            // jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubports" }, endpointsource);
+                // jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubports" }, endpointsource);
             jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubportt" }, endpointtarget);
             var divsWithWindowClass = jsPlumb.getSelector(".module");
             jsPlumb.draggable(divsWithWindowClass, {
                 containment: $("#canvas")
             });
         },
-        setRoute: async function (route) {
+        setRoute: async function(route) {
             for (var key in route) {
                 var iMdlName, iMdlPort, oMdlName, oMdlPort, cdt = "";
                 var routeMsg = JSON.stringify(route[key]);
@@ -327,7 +337,7 @@ const app = new Vue({
                 routings.set(conn.id, rjson);
             }
         },
-        reloadModule: async function () {
+        reloadModule: async function() {
             var key = this.triggermdl;
             var mdltwin = {};
             if (templatefile.hasOwnProperty(key)) {
@@ -340,7 +350,7 @@ const app = new Vue({
             this.mdlstatus = modulenode[key].status;
             this.mdlpolicy = modulenode[key].restartPolicy;
         },
-        routeattrshow: async function () {
+        routeattrshow: async function() {
             if (modifyconn.sourceId === 'IoTHub') {
                 app.outputname = "$upstream";
                 app.inputname = "";
@@ -356,13 +366,14 @@ const app = new Vue({
             }
             app.$refs.routeattr.show();
         },
-        pagesave: async function () {
+        pagesave: async function() {
             if (modifymdl || modifysys) {
                 this.triggerpage = true;
                 this.triggermdl = this.mdlname;
                 this.$refs.mdyUnsave.show();
             } else {
                 route = {};
+
                 function readrouting(value, key, map) {
                     var source, target, cdt;
                     source = "FROM /messages/modules/" + value.smdl + "/outputs/" + value.spt;
@@ -400,7 +411,7 @@ const app = new Vue({
                 vscode.postMessage({ text: templatefile })
             }
         },
-        popsave: async function () {
+        popsave: async function() {
             this.newline = false;
             if (this.outputname == "" || this.inputname == "") {
                 deleteconn = modifyconn;
@@ -413,7 +424,7 @@ const app = new Vue({
                 routings.get(connid).cdt = this.cdt;
             }
         },
-        popclose: async function () {
+        popclose: async function() {
             if (this.outputname == "" || this.inputname == "" || this.newline == true) {
                 this.newline = false;
                 deleteconn = modifyconn;
@@ -421,7 +432,7 @@ const app = new Vue({
                 jsPlumb.detach(deleteconn);
             }
         },
-        deletecon: async function () {
+        deletecon: async function() {
             routings.delete(deleteconn.id);
             if (connectiondrapstop) {
                 connectiondrapstop = false;
@@ -429,7 +440,7 @@ const app = new Vue({
                 jsPlumb.detach(deleteconn);
             }
         },
-        nodeletecon: async function () {
+        nodeletecon: async function() {
             if (connectiondrapstop) {
                 var smdl = deleteconn.sourceId;
                 var tmdl = deleteconn.targetId;
@@ -443,8 +454,8 @@ const app = new Vue({
                 connectiondrapstop = false;
             }
         },
-        mdysave: async function () {
-            await this.mdlsave();
+        mdysave: async function() {
+            this.mdlsave();
             if (!this.triggerpage) {
                 if (this.triggermdl === this.mdlname) {
                     this.displaymdl = false;
@@ -459,7 +470,7 @@ const app = new Vue({
                 this.pagesave();
             }
         },
-        mdydel: async function () {
+        mdydel: async function() {
             modifymdl = false;
             if (!this.triggerpage) {
                 if (this.triggermdl === this.mdlname) {
@@ -481,7 +492,7 @@ const app = new Vue({
                 this.pagesave();
             }
         },
-        syssave: function () {
+        syssave: function() {
             templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.image = $('#hubImg').val();
             templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.status = $("#hubStatus").val();
             templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.restartPolicy = $("#hubPolicy").val();
@@ -489,11 +500,11 @@ const app = new Vue({
             templatefile.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.image = $('#agentImg').val();
             modifysys = false;
         },
-        sysdiscard: function () {
+        sysdiscard: function() {
             this.createSystem();
             modifysys = false;
         },
-        mdlsave: function () {
+        mdlsave: function() {
             var key = this.mdlname;
             modulenode[key].restartPolicy = this.mdlpolicy;
             modulenode[key].settings.createOptions = JSON.parse(this.mdlco);
@@ -508,14 +519,14 @@ const app = new Vue({
             }
             modifymdl = false;
         },
-        mdldiscard: function () {
+        mdldiscard: function() {
             this.reloadModule();
             modifymdl = false;
         },
-        mdlchange: async function () {
+        mdlchange: async function() {
             modifymdl = true;
         },
-        syschange: async function () {
+        syschange: async function() {
             modifysys = true;
         }
     }

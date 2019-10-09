@@ -34,7 +34,7 @@ var endpointHoverStyle = {
 var connectionOverlays = ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
 
 var endpointsource = {
-    anchor: "LeftMiddle",
+    anchor: "Left",
     endpoint: ["Dot", { radius: 3 }],
     paintStyle: { fillStyle: "#316b31" },
     isSource: true,
@@ -58,7 +58,11 @@ var endpointtarget = {
     dropOptions: exampleDropOptions,
 };
 var modulebox = Vue.extend({
-    template: "<div class='module' @dblclick='handleClick' :ref='mdl' :id='id' :style='stylebject'>{{mdl}}</div>",
+    template: "<div class='module'@dblclick='handleClick' :ref='mdl' :id='id' :style='stylebject'>\
+                    <a class='sourcearea'></a>\
+                    <p class='textarea'>{{mdl}}</p>\
+                    <span class='targetarea'></span>\
+                </div>",
     data: function() {
         return {
             mdl: "",
@@ -98,7 +102,11 @@ var modulebox = Vue.extend({
     }
 })
 var upstreambox = Vue.extend({
-    template: "<div class='module' :ref='mdl' :id='id' :style='stylebject'>{{mdl}}</div>",
+    template: "<div class='module' :ref='mdl' :id='id' :style='stylebject'>\
+                    <a class='sourcearea'></a>\
+                    <p class='textarea'>{{mdl}}</p>\
+                    <span class='targetarea'></span>\
+                </div>",
     data: function() {
         return {
             mdl: "",
@@ -210,7 +218,6 @@ const app = new Vue({
                                 return a - b
                             });
                             for (var cur = 0; cur < curvearray.length; cur++) {
-                                console.log(curvearray[cur]);
                                 if (curve === curvearray[cur]) {
                                     curve += curvinessoffset;
                                 } else {
@@ -274,9 +281,16 @@ const app = new Vue({
             jsPlumb.draggable(divsWithWindowClass, {
                 containment: $("#canvas")
             });
-            jsPlumb.addEndpoint(key, { uuid: key + "ports" }, endpointsource);
-            jsPlumb.addEndpoint(key, { uuid: key + "portt" }, endpointtarget);
-
+            jsPlumb.makeSource(key, {
+                filter: "a",
+                uniqueEndpoint: true,
+            }, endpointsource);
+            jsPlumb.makeTarget(key, {
+                filter: "span",
+                uniqueEndpoint: true,
+            }, endpointtarget);
+            jsPlumb.addEndpoint(key, endpointsource);
+            jsPlumb.addEndpoint(key, endpointtarget);
         },
         createUpstream: async function(i) {
             var upstreammodule = new upstreambox();
@@ -284,14 +298,18 @@ const app = new Vue({
             upstreammodule.$data.id = "IoTHub";
             upstreammodule.$data.stylebject.top = (posbasetop + i * posoffset) + 'px';
             upstreammodule.$data.stylebject.left = posbaseleft + 'px';
-            upstreammodule.$mount()
-            this.$refs.canvas.appendChild(upstreammodule.$el)
-                // jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubports" }, endpointsource);
-            jsPlumb.addEndpoint('IoTHub', { uuid: "IoTHubportt" }, endpointtarget);
+            upstreammodule.$mount();
+            this.$refs.canvas.appendChild(upstreammodule.$el);
             var divsWithWindowClass = jsPlumb.getSelector(".module");
             jsPlumb.draggable(divsWithWindowClass, {
                 containment: $("#canvas")
             });
+            jsPlumb.makeTarget('IoTHub', {
+                filter: "span",
+                uniqueEndpoint: true,
+            }, endpointtarget);
+            jsPlumb.addEndpoint(key, endpointtarget);
+
         },
         setRoute: async function(route) {
             for (var key in route) {
@@ -325,7 +343,8 @@ const app = new Vue({
                 }
                 var connectorline = ["Bezier", { curviness: curve }];
                 conn = jsPlumb.connect({
-                    uuids: [oMdlName + "ports", iMdlName + "portt"],
+                    source: oMdlName,
+                    target: iMdlName,
                     connector: connectorline
                 });
                 if (routings.size === 0) {
@@ -447,7 +466,8 @@ const app = new Vue({
                 var curve = routings.get(deleteconn.id).cur;
                 var connectorline = ["Bezier", { curviness: curve }];
                 conn = jsPlumb.connect({
-                    uuids: [smdl + "ports", tmdl + "portt"],
+                    source: smdl,
+                    target: tmdl,
                     connector: connectorline
                 });
                 conn.id = deleteconn.id;

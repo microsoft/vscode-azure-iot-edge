@@ -14,39 +14,39 @@
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="height: 60px;">
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav mr-auto">
-                    <a class="btn btn-outline-primary" id="pagesave" @click="displaysys=~displaysys">Edit System
+                    <a class="btn btn-outline-primary" id="pagesave" @click="displaySystem=~displaySystem">Edit System
                         Properties</a>
                 </ul>
-                <a class="btn btn-outline-primary" id="pagesave" @click="pagesave">Apply</a>
+                <a class="btn btn-outline-primary" id="pagesave" @click="pageSave">Apply</a>
             </div>
         </nav>
-        <b-modal ref="routeattr" @ok="popsave" @cancel="popclose" :data-newline="newline" title="Routing message" :no-close-on-backdrop="true" :hide-header-close="true">
+        <b-modal ref="routeInformation" @ok="popSave" @cancel="popClose" :data-newline="newRoute" title="Routing message" :no-close-on-backdrop="true" :hide-header-close="true">
             <div class="form-group was-validated">
                 <label for="txt_departmentname">Output<em style="color: red;">*</em></label>
-                <input type="text" class="form-control" name="txt_output" v-model="outputname" required />
+                <input type="text" class="form-control" name="txt_output" v-model="outputName" required />
                 <div class="invalid-feedback">Please fill in output name, or the routing will be deleted.
                 </div>
             </div>
             <div class="form-group was-validated">
                 <label for="txt_departmentname">Input<em style="color: red;">*</em></label>
-                <input type="text" class="form-control" name="txt_input" v-model="inputname" required />
+                <input type="text" class="form-control" name="txt_input" v-model="inputName" required />
                 <div class="invalid-feedback">Please fill in input name, or the routing will be deleted.
                 </div>
             </div>
             <div class="form-group">
                 <label for="txt_departmentname">Condition</label>
-                <input type="text" class="form-control" name="txt_cdt" v-model="cdt">
+                <input type="text" class="form-control" name="txt_cdt" v-model="condition">
             </div>
         </b-modal>
-        <b-modal ref="routedelete" @ok="deletecon" @cancel="nodeletecon" title="Notification" :no-close-on-backdrop="true" :hide-header-close="true">
+        <b-modal ref="routeDelete" @ok="deleteRouting" @cancel="canceloDeleteRouting" title="Notification" :no-close-on-backdrop="true" :hide-header-close="true">
             <p>The routing will be deteled. Click Yes to continue the deleting operation, or click No to exit.
             </p>
         </b-modal>
-        <b-modal ref="mdyUnsave" @ok="mdysave" @cancel="mdydel" title="Notification" :no-close-on-backdrop="true" :hide-header-close="true">
+        <b-modal ref="modifyUnsave" @ok="modifySave" @cancel="modifyCancel" title="Notification" :no-close-on-backdrop="true" :hide-header-close="true">
             <p>Want to save your changes?</p>
         </b-modal>
         <div class="wrapperr">
-            <nav v-if="displaysys" class="property" style="padding-right: 20px">
+            <nav v-if="displaySystem" class="property" style="padding-right: 20px">
                 <nav id="hub-property" class="sidebar" style="display: block;">
                     <div class="sidebar-header">
                         <h4>System Properties</h4>
@@ -68,7 +68,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="basic-addon1">Image</span>
                                         </div>
-                                        <input type="text" class="form-control" id="hubImg" v-model="hubimg" @change="syschange" aria-label="Username" aria-describedby="basic-addon1">
+                                        <input type="text" class="form-control" id="hubImage" v-model="hubImage" @change="systemChange" aria-label="Username" aria-describedby="basic-addon1">
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -77,8 +77,8 @@
                                             <label class="input-group-text" for="hubStatus">Desired
                                                 Status</label>
                                         </div>
-                                        <select id="hubStatus" v-model="hubstatus" @change="syschange" class="custom-select">
-                                            <option v-for="item in statuslist">{{ item }}</option>
+                                        <select id="hubStatus" v-model="hubStatus" @change="systemChange" class="custom-select">
+                                            <option v-for="item in statusList">{{ item }}</option>
                                         </select>
                                     </div>
                                 </li>
@@ -87,15 +87,15 @@
                                         <div class="input-group-prepend">
                                             <label class="input-group-text" for="hubPolicy">Restart Policy</label>
                                         </div>
-                                        <select id="hubPolicy" v-model="hubpolicy" @change="syschange" class="custom-select">
-                                            <option v-for="item in policylist">{{ item }}</option>
+                                        <select id="hubPolicy" v-model="hubPolicy" @change="systemChange" class="custom-select">
+                                            <option v-for="item in policyList">{{ item }}</option>
                                         </select>
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                                     <label for="basic-url" style="font-size: 0.7em;">Create Options</label>
                                     <div class="input-group">
-                                        <textarea class="form-control" id="hubCo" v-model="hubco" @change="syschange" rows="3"></textarea>
+                                        <textarea class="form-control" id="hubCreateOptions" v-model="hubCreateOptions" @change="systemChange" rows="3"></textarea>
                                     </div>
                                 </li>
                             </ul>
@@ -117,26 +117,21 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="basic-addon1">Image</span>
                                         </div>
-                                        <input type="text" class="form-control" id="agentImg" v-model="agentimg" @change="syschange" aria-label="Username" aria-describedby="basic-addon1">
+                                        <input type="text" class="form-control" id="agentImage" v-model="agentImage" @change="systemChange" aria-label="Username" aria-describedby="basic-addon1">
                                     </div>
                                 </li>
                             </ul>
                         </li>
                     </ul>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="syssave" @click="syssave()">Save</button>
-                        <button type="button" class="btn btn-primary" id="syssave" @click="sysdiscard()">Discard</button>
+                        <button type="button" class="btn btn-primary" @click="systemSave">Save</button>
+                        <button type="button" class="btn btn-primary" @click="systemDiscard">Discard</button>
                     </div>
                 </nav>
             </nav>
             <main id="canvas" ref="canvas">
-                <!-- <div class='module'>
-                    <a class='targetarea'></a>
-                    <p class='textarea'>sample module</p>
-                    <span class='sourcearea'></span>
-                </div> -->
             </main>
-            <nav v-if="displaymdl" class="property" style="padding-left: 20px">
+            <nav v-if="displayModule" class="property" style="padding-left: 20px">
                 <nav id="module-property" class="sidebar">
                     <div class="sidebar-header">
                         <h4>Module Properties</h4>
@@ -147,7 +142,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon1">Name</span>
                                 </div>
-                                <input type="text" class="form-control" id="mdlName" v-model="mdlname" aria-label="Username" aria-describedby="basic-addon1" readonly="readonly">
+                                <input type="text" class="form-control" id="moduleName" v-model="moduleName" aria-label="Username" aria-describedby="basic-addon1" readonly="readonly">
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -155,46 +150,46 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon1">Image</span>
                                 </div>
-                                <input type="text" class="form-control" id="mdlImg" v-model="mdlimg" @change="mdlchange" aria-label="Username" aria-describedby="basic-addon1">
+                                <input type="text" class="form-control" id="moduleImage" v-model="moduleImage" @change="moduleChange" aria-label="Username" aria-describedby="basic-addon1">
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <label class="input-group-text" for="mdlStatus">Desired
+                                    <label class="input-group-text" for="moduleStatus">Desired
                                         Status</label>
                                 </div>
-                                <select id="mdlStatus" v-model="mdlstatus" @change="mdlchange" class="custom-select">
-                                    <option v-for="item in statuslist">{{ item }}</option>
+                                <select id="moduleStatus" v-model="moduleStatus" @change="moduleChange" class="custom-select">
+                                    <option v-for="item in statusList">{{ item }}</option>
                                 </select>
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <label class="input-group-text" for="mdlPolicy">Restart Policy</label>
+                                    <label class="input-group-text" for="modulePolicy">Restart Policy</label>
                                 </div>
-                                <select id="mdlPolicy" v-model="mdlpolicy" @change="mdlchange" class="custom-select">
-                                    <option v-for="item in policylist">{{ item }}</option>
+                                <select id="modulePolicy" v-model="modulePolicy" @change="moduleChange" class="custom-select">
+                                    <option v-for="item in policyList">{{ item }}</option>
                                 </select>
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <label for="basic-url">Create Options</label>
                             <div class="input-group">
-                                <textarea class="form-control" id="mdlCo" v-model="mdlco" @change="mdlchange" rows="3"></textarea>
+                                <textarea class="form-control" id="moduleCreateOptions" v-model="moduleCreateOptions" @change="moduleChange" rows="3"></textarea>
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <label for="basic-url">Module Twin</label>
                             <div class="input-group">
-                                <textarea class="form-control" id="mdlMt" v-model="mdlmt" @change="mdlchange" rows="3"></textarea>
+                                <textarea class="form-control" id="moduleModuleTwin" v-model="moduleModuleTwin" @change="moduleChange" rows="3"></textarea>
                             </div>
                         </li>
                     </ul>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="mdlsave" @click="mdlsave()">Save</button>
-                        <button type="button" class="btn btn-primary" id="mdlsave" @click="mdldiscard()">Discard</button>
+                        <button type="button" class="btn btn-primary" @click="moduleSave">Save</button>
+                        <button type="button" class="btn btn-primary" @click="moduleDiscard">Discard</button>
                     </div>
                 </nav>
             </nav>

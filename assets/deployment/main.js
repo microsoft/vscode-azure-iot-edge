@@ -5,18 +5,18 @@ try {
 
 }
 
-var templatefile, modulenode, route, deleteconn, modifyconn;
-var modifymdl = false;
-var modifysys = false;
-var modifyroute = false;
-var beforedropopen = false;
-var connectiondrapstop = false;
+var templateFile, moduleNode, route, deleteConnection, modifyConnection;
+var modifyModule = false;
+var modifySystem = false;
+var modifyRoute = false;
+var beforeDropOpen = false;
+var connectionDrapStop = false;
 var routings = new Map();
-const posbasetop = 100;
-const posbaseleft = 330;
-const posoffset = 70;
-const curvinessbase = 90;
-const curvinessoffset = 30;
+const postionBaseTop = 100;
+const positionBaseLeft = 330;
+const positionOffset = 70;
+const curvinessBase = 90;
+const curvinessOffset = 30;
 var exampleDropOptions = {
     hoverClass: "dropHover",
 };
@@ -33,7 +33,7 @@ var endpointHoverStyle = {
 };
 var connectionOverlays = ["Arrow", { width: 8, length: 8, location: 1, id: "arrow", foldback: 0.623 }]
 
-var endpointsource = {
+var endpointSource = {
     anchor: "Left",
     endpoint: ["Dot", { radius: 3 }],
     paintStyle: { fillStyle: "#316b31" },
@@ -45,7 +45,7 @@ var endpointsource = {
     connectorHoverStyle: connectorHoverStyle,
     dropOptions: exampleDropOptions,
 };
-var endpointtarget = {
+var endpointTarget = {
     anchor: "Right",
     endpoint: ["Dot", { radius: 3 }],
     paintStyle: { fillStyle: "#316b31" },
@@ -57,17 +57,17 @@ var endpointtarget = {
     connectorHoverStyle: connectorHoverStyle,
     dropOptions: exampleDropOptions,
 };
-var modulebox = Vue.extend({
-    template: "<div class='module'@dblclick='handleClick' :ref='mdl' :id='id' :style='stylebject'>\
+var moduleBox = Vue.extend({
+    template: "<div class='module' @dblclick='handleClick' :ref='module' :id='id' :style='styleObject'>\
                     <a class='sourcearea'></a>\
-                    <p class='textarea'>{{mdl}}</p>\
+                    <p class='textarea'>{{module}}</p>\
                     <span class='targetarea'></span>\
                 </div>",
     data: function() {
         return {
-            mdl: "",
+            module: "",
             id: "",
-            stylebject: {
+            styleObject: {
                 position: 'absolute',
                 top: '',
                 left: ''
@@ -77,41 +77,41 @@ var modulebox = Vue.extend({
     methods: {
         handleClick() {
             var key = this.id;
-            app.triggermdl = this.id;
-            var mdltwin = {};
-            if (templatefile.hasOwnProperty(key)) {
-                mdltwin = templatefile[key]["properties.desired"];
+            app.triggerModule = this.id;
+            var moduleTwin = {};
+            if (templateFile.hasOwnProperty(key)) {
+                moduleTwin = templateFile[key]["properties.desired"];
             }
-            if (modifymdl) {
-                app.$refs.mdyUnsave.show();
+            if (modifyModule) {
+                app.$refs.modifyUnsave.show();
             } else {
-                if (app.mdlname === key && app.triggerpage != true) {
-                    app.displaymdl = false;
-                    app.mdlname = '';
+                if (app.moduleName === key && app.triggerPageSave != true) {
+                    app.displayModule = false;
+                    app.moduleName = '';
                 } else {
-                    app.displaymdl = true;
-                    app.mdlname = key;
-                    app.mdlimg = modulenode[key].settings.image;
-                    app.mdlco = JSON.stringify(modulenode[key].settings.createOptions);
-                    app.mdlmt = JSON.stringify(mdltwin);
-                    app.mdlstatus = modulenode[key].status;
-                    app.mdlpolicy = modulenode[key].restartPolicy;
+                    app.displayModule = true;
+                    app.moduleName = key;
+                    app.moduleImage = moduleNode[key].settings.image;
+                    app.moduleCreateOptions = JSON.stringify(moduleNode[key].settings.createOptions);
+                    app.moduleModuleTwin = JSON.stringify(moduleTwin);
+                    app.moduleStatus = moduleNode[key].status;
+                    app.modulePolicy = moduleNode[key].restartPolicy;
                 }
             }
         }
     }
 })
-var upstreambox = Vue.extend({
-    template: "<div class='module' :ref='mdl' :id='id' :style='stylebject'>\
+var upstreamBox = Vue.extend({
+    template: "<div class='module' :ref='module' :id='id' :style='styleObject'>\
                     <a class='sourcearea'></a>\
-                    <p class='textarea'>{{mdl}}</p>\
+                    <p class='textarea'>{{module}}</p>\
                     <span class='targetarea'></span>\
                 </div>",
     data: function() {
         return {
-            mdl: "",
+            module: "",
             id: "",
-            stylebject: {
+            styleObject: {
                 position: 'absolute',
                 top: '',
                 left: '',
@@ -120,163 +120,162 @@ var upstreambox = Vue.extend({
         }
     }
 })
-Vue.component('modulebox', modulebox)
-Vue.component('upstreambox', upstreambox)
+Vue.component('moduleBox', moduleBox)
+Vue.component('upstreamBox', upstreamBox)
 
 const app = new Vue({
     el: '#app',
     data: {
-        outputname: "",
-        inputname: "",
-        cdt: "",
-        triggermdl: "",
-        triggerpage: false,
-        displaymdl: true,
-        displaysys: false,
-        hubimg: "",
-        hubstatus: "",
-        hubpolicy: "",
-        hubco: "",
-        agentimg: "",
-        mdlname: "",
-        mdlimg: "",
-        mdlstatus: "",
-        mdlpolicy: "",
-        mdlco: "",
-        mdlmt: "",
-        newline: false,
-        policylist: ['always', 'never', 'on-failure', 'on-unhealthy'],
-        statuslist: ['running', 'stopped'],
+        outputName: "",
+        inputName: "",
+        condition: "",
+        triggerModule: "",
+        triggerPageSave: false,
+        displayModule: true,
+        displaySystem: false,
+        hubImage: "",
+        hubStatus: "",
+        hubPolicy: "",
+        hubCreateOptions: "",
+        agentImage: "",
+        moduleName: "",
+        moduleImage: "",
+        moduleStatus: "",
+        modulePolicy: "",
+        moduleCreateOptions: "",
+        moduleModuleTwin: "",
+        newRoute: false,
+        policyList: ['always', 'never', 'on-failure', 'on-unhealthy'],
+        statusList: ['running', 'stopped'],
         jsPlumb: null,
     },
-    mounted: async function() {
+    mounted: function() {
         this.jspready();
         vscode.postMessage({ text: "start" })
         window.addEventListener('message', event => {
-            templatefile = event.data;
-            modulenode = templatefile.$edgeAgent["properties.desired"].modules;
-            route = templatefile.$edgeHub["properties.desired"].routes;
+            templateFile = event.data;
+            moduleNode = templateFile.$edgeAgent["properties.desired"].modules;
+            route = templateFile.$edgeHub["properties.desired"].routes;
             this.display();
         })
     },
     methods: {
-        display: async function() {
+        display: function() {
             this.createSystem();
             var i = 1;
-            for (var key in modulenode) {
+            for (var key in moduleNode) {
                 this.createModules(key, i);
                 if (i === 1) {
-                    this.triggermdl = key;
+                    this.triggerModule = key;
                     this.reloadModule();
-                    this.trigermdl = '';
-                    this.mdlname = key;
+                    this.triggerModule = '';
+                    this.moduleName = key;
                 }
                 i++;
             }
             this.createUpstream(i);
-            this.setRoute(route);
+            this.setRoute();
         },
-        jspready: async function() {
+        jspready: function() {
             jsPlumb.ready(function() {
                 jsPlumb.importDefaults({
                     ConnectionOverlays: [
                         connectionOverlays
                     ]
                 });
-                jsPlumb.bind("click", function(conn) {
-                    modifyconn = conn;
-                    var outputPort = routings.get(conn.id).spt;
-                    var inputPort = routings.get(conn.id).tpt;
-                    var condition = routings.get(conn.id).cdt;
-                    app.outputname = outputPort;
-                    app.inputname = inputPort;
-                    app.cdt = condition;
-                    app.$refs.routeattr.show();
-
+                jsPlumb.bind("click", function(connectionInformation) {
+                    modifyConnection = connectionInformation;
+                    var outputPort = routings.get(connectionInformation.id).sourcePort;
+                    var inputPort = routings.get(connectionInformation.id).targetPort;
+                    var condition = routings.get(connectionInformation.id).condition;
+                    app.outputName = outputPort;
+                    app.inputName = inputPort;
+                    app.condition = condition;
+                    app.$refs.routeInformation.show();
                 });
-                jsPlumb.bind("contextmenu", function(conn) {
-                    deleteconn = conn;
-                    app.$refs.routedelete.show()
+                jsPlumb.bind("contextmenu", function(connectionInformation) {
+                    deleteConnection = connectionInformation;
+                    app.$refs.routeDelete.show()
                 });
-                jsPlumb.bind("beforeDrop", function(conn) {
-                    beforedropopen = true;
-                    if (conn.sourceId === conn.targetId) {
+                jsPlumb.bind("beforeDrop", function(connectionInformation) {
+                    beforeDropOpen = true;
+                    if (connectionInformation.sourceId === connectionInformation.targetId) {
                         return false;
                     } else {
-                        modifyroute = true;
-                        app.newline = true;
-                        var outputmdl = conn.sourceId;
-                        var inputmdl = conn.targetId;
-                        var curve = curvinessbase;
-                        if (isNaN(conn.connection.id)) {
-                            var curconnection = jsPlumb.getConnections({ source: conn.sourceId, target: conn.targetId });
-                            var curvearray = new Array();
-                            curconnection.forEach(function(item, index, array) {
-                                curvearray.push(routings.get(item.id).cur);
+                        modifyRoute = true;
+                        app.newRoute = true;
+                        var outputModule = connectionInformation.sourceId;
+                        var inputModule = connectionInformation.targetId;
+                        var curve = curvinessBase;
+                        if (isNaN(connectionInformation.connection.id)) {
+                            var currentConnection = jsPlumb.getConnections({ source: connectionInformation.sourceId, target: connectionInformation.targetId });
+                            var curveArray = new Array();
+                            currentConnection.forEach(function(item, index, array) {
+                                curveArray.push(routings.get(item.id).cur);
                             });
-                            curvearray.sort(function(a, b) {
+                            curveArray.sort(function(a, b) {
                                 return a - b
                             });
-                            for (var cur = 0; cur < curvearray.length; cur++) {
-                                if (curve === curvearray[cur]) {
-                                    curve += curvinessoffset;
+                            for (var i = 0; i < curveArray.length; i++) {
+                                if (curve === curveArray[i]) {
+                                    curve += curvinessOffset;
                                 } else {
                                     break;
                                 }
                             };
-                            var connectorstyle = ["Bezier", { curviness: curve }];
-                            conn.connection.setConnector(connectorstyle);
-                            conn.connection.addOverlay(connectionOverlays);
+                            var connectorStyle = ["Bezier", { curviness: curve }];
+                            connectionInformation.connection.setConnector(connectorStyle);
+                            connectionInformation.connection.addOverlay(connectionOverlays);
                             if (routings.size === 0) {
-                                conn.connection.id = 1;
+                                connectionInformation.connection.id = 1;
                             } else {
-                                conn.connection.id = [...routings][routings.size - 1][0] + 1;
+                                connectionInformation.connection.id = [...routings][routings.size - 1][0] + 1;
                             }
                         } else {
-                            var curconnection = jsPlumb.getConnections({ source: conn.sourceId, target: conn.targetId });
-                            if (curconnection.length != 1) {
-                                curve = curvinessbase + curvinessoffset * (curconnection.length - 1);
+                            var currentConnection = jsPlumb.getConnections({ source: connectionInformation.sourceId, target: connectionInformation.targetId });
+                            if (currentConnection.length != 1) {
+                                curve = curvinessBase + curvinessOffset * (currentConnection.length - 1);
                             }
-                            var connectorstyle = ["Bezier", { curviness: curve }];
-                            conn.connection.setConnector(connectorstyle);
-                            conn.connection.addOverlay(connectionOverlays);
+                            var connectorStyle = ["Bezier", { curviness: curve }];
+                            connectionInformation.connection.setConnector(connectorStyle);
+                            connectionInformation.connection.addOverlay(connectionOverlays);
                         }
-                        modifyconn = conn.connection;
-                        var rjson = { "smdl": outputmdl, "spt": "", "tmdl": inputmdl, "tpt": "", "cdt": "", "cur": curve };
-                        routings.set(conn.connection.id, rjson);
-                        app.routeattrshow();
+                        modifyConnection = connectionInformation.connection;
+                        var routingJson = { "sourceModule": outputModule, "sourcePort": "", "targetModule": inputModule, "targetPort": "", "condition": "", "cur": curve };
+                        routings.set(connectionInformation.connection.id, routingJson);
+                        app.routeInformationshow();
                         return true;
                     }
                 });
-                jsPlumb.bind("connectionDragStop", function(conn) {
-                    if (!isNaN(conn.id) && !beforedropopen) {
-                        connectiondrapstop = true;
-                        deleteconn = conn;
-                        app.$refs.routedelete.show();
+                jsPlumb.bind("connectionDragStop", function(connectionInformation) {
+                    if (!isNaN(connectionInformation.id) && !beforeDropOpen) {
+                        connectionDrapStop = true;
+                        deleteConnection = connectionInformation;
+                        app.$refs.routeDelete.show();
                     }
-                    beforedropopen = false;
+                    beforeDropOpen = false;
                 });
             })
         },
-        createSystem: async function() {
-            var hubpro = templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub;
-            var agentpro = templatefile.$edgeAgent["properties.desired"].systemModules.edgeAgent;
-            var hubstatus = hubpro.status;
-            var hubpolicy = hubpro.restartPolicy;
-            this.hubimg = hubpro.settings.image;
-            this.hubco = JSON.stringify(hubpro.settings.createOptions);
-            this.hubstatus = hubstatus;
-            this.hubpolicy = hubpolicy;
-            this.agentimg = agentpro.settings.image;
+        createSystem: function() {
+            var hubProperty = templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub;
+            var agentProperty = templateFile.$edgeAgent["properties.desired"].systemModules.edgeAgent;
+            var hubStatus = hubProperty.status;
+            var hubPolicy = hubProperty.restartPolicy;
+            this.hubImage = hubProperty.settings.image;
+            this.hubCreateOptions = JSON.stringify(hubProperty.settings.createOptions);
+            this.hubStatus = hubStatus;
+            this.hubPolicy = hubPolicy;
+            this.agentImage = agentProperty.settings.image;
         },
-        createModules: async function(key, i) {
-            var upstreammodule = new modulebox();
-            upstreammodule.$data.mdl = key;
-            upstreammodule.$data.id = key;
-            upstreammodule.$data.stylebject.top = (posbasetop + i * posoffset) + 'px';
-            upstreammodule.$data.stylebject.left = (posbaseleft + i * posoffset) + 'px';
-            upstreammodule.$mount()
-            this.$refs.canvas.appendChild(upstreammodule.$el)
+        createModules: function(key, i) {
+            var userModule = new moduleBox();
+            userModule.$data.module = key;
+            userModule.$data.id = key;
+            userModule.$data.styleObject.top = (postionBaseTop + i * positionOffset) + 'px';
+            userModule.$data.styleObject.left = (positionBaseLeft + i * positionOffset) + 'px';
+            userModule.$mount()
+            this.$refs.canvas.appendChild(userModule.$el);
             var divsWithWindowClass = jsPlumb.getSelector(".module");
             jsPlumb.draggable(divsWithWindowClass, {
                 containment: $("#canvas")
@@ -284,22 +283,22 @@ const app = new Vue({
             jsPlumb.makeSource(key, {
                 filter: "a",
                 uniqueEndpoint: true,
-            }, endpointsource);
+            }, endpointSource);
             jsPlumb.makeTarget(key, {
                 filter: "span",
                 uniqueEndpoint: true,
-            }, endpointtarget);
-            jsPlumb.addEndpoint(key, endpointsource);
-            jsPlumb.addEndpoint(key, endpointtarget);
+            }, endpointTarget);
+            jsPlumb.addEndpoint(key, endpointSource);
+            jsPlumb.addEndpoint(key, endpointTarget);
         },
-        createUpstream: async function(i) {
-            var upstreammodule = new upstreambox();
-            upstreammodule.$data.mdl = "upstream";
-            upstreammodule.$data.id = "IoTHub";
-            upstreammodule.$data.stylebject.top = (posbasetop + i * posoffset) + 'px';
-            upstreammodule.$data.stylebject.left = posbaseleft + 'px';
-            upstreammodule.$mount();
-            this.$refs.canvas.appendChild(upstreammodule.$el);
+        createUpstream: function(i) {
+            var upstreamModule = new upstreamBox();
+            upstreamModule.$data.module = "upstream";
+            upstreamModule.$data.id = "IoTHub";
+            upstreamModule.$data.styleObject.top = (postionBaseTop + i * positionOffset) + 'px';
+            upstreamModule.$data.styleObject.left = positionBaseLeft + 'px';
+            upstreamModule.$mount();
+            this.$refs.canvas.appendChild(upstreamModule.$el);
             var divsWithWindowClass = jsPlumb.getSelector(".module");
             jsPlumb.draggable(divsWithWindowClass, {
                 containment: $("#canvas")
@@ -307,247 +306,244 @@ const app = new Vue({
             jsPlumb.makeTarget('IoTHub', {
                 filter: "span",
                 uniqueEndpoint: true,
-            }, endpointtarget);
-            jsPlumb.addEndpoint(key, endpointtarget);
-
+            }, endpointTarget);
+            jsPlumb.addEndpoint('IoTHub', endpointTarget);
         },
-        setRoute: async function(route) {
+        setRoute: function() {
             for (var key in route) {
-                var iMdlName, iMdlPort, oMdlName, oMdlPort, cdt = "";
-                var routeMsg = JSON.stringify(route[key]);
-                var Start = routeMsg.indexOf("modules") + 8;
-                var End = routeMsg.indexOf("outputs", Start) - 1;
-                oMdlName = routeMsg.slice(Start, End);
-                Start = End + 9;
-                End = routeMsg.indexOf(" ", Start);
-                oMdlPort = routeMsg.slice(Start, End);
-                if (routeMsg.endsWith("upstream\"")) {
-                    iMdlName = "IoTHub";
-                    iMdlPort = "$upstream";
+                var inputModuleName, inputModulePort, outputModuleName, outputModulePort, condition = "";
+                var routeMessage = JSON.stringify(route[key]);
+                var start = routeMessage.indexOf("modules") + 8;
+                var end = routeMessage.indexOf("outputs", start) - 1;
+                outputModuleName = routeMessage.slice(start, end);
+                start = end + 9;
+                end = routeMessage.indexOf(" ", start);
+                outputModulePort = routeMessage.slice(start, end);
+                if (routeMessage.endsWith("upstream\"")) {
+                    inputModuleName = "IoTHub";
+                    inputModulePort = "$upstream";
                 } else {
-                    Start = routeMsg.lastIndexOf("modules") + 8;
-                    End = routeMsg.lastIndexOf("inputs") - 1;
-                    iMdlName = routeMsg.slice(Start, End);
-                    Start = End + 8;
-                    End = routeMsg.indexOf("\"", Start) - 1;
-                    iMdlPort = routeMsg.slice(Start, End);
+                    start = routeMessage.lastIndexOf("modules") + 8;
+                    end = routeMessage.lastIndexOf("inputs") - 1;
+                    inputModuleName = routeMessage.slice(start, end);
+                    start = end + 8;
+                    end = routeMessage.indexOf("\"", start) - 1;
+                    inputModulePort = routeMessage.slice(start, end);
                 }
-                if (routeMsg.indexOf("WHERE") != -1) {
-                    cdt = routeMsg.slice(routeMsg.indexOf("WHERE") + 6, routeMsg.indexOf("INTO") - 1);
+                if (routeMessage.indexOf("WHERE") != -1) {
+                    condition = routeMessage.slice(routeMessage.indexOf("WHERE") + 6, routeMessage.indexOf("INTO") - 1);
                 }
-                var curconnection = jsPlumb.getConnections({ source: oMdlName, target: iMdlName });
-                var conn;
-                var curve = curvinessbase;
-                if (curconnection.length != 0) {
-                    curve = curvinessbase + curvinessoffset * curconnection.length;
+                var currentConnection = jsPlumb.getConnections({ source: outputModuleName, target: inputModuleName });
+                var curve = curvinessBase;
+                if (currentConnection.length != 0) {
+                    curve = curvinessBase + curvinessOffset * currentConnection.length;
                 }
                 var connectorline = ["Bezier", { curviness: curve }];
-                conn = jsPlumb.connect({
-                    source: oMdlName,
-                    target: iMdlName,
+                var connection = jsPlumb.connect({
+                    source: outputModuleName,
+                    target: inputModuleName,
                     connector: connectorline
                 });
                 if (routings.size === 0) {
-                    conn.id = 1;
+                    connection.id = 1;
                 } else {
-                    conn.id = [...routings][routings.size - 1][0] + 1;
+                    connection.id = [...routings][routings.size - 1][0] + 1;
                 }
-                var rjson = { "smdl": oMdlName, "spt": oMdlPort, "tmdl": iMdlName, "tpt": iMdlPort, "cdt": cdt, "cur": curve };
-                routings.set(conn.id, rjson);
+                var routingJson = { "sourceModule": outputModuleName, "sourcePort": outputModulePort, "targetModule": inputModuleName, "targetPort": inputModulePort, "condition": condition, "cur": curve };
+                routings.set(connection.id, routingJson);
             }
         },
-        reloadModule: async function() {
-            var key = this.triggermdl;
-            var mdltwin = {};
-            if (templatefile.hasOwnProperty(key)) {
-                mdltwin = templatefile[key]["properties.desired"];
+        reloadModule: function() {
+            var key = this.triggerModule;
+            var moduleTwin = {};
+            if (templateFile.hasOwnProperty(key)) {
+                moduleTwin = templateFile[key]["properties.desired"];
             }
-            this.mdlname = key;
-            this.mdlimg = modulenode[key].settings.image;
-            this.mdlco = JSON.stringify(modulenode[key].settings.createOptions);
-            this.mdlmt = JSON.stringify(mdltwin);
-            this.mdlstatus = modulenode[key].status;
-            this.mdlpolicy = modulenode[key].restartPolicy;
+            this.moduleName = key;
+            this.moduleImage = moduleNode[key].settings.image;
+            this.moduleCreateOptions = JSON.stringify(moduleNode[key].settings.createOptions);
+            this.moduleModuleTwin = JSON.stringify(moduleTwin);
+            this.moduleStatus = moduleNode[key].status;
+            this.modulePolicy = moduleNode[key].restartPolicy;
         },
-        routeattrshow: async function() {
-            if (modifyconn.sourceId === 'IoTHub') {
-                app.outputname = "$upstream";
-                app.inputname = "";
-                app.cdt = "";
-            } else if (modifyconn.targetId === 'IoTHub') {
-                app.outputname = "";;
-                app.inputname = "$upstream";
-                app.cdt = "";
+        routeInformationshow: function() {
+            if (modifyConnection.sourceId === 'IoTHub') {
+                app.outputName = "$upstream";
+                app.inputName = "";
+                app.condition = "";
+            } else if (modifyConnection.targetId === 'IoTHub') {
+                app.outputName = "";
+                app.inputName = "$upstream";
+                app.condition = "";
             } else {
-                app.outputname = "";
-                app.inputname = "";
-                app.cdt = "";
+                app.outputName = "";
+                app.inputName = "";
+                app.condition = "";
             }
-            app.$refs.routeattr.show();
+            app.$refs.routeInformation.show();
         },
-        pagesave: async function() {
-            if (modifymdl || modifysys) {
-                this.triggerpage = true;
-                this.triggermdl = this.mdlname;
-                this.$refs.mdyUnsave.show();
+        pageSave: function() {
+            if (modifyModule || modifySystem) {
+                this.triggerPageSave = true;
+                this.triggerModule = this.moduleName;
+                this.$refs.modifyUnsave.show();
             } else {
                 route = {};
-
-                function readrouting(value, key, map) {
-                    var source, target, cdt;
-                    source = "FROM /messages/modules/" + value.smdl + "/outputs/" + value.spt;
-                    if (value.tmdl === "IoTHub") {
+                routings.forEach(function(value, key, map) {
+                    var source, target, condition;
+                    source = "FROM /messages/modules/" + value.sourceModule + "/outputs/" + value.sourcePort;
+                    if (value.targetModule === "IoTHub") {
                         target = " INTO $upstream";
                     } else {
-                        target = " INTO BrokeredEndpoint(\"/modules/" + value.tmdl + "/inputs/" + value.tpt + "\")";
+                        target = " INTO BrokeredEndpoint(\"/modules/" + value.targetModule + "/inputs/" + value.targetPort + "\")";
                     }
-                    if (value.cdt !== "") {
-                        cdt = " WHERE " + value.cdt;
+                    if (value.condition !== "") {
+                        condition = " WHERE " + value.condition;
                     } else {
-                        cdt = '';
+                        condition = '';
                     }
-                    route[key] = source + cdt + target;
-                }
-                routings.forEach(readrouting);
-                var routenameset = new Set();
+                    route[key] = source + condition + target;
+                });
+                var routeNameSet = new Set();
                 for (var key of routings.keys()) {
-                    var routenamekey = routings.get(key).smdl + "To" + routings.get(key).tmdl;
-                    if (routenameset.has(routenamekey)) {
-                        var routenamenum = 2;
-                        while (routenameset.has(routenamekey + routenamenum)) {
-                            routenamenum++;
+                    var routeNameKey = routings.get(key).sourceModule + "To" + routings.get(key).targetModule;
+                    if (routeNameSet.has(routeNameKey)) {
+                        var routeNameNum = 2;
+                        while (routeNameSet.has(routeNameKey + routeNameNum)) {
+                            routeNameNum++;
                         }
-                        routenameset.add(routenamekey + routenamenum);
-                        routenamekey = routenamekey + routenamenum;
+                        routeNameSet.add(routeNameKey + routeNameNum);
+                        routeNameKey = routeNameKey + routeNameNum;
                     } else {
-                        routenameset.add(routenamekey);
+                        routeNameSet.add(routeNameKey);
                     }
                     delete Object.assign(route, {
-                        [routenamekey]: route[key]
+                        [routeNameKey]: route[key]
                     })[key];
                 }
-                templatefile.$edgeHub["properties.desired"].routes = route;
-                vscode.postMessage({ text: templatefile })
+                templateFile.$edgeHub["properties.desired"].routes = route;
+                vscode.postMessage({ text: templateFile })
             }
         },
-        popsave: async function() {
-            this.newline = false;
-            if (this.outputname == "" || this.inputname == "") {
-                deleteconn = modifyconn;
-                routings.delete(deleteconn.id);
-                jsPlumb.detach(deleteconn);
+        popSave: function() {
+            this.newRoute = false;
+            if (this.outputName == "" || this.inputName == "") {
+                deleteConnection = modifyConnection;
+                routings.delete(deleteConnection.id);
+                jsPlumb.detach(deleteConnection);
             } else {
-                var connid = modifyconn.id;
-                routings.get(connid).spt = this.outputname;
-                routings.get(connid).tpt = this.inputname;
-                routings.get(connid).cdt = this.cdt;
+                var connid = modifyConnection.id;
+                routings.get(connid).sourcePort = this.outputName;
+                routings.get(connid).targetPort = this.inputName;
+                routings.get(connid).condition = this.condition;
             }
         },
-        popclose: async function() {
-            if (this.outputname == "" || this.inputname == "" || this.newline == true) {
-                this.newline = false;
-                deleteconn = modifyconn;
-                routings.delete(deleteconn.id);
-                jsPlumb.detach(deleteconn);
+        popClose: function() {
+            if (this.outputName == "" || this.inputName == "" || this.newRoute == true) {
+                this.newRoute = false;
+                deleteConnection = modifyConnection;
+                routings.delete(deleteConnection.id);
+                jsPlumb.detach(deleteConnection);
             }
         },
-        deletecon: async function() {
-            routings.delete(deleteconn.id);
-            if (connectiondrapstop) {
-                connectiondrapstop = false;
+        deleteRouting: function() {
+            routings.delete(deleteConnection.id);
+            if (connectionDrapStop) {
+                connectionDrapStop = false;
             } else {
-                jsPlumb.detach(deleteconn);
+                jsPlumb.detach(deleteConnection);
             }
         },
-        nodeletecon: async function() {
-            if (connectiondrapstop) {
-                var smdl = deleteconn.sourceId;
-                var tmdl = deleteconn.targetId;
-                var curve = routings.get(deleteconn.id).cur;
-                var connectorline = ["Bezier", { curviness: curve }];
-                conn = jsPlumb.connect({
-                    source: smdl,
-                    target: tmdl,
-                    connector: connectorline
+        canceloDeleteRouting: function() {
+            if (connectionDrapStop) {
+                var sourceModule = deleteConnection.sourceId;
+                var targetModule = deleteConnection.targetId;
+                var curve = routings.get(deleteConnection.id).cur;
+                var connectorLine = ["Bezier", { curviness: curve }];
+                var connection = jsPlumb.connect({
+                    source: sourceModule,
+                    target: targetModule,
+                    connector: connectorLine
                 });
-                conn.id = deleteconn.id;
-                connectiondrapstop = false;
+                connection.id = deleteConnection.id;
+                connectionDrapStop = false;
             }
         },
-        mdysave: async function() {
-            this.mdlsave();
-            if (!this.triggerpage) {
-                if (this.triggermdl === this.mdlname) {
-                    this.displaymdl = false;
-                    this.mdlname = '';
+        modifySave: function() {
+            this.moduleSave();
+            if (!this.triggerPageSave) {
+                if (this.triggerModule === this.moduleName) {
+                    this.displayModule = false;
+                    this.moduleName = '';
                 } else {
                     this.reloadModule();
                 }
             } else {
-                this.triggerpage = false;
-                modifysys = false;
-                this.syssave();
-                this.pagesave();
+                this.triggerPageSave = false;
+                modifySystem = false;
+                this.systemSave();
+                this.pageSave();
             }
         },
-        mdydel: async function() {
-            modifymdl = false;
-            if (!this.triggerpage) {
-                if (this.triggermdl === this.mdlname) {
+        modifyCancel: function() {
+            modifyModule = false;
+            if (!this.triggerPageSave) {
+                if (this.triggerModule === this.moduleName) {
                     this.reloadModule();
-                    this.displaymdl = false;
-                    this.mdlname = '';
+                    this.displayModule = false;
+                    this.moduleName = '';
                 } else {
-                    var targetmdl = this.triggermdl;
-                    this.triggermdl = this.mdlname;
+                    var targetModule = this.triggerModule;
+                    this.triggerModule = this.moduleName;
                     this.reloadModule();
-                    this.triggermdl = targetmdl;
+                    this.triggerModule = targetModule;
                     this.reloadModule();
                 }
             } else {
                 this.reloadModule();
-                this.triggerpage = false;
-                modifysys = false;
+                this.triggerPageSave = false;
+                modifySystem = false;
                 this.createSystem();
-                this.pagesave();
+                this.pageSave();
             }
         },
-        syssave: function() {
-            templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.image = $('#hubImg').val();
-            templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.status = $("#hubStatus").val();
-            templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.restartPolicy = $("#hubPolicy").val();
-            templatefile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions = JSON.parse($('#hubCo').val());
-            templatefile.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.image = $('#agentImg').val();
-            modifysys = false;
+        systemSave: function() {
+            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.image = $('#hubImage').val();
+            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.status = $("#hubStatus").val();
+            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.restartPolicy = $("#hubPolicy").val();
+            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions = JSON.parse($('#hubCreateOptions').val());
+            templateFile.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.image = $('#agentImage').val();
+            modifySystem = false;
         },
-        sysdiscard: function() {
+        systemDiscard: function() {
             this.createSystem();
-            modifysys = false;
+            modifySystem = false;
         },
-        mdlsave: function() {
-            var key = this.mdlname;
-            modulenode[key].restartPolicy = this.mdlpolicy;
-            modulenode[key].settings.createOptions = JSON.parse(this.mdlco);
-            modulenode[key].settings.image = this.mdlimg;
-            modulenode[key].status = this.mdlstatus;
-            if (templatefile.hasOwnProperty(key)) {
-                templatefile[key]["properties.desired"] = JSON.parse(this.mdlmt);
-            } else if (this.mdlmt != "") {
-                var mdltwin = { "properties.desired": {} };
-                mdltwin["properties.desired"] = JSON.parse(this.mdlmt);
-                templatefile[key] = mdltwin;
+        moduleSave: function() {
+            var key = this.moduleName;
+            moduleNode[key].restartPolicy = this.modulePolicy;
+            moduleNode[key].settings.createOptions = JSON.parse(this.moduleCreateOptions);
+            moduleNode[key].settings.image = this.moduleImage;
+            moduleNode[key].status = this.moduleStatus;
+            if (templateFile.hasOwnProperty(key)) {
+                templateFile[key]["properties.desired"] = JSON.parse(this.moduleModuleTwin);
+            } else if (this.moduleModuleTwin != "") {
+                var moduleTwin = { "properties.desired": {} };
+                moduleTwin["properties.desired"] = JSON.parse(this.moduleModuleTwin);
+                templateFile[key] = moduleTwin;
             }
-            modifymdl = false;
+            modifyModule = false;
         },
-        mdldiscard: function() {
+        moduleDiscard: function() {
             this.reloadModule();
-            modifymdl = false;
+            modifyModule = false;
         },
-        mdlchange: async function() {
-            modifymdl = true;
+        moduleChange: function() {
+            modifyModule = true;
+            console.log(modifyModule);
         },
-        syschange: async function() {
-            modifysys = true;
+        systemChange: function() {
+            modifySystem = true;
         }
     }
 })

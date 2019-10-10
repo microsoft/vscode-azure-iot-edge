@@ -75,6 +75,7 @@ var moduleBox = Vue.extend({
         }
     },
     methods: {
+        //Double click on a module to display properties
         handleClick() {
             var key = this.id;
             app.triggerModule = this.id;
@@ -82,6 +83,7 @@ var moduleBox = Vue.extend({
             if (templateFile.hasOwnProperty(key)) {
                 moduleTwin = templateFile[key]["properties.desired"];
             }
+            //Ask if modifications are not saved.
             if (modifyModule) {
                 app.$refs.modifyUnsave.show();
             } else {
@@ -165,6 +167,7 @@ const app = new Vue({
             var i = 1;
             for (var key in moduleNode) {
                 this.createModules(key, i);
+                //Display the first module properties as default
                 if (i === 1) {
                     this.triggerModule = key;
                     this.reloadModule();
@@ -183,6 +186,7 @@ const app = new Vue({
                         connectionOverlays
                     ]
                 });
+                //Click on a line to show routing information
                 jsPlumb.bind("click", function(connectionInformation) {
                     modifyConnection = connectionInformation;
                     var outputPort = routings.get(connectionInformation.id).sourcePort;
@@ -193,10 +197,12 @@ const app = new Vue({
                     app.condition = condition;
                     app.$refs.routeInformation.show();
                 });
+                //Right click to pop up a window and ask if users want to delete routings
                 jsPlumb.bind("contextmenu", function(connectionInformation) {
                     deleteConnection = connectionInformation;
                     app.$refs.routeDelete.show()
                 });
+                //Set line properties before dropping
                 jsPlumb.bind("beforeDrop", function(connectionInformation) {
                     beforeDropOpen = true;
                     if (connectionInformation.sourceId === connectionInformation.targetId) {
@@ -206,47 +212,61 @@ const app = new Vue({
                         app.newRoute = true;
                         var outputModule = connectionInformation.sourceId;
                         var inputModule = connectionInformation.targetId;
+                        //Compute the curviness by finding the first unused curviness
                         var curve = curvinessBase;
+                        var curveArray = new Array(); //store the sorted curnivess
+                        var currentConnection = jsPlumb.getConnections({ source: connectionInformation.sourceId, target: connectionInformation.targetId });
+                        currentConnection.forEach(function(item, index, array) {
+                            curveArray.push(routings.get(item.id).cur);
+                        });
+                        curveArray.sort(function(a, b) {
+                            return a - b
+                        });
+                        for (var i = 0; i < curveArray.length; i++) {
+                            if (i < curveArray.length - 1 && curveArray[i] === curveArray[i + 1]) {
+                                //If the current line is existing but being changed the direction
+                                //then its curviness has been stored in the array,
+                                //delete it if it's the same with another line.
+                                curveArray.splice(i, 1);
+                                i--;
+                            } else if (curve === curveArray[i]) {
+                                curve += curvinessOffset;
+                            } else {
+                                break;
+                            }
+                        };
+                        var connectorStyle = ["Bezier", { curviness: curve }];
+                        connectionInformation.connection.setConnector(connectorStyle);
+                        connectionInformation.connection.addOverlay(connectionOverlays);
+                        //If it is a new line then set the id
                         if (isNaN(connectionInformation.connection.id)) {
-                            var currentConnection = jsPlumb.getConnections({ source: connectionInformation.sourceId, target: connectionInformation.targetId });
-                            var curveArray = new Array();
-                            currentConnection.forEach(function(item, index, array) {
-                                curveArray.push(routings.get(item.id).cur);
-                            });
-                            curveArray.sort(function(a, b) {
-                                return a - b
-                            });
-                            for (var i = 0; i < curveArray.length; i++) {
-                                if (curve === curveArray[i]) {
-                                    curve += curvinessOffset;
-                                } else {
-                                    break;
-                                }
-                            };
-                            var connectorStyle = ["Bezier", { curviness: curve }];
-                            connectionInformation.connection.setConnector(connectorStyle);
-                            connectionInformation.connection.addOverlay(connectionOverlays);
                             if (routings.size === 0) {
                                 connectionInformation.connection.id = 1;
                             } else {
                                 connectionInformation.connection.id = [...routings][routings.size - 1][0] + 1;
                             }
-                        } else {
-                            var currentConnection = jsPlumb.getConnections({ source: connectionInformation.sourceId, target: connectionInformation.targetId });
-                            if (currentConnection.length != 1) {
-                                curve = curvinessBase + curvinessOffset * (currentConnection.length - 1);
-                            }
-                            var connectorStyle = ["Bezier", { curviness: curve }];
-                            connectionInformation.connection.setConnector(connectorStyle);
-                            connectionInformation.connection.addOverlay(connectionOverlays);
                         }
                         modifyConnection = connectionInformation.connection;
                         var routingJson = { "sourceModule": outputModule, "sourcePort": "", "targetModule": inputModule, "targetPort": "", "condition": "", "cur": curve };
                         routings.set(connectionInformation.connection.id, routingJson);
-                        app.routeInformationshow();
+                        if (modifyConnection.sourceId === 'IoTHub') {
+                            app.outputName = "$upstream";
+                            app.inputName = "";
+                            app.condition = "";
+                        } else if (modifyConnection.targetId === 'IoTHub') {
+                            app.outputName = "";
+                            app.inputName = "$upstream";
+                            app.condition = "";
+                        } else {
+                            app.outputName = "";
+                            app.inputName = "";
+                            app.condition = "";
+                        }
+                        app.$refs.routeInformation.show();
                         return true;
                     }
                 });
+                //Stop dragging an existing line
                 jsPlumb.bind("connectionDragStop", function(connectionInformation) {
                     if (!isNaN(connectionInformation.id) && !beforeDropOpen) {
                         connectionDrapStop = true;
@@ -257,6 +277,7 @@ const app = new Vue({
                 });
             })
         },
+        //Read edge properties
         createSystem: function() {
             var hubProperty = templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub;
             var agentProperty = templateFile.$edgeAgent["properties.desired"].systemModules.edgeAgent;
@@ -268,6 +289,7 @@ const app = new Vue({
             this.hubPolicy = hubPolicy;
             this.agentImage = agentProperty.settings.image;
         },
+        //Read module properties and create moduleboxes on the page
         createModules: function(key, i) {
             var userModule = new moduleBox();
             userModule.$data.module = key;
@@ -291,6 +313,7 @@ const app = new Vue({
             jsPlumb.addEndpoint(key, endpointSource);
             jsPlumb.addEndpoint(key, endpointTarget);
         },
+        //Create an IoTHub modulebox
         createUpstream: function(i) {
             var upstreamModule = new upstreamBox();
             upstreamModule.$data.module = "upstream";
@@ -309,6 +332,7 @@ const app = new Vue({
             }, endpointTarget);
             jsPlumb.addEndpoint('IoTHub', endpointTarget);
         },
+        //Connect lines between modules and store routing information
         setRoute: function() {
             for (var key in route) {
                 var inputModuleName, inputModulePort, outputModuleName, outputModulePort, condition = "";
@@ -353,6 +377,7 @@ const app = new Vue({
                 routings.set(connection.id, routingJson);
             }
         },
+        //Load and display module properties
         reloadModule: function() {
             var key = this.triggerModule;
             var moduleTwin = {};
@@ -366,28 +391,14 @@ const app = new Vue({
             this.moduleStatus = moduleNode[key].status;
             this.modulePolicy = moduleNode[key].restartPolicy;
         },
-        routeInformationshow: function() {
-            if (modifyConnection.sourceId === 'IoTHub') {
-                app.outputName = "$upstream";
-                app.inputName = "";
-                app.condition = "";
-            } else if (modifyConnection.targetId === 'IoTHub') {
-                app.outputName = "";
-                app.inputName = "$upstream";
-                app.condition = "";
-            } else {
-                app.outputName = "";
-                app.inputName = "";
-                app.condition = "";
-            }
-            app.$refs.routeInformation.show();
-        },
+        //Write modifications back to json file
         pageSave: function() {
+            //Ask to save unmodified changes
             if (modifyModule || modifySystem) {
                 this.triggerPageSave = true;
                 this.triggerModule = this.moduleName;
                 this.$refs.modifyUnsave.show();
-            } else {
+            } else { //Convert routing information to json format
                 route = {};
                 routings.forEach(function(value, key, map) {
                     var source, target, condition;
@@ -425,8 +436,10 @@ const app = new Vue({
                 vscode.postMessage({ text: templateFile })
             }
         },
+        //Save routing information of a line
         popSave: function() {
             this.newRoute = false;
+            //Delete a routing if it lacks necessary port names
             if (this.outputName == "" || this.inputName == "") {
                 deleteConnection = modifyConnection;
                 routings.delete(deleteConnection.id);
@@ -438,7 +451,9 @@ const app = new Vue({
                 routings.get(connid).condition = this.condition;
             }
         },
+        //Close routing window
         popClose: function() {
+            //Delete a routing if it lacks necessary port names
             if (this.outputName == "" || this.inputName == "" || this.newRoute == true) {
                 this.newRoute = false;
                 deleteConnection = modifyConnection;
@@ -446,6 +461,7 @@ const app = new Vue({
                 jsPlumb.detach(deleteConnection);
             }
         },
+        //Delete a line and the routing information
         deleteRouting: function() {
             routings.delete(deleteConnection.id);
             if (connectionDrapStop) {
@@ -454,7 +470,8 @@ const app = new Vue({
                 jsPlumb.detach(deleteConnection);
             }
         },
-        canceloDeleteRouting: function() {
+        //Recover a line when user stops dragging
+        cancelDeleteRouting: function() {
             if (connectionDrapStop) {
                 var sourceModule = deleteConnection.sourceId;
                 var targetModule = deleteConnection.targetId;
@@ -469,37 +486,41 @@ const app = new Vue({
                 connectionDrapStop = false;
             }
         },
+        //Save modifications when users close the display of the current module or write back the whole website without saving
         modifySave: function() {
             this.moduleSave();
+            //Users close the module display
             if (!this.triggerPageSave) {
-                if (this.triggerModule === this.moduleName) {
+                if (this.triggerModule === this.moduleName) { //close property sidebar
                     this.displayModule = false;
                     this.moduleName = '';
-                } else {
+                } else { //display another module
                     this.reloadModule();
                 }
-            } else {
+            } else { //Users trigger the Apply button to write modifications back to json file
                 this.triggerPageSave = false;
                 modifySystem = false;
                 this.systemSave();
                 this.pageSave();
             }
         },
+        //Discard modifications when users close the display of a module or write back the whole website without saving
         modifyCancel: function() {
             modifyModule = false;
+            //Users close the module display
             if (!this.triggerPageSave) {
-                if (this.triggerModule === this.moduleName) {
+                if (this.triggerModule === this.moduleName) { //close property sidebar
                     this.reloadModule();
                     this.displayModule = false;
                     this.moduleName = '';
-                } else {
+                } else { //display another module
                     var targetModule = this.triggerModule;
                     this.triggerModule = this.moduleName;
                     this.reloadModule();
                     this.triggerModule = targetModule;
                     this.reloadModule();
                 }
-            } else {
+            } else { //Users trigger the Apply button to write modifications back to json file
                 this.reloadModule();
                 this.triggerPageSave = false;
                 modifySystem = false;
@@ -507,18 +528,21 @@ const app = new Vue({
                 this.pageSave();
             }
         },
+        //Save modifications of edge properties
         systemSave: function() {
-            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.image = $('#hubImage').val();
-            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.status = $("#hubStatus").val();
-            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.restartPolicy = $("#hubPolicy").val();
-            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions = JSON.parse($('#hubCreateOptions').val());
-            templateFile.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.image = $('#agentImage').val();
+            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.image = this.hubImage;
+            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.status = this.hubStatus;
+            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.restartPolicy = this.hubPolicy;
+            templateFile.$edgeAgent["properties.desired"].systemModules.edgeHub.settings.createOptions = JSON.parse(this.hubCreateOptions);
+            templateFile.$edgeAgent["properties.desired"].systemModules.edgeAgent.settings.image = this.agentImage;
             modifySystem = false;
         },
+        //Discard modifications of edge properties
         systemDiscard: function() {
             this.createSystem();
             modifySystem = false;
         },
+        //Save modifications of module properties
         moduleSave: function() {
             var key = this.moduleName;
             moduleNode[key].restartPolicy = this.modulePolicy;
@@ -534,14 +558,16 @@ const app = new Vue({
             }
             modifyModule = false;
         },
+        //Discard modifications of module properties
         moduleDiscard: function() {
             this.reloadModule();
             modifyModule = false;
         },
+        //listen modifications of module properties
         moduleChange: function() {
             modifyModule = true;
-            console.log(modifyModule);
         },
+        //listen modifications of module properties
         systemChange: function() {
             modifySystem = true;
         }

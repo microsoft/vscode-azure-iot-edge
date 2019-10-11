@@ -14,28 +14,25 @@
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="height: 60px;">
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav mr-auto">
-                    <a class="btn btn-outline-primary" id="pagesave" @click="displaySystem=~displaySystem">Edit System
+                    <a class="btn btn-outline-primary" @click="displaySystem=~displaySystem" style="color: white">Edit System
                         Properties</a>
                 </ul>
-                <a class="btn btn-outline-primary" id="pagesave" @click="pageSave">Apply</a>
+                <a class="btn btn-outline-primary" @click="pageSave" style="color: white">Save</a>
             </div>
         </nav>
         <b-modal ref="routeInformation" @ok="popSave" @cancel="popClose" :data-newline="newRoute" title="Routing message" :no-close-on-backdrop="true" :hide-header-close="true">
             <div class="form-group was-validated">
-                <label for="txt_departmentname">Output<em style="color: red;">*</em></label>
-                <input type="text" class="form-control" name="txt_output" v-model="outputName" required />
+                <label>Output<em style="color: red;">*</em></label>
                 <div class="invalid-feedback">Please fill in output name, or the routing will be deleted.
                 </div>
             </div>
             <div class="form-group was-validated">
-                <label for="txt_departmentname">Input<em style="color: red;">*</em></label>
-                <input type="text" class="form-control" name="txt_input" v-model="inputName" required />
+                <label>Input<em style="color: red;">*</em></label>
                 <div class="invalid-feedback">Please fill in input name, or the routing will be deleted.
                 </div>
             </div>
             <div class="form-group">
-                <label for="txt_departmentname">Condition</label>
-                <input type="text" class="form-control" name="txt_cdt" v-model="condition">
+                <label>Condition</label>
             </div>
         </b-modal>
         <b-modal ref="routeDelete" @ok="deleteRouting" @cancel="cancelDeleteRouting" title="Notification" :no-close-on-backdrop="true" :hide-header-close="true">
@@ -47,7 +44,7 @@
         </b-modal>
         <div class="wrapperr">
             <nav v-if="displaySystem" class="property" style="padding-right: 20px">
-                <nav id="hub-property" class="sidebar" style="display: block;">
+                <nav class="sidebar">
                     <div class="sidebar-header">
                         <h4>System Properties</h4>
                     </div>
@@ -58,17 +55,15 @@
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text" id="basic-addon1">Name</span>
+                                            <span class="input-group-text">Name</span>
                                         </div>
-                                        <input type="text" class="form-control" value="EdgeHub" aria-label="Username" aria-describedby="basic-addon1" readonly="readonly">
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text" id="basic-addon1">Image</span>
+                                            <span class="input-group-text">Image</span>
                                         </div>
-                                        <input type="text" class="form-control" id="hubImage" v-model="hubImage" @change="systemChange" aria-label="Username" aria-describedby="basic-addon1">
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -93,9 +88,8 @@
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
-                                    <label for="basic-url" style="font-size: 0.7em;">Create Options</label>
+                                    <label style="font-size: 0.7em;">Create Options</label>
                                     <div class="input-group">
-                                        <textarea class="form-control" id="hubCreateOptions" v-model="hubCreateOptions" @change="systemChange" rows="3"></textarea>
                                     </div>
                                 </li>
                             </ul>
@@ -109,30 +103,28 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="basic-addon1">Name</span>
                                         </div>
-                                        <input type="text" class="form-control" id="agentName" value="EdgeAgent" aria-label="Username" aria-describedby="basic-addon1" readonly="readonly">
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text" id="basic-addon1">Image</span>
+                                            <span class="input-group-text">Image</span>
                                         </div>
-                                        <input type="text" class="form-control" id="agentImage" v-model="agentImage" @change="systemChange" aria-label="Username" aria-describedby="basic-addon1">
                                     </div>
                                 </li>
                             </ul>
                         </li>
                     </ul>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" @click="systemSave">Save</button>
-                        <button type="button" class="btn btn-primary" @click="systemDiscard">Discard</button>
+                        <button type="button" class="btn btn-primary" @click="systemSave">Done</button>
+                        <button type="button" class="btn btn-primary" @click="systemDiscard">Cancel</button>
                     </div>
                 </nav>
             </nav>
             <main id="canvas" ref="canvas">
             </main>
             <nav v-if="displayModule" class="property" style="padding-left: 20px">
-                <nav id="module-property" class="sidebar">
+                <nav class="sidebar">
                     <div class="sidebar-header">
                         <h4>Module Properties</h4>
                     </div>
@@ -140,17 +132,15 @@
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text" id="basic-addon1">Name</span>
+                                    <span class="input-group-text">Name</span>
                                 </div>
-                                <input type="text" class="form-control" id="moduleName" v-model="moduleName" aria-label="Username" aria-describedby="basic-addon1" readonly="readonly">
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text" id="basic-addon1">Image</span>
+                                    <span class="input-group-text">Image</span>
                                 </div>
-                                <input type="text" class="form-control" id="moduleImage" v-model="moduleImage" @change="moduleChange" aria-label="Username" aria-describedby="basic-addon1">
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -159,7 +149,7 @@
                                     <label class="input-group-text" for="moduleStatus">Desired
                                         Status</label>
                                 </div>
-                                <select id="moduleStatus" v-model="moduleStatus" @change="moduleChange" class="custom-select">
+                                <select v-model="moduleStatus" @change="moduleChange" class="custom-select">
                                     <option v-for="item in statusList">{{ item }}</option>
                                 </select>
                             </div>
@@ -175,21 +165,19 @@
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
-                            <label for="basic-url">Create Options</label>
+                            <label>Create Options</label>
                             <div class="input-group">
-                                <textarea class="form-control" id="moduleCreateOptions" v-model="moduleCreateOptions" @change="moduleChange" rows="3"></textarea>
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
-                            <label for="basic-url">Module Twin</label>
+                            <label>Module Twin</label>
                             <div class="input-group">
-                                <textarea class="form-control" id="moduleModuleTwin" v-model="moduleModuleTwin" @change="moduleChange" rows="3"></textarea>
                             </div>
                         </li>
                     </ul>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" @click="moduleSave">Save</button>
-                        <button type="button" class="btn btn-primary" @click="moduleDiscard">Discard</button>
+                        <button type="button" class="btn btn-primary" @click="moduleSave">Done</button>
+                        <button type="button" class="btn btn-primary" @click="moduleDiscard">Cancel</button>
                     </div>
                 </nav>
             </nav>

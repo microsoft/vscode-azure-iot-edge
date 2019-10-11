@@ -23,16 +23,19 @@
         <b-modal ref="routeInformation" @ok="popSave" @cancel="popClose" :data-newline="newRoute" title="Routing message" :no-close-on-backdrop="true" :hide-header-close="true">
             <div class="form-group was-validated">
                 <label>Output<em style="color: red;">*</em></label>
+                <input class="form-control" v-model="outputName" required />
                 <div class="invalid-feedback">Please fill in output name, or the routing will be deleted.
                 </div>
             </div>
             <div class="form-group was-validated">
                 <label>Input<em style="color: red;">*</em></label>
+                <input class="form-control" v-model="inputName" required />
                 <div class="invalid-feedback">Please fill in input name, or the routing will be deleted.
                 </div>
             </div>
             <div class="form-group">
                 <label>Condition</label>
+                <input class="form-control" v-model="condition">
             </div>
         </b-modal>
         <b-modal ref="routeDelete" @ok="deleteRouting" @cancel="cancelDeleteRouting" title="Notification" :no-close-on-backdrop="true" :hide-header-close="true">
@@ -57,6 +60,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">Name</span>
                                         </div>
+                                        <input class="form-control" value="EdgeHub" readonly="readonly">
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -64,6 +68,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">Image</span>
                                         </div>
+                                        <input class="form-control" v-model="hubImage" @change="systemChange">
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -90,6 +95,7 @@
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                                     <label style="font-size: 0.7em;">Create Options</label>
                                     <div class="input-group">
+                                        <textarea class="form-control" v-model="hubCreateOptions" @change="systemChange" rows="3"></textarea>
                                     </div>
                                 </li>
                             </ul>
@@ -103,6 +109,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="basic-addon1">Name</span>
                                         </div>
+                                        <input class="form-control" id="agentName" value="EdgeAgent" readonly="readonly">
                                     </div>
                                 </li>
                                 <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -110,6 +117,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">Image</span>
                                         </div>
+                                        <input class="form-control" v-model="agentImage" @change="systemChange">
                                     </div>
                                 </li>
                             </ul>
@@ -134,6 +142,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">Name</span>
                                 </div>
+                                <input class="form-control" v-model="moduleName" readonly="readonly">
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -141,6 +150,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">Image</span>
                                 </div>
+                                <input class="form-control" v-model="moduleImage" @change="moduleChange">
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
@@ -167,11 +177,13 @@
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <label>Create Options</label>
                             <div class="input-group">
+                                <textarea class="form-control" v-model="moduleCreateOptions" @change="moduleChange" rows="3"></textarea>
                             </div>
                         </li>
                         <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
                             <label>Module Twin</label>
                             <div class="input-group">
+                                <textarea class="form-control" v-model="moduleModuleTwin" @change="moduleChange" rows="3"></textarea>
                             </div>
                         </li>
                     </ul>
@@ -187,7 +199,6 @@
     <script type="text/javascript" src="{{root}}/assets/deployment/jquery.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/jquery-ui.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/jsPlumb.min.js"></script>
-    <script type="text/javascript" src="{{root}}/assets/deployment/popper.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/bootstrap.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/vue.min.js"></script>
     <script type="text/javascript" src="{{root}}/assets/deployment/bootstrap-vue.min.js"></script>

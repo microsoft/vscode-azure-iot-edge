@@ -10,6 +10,7 @@ const app = new Vue({
     data: {
         searchInput: '',
         selectedModule: {},
+        selectedPlan: "",
         selectedTag: "",
         moduleName: '',
         modules: [],
@@ -28,8 +29,8 @@ const app = new Vue({
         getModules: async function () {
             return (await axios.get(`${this.endpoint}/api/v1/modules`)).data;
         },
-        getModuleMetadata: async function (module) {
-            const data = (await axios.get(module.iotEdgeMetadataUrl)).data;
+        getModuleMetadata: async function (plan) {
+            const data = (await axios.get(plan.iotEdgeMetadataUrl)).data;
             let repository = data.containerUri;
             let defaultTag = data.tagsOrDigests.includes("latest") ? "latest" : data.tagsOrDigests[0];
             let splitArr = data.containerUri.split(":");
@@ -48,11 +49,9 @@ const app = new Vue({
         },
         showModule: async function (module) {
             this.errorMessageModuleName = "";
-            const metadata = await this.getModuleMetadata(module);
             this.selectedModule = Object.assign({}, module);
-            this.selectedModule.metadata = metadata;
             this.moduleName = this.selectedModule.displayName.replace(/[^a-zA-Z]/g, '');
-            this.selectedTag = this.selectedModule.metadata.defaultTag;
+            this.selectedPlan = this.selectedModule.plans[0];
         },
         importModule: async function () {
             this.errorMessageModuleName = "";
@@ -108,6 +107,14 @@ const app = new Vue({
             return this.modules.filter(module => {
                 return module.displayName.toLowerCase().includes(this.searchInput.toLowerCase());
             });
+        }
+    },
+    watch: {
+        selectedPlan: async function (newSelectedPlan, old) {
+            const metadata = await this.getModuleMetadata(newSelectedPlan);
+            // console.log(JSON.stringify(metadata));
+            this.selectedModule.metadata = metadata;
+            this.selectedTag = this.selectedModule.metadata.defaultTag;
         }
     }
 });

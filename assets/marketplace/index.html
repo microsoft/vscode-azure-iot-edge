@@ -49,6 +49,12 @@
                         <div class="description" v-html="selectedModule.description"></div>
                         <div class="inputs">
                             <div class="input">
+                                <label>Plans: </label>
+                                <select v-model="selectedPlan">
+                                    <option v-for="plan in selectedModule.plans" v-bind:value="plan">{{ plan.displayName }}</option>
+                                </select>
+                            </div>
+                            <div class="input">
                                 <label>Module Name: </label>
                                 <input v-model="moduleName">
                             </div>

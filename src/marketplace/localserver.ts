@@ -89,14 +89,21 @@ export class LocalServer {
 
             items.forEach((item) => {
                 if (item.id !== "microsoft.stream-analytics-on-iot-edge") {
-                    if (item.plans && item.plans[0] && item.plans[0].artifacts) {
-                        const metaData = item.plans[0].artifacts.find((artifact) => artifact.name === "iot-edge-metadata.json");
-                        if (metaData !== null) {
-                            item.iotEdgeMetadataUrl = metaData.uri;
-                        } else {
-                            item.iotEdgeMetadataUrl = null;
-                        }
+                    if (item.plans) {
+                        item.plans.forEach((plan) => {
+                            if (plan.artifacts) {
+                                const metaData = plan.artifacts.find((artifact) => artifact.name === "iot-edge-metadata.json");
+                                plan.iotEdgeMetadataUrl = metaData.uri;
+                            }
+                        });
                     }
+
+                    //
+                    // item.plans.push({
+                    //     displayName: "aaa",
+                    //     iotEdgeMetadataUrl: "https://gallery.azure.com/artifact/20161101/microsoft.edge-simulated-temperature-sensor-ga.1.0.10/Artifacts/Details.json",
+                    // });
+                    //
 
                     const iconFileUris = item.iconFileUris;
                     if (iconFileUris && iconFileUris.small) {
@@ -105,9 +112,7 @@ export class LocalServer {
                         item.icon = null;
                     }
 
-                    if (item.iotEdgeMetadataUrl) {
-                        result.push(item);
-                    }
+                    result.push(item);
                 }
             });
 

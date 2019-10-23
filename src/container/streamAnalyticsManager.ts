@@ -171,10 +171,9 @@ export class StreamAnalyticsManager {
                 }
             }
         } catch (error) {
-            if (error instanceof UserCancelledError) {
-                throw error;
+            if (!(error instanceof UserCancelledError)) {
+                error.message = `Parse Stream Analytics jobs info failed: ${error.message}`;
             }
-            error.message = `Parse Stream Analytics jobs info failed: ${error.message}`;
             throw error;
         }
     }

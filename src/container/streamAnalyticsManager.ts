@@ -158,7 +158,7 @@ export class StreamAnalyticsManager {
                     } else {
                         throw new Error(Constants.queryASAJobInfoFailedMsg);
                     }
-                } else if (jobInfoResult.statusCode === 200){
+                } else if (jobInfoResult.statusCode === 200) {
                     const result = JSON.parse(jobInfoResult.body);
                     if (result.status === "Succeeded") {
                         const info = JSON.parse(result.manifest);

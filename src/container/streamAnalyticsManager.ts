@@ -29,7 +29,7 @@ export class StreamAnalyticsManager {
 
     private static instance: StreamAnalyticsManager;
     private readonly azureAccount: AzureAccount;
-    private readonly MaximumRetryCount: number = 3;
+    private readonly MaximumRetryCount: number = 30;
     private asaUpdateStatus: ASAUpdateStatus;
 
     private constructor() {
@@ -47,9 +47,10 @@ export class StreamAnalyticsManager {
         return await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: "Querying Stream Analytics Job information",
-        }, async (): Promise<object> =>  {
+            cancellable: true,
+        }, async (progress, token): Promise<object> =>  {
             const ASAJobResourceId: string = streamingJob.job.id;
-            return await this.publishAndQueryASAJobInfo(ASAJobResourceId, streamingJob.azureSubscription.session);
+            return await this.publishAndQueryASAJobInfo(ASAJobResourceId, streamingJob.azureSubscription.session, token);
         });
     }
 
@@ -82,11 +83,12 @@ export class StreamAnalyticsManager {
         return await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: "Updating Stream Analytics Job information",
-        }, async (): Promise<object> => {
+            cancellable: true,
+        }, async (progress, token): Promise<object> => {
             const ASAInfo = await this.getJobInfoFromDeploymentTemplate(templateFile, moduleName);
             const subscription = await this.getJobSubscription(ASAInfo);
             const ASAJobResourceId: string = ASAInfo.ASAJobResourceId;
-            return await this.publishAndQueryASAJobInfo(ASAJobResourceId, subscription.session);
+            return await this.publishAndQueryASAJobInfo(ASAJobResourceId, subscription.session, token);
         });
     }
 
@@ -120,7 +122,7 @@ export class StreamAnalyticsManager {
         await fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
     }
 
-    private async publishAndQueryASAJobInfo(resourceId: string, session: AzureSession) {
+    private async publishAndQueryASAJobInfo(resourceId: string, session: AzureSession, token: vscode.CancellationToken) {
         try {
             const apiUrl: string = `https://management.azure.com${resourceId}/publishedgepackage?api-version=2019-06-01`;
             const { aadAccessToken } = await Utility.acquireAadToken(session);
@@ -136,32 +138,42 @@ export class StreamAnalyticsManager {
 
             let retryTimes = 0;
             while (true) {
-                await this.sleep(1000);
+                await this.sleep(2000);
 
                 const jobInfoResult = await request.get(operationResultUrl, {
                     auth: {
                         bearer: aadAccessToken,
                     },
+                    resolveWithFullResponse: true,
                 });
 
-                if (!jobInfoResult) {
+                if (token.isCancellationRequested) {
+                    throw new UserCancelledError();
+                }
+
+                if (jobInfoResult.statusCode === 202) {
                     if (retryTimes < this.MaximumRetryCount) {
                         retryTimes++;
                         continue;
                     } else {
                         throw new Error(Constants.queryASAJobInfoFailedMsg);
                     }
-                }
-
-                const result = JSON.parse(jobInfoResult);
-                if (result.status === "Succeeded") {
-                    const info = JSON.parse(result.manifest);
-                    return info;
+                } else if (jobInfoResult.statusCode === 200){
+                    const result = JSON.parse(jobInfoResult.body);
+                    if (result.status === "Succeeded") {
+                        const info = JSON.parse(result.manifest);
+                        return info;
+                    } else {
+                        throw new Error(result.error.message);
+                    }
                 } else {
-                    throw new Error(result.error.message);
+                    throw new Error("http status code: " + jobInfoResult.statusCode);
                 }
             }
         } catch (error) {
+            if (error instanceof UserCancelledError) {
+                throw error;
+            }
             error.message = `Parse Stream Analytics jobs info failed: ${error.message}`;
             throw error;
         }

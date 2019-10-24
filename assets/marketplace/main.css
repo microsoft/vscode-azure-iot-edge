@@ -232,7 +232,7 @@ body {
 
 #module-detail input,
 #module-detail select {
-    width: 200px;
+    width: 350px;
     border-style: none;
 }
 .vscode-dark #module-detail input,

@@ -98,13 +98,6 @@ export class LocalServer {
                         });
                     }
 
-                    //
-                    // item.plans.push({
-                    //     displayName: "aaa",
-                    //     iotEdgeMetadataUrl: "https://gallery.azure.com/artifact/20161101/microsoft.edge-simulated-temperature-sensor-ga.1.0.10/Artifacts/Details.json",
-                    // });
-                    //
-
                     const iconFileUris = item.iconFileUris;
                     if (iconFileUris && iconFileUris.small) {
                         item.icon = iconFileUris.small;

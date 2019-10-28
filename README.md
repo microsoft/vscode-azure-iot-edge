@@ -20,12 +20,12 @@
 
 ![Added](images/multipleplatform.gif)
 
-## What's New (v1.17.0)
+## What's New (v1.18.0)
 ### Added
-* Add CodeLens to help user update ASA job information.
+* Support multiple plans for marketplace
 
-### Fixed
-* Fix broken link in README.md.
+### Changed
+* Optimize ASA retry logic
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

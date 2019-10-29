@@ -70,7 +70,7 @@
                         </div>
                         <div class="action">
                             <button v-on:click="importModule()">Import</button>
-                            <button v-on:click="selectedModule.id=''">Cancel</button>
+                            <button v-on:click="selectedModule.id='';selectedPlan=''">Cancel</button>
                         </div>
                         <div class="term-of-use">
                             I agree to the provider's <a :href="selectedModule.legalTermsUri">Term of Use</a> and <a :href="selectedModule.privacyPolicyUri">Privacy

@@ -110,10 +110,12 @@ const app = new Vue({
         }
     },
     watch: {
-        selectedPlan: async function (newSelectedPlan, old) {
-            const metadata = await this.getModuleMetadata(newSelectedPlan);
-            this.selectedModule.metadata = metadata;
-            this.selectedTag = this.selectedModule.metadata.defaultTag;
+        selectedPlan: async function (newSelectedPlan) {
+            if (newSelectedPlan) {
+                const metadata = await this.getModuleMetadata(newSelectedPlan);
+                this.selectedModule.metadata = metadata;
+                this.selectedTag = this.selectedModule.metadata.defaultTag;
+            }
         }
     }
 });

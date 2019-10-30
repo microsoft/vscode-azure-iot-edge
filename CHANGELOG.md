@@ -1,5 +1,5 @@
 # Change Log
-## 1.18.0
+## 1.18.0 - 2019-10-30
 ### Added
 * Support multiple plans for marketplace
 

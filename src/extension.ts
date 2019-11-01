@@ -75,8 +75,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => configDiagnosticProvider.updateDiagnostics(document, diagCollection)));
     context.subscriptions.push(outputChannel);
 
-    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-coreclr", {resolveDebugConfiguration}));
-    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-node", {resolveDebugConfiguration}));
+    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-coreclr", { resolveDebugConfiguration }));
+    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-node", { resolveDebugConfiguration }));
 
     context.subscriptions.push(vscode.languages.registerCodeLensProvider({ pattern: `**/{deployment.*.template.json,deployment.template.json}` }, new ASAModuleUpdateCodeLensProvider()));
 
@@ -141,6 +141,12 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
     initCommandAsync(context, outputChannel,
+        "azure-iot-edge.modifyJson",
+        (templateUri?: vscode.Uri): Promise<void> => {
+            return edgeManager.modifyJsonForDeployment(outputChannel, templateUri);
+        });
+
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.convertModule",
         (fileUri?: vscode.Uri): Promise<void> => {
             return edgeManager.convertModule(fileUri);
@@ -175,7 +181,7 @@ export function activate(context: vscode.ExtensionContext) {
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.showGallery",
         async (): Promise<void> => {
-          return gallery.loadWebView();
+            return gallery.loadWebView();
         });
 
     initCommandAsync(context, outputChannel,
@@ -207,8 +213,8 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function resolveDebugConfiguration(folder: vscode.WorkspaceFolder | undefined,
-                                   debugConfiguration: vscode.DebugConfiguration,
-                                   token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration> {
+    debugConfiguration: vscode.DebugConfiguration,
+    token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration> {
     // Use static debug initialize configuration in package.json
     // https://github.com/Microsoft/vscode/issues/68129 and https://github.com/Microsoft/vscode/issues/33794
     return null;
@@ -219,14 +225,14 @@ function formatStatusBarText(platform?: string): string {
 }
 
 function initCommand(context: vscode.ExtensionContext,
-                     outputChannel: vscode.OutputChannel,
-                     commandId: string, callback: (...args: any[]) => any): void {
+    outputChannel: vscode.OutputChannel,
+    commandId: string, callback: (...args: any[]) => any): void {
     initCommandAsync(context, outputChannel, commandId, async (...args) => callback(...args));
 }
 
 async function showLearnMoreError(error: LearnMoreError): Promise<void> {
     const learnMore: vscode.MessageItem = { title: Constants.learnMore };
-    const items: vscode.MessageItem[] = [ learnMore ];
+    const items: vscode.MessageItem[] = [learnMore];
     if (await vscode.window.showErrorMessage(error.message, ...items) === learnMore) {
         await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(error.url));
     }
@@ -248,8 +254,8 @@ async function guideUserToSetupIotedgehubdev(outputChannel: vscode.OutputChannel
 }
 
 function initCommandAsync(context: vscode.ExtensionContext,
-                          outputChannel: vscode.OutputChannel,
-                          commandId: string, callback: (...args: any[]) => Promise<any>): void {
+    outputChannel: vscode.OutputChannel,
+    commandId: string, callback: (...args: any[]) => Promise<any>): void {
     context.subscriptions.push(vscode.commands.registerCommand(commandId, async (...args: any[]) => {
         const start: number = Date.now();
         let errorData: ErrorData | undefined;

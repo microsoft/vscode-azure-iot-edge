@@ -79,6 +79,40 @@ export class EdgeManager {
         await this.addModule(templateFile, outputChannel, false);
     }
 
+    public async modifyJsonForDeployment(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
+        const pattern = `{${Constants.deploymentTsonPattern}}`;
+        const templateFile: string = await Utility.getInputFilePath(templateUri,
+            pattern,
+            Constants.deploymentTemplateDesc,
+            `${Constants.generateDeploymentEvent}.selectTemplate`);
+        if (!templateFile) {
+            return;
+        }
+        const templateJson = Utility.updateSchema(await fse.readJson(templateFile));
+        const templateContent = templateJson.modulesContent;
+        const panel = vscode.window.createWebviewPanel(
+            "Depolyment Configuration",
+            "Depolyment Configuration",
+            vscode.ViewColumn.One,
+            {
+                enableCommandUris: true,
+                enableScripts: true,
+                retainContextWhenHidden: true,
+            },
+        );
+        let html = await fse.readFile(this.context.asAbsolutePath(path.join("assets", "deployment", "index.html")), "utf8");
+        html = html.replace(/{{root}}/g, vscode.Uri.file(this.context.asAbsolutePath(".")).with({ scheme: "vscode-resource" }).toString());
+        panel.webview.html = html;
+        panel.webview.onDidReceiveMessage((message) => {
+            if (message.text === "start") {
+                panel.webview.postMessage(templateContent);
+            } else {
+                templateJson.modulesContent = message.text;
+                fse.writeFile(templateFile, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
+            }
+        }, undefined, this.context.subscriptions);
+    }
+
     public async checkRegistryEnv(folder: vscode.WorkspaceFolder): Promise<void> {
         if (!folder) {
             return;
@@ -416,8 +450,8 @@ export class EdgeManager {
                 status: "running",
                 restartPolicy: "always",
                 settings: {
-                  image: `mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:${Versions.tempSensorVersion()}`,
-                  createOptions: {},
+                    image: `mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:${Versions.tempSensorVersion()}`,
+                    createOptions: {},
                 },
             };
             modules.SimulatedTemperatureSensor = tempSensor;

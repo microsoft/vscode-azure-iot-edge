@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" href="{{root}}/assets/deployment/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{root}}/assets/deployment/bootstrap-vue.min.css">
+    <link rel="stylesheet" type="text/css" href="{{root}}/assets/deployment/style.css" />
+</head>
+
+<body>
+    <div id="app" class="wrapperc" v-cloak>
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="height: 60px;">
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto">
+                    <a class="btn btn-outline-primary" @click="displaySystem=~displaySystem" style="color: white">Edit System
+                        Properties</a>
+                </ul>
+                <a class="btn btn-outline-primary" @click="pageSave" style="color: white">Save</a>
+            </div>
+        </nav>
+        <b-modal ref="routeInformation" @ok="popSave" @cancel="popClose" :data-newline="newRoute" title="Routing message" :no-close-on-backdrop="true" :hide-header-close="true">
+            <div class="form-group was-validated">
+                <label>Output<em style="color: red;">*</em></label>
+                <input class="form-control" v-model="outputName" required />
+                <div class="invalid-feedback">Please fill in output name, or the routing will be deleted.
+                </div>
+            </div>
+            <div class="form-group was-validated">
+                <label>Input<em style="color: red;">*</em></label>
+                <input class="form-control" v-model="inputName" required />
+                <div class="invalid-feedback">Please fill in input name, or the routing will be deleted.
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Condition</label>
+                <input class="form-control" v-model="condition">
+            </div>
+        </b-modal>
+        <b-modal ref="routeDelete" @ok="deleteRouting" @cancel="cancelDeleteRouting" title="Notification" :no-close-on-backdrop="true" :hide-header-close="true">
+            <p>The routing will be deteled. Click Yes to continue the deleting operation, or click No to exit.
+            </p>
+        </b-modal>
+        <b-modal ref="modifyUnsave" @ok="modifySave" @cancel="modifyCancel" title="Notification" :no-close-on-backdrop="true" :hide-header-close="true">
+            <p>Want to save your changes?</p>
+        </b-modal>
+        <div class="wrapperr">
+            <nav v-if="displaySystem" class="property" style="padding-right: 20px">
+                <nav class="sidebar">
+                    <div class="sidebar-header">
+                        <h4>System Properties</h4>
+                    </div>
+                    <ul>
+                        <li class="active">
+                            <a>EdgeHub</a>
+                            <ul>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Name</span>
+                                        </div>
+                                        <input class="form-control" value="EdgeHub" readonly="readonly">
+                                    </div>
+                                </li>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Image</span>
+                                        </div>
+                                        <input class="form-control" v-model="hubImage" @change="systemChange">
+                                    </div>
+                                </li>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="hubStatus">Desired
+                                                Status</label>
+                                        </div>
+                                        <select id="hubStatus" v-model="hubStatus" @change="systemChange" class="custom-select">
+                                            <option v-for="item in statusList">{{ item }}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="hubPolicy">Restart Policy</label>
+                                        </div>
+                                        <select id="hubPolicy" v-model="hubPolicy" @change="systemChange" class="custom-select">
+                                            <option v-for="item in policyList">{{ item }}</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <label style="font-size: 0.7em;">Create Options</label>
+                                    <div class="input-group">
+                                        <textarea class="form-control" v-model="hubCreateOptions" @change="systemChange" rows="3"></textarea>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="active">
+                            <a>edgeAgent</a>
+                            <ul>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">Name</span>
+                                        </div>
+                                        <input class="form-control" id="agentName" value="EdgeAgent" readonly="readonly">
+                                    </div>
+                                </li>
+                                <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Image</span>
+                                        </div>
+                                        <input class="form-control" v-model="agentImage" @change="systemChange">
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" @click="systemSave">Done</button>
+                        <button type="button" class="btn btn-primary" @click="systemDiscard">Cancel</button>
+                    </div>
+                </nav>
+            </nav>
+            <main id="canvas" ref="canvas">
+            </main>
+            <nav v-if="displayModule" class="property" style="padding-left: 20px">
+                <nav class="sidebar">
+                    <div class="sidebar-header">
+                        <h4>Module Properties</h4>
+                    </div>
+                    <ul class="list-unstyled components">
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Name</span>
+                                </div>
+                                <input class="form-control" v-model="moduleName" readonly="readonly">
+                            </div>
+                        </li>
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Image</span>
+                                </div>
+                                <input class="form-control" v-model="moduleImage" @change="moduleChange">
+                            </div>
+                        </li>
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="moduleStatus">Desired
+                                        Status</label>
+                                </div>
+                                <select v-model="moduleStatus" @change="moduleChange" class="custom-select">
+                                    <option v-for="item in statusList">{{ item }}</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="modulePolicy">Restart Policy</label>
+                                </div>
+                                <select id="modulePolicy" v-model="modulePolicy" @change="moduleChange" class="custom-select">
+                                    <option v-for="item in policyList">{{ item }}</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <label>Create Options</label>
+                            <div class="input-group">
+                                <textarea class="form-control" v-model="moduleCreateOptions" @change="moduleChange" rows="3"></textarea>
+                            </div>
+                        </li>
+                        <li style="padding-right: 12px;padding-left:12px; padding-bottom: 12px;">
+                            <label>Module Twin</label>
+                            <div class="input-group">
+                                <textarea class="form-control" v-model="moduleModuleTwin" @change="moduleChange" rows="3"></textarea>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" @click="moduleSave">Done</button>
+                        <button type="button" class="btn btn-primary" @click="moduleDiscard">Cancel</button>
+                    </div>
+                </nav>
+            </nav>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="{{root}}/assets/deployment/jquery.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/jsPlumb.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/vue.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/bootstrap-vue.min.js"></script>
+    <script type="text/javascript" src="{{root}}/assets/deployment/main.js"></script>
+</body>
+
+</html>

@@ -12,7 +12,7 @@ import { AzureAccount, AzureSession } from "../typings/azure-account.api";
 import { IDeviceItem } from "../typings/IDeviceItem";
 import { BuildSettings } from "./buildSettings";
 import { Configuration } from "./configuration";
-import { Constants, ContainerState } from "./constants";
+import { Constants, ContainerState, DockerState } from "./constants";
 import { Executor } from "./executor";
 import { Platform } from "./platform";
 import { TelemetryClient } from "./telemetryClient";
@@ -625,6 +625,61 @@ export class Utility {
         return await Utility.showInputBox(Constants.moduleName,
             Constants.moduleNamePrompt,
             validateFunc, Constants.moduleNameDft);
+    }
+
+    public static async checkDockerState(outputChannel: vscode.OutputChannel) {
+        let state: DockerState;
+        let errorMsg: any;
+        try {
+            await Executor.executeCMD(outputChannel, "docker", { shell: true }, "version");
+            state = DockerState.Runing;
+        } catch (error) {
+            errorMsg = error;
+            if (os.platform() === "win32") {
+                if (error.message.indexOf("is not recognized as an internal or external command") > -1) {
+                    state = DockerState.NotInstalled;
+                } else if (error.message.indexOf("This error may also indicate that the docker daemon is not running") > -1) {
+                    state = DockerState.NotRunning;
+                } else {
+                    state = DockerState.Unknown;
+                }
+            } else if (os.platform() === "linux" || os.platform() === "darwin") {
+                if (error.message.indexOf("command not found") > -1 || error.message.match(/Command '.*?' not found/)) {
+                    state = DockerState.NotInstalled;
+                } else if (error.message.indexOf("Is the docker daemon running") > -1) {
+                    state = DockerState.NotRunning;
+                } else if ("permission denied") {
+                    state = DockerState.PermissionDenied;
+                } else {
+                    state = DockerState.Unknown;
+                }
+            }
+        }
+
+        if (errorMsg) {
+            const install: vscode.MessageItem = { title: "Install Docker" };
+            const troubleshooting: vscode.MessageItem = { title: "Troubleshooting" };
+            const cancel: vscode.MessageItem = { title: "Cancel" };
+            let input: vscode.MessageItem;
+            let helpUrl: string;
+            if (state === DockerState.NotInstalled) {
+                const items: vscode.MessageItem[] = [install, cancel];
+                input = await vscode.window.showWarningMessage("Failed to connect to Docker. Is Docker installed?", ...items);
+                if (input === install) {
+                    helpUrl = "https://docs.docker.com/install/";
+                }
+            } else if (state === DockerState.NotRunning || state === DockerState.Unknown) {
+                const items: vscode.MessageItem[] = [troubleshooting, cancel];
+                input = await vscode.window.showWarningMessage("Failed to connect to Docker. Is Docker running?", ...items);
+                if (input === troubleshooting) {
+                    helpUrl = "https://docs.docker.com/config/daemon/";
+                }
+            }
+
+            if (input === troubleshooting || input === install) {
+                await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(helpUrl));
+            }
+        }
     }
 
     /*

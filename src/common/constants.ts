@@ -202,3 +202,11 @@ export enum ContainerState {
     NotRunning,
     NotFound,
 }
+
+export enum DockerState {
+    NotInstalled,
+    NotRunning,
+    PermissionDenied,
+    Runing,
+    Unknown,
+}

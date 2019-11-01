@@ -5,7 +5,7 @@
 import * as tls from "tls";
 import * as vscode from "vscode";
 import { ConfigNotSetError } from "./common/ConfigNotSetError";
-import { Constants } from "./common/constants";
+import { Constants, DockerState } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
 import { LearnMoreError } from "./common/LearnMoreError";
@@ -14,6 +14,7 @@ import { NSAT } from "./common/nsat";
 import { Platform } from "./common/platform";
 import { TelemetryClient } from "./common/telemetryClient";
 import { UserCancelledError } from "./common/UserCancelledError";
+import { Utility } from "./common/utility";
 import { ContainerManager } from "./container/containerManager";
 import { EdgeManager } from "./edge/edgeManager";
 import { Simulator } from "./edge/simulator";
@@ -37,6 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
     const gallery = new Gallery(context);
     const simulator = new Simulator(context);
     const containerManager = new ContainerManager(simulator);
+    Utility.checkDockerState(outputChannel);
 
     const statusBar: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, -10000);
     statusBar.command = "azure-iot-edge.setDefaultPlatform";

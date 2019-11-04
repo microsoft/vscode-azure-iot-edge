@@ -161,8 +161,7 @@ export class Constants {
     public static updateSimulatorMsg = "Update your 'iotedgehubdev' tool to the latest for the best experience for IoT Edge Simulator.";
     public static failedInstallSimulator = "Failed to install 'iotedgehubdev' tool because of error:";
     public static outputNoSimulatorMsg = "Cannot execute command since 'iotedgehubdev' is not installed. Please install it first for IoT Edge Simulator.";
-    public static pipNotFoundMsg = "'pip' not found. Cannot install 'iotedgehubdev' tool. Please install it manually for IoT Edge Simulator.";
-    public static installFailedMsg = "'iotedgehubdev' tool installation has failed. Please install it manually for IoT Edge Simulator.";
+    public static installStandaloneFailedMsg = "Failed to install 'iotedgehubdev' tool, please check the output channel for detailed error message.";
     public static installManuallyMsg = "Please install 'iotedgehubdev' tool first for IoT Edge Simulator.";
     public static queryASAJobInfoFailedMsg = "The maximum retry count has been exceeded with empty response from the Stream Analytics.";
     public static needSetupSimulatorMsg = "Please setup iotedgehubdev first before starting simulator.";

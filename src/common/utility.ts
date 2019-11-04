@@ -28,10 +28,6 @@ export class Utility {
         return true;
     }
 
-    public static adjustTerminalCommand(command: string): string {
-        return (os.platform() === "linux" || os.platform() === "darwin") ? `sudo ${command}` : command;
-    }
-
     public static adjustFilePath(filePath: string): string {
         if (os.platform() === "win32") {
             const windowsShell = Utility.getWindowsShell();
@@ -55,14 +51,19 @@ export class Utility {
         return filePath;
     }
 
-    public static combineCommands(commands: string[]): string {
-        let isPowerShell = false;
+    public static isUsingPowershell(): boolean {
+        let isPowerShell: boolean = false;
         if (os.platform() === "win32") {
             const windowsShell = Utility.getWindowsShell();
             if (windowsShell && windowsShell.toLowerCase().indexOf("powershell") > -1) {
                 isPowerShell = true;
             }
         }
+        return isPowerShell;
+    }
+
+    public static combineCommands(commands: string[]): string {
+        const isPowerShell: boolean = this.isUsingPowershell();
         if (isPowerShell) {
             let command: string = "";
             for (let i = 0; i < commands.length; i++) {

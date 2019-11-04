@@ -291,6 +291,10 @@
         "azure-iot-edge.executor.env": {
           "type": "object",
           "description": "Environment variables for the command executor and Azure IoT Edge terminals"
+        },
+        "azure-iot-edge.simulator.version": {
+          "type": "string",
+          "description": "Specify the Azure IoT EdgeHub Dev Tool version (Only take effect on Windows for current version). Example: 0.12.0"
         }
       }
     },
@@ -449,7 +453,9 @@
     "webpack-dev": "webpack --mode development --watch"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.16.8",
     "@types/dotenv": "^4.0.3",
+    "@types/express": "^4.11.1",
     "@types/fs-extra": "^4.0.3",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
@@ -458,6 +464,7 @@
     "@types/sinon": "^7.0.13",
     "@types/strip-json-comments": "0.0.30",
     "@types/tmp": "0.0.33",
+    "@types/unzipper": "^0.10.0",
     "azure-arm-resource": "^3.1.1-preview",
     "fail-on-errors-webpack-plugin": "^3.0.0",
     "mocha": "^5.1.1",
@@ -467,9 +474,7 @@
     "typescript": "^2.0.3",
     "vscode": "^1.1.33",
     "webpack": "^4.19.1",
-    "webpack-cli": "^3.1.0",
-    "@types/express": "^4.11.1",
-    "@types/body-parser": "^1.16.8"
+    "webpack-cli": "^3.1.0"
   },
   "dependencies": {
     "azure-arm-containerregistry": "^2.2.0",
@@ -488,6 +493,7 @@
     "semver": "^5.6.0",
     "strip-json-comments": "^2.0.1",
     "tmp": "0.0.33",
+    "unzipper": "^0.10.5",
     "vscode-extension-telemetry": "0.0.18"
   },
   "extensionDependencies": [

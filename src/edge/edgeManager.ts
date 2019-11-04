@@ -794,6 +794,10 @@ export class EdgeManager {
                 description: Constants.CSHARP_FUNCTION_DESCRIPTION,
             },
             {
+                label: Constants.EVENT_GRID,
+                description: Constants.EVENT_GRID_DESCRIPTION,
+            },
+            {
                 label: Constants.MACHINE_LEARNING,
                 description: Constants.MACHINE_LEARNING_DESCRIPTION,
             },
@@ -802,9 +806,6 @@ export class EdgeManager {
                 description: Constants.STREAM_ANALYTICS_DESCRIPTION,
             },
             {
-                label: Constants.EVENT_GRID,
-                description: Constants.EVENT_GRID_DESCRIPTION,
-            }, {
                 label: Constants.ACR_MODULE,
                 description: Constants.ACR_MODULE_DESCRIPTION,
             },

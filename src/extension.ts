@@ -5,7 +5,7 @@
 import * as tls from "tls";
 import * as vscode from "vscode";
 import { ConfigNotSetError } from "./common/ConfigNotSetError";
-import { Constants, DockerState } from "./common/constants";
+import { Constants } from "./common/constants";
 import { ErrorData } from "./common/ErrorData";
 import { Executor } from "./common/executor";
 import { LearnMoreError } from "./common/LearnMoreError";

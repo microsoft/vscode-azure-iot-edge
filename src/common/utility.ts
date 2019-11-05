@@ -632,48 +632,56 @@ export class Utility {
         let errorMsg: any;
         try {
             await Executor.executeCMD(outputChannel, "docker", { shell: true }, "version");
-            state = DockerState.Runing;
+            state = DockerState.Running;
         } catch (error) {
             errorMsg = error;
-            if (os.platform() === "win32") {
-                if (error.message.indexOf("is not recognized as an internal or external command") > -1) {
+            const platform: string = os.platform();
+            if (platform === "win32") {
+                if (error.message.indexOf(Constants.commandNotFoundErrorMsgPatternOnWindows) > -1) {
                     state = DockerState.NotInstalled;
-                } else if (error.message.indexOf("This error may also indicate that the docker daemon is not running") > -1) {
+                } else if (error.message.indexOf(Constants.dockerNotRunningErrorMsgPatternOnWindows) > -1) {
                     state = DockerState.NotRunning;
                 } else {
                     state = DockerState.Unknown;
                 }
-            } else if (os.platform() === "linux" || os.platform() === "darwin") {
-                if (error.message.indexOf("command not found") > -1 || error.message.match(/Command '.*?' not found/)) {
+            } else if (platform === "linux" || platform === "darwin") {
+                if (error.message.indexOf(Constants.commandNotFoundErrorMsgPatternOnLinux) > -1 || error.message.match(/Command '.*?' not found/) || error.errorCode === 127) {
                     state = DockerState.NotInstalled;
-                } else if (error.message.indexOf("Is the docker daemon running") > -1) {
+                } else if (error.message.indexOf(Constants.dockerNotRunningErrorMsgPatternOnLinux) > -1) {
                     state = DockerState.NotRunning;
-                } else if ("permission denied") {
+                } else if (Constants.permissionDeniedErrorMsgPatternOnLinux) {
                     state = DockerState.PermissionDenied;
                 } else {
                     state = DockerState.Unknown;
                 }
+            } else {
+                state = DockerState.Unknown;
             }
         }
 
         if (errorMsg) {
-            const install: vscode.MessageItem = { title: "Install Docker" };
-            const troubleshooting: vscode.MessageItem = { title: "Troubleshooting" };
-            const cancel: vscode.MessageItem = { title: "Cancel" };
+            const install: vscode.MessageItem = { title: Constants.InstallDocker };
+            const troubleshooting: vscode.MessageItem = { title: Constants.TroubleShooting };
+            const cancel: vscode.MessageItem = { title: Constants.Cancel };
             let input: vscode.MessageItem;
             let helpUrl: string;
-            if (state === DockerState.NotInstalled) {
-                const items: vscode.MessageItem[] = [install, cancel];
-                input = await vscode.window.showWarningMessage("Failed to connect to Docker. Is Docker installed?", ...items);
-                if (input === install) {
-                    helpUrl = "https://docs.docker.com/install/";
-                }
-            } else if (state === DockerState.NotRunning || state === DockerState.Unknown) {
-                const items: vscode.MessageItem[] = [troubleshooting, cancel];
-                input = await vscode.window.showWarningMessage("Failed to connect to Docker. Is Docker running?", ...items);
-                if (input === troubleshooting) {
-                    helpUrl = "https://docs.docker.com/config/daemon/";
-                }
+            let items: vscode.MessageItem[];
+            switch (state) {
+                case DockerState.NotInstalled:
+                    items = [install, cancel];
+                    input = await vscode.window.showWarningMessage(Constants.dockerNotInstalledErrorMsg, ...items);
+                    if (input === install) {
+                        helpUrl = Constants.installDockerUrl;
+                    }
+                    break;
+                case DockerState.NotRunning:
+                case DockerState.Unknown:
+                    items = [troubleshooting, cancel];
+                    input = await vscode.window.showWarningMessage(Constants.dockerNotRunningErrorMsg, ...items);
+                    if (input === troubleshooting) {
+                        helpUrl = Constants.troubleShootingDockerUrl;
+                    }
+                    break;
             }
 
             if (input === troubleshooting || input === install) {

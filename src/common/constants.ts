@@ -166,11 +166,22 @@ export class Constants {
     public static installManuallyMsg = "Please install 'iotedgehubdev' tool first for IoT Edge Simulator.";
     public static queryASAJobInfoFailedMsg = "The maximum retry count has been exceeded with empty response from the Stream Analytics.";
     public static needSetupSimulatorMsg = "Please setup iotedgehubdev first before starting simulator.";
+    public static dockerNotInstalledErrorMsg = "Failed to connect to Docker. Is Docker installed?";
+    public static dockerNotRunningErrorMsg = "Failed to connect to Docker. Is Docker running?";
+    public static installDockerUrl = "https://docs.docker.com/install/";
+    public static troubleShootingDockerUrl = "https://docs.docker.com/config/daemon/";
+    public static commandNotFoundErrorMsgPatternOnWindows = "not recognized as an internal or external command";
+    public static commandNotFoundErrorMsgPatternOnLinux = "command not found";
+    public static dockerNotRunningErrorMsgPatternOnWindows = "This error may also indicate that the docker daemon is not running";
+    public static dockerNotRunningErrorMsgPatternOnLinux = "Is the docker daemon running";
+    public static permissionDeniedErrorMsgPatternOnLinux = "permission denied";
     public static skipForNow = "Skip for Now";
     public static learnMore = "Learn More";
     public static install = "Install";
     public static Setup = "Setup";
     public static Cancel = "Cancel";
+    public static TroubleShooting = "Troubleshooting";
+    public static InstallDocker = "Install Docker";
 
     public static noWorkspaceSetDefaultPlatformMsg = "No workspace is opened for setting default platform. Please open a workspace and try again.";
     public static noWorkspaceMsg = "This extension only works when folders are opened.";
@@ -207,6 +218,6 @@ export enum DockerState {
     NotInstalled,
     NotRunning,
     PermissionDenied,
-    Runing,
+    Running,
     Unknown,
 }

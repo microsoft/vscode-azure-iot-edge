@@ -4,6 +4,7 @@
 "use strict";
 import { ChildProcess, execSync, ExecSyncOptions, spawn, SpawnOptions } from "child_process";
 import * as vscode from "vscode";
+import { CommandError } from "./CommandError";
 import { Configuration } from "./configuration";
 import { Constants } from "./constants";
 
@@ -62,7 +63,7 @@ export class Executor {
             });
             p.on("exit", (code: number, signal: string) => {
                 if (code !== 0) {
-                    reject (new Error((`Command failed with exit code ${code}. Detail: ${stderr}`)));
+                    reject (new CommandError(stderr, code));
                 } else {
                     resolve(stdOutput);
                 }

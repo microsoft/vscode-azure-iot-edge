@@ -294,7 +294,7 @@
         },
         "azure-iot-edge.simulator.version": {
           "type": "string",
-          "description": "Specify the Azure IoT EdgeHub Dev Tool version (Only take effect on Windows for current version). Example: 0.12.0"
+          "description": "Specify the Azure IoT EdgeHub Dev Tool (iotedgehubdev) version (Only take effect on Windows for current version). Example: 0.12.0"
         }
       }
     },

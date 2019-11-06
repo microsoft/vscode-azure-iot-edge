@@ -237,7 +237,7 @@ export class Simulator {
 
     private getUserConfiguredVersion(): string {
         const version: string = Configuration.getConfigurationProperty("simulator.version");
-        if (version && version.match(/^\d+\.\d+\.\d+$/)) {
+        if (version && version.match(/^\d+\.\d+\.\d+/)) {
             return "v" + version;
         }
     }

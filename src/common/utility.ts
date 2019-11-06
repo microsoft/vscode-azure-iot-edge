@@ -645,7 +645,7 @@ export class Utility {
                     state = DockerState.Unknown;
                 }
             } else if (platform === "linux" || platform === "darwin") {
-                if (error.message.indexOf(Constants.commandNotFoundErrorMsgPatternOnLinux) > -1 || error.message.match(/Command '.*?' not found/) || error.errorCode === 127) {
+                if (error.errorCode === 127 || error.message.indexOf(Constants.commandNotFoundErrorMsgPatternOnLinux) > -1 || error.message.match(/Command '.*?' not found/)) {
                     state = DockerState.NotInstalled;
                 } else if (error.message.indexOf(Constants.dockerNotRunningErrorMsgPatternOnLinux) > -1) {
                     state = DockerState.NotRunning;

@@ -39,6 +39,7 @@ export class Constants {
     public static CSHARP_FUNCTION = "Azure Functions - C#";
     public static MACHINE_LEARNING = "Azure Machine Learning";
     public static STREAM_ANALYTICS = "Azure Stream Analytics";
+    public static EVENT_GRID = "Azure Event Grid";
     public static ACR_MODULE = "Existing Module (Import from ACR)";
     public static EXISTING_MODULE = "Existing Module (Enter Full Image URL)";
     public static MARKETPLACE_MODULE = "Module from Azure Marketplace";
@@ -52,9 +53,27 @@ export class Constants {
     public static CSHARP_FUNCTION_DESCRIPTION = "Create an Azure Function and deploy to IoT Edge";
     public static MACHINE_LEARNING_DESCRIPTION = "Deploy Azure Machine Learning images to Azure IoT Edge";
     public static STREAM_ANALYTICS_DESCRIPTION = "Deploy Azure Stream Analytics to Azure IoT Edge";
+    public static EVENT_GRID_DESCRIPTION = "Deploy Azure Event Grid to Azure IoT Edge";
     public static ACR_MODULE_DESCRIPTION = "Import an existing module image from your Azure Container Registry";
     public static EXISTING_MODULE_DESCRIPTION = "Import an existing module image from any container registry";
     public static MARKETPLACE_MODULE_DESCRIPTION = "Import an existing module image from Azure Marketplace";
+    public static EVENT_GRID_IMAGE = "mcr.microsoft.com/azure-event-grid/iotedge:latest";
+    public static EVENT_GRID_CREATE_OPTIONS = {
+        Env: [
+            "inbound:clientAuth:clientCert:enabled=false",
+            "inbound:serverAuth:tlsPolicy=enabled",
+            "outbound:webhook:httpsOnly=false",
+        ],
+        HostConfig: {
+            PortBindings: {
+                "4438/tcp": [
+                    {
+                        HostPort: "4438",
+                    },
+                ],
+            },
+        },
+    };
     public static SCAFFOLDING_PREREQUISITES = "Please make sure the prerequisites are installed";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";

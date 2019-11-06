@@ -638,6 +638,10 @@ export class EdgeManager {
             const amlManager = new AmlManager();
             debugImageName = imageName = await amlManager.selectAmlImage();
             repositoryName = Utility.getRepositoryNameFromImageName(imageName);
+        } else if (template === Constants.EVENT_GRID) {
+            debugImageName = imageName = Constants.EVENT_GRID_IMAGE;
+            repositoryName = Utility.getRepositoryNameFromImageName(imageName);
+            debugCreateOptions = createOptions = Constants.EVENT_GRID_CREATE_OPTIONS;
         } else if (template === Constants.STREAM_ANALYTICS) {
             const saManager = StreamAnalyticsManager.getInstance();
             const JobInfo: any = await saManager.getJobInfo();
@@ -788,6 +792,10 @@ export class EdgeManager {
             {
                 label: Constants.CSHARP_FUNCTION,
                 description: Constants.CSHARP_FUNCTION_DESCRIPTION,
+            },
+            {
+                label: Constants.EVENT_GRID,
+                description: Constants.EVENT_GRID_DESCRIPTION,
             },
             {
                 label: Constants.MACHINE_LEARNING,

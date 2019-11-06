@@ -93,6 +93,8 @@ export class Simulator {
                     const latestVersion: string | undefined = await this.getLatestSimulatorVersion();
                     if (latestVersion && semver.gt(latestVersion, version)) {
                         message = `${Constants.updateSimulatorMsg} (${version} to ${latestVersion})`;
+                    } else {
+                        return;
                     }
                 } else {
                     message = Constants.updateSimulatorMsg;

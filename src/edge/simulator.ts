@@ -39,10 +39,10 @@ export class Simulator {
     private static learnMoreUrl: string = "https://aka.ms/AA3nuw8";
     private static latestReleaseInfoUrl: string = "https://aka.ms/iotedgehubdev-latest-release";
     private static simulatorVersionKey: string = "SimulatorVersion";
-    private static simulatorExcutableName = "iotedgehubdev";
+    private static simulatorExecutableName = "iotedgehubdev";
 
     private static currentPlatform = os.platform();
-    private static WindowsStandaloneSimulatorFolder = path.join(vscode.extensions.getExtension(Constants.ExtensionId).extensionPath, Simulator.simulatorExcutableName);
+    private static WindowsStandaloneSimulatorFolder = path.join(vscode.extensions.getExtension(Constants.ExtensionId).extensionPath, Simulator.simulatorExecutableName);
 
     private static extractVersion(output: string): string | null {
         if (!output) {
@@ -71,12 +71,16 @@ export class Simulator {
 
     private isInstalling: boolean = false;
     private latestStandaloneSimulatorInfoJson: any;
-    private standaloneSimulatorInstalledPath: string;
+    private standaloneSimulatorExecutablePath: string;
 
     constructor(private context: vscode.ExtensionContext) {
-        const installedVersion: string = this.context.globalState.get(Simulator.simulatorVersionKey);
-        if (installedVersion) {
-            this.standaloneSimulatorInstalledPath = path.join(Simulator.WindowsStandaloneSimulatorFolder, installedVersion , Simulator.simulatorExcutableName);
+        if (Simulator.currentPlatform === "win32") {
+            const installedVersion: string = this.context.globalState.get(Simulator.simulatorVersionKey);
+            if (installedVersion) {
+                this.standaloneSimulatorExecutablePath = path.join(Simulator.WindowsStandaloneSimulatorFolder, installedVersion , Simulator.simulatorExecutableName);
+            }
+        } else {
+            this.standaloneSimulatorExecutablePath = Simulator.simulatorExecutableName;
         }
     }
 
@@ -109,28 +113,26 @@ export class Simulator {
             }
         }
 
-        if (message) {
-            TelemetryClient.sendEvent(`${telemetryName}.${type}`);
-            try {
-                const installRes = await this.autoInstallSimulator(outputChannel);
-                TelemetryClient.sendEvent(`${telemetryName}.${type}.${InstallReturn[installRes]}`);
-                if (InstallReturn.NotSupported === installRes) {
-                    const learnMore: vscode.MessageItem = { title: Constants.learnMore };
-                    if (await vscode.window.showWarningMessage(message, ...[learnMore]) === learnMore) {
-                        await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(Simulator.learnMoreUrl));
-                    }
-                } else if (InstallReturn.Failed === installRes) {
-                    await vscode.window.showErrorMessage(Constants.installStandaloneSimulatorFailedMsg);
+        TelemetryClient.sendEvent(`${telemetryName}.${type}`);
+        try {
+            const installRes = await this.autoInstallSimulator(outputChannel);
+            TelemetryClient.sendEvent(`${telemetryName}.${type}.${InstallReturn[installRes]}`);
+            if (InstallReturn.NotSupported === installRes) {
+                const learnMore: vscode.MessageItem = { title: Constants.learnMore };
+                if (await vscode.window.showWarningMessage(message, ...[learnMore]) === learnMore) {
+                    await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(Simulator.learnMoreUrl));
                 }
-            } catch (err) {}
-        }
+            } else if (InstallReturn.Failed === installRes) {
+                await vscode.window.showErrorMessage(Constants.installStandaloneSimulatorFailedMsg);
+            }
+        } catch (err) {}
     }
 
     public async setupIotedgehubdev(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel) {
         return await this.callWithInstallationCheck(outputChannel, async () => {
             deviceItem = await Utility.getInputDevice(deviceItem, outputChannel);
             if (deviceItem) {
-                let commandStr = this.getSimulatorExecutorPath() + ` setup -c "${deviceItem.connectionString}"`;
+                let commandStr = this.getAdjustedSimulatorExecutorPath() + ` setup -c "${deviceItem.connectionString}"`;
                 if (await this.isModuleTwinSupported()) {
                     const iotHubConnectionStr = await Configuration.getIotHubConnectionString();
                     if (iotHubConnectionStr) {
@@ -147,7 +149,7 @@ export class Simulator {
             await this.checkIoTedgehubdevConnectionString(outputChannel);
             const inputs = await this.inputInputNames();
             await this.setModuleCred(outputChannel);
-            await Executor.runInTerminal(Simulator.adjustTerminalCommand(this.getSimulatorExecutorPath() + ` start -i "${inputs}"`));
+            await Executor.runInTerminal(Simulator.adjustTerminalCommand(this.getAdjustedSimulatorExecutorPath() + ` start -i "${inputs}"`));
         });
     }
 
@@ -159,7 +161,7 @@ export class Simulator {
             }
             await fse.ensureDir(storagePath);
             const outputFile = path.join(storagePath, "module.env");
-            await Executor.executeCMD(outputChannel, this.getSimulatorExecutorPath(true), { shell: true }, `modulecred -l -o "${outputFile}"`);
+            await Executor.executeCMD(outputChannel, this.getAdjustedSimulatorExecutorPath(true), { shell: true }, `modulecred -l -o "${outputFile}"`);
 
             const moduleConfig = dotenv.parse(await fse.readFile(outputFile));
             await Configuration.setGlobalConfigurationProperty("EdgeHubConnectionString", moduleConfig.EdgeHubConnectionString);
@@ -169,7 +171,7 @@ export class Simulator {
 
     public async stopSolution(outputChannel: vscode.OutputChannel): Promise<void> {
         return await this.callWithInstallationCheck(outputChannel, async () => {
-            Executor.runInTerminal(Simulator.adjustTerminalCommand(this.getSimulatorExecutorPath() + ` stop`));
+            Executor.runInTerminal(Simulator.adjustTerminalCommand(this.getAdjustedSimulatorExecutorPath() + ` stop`));
             return;
         });
     }
@@ -226,36 +228,34 @@ export class Simulator {
     }
 
     private async getCurrentSimulatorVersion(): Promise<string | undefined> {
-        const output: string = await Executor.executeCMD(undefined, this.getSimulatorExecutorPath(true), { shell: true }, "--version");
+        const output: string = await Executor.executeCMD(undefined, this.getAdjustedSimulatorExecutorPath(true), { shell: true }, "--version");
         const version: string | null = Simulator.extractVersion(output);
         return version;
     }
 
     private async simulatorInstalled(): Promise<SimulatorType> {
-        const exist = await Simulator.checkCmdExist(this.getSimulatorExecutorPath(true));
-        if (exist) {
-            return Simulator.currentPlatform === "win32" ? SimulatorType.Standalone : SimulatorType.Pip;
-        } else {
-            return SimulatorType.NotInstalled;
-        }
-    }
-
-    private getSimulatorExecutorPath(forceUseCmd: boolean = false): string {
-        let executorPath: string = Simulator.simulatorExcutableName;
-        if (Simulator.currentPlatform === "win32") {
-            if (this.standaloneSimulatorInstalledPath) {
-                if (!forceUseCmd) {
-                    executorPath = `"${Utility.adjustFilePath(this.standaloneSimulatorInstalledPath)}"`;
-                    if (Utility.isUsingPowershell()) {
-                        executorPath = `& ${executorPath}`;
-                    }
-                } else {
-                    executorPath = `"${this.standaloneSimulatorInstalledPath}"`;
-                }
-            } else {
-                return null;
+        if (this.standaloneSimulatorExecutablePath) {
+            const exist = await Simulator.checkCmdExist(this.getAdjustedSimulatorExecutorPath(true));
+            if (exist) {
+                return Simulator.currentPlatform === "win32" ? SimulatorType.Standalone : SimulatorType.Pip;
             }
         }
+
+        return SimulatorType.NotInstalled;
+    }
+
+    private getAdjustedSimulatorExecutorPath(forceUseCmd: boolean = false): string {
+        let executorPath: string;
+
+        if (!forceUseCmd) {
+            executorPath = `"${Utility.adjustFilePath(this.standaloneSimulatorExecutablePath)}"`;
+            if (Utility.isUsingPowershell()) {
+                executorPath = `& ${executorPath}`;
+            }
+        } else {
+            executorPath = `"${this.standaloneSimulatorExecutablePath}"`;
+        }
+
         return executorPath;
     }
 
@@ -288,16 +288,16 @@ export class Simulator {
         });
 
         try {
-            if (this.standaloneSimulatorInstalledPath) {
-                await fse.remove(this.standaloneSimulatorInstalledPath);
+            if (this.standaloneSimulatorExecutablePath) {
+                await fse.remove(this.standaloneSimulatorExecutablePath);
             }
         } catch (err) {
             // ignore
         }
 
-        await fse.move(path.join(Simulator.WindowsStandaloneSimulatorFolder, Simulator.simulatorExcutableName), path.join(Simulator.WindowsStandaloneSimulatorFolder, version));
+        await fse.move(path.join(Simulator.WindowsStandaloneSimulatorFolder, Simulator.simulatorExecutableName), path.join(Simulator.WindowsStandaloneSimulatorFolder, version));
         this.context.globalState.update(Simulator.simulatorVersionKey, version);
-        this.standaloneSimulatorInstalledPath = path.join(Simulator.WindowsStandaloneSimulatorFolder, version , Simulator.simulatorExcutableName);
+        this.standaloneSimulatorExecutablePath = path.join(Simulator.WindowsStandaloneSimulatorFolder, version , Simulator.simulatorExecutableName);
     }
 
     private async autoInstallSimulator(outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
@@ -329,7 +329,7 @@ export class Simulator {
     private async checkIoTedgehubdevConnectionString(outputChannel: vscode.OutputChannel) {
         if (await this.isValidateConfigSupported()) {
             try {
-                await Executor.executeCMD(null, this.getSimulatorExecutorPath(true), { shell: true }, "validateconfig");
+                await Executor.executeCMD(null, this.getAdjustedSimulatorExecutorPath(true), { shell: true }, "validateconfig");
             } catch (error) {
                 throw new ConfigNotSetError(error.message);
             }
@@ -347,7 +347,7 @@ export class Simulator {
     private async isSupported(supportedVersion: string): Promise<boolean> {
         let isSupported = false;
         try {
-            const output = await Executor.executeCMD(undefined, this.getSimulatorExecutorPath(true), { shell: true }, "--version");
+            const output = await Executor.executeCMD(undefined, this.getAdjustedSimulatorExecutorPath(true), { shell: true }, "--version");
             const version: string | null = Simulator.extractVersion(output);
             if (version && semver.valid(version)) {
                 isSupported = semver.gte(version, supportedVersion);
@@ -357,7 +357,7 @@ export class Simulator {
     }
 
     private constructRunCmd(deployFile: string): string {
-        return Simulator.adjustTerminalCommand(this.getSimulatorExecutorPath() + ` start -d "${deployFile}" -v`);
+        return Simulator.adjustTerminalCommand(this.getAdjustedSimulatorExecutorPath() + ` start -d "${deployFile}" -v`);
     }
 
     private getRunCmdTerminalTitle(): string {

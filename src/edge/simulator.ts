@@ -85,7 +85,7 @@ export class Simulator {
         let type: string = "";
         const telemetryName = "simulatorUpdated";
 
-        const simulatorType = await this.getSimulatorType();
+        const simulatorType = await this.simulatorInstalled();
         if (simulatorType === SimulatorType.NotInstalled) {
             message =  Constants.needSimulatorInstalledMsg;
             type = "install";
@@ -209,17 +209,6 @@ export class Simulator {
         }
     }
 
-    private async getSimulatorType(): Promise<SimulatorType> {
-        if (await this.simulatorInstalled()) {
-            if (Simulator.currentPlatform === "win32") {
-                return SimulatorType.Standalone;
-            } else {
-                return SimulatorType.Pip;
-            }
-        }
-        return SimulatorType.NotInstalled;
-    }
-
     private async getLatestSimulatorVersion(): Promise<string | undefined> {
         try {
             let version: string;
@@ -242,8 +231,13 @@ export class Simulator {
         return version;
     }
 
-    private async simulatorInstalled(): Promise<boolean> {
-        return await Simulator.checkCmdExist(this.getSimulatorExecutorPath(true));
+    private async simulatorInstalled(): Promise<SimulatorType> {
+        const exist = await Simulator.checkCmdExist(this.getSimulatorExecutorPath(true));
+        if (exist) {
+            return Simulator.currentPlatform === "win32" ? SimulatorType.Standalone : SimulatorType.Pip;
+        } else {
+            return SimulatorType.NotInstalled;
+        }
     }
 
     private getSimulatorExecutorPath(forceUseCmd: boolean = false): string {
@@ -259,7 +253,7 @@ export class Simulator {
                     executorPath = `"${this.standaloneSimulatorInstalledPath}"`;
                 }
             } else {
-                return "";
+                return null;
             }
         }
         return executorPath;
@@ -378,13 +372,13 @@ export class Simulator {
 
     private async validateSimulatorInstalled(outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
         const telemetryName = "simulatorInstalled";
-        if (await this.simulatorInstalled()) {
-            return InstallReturn.Success;
-        } else {
+        if (await this.simulatorInstalled() === SimulatorType.NotInstalled) {
             TelemetryClient.sendEvent(`${telemetryName}.install`);
             const installRes = await this.autoInstallSimulator(outputChannel);
             TelemetryClient.sendEvent(`${telemetryName}.install.${InstallReturn[installRes]}`);
             return installRes;
+        } else {
+            return InstallReturn.Success;
         }
     }
 

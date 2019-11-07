@@ -35,13 +35,14 @@ enum SimulatorType {
 }
 
 export class Simulator {
-    private static iotedgehubdevVersionUrl = "https://pypi.org/pypi/iotedgehubdev/json";
-    private static learnMoreUrl = "https://aka.ms/AA3nuw8";
-    private static latestReleaseInfoUrl = "https://aka.ms/iotedgehubdev-latest-release";
-    private static SimulatorVersionKey = "SimulatorVersion";
+    private static iotedgehubdevVersionUrl: string = "https://pypi.org/pypi/iotedgehubdev/json";
+    private static learnMoreUrl: string = "https://aka.ms/AA3nuw8";
+    private static latestReleaseInfoUrl: string = "https://aka.ms/iotedgehubdev-latest-release";
+    private static simulatorVersionKey: string = "SimulatorVersion";
+    private static simulatorExcutableName = "iotedgehubdev";
 
     private static currentPlatform = os.platform();
-    private static WindowsStandaloneSimulatorFolder = path.join(vscode.extensions.getExtension(Constants.ExtensionId).extensionPath, "iotedgehubdev");
+    private static WindowsStandaloneSimulatorFolder = path.join(vscode.extensions.getExtension(Constants.ExtensionId).extensionPath, Simulator.simulatorExcutableName);
 
     private static extractVersion(output: string): string | null {
         if (!output) {
@@ -70,8 +71,13 @@ export class Simulator {
 
     private isInstalling: boolean = false;
     private latestStandaloneSimulatorInfoJson: any;
+    private standaloneSimulatorInstalledPath: string;
 
     constructor(private context: vscode.ExtensionContext) {
+        const installedVersion: string = this.context.globalState.get(Simulator.simulatorVersionKey);
+        if (installedVersion) {
+            this.standaloneSimulatorInstalledPath = path.join(Simulator.WindowsStandaloneSimulatorFolder, installedVersion , Simulator.simulatorExcutableName);
+        }
     }
 
     public async validateSimulatorUpdated(outputChannel: vscode.OutputChannel = null): Promise<void> {
@@ -241,19 +247,19 @@ export class Simulator {
     }
 
     private getSimulatorExecutorPath(forceUseCmd: boolean = false): string {
-        let executorPath: string = "iotedgehubdev";
+        let executorPath: string = Simulator.simulatorExcutableName;
         if (Simulator.currentPlatform === "win32") {
-            const installedVersion: string = this.context.globalState.get(Simulator.SimulatorVersionKey);
-
-            const simulatorPath: string = path.join(Simulator.WindowsStandaloneSimulatorFolder, installedVersion , executorPath);
-
-            if (!forceUseCmd) {
-                executorPath = `"${Utility.adjustFilePath(simulatorPath)}"`;
-                if (Utility.isUsingPowershell()) {
-                    executorPath = `& ${executorPath}`;
+            if (this.standaloneSimulatorInstalledPath) {
+                if (!forceUseCmd) {
+                    executorPath = `"${Utility.adjustFilePath(this.standaloneSimulatorInstalledPath)}"`;
+                    if (Utility.isUsingPowershell()) {
+                        executorPath = `& ${executorPath}`;
+                    }
+                } else {
+                    executorPath = `"${this.standaloneSimulatorInstalledPath}"`;
                 }
             } else {
-                executorPath = `"${simulatorPath}"`;
+                return "";
             }
         }
         return executorPath;
@@ -288,16 +294,16 @@ export class Simulator {
         });
 
         try {
-            const originalVersion: string = this.context.globalState.get(Simulator.SimulatorVersionKey);
-            if (originalVersion) {
-                await fse.remove(path.join(Simulator.WindowsStandaloneSimulatorFolder, originalVersion));
+            if (this.standaloneSimulatorInstalledPath) {
+                await fse.remove(this.standaloneSimulatorInstalledPath);
             }
         } catch (err) {
             // ignore
         }
 
-        this.context.globalState.update(Simulator.SimulatorVersionKey, version);
-        await fse.move(path.join(Simulator.WindowsStandaloneSimulatorFolder, "iotedgehubdev"), path.join(Simulator.WindowsStandaloneSimulatorFolder, version));
+        await fse.move(path.join(Simulator.WindowsStandaloneSimulatorFolder, Simulator.simulatorExcutableName), path.join(Simulator.WindowsStandaloneSimulatorFolder, version));
+        this.context.globalState.update(Simulator.simulatorVersionKey, version);
+        this.standaloneSimulatorInstalledPath = path.join(Simulator.WindowsStandaloneSimulatorFolder, version , Simulator.simulatorExcutableName);
     }
 
     private async autoInstallSimulator(outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {

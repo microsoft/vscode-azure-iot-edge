@@ -39,7 +39,6 @@ export class Simulator {
     private static learnMoreUrl = "https://aka.ms/AA3nuw8";
     private static latestReleaseInfoUrl = "https://aka.ms/iotedgehubdev-latest-release";
     private static SimulatorVersionKey = "SimulatorVersion";
-    private static iotedgehubdevDownloadRootUrl = "https://github.com/Azure/iotedgehubdev/releases/download";
 
     private static currentPlatform = os.platform();
     private static WindowsStandaloneSimulatorFolder = path.join(vscode.extensions.getExtension(Constants.ExtensionId).extensionPath, "iotedgehubdev");
@@ -85,26 +84,22 @@ export class Simulator {
             message =  Constants.needSimulatorInstalledMsg;
             type = "install";
         } else {
-            if (Simulator.currentPlatform === "win32" && this.getUserConfiguredVersion()) {
-                return;
-            }  else {
-                const version: string | null = await this.getCurrentSimulatorVersion();
-                if (version && semver.valid(version)) {
-                    const latestVersion: string | undefined = await this.getLatestSimulatorVersion();
-                    if (latestVersion && semver.gt(latestVersion, version)) {
-                        message = `${Constants.updateSimulatorMsg} (${version} to ${latestVersion})`;
-                    } else {
-                        return;
-                    }
+            const version: string | null = await this.getCurrentSimulatorVersion();
+            if (version && semver.valid(version)) {
+                const latestVersion: string | undefined = await this.getLatestSimulatorVersion();
+                if (latestVersion && semver.gt(latestVersion, version)) {
+                    message = `${Constants.updateSimulatorMsg} (${version} to ${latestVersion})`;
                 } else {
-                    message = Constants.updateSimulatorMsg;
+                    return;
                 }
+            } else {
+                message = Constants.updateSimulatorMsg;
+            }
 
-                if (simulatorType === SimulatorType.Pip) {
-                    type = "upgradePipPackage";
-                } else {
-                    type = "upgradeStandalone";
-                }
+            if (simulatorType === SimulatorType.Pip) {
+                type = "upgradePipPackage";
+            } else {
+                type = "upgradeStandalone";
             }
         }
 
@@ -235,13 +230,6 @@ export class Simulator {
         }
     }
 
-    private getUserConfiguredVersion(): string {
-        const version: string = Configuration.getConfigurationProperty("simulator.version");
-        if (version && version.match(/^\d+\.\d+\.\d+/)) {
-            return "v" + version;
-        }
-    }
-
     private async getCurrentSimulatorVersion(): Promise<string | undefined> {
         const output: string = await Executor.executeCMD(undefined, this.getSimulatorExecutorPath(true), { shell: true }, "--version");
         const version: string | null = Simulator.extractVersion(output);
@@ -255,12 +243,7 @@ export class Simulator {
     private getSimulatorExecutorPath(forceUseCmd: boolean = false): string {
         let executorPath: string = "iotedgehubdev";
         if (Simulator.currentPlatform === "win32") {
-            let installedVersion: string = this.context.globalState.get(Simulator.SimulatorVersionKey);
-
-            const userConfiguredVersion: string = this.getUserConfiguredVersion();
-            if (userConfiguredVersion) {
-                installedVersion = userConfiguredVersion;
-            }
+            const installedVersion: string = this.context.globalState.get(Simulator.SimulatorVersionKey);
 
             const simulatorPath: string = path.join(Simulator.WindowsStandaloneSimulatorFolder, installedVersion , executorPath);
 
@@ -286,17 +269,9 @@ export class Simulator {
     }
 
     private async downloadStandaloneSimulator() {
-        const userConfiguredVersion: string = this.getUserConfiguredVersion();
-        let version: string;
-        let binariesZipUrl: string;
-        if (userConfiguredVersion) {
-            version = userConfiguredVersion;
-            binariesZipUrl = `${Simulator.iotedgehubdevDownloadRootUrl}/${version}/iotedgehubdev-${version}-win32-ia32.zip`;
-        } else {
-            const infoJson = await this.getLastestStandaloneSimulatorInfo();
-            binariesZipUrl = infoJson.assets[0].browser_download_url;
-            version = infoJson.tag_name;
-        }
+        const infoJson = await this.getLastestStandaloneSimulatorInfo();
+        const binariesZipUrl: string = infoJson.assets[0].browser_download_url;
+        const version: string = infoJson.tag_name;
 
         await new Promise((resolve, reject) => {
             const req = request(binariesZipUrl);

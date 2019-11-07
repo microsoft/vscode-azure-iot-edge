@@ -291,10 +291,6 @@
         "azure-iot-edge.executor.env": {
           "type": "object",
           "description": "Environment variables for the command executor and Azure IoT Edge terminals"
-        },
-        "azure-iot-edge.simulator.version": {
-          "type": "string",
-          "description": "Specify the Azure IoT EdgeHub Dev Tool (iotedgehubdev) version (Only take effect on Windows for current version). Example: 0.12.0"
         }
       }
     },

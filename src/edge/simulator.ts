@@ -58,11 +58,12 @@ export class Simulator {
 
     private static async checkCmdExist(cmd: string): Promise<boolean> {
         try {
-            await Executor.executeCMD(null, cmd, { shell: true }, "--version");
-            return true;
-        } catch (error) {
-            return false;
-        }
+            if (cmd) {
+                await Executor.executeCMD(null, cmd, { shell: true }, "--version");
+                return true;
+            }
+        } catch (error) { }
+        return false;
     }
 
     private static adjustTerminalCommand(command: string): string {
@@ -71,16 +72,16 @@ export class Simulator {
 
     private isInstalling: boolean = false;
     private latestStandaloneSimulatorInfoJson: any;
-    private standaloneSimulatorExecutablePath: string;
+    private simulatorExecutablePath: string;
 
     constructor(private context: vscode.ExtensionContext) {
         if (Simulator.currentPlatform === "win32") {
             const installedVersion: string = this.context.globalState.get(Simulator.simulatorVersionKey);
             if (installedVersion) {
-                this.standaloneSimulatorExecutablePath = path.join(Simulator.WindowsStandaloneSimulatorFolder, installedVersion , Simulator.simulatorExecutableName);
+                this.simulatorExecutablePath = path.join(Simulator.WindowsStandaloneSimulatorFolder, installedVersion , Simulator.simulatorExecutableName);
             }
         } else {
-            this.standaloneSimulatorExecutablePath = Simulator.simulatorExecutableName;
+            this.simulatorExecutablePath = Simulator.simulatorExecutableName;
         }
     }
 
@@ -88,33 +89,33 @@ export class Simulator {
         let message: string;
         let type: string = "";
         const telemetryName = "simulatorUpdated";
-
-        const simulatorType = await this.simulatorInstalled();
-        if (simulatorType === SimulatorType.NotInstalled) {
-            message =  Constants.needSimulatorInstalledMsg;
-            type = "install";
-        } else {
-            const version: string | null = await this.getCurrentSimulatorVersion();
-            if (version && semver.valid(version)) {
-                const latestVersion: string | undefined = await this.getLatestSimulatorVersion();
-                if (latestVersion && semver.gt(latestVersion, version)) {
-                    message = `${Constants.updateSimulatorMsg} (${version} to ${latestVersion})`;
-                } else {
-                    return;
-                }
-            } else {
-                message = Constants.updateSimulatorMsg;
-            }
-
-            if (simulatorType === SimulatorType.Pip) {
-                type = "upgradePipPackage";
-            } else {
-                type = "upgradeStandalone";
-            }
-        }
-
-        TelemetryClient.sendEvent(`${telemetryName}.${type}`);
         try {
+            const simulatorType = await this.simulatorInstalled();
+            if (simulatorType === SimulatorType.NotInstalled) {
+                message =  Constants.needSimulatorInstalledMsg;
+                type = "install";
+            } else {
+                const version: string | null = await this.getCurrentSimulatorVersion();
+                if (version && semver.valid(version)) {
+                    const latestVersion: string | undefined = await this.getLatestSimulatorVersion();
+                    if (latestVersion && semver.gt(latestVersion, version)) {
+                        message = `${Constants.updateSimulatorMsg} (${version} to ${latestVersion})`;
+                    } else {
+                        return;
+                    }
+                } else {
+                    message = Constants.updateSimulatorMsg;
+                }
+
+                if (simulatorType === SimulatorType.Pip) {
+                    type = "upgradePipPackage";
+                } else {
+                    type = "upgradeStandalone";
+                }
+            }
+
+            TelemetryClient.sendEvent(`${telemetryName}.${type}`);
+
             const installRes = await this.autoInstallSimulator(outputChannel);
             TelemetryClient.sendEvent(`${telemetryName}.${type}.${InstallReturn[installRes]}`);
             if (InstallReturn.NotSupported === installRes) {
@@ -125,7 +126,11 @@ export class Simulator {
             } else if (InstallReturn.Failed === installRes) {
                 await vscode.window.showErrorMessage(Constants.installStandaloneSimulatorFailedMsg);
             }
-        } catch (err) {}
+        } catch (err) {
+            type = "unexpectedError";
+            TelemetryClient.sendEvent(`${telemetryName}.${type}`);
+            outputChannel.appendLine(Constants.unexpectedErrorWhenValidateSimulatorUpdate + err.message);
+        }
     }
 
     public async setupIotedgehubdev(deviceItem: IDeviceItem, outputChannel: vscode.OutputChannel) {
@@ -234,11 +239,9 @@ export class Simulator {
     }
 
     private async simulatorInstalled(): Promise<SimulatorType> {
-        if (this.standaloneSimulatorExecutablePath) {
-            const exist = await Simulator.checkCmdExist(this.getAdjustedSimulatorExecutorPath(true));
-            if (exist) {
-                return Simulator.currentPlatform === "win32" ? SimulatorType.Standalone : SimulatorType.Pip;
-            }
+        const exist = await Simulator.checkCmdExist(this.getAdjustedSimulatorExecutorPath(true));
+        if (exist) {
+            return Simulator.currentPlatform === "win32" ? SimulatorType.Standalone : SimulatorType.Pip;
         }
 
         return SimulatorType.NotInstalled;
@@ -248,12 +251,12 @@ export class Simulator {
         let executorPath: string;
 
         if (!forceUseCmd) {
-            executorPath = `"${Utility.adjustFilePath(this.standaloneSimulatorExecutablePath)}"`;
+            executorPath = `"${Utility.adjustFilePath(this.simulatorExecutablePath)}"`;
             if (Utility.isUsingPowershell()) {
                 executorPath = `& ${executorPath}`;
             }
         } else {
-            executorPath = `"${this.standaloneSimulatorExecutablePath}"`;
+            executorPath = `"${this.simulatorExecutablePath}"`;
         }
 
         return executorPath;
@@ -288,8 +291,8 @@ export class Simulator {
         });
 
         try {
-            if (this.standaloneSimulatorExecutablePath) {
-                await fse.remove(this.standaloneSimulatorExecutablePath);
+            if (this.simulatorExecutablePath) {
+                await fse.remove(this.simulatorExecutablePath);
             }
         } catch (err) {
             // ignore
@@ -297,7 +300,7 @@ export class Simulator {
 
         await fse.move(path.join(Simulator.WindowsStandaloneSimulatorFolder, Simulator.simulatorExecutableName), path.join(Simulator.WindowsStandaloneSimulatorFolder, version));
         this.context.globalState.update(Simulator.simulatorVersionKey, version);
-        this.standaloneSimulatorExecutablePath = path.join(Simulator.WindowsStandaloneSimulatorFolder, version , Simulator.simulatorExecutableName);
+        this.simulatorExecutablePath = path.join(Simulator.WindowsStandaloneSimulatorFolder, version , Simulator.simulatorExecutableName);
     }
 
     private async autoInstallSimulator(outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {

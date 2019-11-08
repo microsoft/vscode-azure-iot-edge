@@ -89,13 +89,13 @@ export class LocalServer {
 
             items.forEach((item) => {
                 if (item.id !== "microsoft.stream-analytics-on-iot-edge") {
-                    if (item.plans && item.plans[0] && item.plans[0].artifacts) {
-                        const metaData = item.plans[0].artifacts.find((artifact) => artifact.name === "iot-edge-metadata.json");
-                        if (metaData !== null) {
-                            item.iotEdgeMetadataUrl = metaData.uri;
-                        } else {
-                            item.iotEdgeMetadataUrl = null;
-                        }
+                    if (item.plans) {
+                        item.plans.forEach((plan) => {
+                            if (plan.artifacts) {
+                                const metaData = plan.artifacts.find((artifact) => artifact.name === "iot-edge-metadata.json");
+                                plan.iotEdgeMetadataUrl = metaData.uri;
+                            }
+                        });
                     }
 
                     const iconFileUris = item.iconFileUris;
@@ -105,9 +105,7 @@ export class LocalServer {
                         item.icon = null;
                     }
 
-                    if (item.iotEdgeMetadataUrl) {
-                        result.push(item);
-                    }
+                    result.push(item);
                 }
             });
 

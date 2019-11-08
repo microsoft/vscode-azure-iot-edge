@@ -49,6 +49,12 @@
                         <div class="description" v-html="selectedModule.description"></div>
                         <div class="inputs">
                             <div class="input">
+                                <label>Plans: </label>
+                                <select v-model="selectedPlan">
+                                    <option v-for="plan in selectedModule.plans" v-bind:value="plan">{{ plan.displayName }}</option>
+                                </select>
+                            </div>
+                            <div class="input">
                                 <label>Module Name: </label>
                                 <input v-model="moduleName">
                             </div>
@@ -64,7 +70,7 @@
                         </div>
                         <div class="action">
                             <button v-on:click="importModule()">Import</button>
-                            <button v-on:click="selectedModule.id=''">Cancel</button>
+                            <button v-on:click="selectedModule.id='';selectedPlan=''">Cancel</button>
                         </div>
                         <div class="term-of-use">
                             I agree to the provider's <a :href="selectedModule.legalTermsUri">Term of Use</a> and <a :href="selectedModule.privacyPolicyUri">Privacy

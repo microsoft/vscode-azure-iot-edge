@@ -12,7 +12,7 @@ import { AzureAccount, AzureSession } from "../typings/azure-account.api";
 import { IDeviceItem } from "../typings/IDeviceItem";
 import { BuildSettings } from "./buildSettings";
 import { Configuration } from "./configuration";
-import { Constants, ContainerState } from "./constants";
+import { Constants, ContainerState, DockerState } from "./constants";
 import { Executor } from "./executor";
 import { Platform } from "./platform";
 import { TelemetryClient } from "./telemetryClient";
@@ -626,6 +626,69 @@ export class Utility {
         return await Utility.showInputBox(Constants.moduleName,
             Constants.moduleNamePrompt,
             validateFunc, Constants.moduleNameDft);
+    }
+
+    public static async checkDockerState(outputChannel: vscode.OutputChannel) {
+        let state: DockerState;
+        let errorMsg: any;
+        try {
+            await Executor.executeCMD(outputChannel, "docker", { shell: true }, "version");
+            state = DockerState.Running;
+        } catch (error) {
+            errorMsg = error;
+            const platform: string = os.platform();
+            if (platform === "win32") {
+                if (error.message.indexOf(Constants.commandNotFoundErrorMsgPatternOnWindows) > -1) {
+                    state = DockerState.NotInstalled;
+                } else if (error.message.indexOf(Constants.dockerNotRunningErrorMsgPatternOnWindows) > -1) {
+                    state = DockerState.NotRunning;
+                } else {
+                    state = DockerState.Unknown;
+                }
+            } else if (platform === "linux" || platform === "darwin") {
+                if (error.errorCode === 127 || error.message.indexOf(Constants.commandNotFoundErrorMsgPatternOnLinux) > -1 || error.message.match(/Command '.*?' not found/)) {
+                    state = DockerState.NotInstalled;
+                } else if (error.message.indexOf(Constants.dockerNotRunningErrorMsgPatternOnLinux) > -1) {
+                    state = DockerState.NotRunning;
+                } else if (Constants.permissionDeniedErrorMsgPatternOnLinux) {
+                    state = DockerState.PermissionDenied;
+                } else {
+                    state = DockerState.Unknown;
+                }
+            } else {
+                state = DockerState.Unknown;
+            }
+        }
+
+        if (errorMsg) {
+            const install: vscode.MessageItem = { title: Constants.InstallDocker };
+            const troubleshooting: vscode.MessageItem = { title: Constants.TroubleShooting };
+            const cancel: vscode.MessageItem = { title: Constants.Cancel };
+            let input: vscode.MessageItem;
+            let helpUrl: string;
+            let items: vscode.MessageItem[];
+            switch (state) {
+                case DockerState.NotInstalled:
+                    items = [install, cancel];
+                    input = await vscode.window.showWarningMessage(Constants.dockerNotInstalledErrorMsg, ...items);
+                    if (input === install) {
+                        helpUrl = Constants.installDockerUrl;
+                    }
+                    break;
+                case DockerState.NotRunning:
+                case DockerState.Unknown:
+                    items = [troubleshooting, cancel];
+                    input = await vscode.window.showWarningMessage(Constants.dockerNotRunningErrorMsg, ...items);
+                    if (input === troubleshooting) {
+                        helpUrl = Constants.troubleShootingDockerUrl;
+                    }
+                    break;
+            }
+
+            if (input === troubleshooting || input === install) {
+                await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(helpUrl));
+            }
+        }
     }
 
     /*

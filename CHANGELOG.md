@@ -1,4 +1,11 @@
 # Change Log
+## 1.18.0 - 2019-10-30
+### Added
+* Support multiple plans for marketplace
+
+### Changed
+* Optimize ASA retry logic
+
 ## 1.17.0 - 2019-08-29
 ### Added
 * Add CodeLens to help user update ASA job information

@@ -39,6 +39,7 @@ export class Constants {
     public static CSHARP_FUNCTION = "Azure Functions - C#";
     public static MACHINE_LEARNING = "Azure Machine Learning";
     public static STREAM_ANALYTICS = "Azure Stream Analytics";
+    public static EVENT_GRID = "Azure Event Grid";
     public static ACR_MODULE = "Existing Module (Import from ACR)";
     public static EXISTING_MODULE = "Existing Module (Enter Full Image URL)";
     public static MARKETPLACE_MODULE = "Module from Azure Marketplace";
@@ -52,9 +53,27 @@ export class Constants {
     public static CSHARP_FUNCTION_DESCRIPTION = "Create an Azure Function and deploy to IoT Edge";
     public static MACHINE_LEARNING_DESCRIPTION = "Deploy Azure Machine Learning images to Azure IoT Edge";
     public static STREAM_ANALYTICS_DESCRIPTION = "Deploy Azure Stream Analytics to Azure IoT Edge";
+    public static EVENT_GRID_DESCRIPTION = "Deploy Azure Event Grid to Azure IoT Edge";
     public static ACR_MODULE_DESCRIPTION = "Import an existing module image from your Azure Container Registry";
     public static EXISTING_MODULE_DESCRIPTION = "Import an existing module image from any container registry";
     public static MARKETPLACE_MODULE_DESCRIPTION = "Import an existing module image from Azure Marketplace";
+    public static EVENT_GRID_IMAGE = "mcr.microsoft.com/azure-event-grid/iotedge:latest";
+    public static EVENT_GRID_CREATE_OPTIONS = {
+        Env: [
+            "inbound:clientAuth:clientCert:enabled=false",
+            "inbound:serverAuth:tlsPolicy=enabled",
+            "outbound:webhook:httpsOnly=false",
+        ],
+        HostConfig: {
+            PortBindings: {
+                "4438/tcp": [
+                    {
+                        HostPort: "4438",
+                    },
+                ],
+            },
+        },
+    };
     public static SCAFFOLDING_PREREQUISITES = "Please make sure the prerequisites are installed";
     public static moduleFolder = "modules";
     public static gitIgnore = ".gitignore";
@@ -168,11 +187,22 @@ export class Constants {
     public static installManuallyMsg = "Please install 'iotedgehubdev' tool first for IoT Edge Simulator.";
     public static queryASAJobInfoFailedMsg = "The maximum retry count has been exceeded with empty response from the Stream Analytics.";
     public static needSetupSimulatorMsg = "Please setup iotedgehubdev first before starting simulator.";
+    public static dockerNotInstalledErrorMsg = "Failed to connect to Docker. Is Docker installed?";
+    public static dockerNotRunningErrorMsg = "Failed to connect to Docker. Is Docker running?";
+    public static installDockerUrl = "https://docs.docker.com/install/";
+    public static troubleShootingDockerUrl = "https://docs.docker.com/config/daemon/";
+    public static commandNotFoundErrorMsgPatternOnWindows = "not recognized as an internal or external command";
+    public static commandNotFoundErrorMsgPatternOnLinux = "command not found";
+    public static dockerNotRunningErrorMsgPatternOnWindows = "This error may also indicate that the docker daemon is not running";
+    public static dockerNotRunningErrorMsgPatternOnLinux = "Is the docker daemon running";
+    public static permissionDeniedErrorMsgPatternOnLinux = "permission denied";
     public static skipForNow = "Skip for Now";
     public static learnMore = "Learn More";
     public static install = "Install";
     public static Setup = "Setup";
     public static Cancel = "Cancel";
+    public static TroubleShooting = "Troubleshooting";
+    public static InstallDocker = "Install Docker";
 
     public static noWorkspaceSetDefaultPlatformMsg = "No workspace is opened for setting default platform. Please open a workspace and try again.";
     public static noWorkspaceMsg = "This extension only works when folders are opened.";
@@ -203,4 +233,12 @@ export enum ContainerState {
     Running,
     NotRunning,
     NotFound,
+}
+
+export enum DockerState {
+    NotInstalled,
+    NotRunning,
+    PermissionDenied,
+    Running,
+    Unknown,
 }

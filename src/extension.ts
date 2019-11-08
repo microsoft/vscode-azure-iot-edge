@@ -33,10 +33,10 @@ import { IDeviceItem } from "./typings/IDeviceItem";
 export function activate(context: vscode.ExtensionContext) {
     TelemetryClient.sendEvent("extensionActivated");
     const outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel(Constants.edgeDisplayName);
-    Simulator.validateSimulatorUpdated(outputChannel);
     const edgeManager = new EdgeManager(context);
     const gallery = new Gallery(context);
     const simulator = new Simulator(context);
+    simulator.validateSimulatorUpdated(outputChannel);
     const containerManager = new ContainerManager(simulator);
     Utility.checkDockerState(outputChannel);
 

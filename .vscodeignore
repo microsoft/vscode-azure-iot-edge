@@ -19,3 +19,4 @@ scripts/**
 out/**
 webpack.config.js
 node_modules
+iotedgehubdev

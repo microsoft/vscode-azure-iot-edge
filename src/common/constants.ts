@@ -180,8 +180,10 @@ export class Constants {
     public static updateSimulatorMsg = "Update your 'iotedgehubdev' tool to the latest for the best experience for IoT Edge Simulator.";
     public static failedInstallSimulator = "Failed to install 'iotedgehubdev' tool because of error:";
     public static outputNoSimulatorMsg = "Cannot execute command since 'iotedgehubdev' is not installed. Please install it first for IoT Edge Simulator.";
-    public static pipNotFoundMsg = "'pip' not found. Cannot install 'iotedgehubdev' tool. Please install it manually for IoT Edge Simulator.";
-    public static installFailedMsg = "'iotedgehubdev' tool installation has failed. Please install it manually for IoT Edge Simulator.";
+    public static outputSimulatorIsInstallingMsg = "'iotedgehubdev' is being installed now, and please wait for the installation.";
+    public static downloadingAndInstallingStandaloneSimulatorMsg = "Downloading and installing Azure IoT EdgeHub Dev Tool (iotedgehubdev)...";
+    public static installStandaloneSimulatorFailedMsg = "Failed to install 'iotedgehubdev' tool, please check the output channel (Azure IoT Edge) for detailed error message.";
+    public static unexpectedErrorWhenValidateSimulatorUpdate = "Unexpected errors occur when install / update 'iotedgehubdev': ";
     public static installManuallyMsg = "Please install 'iotedgehubdev' tool first for IoT Edge Simulator.";
     public static queryASAJobInfoFailedMsg = "The maximum retry count has been exceeded with empty response from the Stream Analytics.";
     public static needSetupSimulatorMsg = "Please setup iotedgehubdev first before starting simulator.";

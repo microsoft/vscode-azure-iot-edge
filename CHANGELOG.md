@@ -1,4 +1,12 @@
 # Change Log
+## 1.19.0 - 2019-11-xx
+### Added
+* Add docker status detection
+* Support Azure Event Grid
+
+### Changed
+* Use standalone simulator (iotedgehubdev)
+
 ## 1.18.0 - 2019-10-30
 ### Added
 * Support multiple plans for marketplace

@@ -21,12 +21,13 @@
 
 ![Added](images/multipleplatform.gif)
 
-## What's New (v1.17.0)
+## What's New (v1.19.0)
 ### Added
-* Add CodeLens to help user update ASA job information.
+* Add docker status detection
+* Support adding Azure Event Grid module
 
-### Fixed
-* Fix broken link in README.md.
+### Changed
+* Use standalone simulator (iotedgehubdev)
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

@@ -292,7 +292,7 @@ export class Simulator {
 
         try {
             if (this.simulatorExecutablePath) {
-                await fse.remove(this.simulatorExecutablePath);
+                await fse.remove(path.dirname(this.simulatorExecutablePath));
             }
         } catch (err) {
             // ignore

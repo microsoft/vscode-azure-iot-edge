@@ -2,7 +2,7 @@
 ## 1.19.0 - 2019-11-xx
 ### Added
 * Add docker status detection
-* Support Azure Event Grid
+* Support adding Azure Event Grid module
 
 ### Changed
 * Use standalone simulator (iotedgehubdev)

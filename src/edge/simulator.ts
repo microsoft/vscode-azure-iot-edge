@@ -334,7 +334,11 @@ export class Simulator {
             try {
                 await Executor.executeCMD(null, this.getAdjustedSimulatorExecutorPath(true), { shell: true }, "validateconfig");
             } catch (error) {
-                throw new ConfigNotSetError(error.message);
+                let errorMsg = error.message;
+                if (error.errorCode === 2 && Simulator.currentPlatform === "win32") {
+                    errorMsg = Constants.connectionStringNotSetErrorMsgOnWindows;
+                }
+                throw new ConfigNotSetError(errorMsg);
             }
         }
     }

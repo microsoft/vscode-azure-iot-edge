@@ -196,6 +196,7 @@ export class Constants {
     public static dockerNotRunningErrorMsgPatternOnWindows = "This error may also indicate that the docker daemon is not running";
     public static dockerNotRunningErrorMsgPatternOnLinux = "Is the docker daemon running";
     public static permissionDeniedErrorMsgPatternOnLinux = "permission denied";
+    public static connectionStringNotSetErrorMsgOnWindows = "Cannot find config file. You can press Ctrl + Shift + P to open command palette and run `Azure IoT Edge: Setup IoT Edge Simulator` to setup IoT Edge simulator first.\r\n";
     public static skipForNow = "Skip for Now";
     public static learnMore = "Learn More";
     public static install = "Install";

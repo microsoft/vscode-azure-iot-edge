@@ -1,5 +1,5 @@
 # Change Log
-## 1.19.0 - 2019-11-xx
+## 1.19.0 - 2019-11-15
 ### Added
 * Add docker status detection
 * Support adding Azure Event Grid module

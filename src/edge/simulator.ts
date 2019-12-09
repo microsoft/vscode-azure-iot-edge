@@ -14,12 +14,12 @@ import { ConfigNotSetError } from "../common/ConfigNotSetError";
 import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
-import { InstallResult, InstallReturn } from "../common/InstallResult";
 import { LearnMoreError } from "../common/LearnMoreError";
 import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { IDeviceItem } from "../typings/IDeviceItem";
+import { InstallResult, InstallReturn } from "./InstallResult";
 
 enum SimulatorType {
     Pip = 0,
@@ -107,10 +107,10 @@ export class Simulator {
                 }
             }
 
-            this.sendTelemetry(`${telemetryName}.${type}`);
+            TelemetryClient.sendEvent(`${telemetryName}.${type}`);
 
             const installResult = await this.autoInstallSimulator(outputChannel);
-            this.sendTelemetry(`${telemetryName}.${type}.${InstallReturn[installResult.resultType]}`, installResult.errMsg);
+            TelemetryClient.sendEvent(`${telemetryName}.${type}.${InstallReturn[installResult.resultType]}`, { error: installResult.errMsg });
             if (InstallReturn.NotSupported === installResult.resultType) {
                 const learnMore: vscode.MessageItem = { title: Constants.learnMore };
                 if (await vscode.window.showWarningMessage(message, ...[learnMore]) === learnMore) {
@@ -121,7 +121,7 @@ export class Simulator {
             }
         } catch (err) {
             type = "unexpectedError";
-            this.sendTelemetry(`${telemetryName}.${type}`);
+            TelemetryClient.sendEvent(`${telemetryName}.${type}`);
             outputChannel.appendLine(Constants.unexpectedErrorWhenValidateSimulatorUpdate + err.message);
         }
     }
@@ -192,14 +192,6 @@ export class Simulator {
             Executor.runInTerminal(Utility.combineCommands(commands), this.getRunCmdTerminalTitle());
             return;
         });
-    }
-
-    private sendTelemetry(eventName: string, errMsg: string = null) {
-        if (errMsg) {
-            TelemetryClient.sendEvent(eventName, {error: errMsg});
-        } else {
-            TelemetryClient.sendEvent(eventName);
-        }
     }
 
     private async getLastestStandaloneSimulatorInfo() {
@@ -311,7 +303,7 @@ export class Simulator {
         if (!this.isInstalling) {
             this.isInstalling = true;
             let ret: InstallReturn = InstallReturn.Success;
-            let errMsg = null;
+            let errMsg: string;
             try {
                 await this.downloadStandaloneSimulatorWithProgress();
             } catch (error) {
@@ -380,9 +372,9 @@ export class Simulator {
     private async validateSimulatorInstalled(outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
         const telemetryName = "simulatorInstalled";
         if (await this.simulatorInstalled() === SimulatorType.NotInstalled) {
-            this.sendTelemetry(`${telemetryName}.install`);
+            TelemetryClient.sendEvent(`${telemetryName}.install`);
             const installResult = await this.autoInstallSimulator(outputChannel);
-            this.sendTelemetry(`${telemetryName}.install.${InstallReturn[installResult.resultType]}`, installResult.errMsg);
+            TelemetryClient.sendEvent(`${telemetryName}.install.${InstallReturn[installResult.resultType]}`, { error: installResult.errMsg });
             return installResult.resultType;
         } else {
             return InstallReturn.Success;

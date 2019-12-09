@@ -632,7 +632,7 @@ export class Utility {
         let state: DockerState;
         let errorMsg: any;
         try {
-            await Executor.executeCMD(outputChannel, "docker2", { shell: true }, "version");
+            await Executor.executeCMD(outputChannel, "docker", { shell: true }, "version");
             state = DockerState.Running;
         } catch (error) {
             errorMsg = error;

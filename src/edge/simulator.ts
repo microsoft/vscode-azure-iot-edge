@@ -14,19 +14,12 @@ import { ConfigNotSetError } from "../common/ConfigNotSetError";
 import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
+import { InstallResult, InstallReturn } from "../common/InstallResult";
 import { LearnMoreError } from "../common/LearnMoreError";
 import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
 import { IDeviceItem } from "../typings/IDeviceItem";
-
-enum InstallReturn {
-    Success = 0,
-    Failed,
-    Canceled,
-    NotSupported,
-    IsInstalling,
-}
 
 enum SimulatorType {
     Pip = 0,
@@ -114,21 +107,21 @@ export class Simulator {
                 }
             }
 
-            TelemetryClient.sendEvent(`${telemetryName}.${type}`);
+            this.sendTelemetry(`${telemetryName}.${type}`);
 
-            const installRes = await this.autoInstallSimulator(outputChannel);
-            TelemetryClient.sendEvent(`${telemetryName}.${type}.${InstallReturn[installRes]}`);
-            if (InstallReturn.NotSupported === installRes) {
+            const installResult = await this.autoInstallSimulator(outputChannel);
+            this.sendTelemetry(`${telemetryName}.${type}.${InstallReturn[installResult.resultType]}`, installResult.errMsg);
+            if (InstallReturn.NotSupported === installResult.resultType) {
                 const learnMore: vscode.MessageItem = { title: Constants.learnMore };
                 if (await vscode.window.showWarningMessage(message, ...[learnMore]) === learnMore) {
                     await vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(Simulator.learnMoreUrl));
                 }
-            } else if (InstallReturn.Failed === installRes) {
+            } else if (InstallReturn.Failed === installResult.resultType) {
                 await vscode.window.showErrorMessage(Constants.installStandaloneSimulatorFailedMsg);
             }
         } catch (err) {
             type = "unexpectedError";
-            TelemetryClient.sendEvent(`${telemetryName}.${type}`);
+            this.sendTelemetry(`${telemetryName}.${type}`);
             outputChannel.appendLine(Constants.unexpectedErrorWhenValidateSimulatorUpdate + err.message);
         }
     }
@@ -199,6 +192,14 @@ export class Simulator {
             Executor.runInTerminal(Utility.combineCommands(commands), this.getRunCmdTerminalTitle());
             return;
         });
+    }
+
+    private sendTelemetry(eventName: string, errMsg: string = null) {
+        if (errMsg) {
+            TelemetryClient.sendEvent(eventName, {error: errMsg});
+        } else {
+            TelemetryClient.sendEvent(eventName);
+        }
     }
 
     private async getLastestStandaloneSimulatorInfo() {
@@ -281,9 +282,7 @@ export class Simulator {
             req.on("response",  (res) => {
                 if (res.statusCode === 200) {
                     req.pipe(unzipper.Extract({ path: Simulator.WindowsStandaloneSimulatorFolder }))
-                    .on("close", () => resolve()).on("error", (e) => reject(e));
-                } else if (res.statusCode === 404) {
-                    reject(new Error("Cannot download simulator, please check that the simulator version has been configured correctly (Example version: 0.12.0)."));
+                    .on("close", () => resolve()).on("error", (e) => reject(new Error("Cannot extract simulator binaries from zip file: " + e.message)));
                 } else {
                     reject(new Error("Cannot download simulator with status code: " + res.statusCode));
                 }
@@ -303,16 +302,16 @@ export class Simulator {
         this.simulatorExecutablePath = path.join(Simulator.WindowsStandaloneSimulatorFolder, version , Simulator.simulatorExecutableName);
     }
 
-    private async autoInstallSimulator(outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
+    private async autoInstallSimulator(outputChannel: vscode.OutputChannel = null): Promise<InstallResult> {
         // auto install only supported on windows. For linux/macOS ask user install manually.
         if (Simulator.currentPlatform !== "win32") {
-            return InstallReturn.NotSupported;
+            return new InstallResult(InstallReturn.NotSupported);
         }
 
         if (!this.isInstalling) {
             this.isInstalling = true;
             let ret: InstallReturn = InstallReturn.Success;
-
+            let errMsg = null;
             try {
                 await this.downloadStandaloneSimulatorWithProgress();
             } catch (error) {
@@ -320,12 +319,13 @@ export class Simulator {
                     outputChannel.appendLine(`${Constants.failedInstallSimulator} ${error.message}`);
                 }
                 ret =  InstallReturn.Failed;
+                errMsg = error.message;
             }
 
             this.isInstalling = false;
-            return ret;
+            return new InstallResult(ret, errMsg);
         } else {
-            return InstallReturn.IsInstalling;
+            return new InstallResult(InstallReturn.IsInstalling);
         }
     }
 
@@ -380,10 +380,10 @@ export class Simulator {
     private async validateSimulatorInstalled(outputChannel: vscode.OutputChannel = null): Promise<InstallReturn> {
         const telemetryName = "simulatorInstalled";
         if (await this.simulatorInstalled() === SimulatorType.NotInstalled) {
-            TelemetryClient.sendEvent(`${telemetryName}.install`);
-            const installRes = await this.autoInstallSimulator(outputChannel);
-            TelemetryClient.sendEvent(`${telemetryName}.install.${InstallReturn[installRes]}`);
-            return installRes;
+            this.sendTelemetry(`${telemetryName}.install`);
+            const installResult = await this.autoInstallSimulator(outputChannel);
+            this.sendTelemetry(`${telemetryName}.install.${InstallReturn[installResult.resultType]}`, installResult.errMsg);
+            return installResult.resultType;
         } else {
             return InstallReturn.Success;
         }

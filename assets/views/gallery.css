@@ -620,3 +620,21 @@ ul.example-list > li:hover > .header > img,
 .vscode-dark ul.example-list > li:hover {
   box-shadow: 0px 1px 3px 0 rgba(255, 255, 255, 0.3);
 }
+
+.vscode-dark::-webkit-scrollbar-track
+{
+  border-radius: 0;
+  background-color: rgb(30, 30, 30);
+}
+
+.vscode-dark::-webkit-scrollbar-thumb
+{
+  border:0;
+  background-color: rgb(66, 66, 66);
+  border-radius:0;
+}
+
+.vscode-dark::-webkit-scrollbar-corner
+{
+  background: rgb(30, 30, 30);
+}

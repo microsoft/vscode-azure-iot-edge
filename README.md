@@ -21,13 +21,10 @@
 
 ![Added](images/multipleplatform.gif)
 
-## What's New (v1.19.0)
-### Added
-* Add docker status detection
-* Support adding Azure Event Grid module
-
+## What's New (v1.20.0)
 ### Changed
-* Use standalone simulator (iotedgehubdev)
+* Update scroll bar css to compatible with dark theme for Sample Gallery 
+* Update subtitle in the description
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

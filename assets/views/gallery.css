@@ -1,18 +1,21 @@
 ::-webkit-scrollbar {
-    width: 10px;
-    background: white;
+  width: 10px;
+  background: white;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #AAA;
-    border: 2px solid white;
-    border-radius: 5px;
+  background-color: #aaa;
+  border: 2px solid white;
+  border-radius: 5px;
 }
 
-[v-cloak] { display: none }
+[v-cloak] {
+  display: none;
+}
 
 * {
-  font-family: "Segoe UI",-apple-system,".SFNSText-Regular","San Francisco","Helvetica Neue","Lucida Grande",Arial,sans-serif;
+  font-family: "Segoe UI", -apple-system, ".SFNSText-Regular", "San Francisco",
+    "Helvetica Neue", "Lucida Grande", Arial, sans-serif;
 }
 
 html {
@@ -94,7 +97,7 @@ ul.example-list > li > .header > .difficulty {
 #featured > .issue,
 ul.example-list > li > .header > .issue {
   position: absolute;
-  right:  14px;
+  right: 14px;
   top: 12px;
   padding: 1px 14px;
   color: white;
@@ -118,7 +121,7 @@ ul.example-list > li > .header > .issue.color {
 
 #featured > .issue:before,
 ul.example-list > li > .header > .issue:before {
-  content: "REPORT ISSUES"
+  content: "REPORT ISSUES";
 }
 
 #featured > .difficulty.easy,
@@ -138,17 +141,17 @@ ul.example-list > li > .header > .difficulty.hard {
 
 #featured > .difficulty.easy:before,
 ul.example-list > li > .header > .difficulty.easy:before {
-  content: "EASY"
+  content: "EASY";
 }
 
 #featured > .difficulty.medium:before,
 ul.example-list > li > .header > .difficulty.medium:before {
-  content: "MEDIUM"
+  content: "MEDIUM";
 }
 
 #featured > .difficulty.hard:before,
 ul.example-list > li > .header > .difficulty.hard:before {
-  content: "HARD"
+  content: "HARD";
 }
 
 ul.example-list > li > .header > img {
@@ -186,7 +189,7 @@ ul.example-list > li > .body > .services > img {
   margin-right: 12px;
 }
 
-#featured > .body  > .buttons > button,
+#featured > .body > .buttons > button,
 ul.example-list > li > .body > .buttons > button {
   padding: 8px 15px;
   cursor: pointer;
@@ -194,7 +197,7 @@ ul.example-list > li > .body > .buttons > button {
   font-size: 15px;
 }
 
-#featured > .body  > .buttons > button {
+#featured > .body > .buttons > button {
   background: #069;
   color: white;
   border: 1px solid #069;
@@ -210,7 +213,7 @@ ul.example-list > li > .body > .buttons > button {
   border: 1px solid #069;
 }
 
-#featured > .body  > .buttons > button:hover {
+#featured > .body > .buttons > button:hover {
   background: #66a3c2;
   color: white;
   border: 1px solid #66a3c2;
@@ -377,7 +380,7 @@ ul.example-list > li:hover > .header > img,
   left: 0;
   width: 100%;
   height: 100%;
-  padding: 100px 20px 20px 20px;  
+  padding: 100px 20px 20px 20px;
   text-align: left;
   z-index: 10;
   color: white;
@@ -437,13 +440,14 @@ ul.example-list > li:hover > .header > img,
 }
 
 .elist-item {
-  transition: all .5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-flow: column;
   flex: 0 0 320px;
 }
 
-.elist-enter, .elist-leave-to {
+.elist-enter,
+.elist-leave-to {
   opacity: 0;
   transform: translateX(-320px);
 }
@@ -517,90 +521,104 @@ ul.example-list > li:hover > .header > img,
   }
 }
 
-/* Dark Theme */
-.vscode-dark input{
+/* Dark and high contrast Theme */
+.vscode-dark input,
+.vscode-high-contrast input,
+input {
   color: white;
 }
 
-.vscode-dark h2 {
+.vscode-dark h2 .vscode-high-contrast h2 {
   color: #999999;
 }
 
-.vscode-dark aside h1 {
-  color: #D4D4D4;
+.vscode-dark aside h1,
+.vscode-high-contrast aside h1 {
+  color: #d4d4d4;
 }
 
-.vscode-dark aside {
+.vscode-dark aside,
+.vscode-high-contrast aside {
   color: #999999;
 }
 
-.vscode-dark .v-select .dropdown-toggle{
+.vscode-dark .v-select .dropdown-toggle,
+.vscode-high-contrast .v-select .dropdown-toggle {
   border: 1px solid #999999;
 }
 
-.vscode-dark input::placeholder { 
-  color: #999999; 
+.vscode-dark input::placeholder,
+.vscode-high-contrast input::placeholder {
+  color: #999999;
 }
 
-.vscode-dark .v-select .selected-tag{
+.vscode-dark .v-select .selected-tag,
+.vscode-high-contrast .v-select .selected-tag {
   color: white;
 }
 
-.vscode-dark .v-select .dropdown-toggle .clear {
-  color: #999999; 
+.vscode-dark .v-select .dropdown-toggle .clear,
+.vscode-high-contrast .v-select .dropdown-toggle .clear {
+  color: #999999;
 }
 
-.vscode-dark .v-select .dropdown-menu{
+.vscode-dark .v-select .dropdown-menu,
+.vscode-high-contrast .v-select .dropdown-menu {
   background-color: #333333;
 }
 
-.vscode-dark  .v-select .dropdown-menu .active>a {
+.vscode-dark .v-select .dropdown-menu .active > a,
+.vscode-high-contrast .v-select .dropdown-menu .active > a {
   color: white;
   background-color: #636363;
 }
 
-.vscode-dark  .v-select li>a {
-  color:  #999999;
+.vscode-dark .v-select li > a,
+.vscode-high-contrast .v-select li > a {
+  color: #999999;
 }
 
-.vscode-dark ::-webkit-scrollbar {
-  background: #999999;
+.vscode-dark .v-select .open-indicator:before,
+.vscode-high-contrast .v-select .open-indicator:before {
+  border-color: #999999;
 }
 
-.vscode-dark .v-select .open-indicator:before
-{
-  border-color:  #999999;
+.vscode-dark ul.example-list > li > .body > h2,
+.vscode-high-contrast ul.example-list > li > .body > h2 {
+  color: #d4d4d4;
 }
 
-.vscode-dark ul.example-list > li > .body > h2 {
-  color: #d4d4d4
-}
-
-.vscode-dark ul.example-list > li > .body > .buttons  > button {
-  background:  #069;
+.vscode-dark ul.example-list > li > .body > .buttons > button,
+.vscode-high-contrast ul.example-list > li > .body > .buttons > button {
+  background: #069;
   color: white;
-  border: 1px solid  #069;
+  border: 1px solid #069;
 }
 
-.vscode-dark ul.example-list > li > .body > .buttons  > button:hover {
+.vscode-dark ul.example-list > li > .body > .buttons > button:hover,
+.vscode-high-contrast ul.example-list > li > .body > .buttons > button:hover {
   background: white;
   color: #069;
   border: 1px solid #069;
 }
 
-.vscode-dark .github:before {
+.vscode-dark .github:before,
+.vscode-high-contrast .github:before {
   content: url(images/github.dark.svg);
 }
 
-.vscode-dark .feed:before {
+.vscode-dark .feed:before,
+.vscode-high-contrast .feed:before {
   content: url(images/feed.dark.svg);
 }
 
-.vscode-dark .tutorial {
-  color:#22a7ff;
+.vscode-dark .tutorial,
+.vscode-high-contrast .tutorial {
+  color: #22a7ff;
 }
 
-.vscode-dark ul.example-list > li > .body > .description {
+.vscode-dark ul.example-list > li > .body > .description,
+.vscode-high-contrast ul.example-list > li > .body > .description {
   color: #999999;
 }
 
@@ -608,12 +626,14 @@ ul.example-list > li:hover > .header > img,
   color: #22a7ff;
 }
 
-.vscode-dark .quick-links > ul.links > li:hover {
+.vscode-dark .quick-links > ul.links > li:hover,
+.vscode-high-contrast .quick-links > ul.links > li:hover {
   text-decoration: underline;
   color: #22a7ff;
 }
 
-.vscode-dark  ul.example-list > li {
+.vscode-dark ul.example-list > li,
+.vscode-high-contrast ul.example-list > li {
   box-shadow: 0px 1px 3px 0 rgba(255, 255, 255, 0.15);
 }
 
@@ -621,20 +641,17 @@ ul.example-list > li:hover > .header > img,
   box-shadow: 0px 1px 3px 0 rgba(255, 255, 255, 0.3);
 }
 
-.vscode-dark::-webkit-scrollbar-track
-{
-  border-radius: 0;
-  background-color: rgb(30, 30, 30);
+::-webkit-scrollbar {
+  background: rgba(0, 0, 0, 0.1);
 }
 
-.vscode-dark::-webkit-scrollbar-thumb
-{
-  border:0;
+.vscode-high-contrast::-webkit-scrollbar-thumb,
+.vscode-dark::-webkit-scrollbar-thumb {
+  border: 0;
   background-color: rgb(66, 66, 66);
-  border-radius:0;
+  border-radius: 0;
 }
 
-.vscode-dark::-webkit-scrollbar-corner
-{
-  background: rgb(30, 30, 30);
+.vscode-dark::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0.01);
 }

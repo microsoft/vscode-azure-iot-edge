@@ -1,5 +1,5 @@
 # Change Log
-## 1.20.0 - 2019-12-xx
+## 1.20.0 - 2019-12-31
 ### Changed
 * Update scroll bar css to compatible with dark theme for Sample Gallery 
 * Update subtitle in the description

@@ -75,6 +75,7 @@ export function activate(context: vscode.ExtensionContext) {
     // https://github.com/Microsoft/vscode/issues/27100
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((event) => { if (event) { configDiagnosticProvider.updateDiagnostics(event.document, diagCollection); } }));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => configDiagnosticProvider.updateDiagnostics(document, diagCollection)));
+    context.subscriptions.push(vscode.workspace.onDidCloseTextDocument((document) => diagCollection.delete(document.uri)));
     context.subscriptions.push(outputChannel);
 
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-coreclr", {resolveDebugConfiguration}));

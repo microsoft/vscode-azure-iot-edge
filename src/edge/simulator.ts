@@ -15,6 +15,7 @@ import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { LearnMoreError } from "../common/LearnMoreError";
+import { SimulatorInfo } from "../common/SimulatorInfo";
 import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
@@ -25,15 +26,6 @@ enum SimulatorType {
     Pip = 0,
     Standalone = 1,
     NotInstalled = 2,
-}
-
-class SimulatorInfo {
-    public version: string;
-    public standaloneDownloadUrl: string;
-    constructor(version: string, standaloneDownloadUrl: string) {
-        this.version = version;
-        this.standaloneDownloadUrl = standaloneDownloadUrl;
-    }
 }
 
 export class Simulator {
@@ -204,9 +196,9 @@ export class Simulator {
 
     private async getLastestSimulatorInfo() {
         if (!this.latestSimulatorInfo) {
-            var pipResponse = await request.get(Simulator.iotedgehubdevVersionUrl);
-            var version = JSON.parse(pipResponse).info.version;
-            var standaloneDownloadUrl = `https://github.com/Azure/iotedgehubdev/releases/download/v${version}/iotedgehubdev-v${version}-win32-ia32.zip`;
+            const pipResponse = await request.get(Simulator.iotedgehubdevVersionUrl);
+            const version = JSON.parse(pipResponse).info.version;
+            const standaloneDownloadUrl = `https://github.com/Azure/iotedgehubdev/releases/download/v${version}/iotedgehubdev-v${version}-win32-ia32.zip`;
             this.latestSimulatorInfo = new SimulatorInfo(version, standaloneDownloadUrl);
             return this.latestSimulatorInfo;
         } else {

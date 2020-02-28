@@ -15,6 +15,7 @@ import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { LearnMoreError } from "../common/LearnMoreError";
+import { SimulatorInfo } from "../common/SimulatorInfo";
 import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
@@ -30,7 +31,6 @@ enum SimulatorType {
 export class Simulator {
     private static iotedgehubdevVersionUrl: string = "https://pypi.org/pypi/iotedgehubdev/json";
     private static learnMoreUrl: string = "https://aka.ms/AA3nuw8";
-    private static latestReleaseInfoUrl: string = "https://aka.ms/iotedgehubdev-latest-release";
     private static simulatorVersionKey: string = "SimulatorVersion";
     private static simulatorExecutableName = "iotedgehubdev";
 
@@ -64,7 +64,7 @@ export class Simulator {
     }
 
     private isInstalling: boolean = false;
-    private latestStandaloneSimulatorInfoJson: any;
+    private latestSimulatorInfo: SimulatorInfo;
     private simulatorExecutablePath: string;
 
     constructor(private context: vscode.ExtensionContext) {
@@ -194,32 +194,22 @@ export class Simulator {
         });
     }
 
-    private async getLastestStandaloneSimulatorInfo() {
-        if (!this.latestStandaloneSimulatorInfoJson) {
-            const infoString = await request.get(Simulator.latestReleaseInfoUrl, {
-                headers: {
-                    "User-Agent": "vscode-azure-iot-edge",
-                },
-            });
-            const infoJson = JSON.parse(infoString);
-            this.latestStandaloneSimulatorInfoJson = infoJson;
-            return infoJson;
+    private async getLastestSimulatorInfo() {
+        if (!this.latestSimulatorInfo) {
+            const pipResponse = await request.get(Simulator.iotedgehubdevVersionUrl);
+            const version = JSON.parse(pipResponse).info.version;
+            const standaloneDownloadUrl = `https://github.com/Azure/iotedgehubdev/releases/download/v${version}/iotedgehubdev-v${version}-win32-ia32.zip`;
+            this.latestSimulatorInfo = new SimulatorInfo(version, standaloneDownloadUrl);
+            return this.latestSimulatorInfo;
         } else {
-            return this.latestStandaloneSimulatorInfoJson;
+            return this.latestSimulatorInfo;
         }
     }
 
     private async getLatestSimulatorVersion(): Promise<string | undefined> {
         try {
-            let version: string;
-            if (Simulator.currentPlatform === "win32") {
-                const releaseInfoJson: any = await this.getLastestStandaloneSimulatorInfo();
-                version = releaseInfoJson.tag_name;
-            } else {
-                const pipResponse: string = await request.get(Simulator.iotedgehubdevVersionUrl);
-                version = JSON.parse(pipResponse).info.version;
-            }
-            return version;
+            const info: SimulatorInfo = await this.getLastestSimulatorInfo();
+            return info.version;
         } catch (error) {
             return undefined;
         }
@@ -265,9 +255,9 @@ export class Simulator {
     }
 
     private async downloadStandaloneSimulator() {
-        const infoJson = await this.getLastestStandaloneSimulatorInfo();
-        const binariesZipUrl: string = infoJson.assets[0].browser_download_url;
-        const version: string = infoJson.tag_name;
+        const info: SimulatorInfo = await this.getLastestSimulatorInfo();
+        const binariesZipUrl: string = info.standaloneDownloadUrl;
+        const version: string = info.version;
 
         await new Promise((resolve, reject) => {
             const req = request(binariesZipUrl);

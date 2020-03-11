@@ -587,11 +587,11 @@ export class Utility {
         }
 
         if (hostName && /[^a-zA-Z0-9\.\-:]/.test(hostName)) {
-            return "Repository host name invalid characters";
+            return "Repository host name contains invalid characters";
         }
 
         if (/[^a-z0-9\._\-\/]+/.test(repositoryName)) {
-            return "Repository name contain invalid characters";
+            return "Repository name contains invalid characters";
         }
 
         if (tag) {
@@ -600,7 +600,7 @@ export class Utility {
             }
 
             if (/[^a-zA-Z0-9\._\-\/]+/.test(tag)) {
-                return "Tag has invalid characters";
+                return "Tag contains invalid characters";
             }
         }
 

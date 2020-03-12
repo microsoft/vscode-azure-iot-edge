@@ -614,7 +614,7 @@ export class EdgeManager {
         const dftValue: string = `localhost:5000/${module.toLowerCase()}`;
         return await Utility.showInputBox(Constants.repositoryPattern,
             Constants.repositoryPrompt,
-            null, dftValue);
+            Utility.validateRepositoryUrl, dftValue);
     }
 
     private async inputImage(module: string, template: string): Promise<ModuleInfo> {
@@ -632,7 +632,7 @@ export class EdgeManager {
             debugImageName = imageName = await acrManager.selectAcrImage();
             repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else if (template === Constants.EXISTING_MODULE) {
-            debugImageName = imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt);
+            debugImageName = imageName = await Utility.showInputBox(Constants.imagePattern, Constants.imagePrompt, Utility.validateRepositoryUrl);
             repositoryName = Utility.getRepositoryNameFromImageName(imageName);
         } else if (template === Constants.MACHINE_LEARNING) {
             const amlManager = new AmlManager();

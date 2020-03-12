@@ -566,6 +566,47 @@ export class Utility {
         return path.join(solutionPath, Constants.vscodeFolder, Constants.vscodeSettingsFile);
     }
 
+    public static async validateRepositoryUrl(repositoryUrl: string): Promise<string | undefined> {
+        if (!repositoryUrl) {
+            return "Repository url could not be empty";
+        }
+
+        const match: RegExpMatchArray = repositoryUrl.match(/^(?:([^\/]+)\/)?([^:]+)(?::(.+))?$/);
+        if (!match) {
+            return "Repository url is not valid";
+        }
+
+        let hostName: string = match[1];
+        let repositoryName: string = match[2];
+        const tag: string = match[3];
+
+        // if host name do not contain ":.", then it would be treated as repository name
+        if (hostName && !/[:.]/.test(hostName)) {
+            repositoryName = hostName  + "/" + repositoryName;
+            hostName = null;
+        }
+
+        if (hostName && /[^a-zA-Z0-9\.\-:]/.test(hostName)) {
+            return "Repository host name can only contain alphanumeric characters or .-:";
+        }
+
+        if (/[^a-z0-9\._\-\/]+/.test(repositoryName)) {
+            return "Repository name can only contain lowercase letters, digits or ._-/";
+        }
+
+        if (tag) {
+            if (tag.length > 128) {
+                return "The maximum length of tag is 128";
+            }
+
+            if (/[^a-zA-Z0-9\._\-]+/.test(tag)) {
+                return "Tag can only contain alphanumeric characters or ._-";
+            }
+        }
+
+        return undefined;
+    }
+
     public static async validateInputName(name: string, parentPath?: string): Promise<string | undefined> {
         if (!name) {
             return "The name could not be empty";

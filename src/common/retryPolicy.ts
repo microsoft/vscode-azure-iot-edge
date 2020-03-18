@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
 export class RetryPolicy {
     public static async retry(maxRetryTimes: number, retryInterval: number, func: () => Promise<void>) {
         let retries: number = 0;

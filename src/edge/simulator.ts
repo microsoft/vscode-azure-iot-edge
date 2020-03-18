@@ -15,6 +15,7 @@ import { Configuration } from "../common/configuration";
 import { Constants } from "../common/constants";
 import { Executor } from "../common/executor";
 import { LearnMoreError } from "../common/LearnMoreError";
+import { RetryPolicy } from "../common/retryPolicy";
 import { SimulatorInfo } from "../common/SimulatorInfo";
 import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
@@ -36,6 +37,9 @@ export class Simulator {
 
     private static currentPlatform = os.platform();
     private static WindowsStandaloneSimulatorFolder = path.join(vscode.extensions.getExtension(Constants.ExtensionId).extensionPath, Simulator.simulatorExecutableName);
+
+    private static maxRetryTimes: number = 3;
+    private static retryInterval: number = 5000;
 
     private static extractVersion(output: string): string | null {
         if (!output) {
@@ -196,10 +200,13 @@ export class Simulator {
 
     private async getLastestSimulatorInfo() {
         if (!this.latestSimulatorInfo) {
-            const pipResponse = await request.get(Simulator.iotedgehubdevVersionUrl);
-            const version = JSON.parse(pipResponse).info.version;
-            const standaloneDownloadUrl = `https://github.com/Azure/iotedgehubdev/releases/download/v${version}/iotedgehubdev-v${version}-win32-ia32.zip`;
-            this.latestSimulatorInfo = new SimulatorInfo(version, standaloneDownloadUrl);
+            await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, async () => {
+                const pipResponse = await request.get(Simulator.iotedgehubdevVersionUrl);
+                const version = JSON.parse(pipResponse).info.version;
+                const standaloneDownloadUrl = `https://github.com/Azure/iotedgehubdev/releases/download/v${version}/iotedgehubdev-v${version}-win32-ia32.zip`;
+                this.latestSimulatorInfo = new SimulatorInfo(version, standaloneDownloadUrl);
+            });
+
             return this.latestSimulatorInfo;
         } else {
             return this.latestSimulatorInfo;
@@ -259,29 +266,35 @@ export class Simulator {
         const binariesZipUrl: string = info.standaloneDownloadUrl;
         const version: string = info.version;
 
-        await new Promise((resolve, reject) => {
-            const req = request(binariesZipUrl);
-            req.on("response",  (res) => {
-                if (res.statusCode === 200) {
-                    req.pipe(unzipper.Extract({ path: Simulator.WindowsStandaloneSimulatorFolder }))
-                    .on("close", () => resolve()).on("error", (e) => reject(new Error("Cannot extract simulator binaries from zip file: " + e.message)));
-                } else {
-                    reject(new Error("Cannot download simulator with status code: " + res.statusCode));
-                }
+        await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, async () => {
+            await new Promise((resolve, reject) => {
+                const req = request(binariesZipUrl);
+                req.on("response",  (res) => {
+                    if (res.statusCode === 200) {
+                        req.pipe(unzipper.Extract({ path: Simulator.WindowsStandaloneSimulatorFolder }))
+                        .on("close", () => resolve()).on("error", (e) => reject(new Error("Cannot extract simulator binaries from zip file: " + e.message)));
+                    } else {
+                        reject(new Error("Cannot download simulator with status code: " + res.statusCode));
+                    }
+                });
+
+                req.on("error", (err) => {
+                    reject(new Error("Cannot download simulator, please check your network connection: " + err.message));
+                });
             });
-        });
 
-        try {
-            if (this.simulatorExecutablePath) {
-                await fse.remove(path.dirname(this.simulatorExecutablePath));
+            try {
+                if (this.simulatorExecutablePath) {
+                    await fse.remove(path.dirname(this.simulatorExecutablePath));
+                }
+            } catch (err) {
+                // ignore
             }
-        } catch (err) {
-            // ignore
-        }
 
-        await fse.move(path.join(Simulator.WindowsStandaloneSimulatorFolder, Simulator.simulatorExecutableName), path.join(Simulator.WindowsStandaloneSimulatorFolder, version));
-        this.context.globalState.update(Simulator.simulatorVersionKey, version);
-        this.simulatorExecutablePath = path.join(Simulator.WindowsStandaloneSimulatorFolder, version , Simulator.simulatorExecutableName);
+            await fse.move(path.join(Simulator.WindowsStandaloneSimulatorFolder, Simulator.simulatorExecutableName), path.join(Simulator.WindowsStandaloneSimulatorFolder, version));
+            this.context.globalState.update(Simulator.simulatorVersionKey, version);
+            this.simulatorExecutablePath = path.join(Simulator.WindowsStandaloneSimulatorFolder, version , Simulator.simulatorExecutableName);
+        });
     }
 
     private async autoInstallSimulator(outputChannel: vscode.OutputChannel = null): Promise<InstallResult> {

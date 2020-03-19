@@ -13,7 +13,7 @@ export class RetryPolicy {
                 break;
             } catch (err) {
                 if (retries < maxRetryTimes) {
-                    outputChannel.appendLine(`Task failed with error: ${err.message}, wait ${retryInterval} millisecond and retry (${retries})...`);
+                    outputChannel.appendLine(`Task failed with error: ${err.message}, wait ${retryInterval} milliseconds and retry (${retries})...`);
                     await this.sleep(retryInterval);
                     continue;
                 }

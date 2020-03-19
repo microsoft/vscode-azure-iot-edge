@@ -94,7 +94,7 @@ export class Simulator {
             } else {
                 const version: string | null = await this.getCurrentSimulatorVersion();
                 if (version && semver.valid(version)) {
-                    const latestVersion: string | undefined = await this.getLatestSimulatorVersion();
+                    const latestVersion: string | undefined = await this.getLatestSimulatorVersion(outputChannel);
                     if (latestVersion && semver.gt(latestVersion, version)) {
                         message = `${Constants.updateSimulatorMsg} (${version} to ${latestVersion})`;
                     } else {
@@ -198,9 +198,9 @@ export class Simulator {
         });
     }
 
-    private async getLastestSimulatorInfo() {
+    private async getLastestSimulatorInfo(outputChannel: vscode.OutputChannel) {
         if (!this.latestSimulatorInfo) {
-            await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, async () => {
+            await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, outputChannel, async () => {
                 const pipResponse = await request.get(Simulator.iotedgehubdevVersionUrl);
                 const version = JSON.parse(pipResponse).info.version;
                 const standaloneDownloadUrl = `https://github.com/Azure/iotedgehubdev/releases/download/v${version}/iotedgehubdev-v${version}-win32-ia32.zip`;
@@ -213,9 +213,9 @@ export class Simulator {
         }
     }
 
-    private async getLatestSimulatorVersion(): Promise<string | undefined> {
+    private async getLatestSimulatorVersion(outputChannel: vscode.OutputChannel): Promise<string | undefined> {
         try {
-            const info: SimulatorInfo = await this.getLastestSimulatorInfo();
+            const info: SimulatorInfo = await this.getLastestSimulatorInfo(outputChannel);
             return info.version;
         } catch (error) {
             return undefined;
@@ -252,21 +252,21 @@ export class Simulator {
         return executorPath;
     }
 
-    private async downloadStandaloneSimulatorWithProgress() {
+    private async downloadStandaloneSimulatorWithProgress(outputChannel: vscode.OutputChannel) {
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: Constants.downloadingAndInstallingStandaloneSimulatorMsg,
         }, async () => {
-            await this.downloadStandaloneSimulator();
+            await this.downloadStandaloneSimulator(outputChannel);
         });
     }
 
-    private async downloadStandaloneSimulator() {
-        const info: SimulatorInfo = await this.getLastestSimulatorInfo();
+    private async downloadStandaloneSimulator(outputChannel: vscode.OutputChannel) {
+        const info: SimulatorInfo = await this.getLastestSimulatorInfo(outputChannel);
         const binariesZipUrl: string = info.standaloneDownloadUrl;
         const version: string = info.version;
 
-        await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, async () => {
+        await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, outputChannel, async () => {
             await new Promise((resolve, reject) => {
                 const req = request(binariesZipUrl);
                 req.on("response",  (res) => {
@@ -308,7 +308,7 @@ export class Simulator {
             let ret: InstallReturn = InstallReturn.Success;
             let errMsg: string;
             try {
-                await this.downloadStandaloneSimulatorWithProgress();
+                await this.downloadStandaloneSimulatorWithProgress(outputChannel);
             } catch (error) {
                 if (outputChannel) {
                     outputChannel.appendLine(`${Constants.failedInstallSimulator} ${error.message}`);

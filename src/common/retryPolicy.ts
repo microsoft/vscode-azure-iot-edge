@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
+import * as vscode from "vscode";
+
 export class RetryPolicy {
-    public static async retry(maxRetryTimes: number, retryInterval: number, func: () => Promise<void>) {
+    public static async retry(maxRetryTimes: number, retryInterval: number, outputChannel: vscode.OutputChannel, func: () => Promise<void>) {
         let retries: number = 0;
         while (true) {
             try {
@@ -11,6 +13,7 @@ export class RetryPolicy {
                 break;
             } catch (err) {
                 if (retries < maxRetryTimes) {
+                    outputChannel.appendLine(`Task failed with error: ${err.message}, wait ${retryInterval} millisecond and retry (${retries})...`);
                     await this.sleep(retryInterval);
                     continue;
                 }

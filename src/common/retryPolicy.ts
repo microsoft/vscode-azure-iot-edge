@@ -12,7 +12,7 @@ export class RetryPolicy {
                 await func();
                 break;
             } catch (err) {
-                if (retries < maxRetryTimes) {
+                if (retries <= maxRetryTimes) {
                     outputChannel.appendLine(`Task failed with error: ${err.message}, wait ${retryInterval} milliseconds and retry (${retries})...`);
                     await this.sleep(retryInterval);
                     continue;

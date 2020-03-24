@@ -452,31 +452,23 @@
             "redirectOutput": true,
             "pathMappings": [
               {
-                "localRoot": "${workspaceFolder}/modules/<module-folder>",
+                "localRoot": "${workspaceFolder}",
                 "remoteRoot": "<Absolute path of the program in the docker container>"
               }
-            ],
-            "windows": {
-              "pathMappings": [
-                {
-                  "localRoot": "${workspaceFolder}\\modules\\<module-folder>",
-                  "remoteRoot": "<Absolute path of the program in the docker container>"
-                }
-              ]
-            }
+            ]
           },
           {
             "name": "Launch IoT Edge Module (Python)",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/modules/<module-folder>/main.py",
+            "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
             "env": {
               "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
               "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
             },
             "windows": {
-              "program": "${workspaceFolder}\\modules\\%MODULE_FOLDER%\\main.py"
+              "program": "${workspaceFolder}\\main.py"
             }
           }
         ],
@@ -493,18 +485,10 @@
               "redirectOutput": true,
               "pathMappings": [
                 {
-                  "localRoot": "^\"\\${workspaceFolder}/modules/<module-folder>\"",
+                  "localRoot": "^\"\\${workspaceFolder}\"",
                   "remoteRoot": "/app"
                 }
-              ],
-              "windows": {
-                "pathMappings": [
-                  {
-                    "localRoot": "^\"\\${workspaceFolder}\\\\\\modules\\\\\\<module-folder>\"",
-                    "remoteRoot": "/app"
-                  }
-                ]
-              }
+              ]
             }
           },
           {
@@ -513,14 +497,14 @@
               "name": "Launch IoT Edge Module (Python)",
               "type": "python",
               "request": "launch",
-              "program": "^\"\\${workspaceFolder}/modules/<module-folder>/main.py\"",
+              "program": "^\"\\${workspaceFolder}/main.py\"",
               "console": "integratedTerminal",
               "env": {
                 "EdgeHubConnectionString": "^\"\\${config:azure-iot-edge.EdgeHubConnectionString}\"",
                 "EdgeModuleCACertificateFile": "^\"\\${config:azure-iot-edge.EdgeModuleCACertificateFile}\""
               },
               "windows": {
-                "program": "^\"\\${workspaceFolder}\\\\\\modules\\\\\\<module-folder>\\\\\\main.py\""
+                "program": "^\"\\${workspaceFolder}\\\\\\main.py\""
               }
             }
           }

@@ -80,6 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-coreclr", {resolveDebugConfiguration}));
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-node", {resolveDebugConfiguration}));
+    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("edge-python", {resolveDebugConfiguration}));
 
     context.subscriptions.push(vscode.languages.registerCodeLensProvider({ pattern: `**/{deployment.*.template.json,deployment.template.json}` }, new ASAModuleUpdateCodeLensProvider()));
 

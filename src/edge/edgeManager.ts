@@ -328,7 +328,7 @@ export class EdgeManager {
                 mapObj.set(Constants.appFolder, "/app");
                 const csprojPath: string = path.join(slnPath, Constants.moduleFolder, moduleName, moduleName + Constants.csharpProjectFlieExtensionName);
                 const csprojStr: string = await fse.readFile(csprojPath, "utf-8");
-                const targetFramework: string = csprojStr.match(/<TargetFramework>(.+?)<\/TargetFramework>/)[1];
+                const targetFramework: string = csprojStr.match(/<TargetFramework>(.+?)<\/TargetFramework>/)[1].trim();
                 mapObj.set(Constants.csharpModuleTargetFrameworkPlaceHolder, targetFramework);
                 break;
             case Constants.CSHARP_FUNCTION:

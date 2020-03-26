@@ -1,4 +1,17 @@
 # Change Log
+## 1.21.0 - 2020-3-xx
+### Added
+* Add check when input repository URL
+* Add retry logic when downlaod standalone simulator
+* Add single module debug support for Python
+* Add arm64v8 platform support
+
+### Changed
+* Use pip package URL instead of GitHub API to avoid rate limitation
+
+### Fixed
+* Fixed image placeholder and docker path verification issue: [#159](https://github.com/microsoft/vscode-azure-iot-edge/issues/159)
+
 ## 1.20.0 - 2019-12-31
 ### Changed
 * Update scroll bar css to compatible with dark theme for Sample Gallery 

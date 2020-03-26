@@ -22,6 +22,8 @@ export class Constants {
     public static moduleNamePlaceholder = "%MODULE%";
     public static moduleImagePlaceholder = "%MODULE_IMAGE%";
     public static moduleFolderPlaceholder = "%MODULE_FOLDER%";
+    public static csharpModuleTargetFrameworkPlaceHolder = "%TARGET_FRAMEWORK%";
+    public static csharpProjectFlieExtensionName = ".csproj";
     public static appFolder = "%APP_FOLDER%";
     public static groupIDPlaceholder = "%GROUP_ID%";
     public static repositoryPlaceholder = "%REPOSITORY%";

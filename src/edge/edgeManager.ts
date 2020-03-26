@@ -228,7 +228,7 @@ export class EdgeManager {
 
         const isProjCreated = await this.addModuleProj(targetModulePath, moduleInfo.moduleName, moduleInfo.repositoryName, template, outputChannel, extraProps);
 
-        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleInfo.moduleName, extraProps);
+        const debugGenerated: any = await this.generateDebugSetting(sourceSolutionPath, template, moduleInfo.moduleName, extraProps, slnPath);
         if (debugGenerated) {
             const targetVscodeFolder: string = path.join(slnPath, Constants.vscodeFolder);
             await fse.ensureDir(targetVscodeFolder);
@@ -313,7 +313,8 @@ export class EdgeManager {
     private async generateDebugSetting(srcSlnPath: string,
                                        language: string,
                                        moduleName: string,
-                                       extraProps: Map<string, string>): Promise<any> {
+                                       extraProps: Map<string, string>,
+                                       slnPath: string): Promise<any> {
 
         const mapObj: Map<string, string> = new Map<string, string>();
         mapObj.set(Constants.moduleNamePlaceholder, moduleName);
@@ -325,6 +326,10 @@ export class EdgeManager {
             case Constants.LANGUAGE_CSHARP:
                 launchFile = Constants.launchCSharp;
                 mapObj.set(Constants.appFolder, "/app");
+                const csprojPath: string = path.join(slnPath, Constants.moduleFolder, moduleName, moduleName + Constants.csharpProjectFlieExtensionName);
+                const csprojStr: string = await fse.readFile(csprojPath, "utf-8");
+                const targetFramework: string = csprojStr.match(/<TargetFramework>(.+?)<\/TargetFramework>/)[1].trim();
+                mapObj.set(Constants.csharpModuleTargetFrameworkPlaceHolder, targetFramework);
                 break;
             case Constants.CSHARP_FUNCTION:
                 launchFile = Constants.launchCSharp;

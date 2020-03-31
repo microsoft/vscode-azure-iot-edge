@@ -586,12 +586,12 @@ export class Utility {
             hostName = null;
         }
 
-        if (hostName && /[^a-zA-Z0-9\.\-:]/.test(hostName)) {
-            return "Repository host name can only contain alphanumeric characters or .-:";
+        if (hostName && /[^a-zA-Z0-9\.\-:\${}]/.test(hostName)) {
+            return "Repository host name can only contain alphanumeric characters or .-:${}";
         }
 
-        if (/[^a-z0-9\._\-\/]+/.test(repositoryName)) {
-            return "Repository name can only contain lowercase letters, digits or ._-/";
+        if (/[^a-z0-9\._\-\/\${}]+/.test(repositoryName)) {
+            return "Repository name can only contain lowercase letters, digits or ._-/${}";
         }
 
         if (tag) {
@@ -599,8 +599,8 @@ export class Utility {
                 return "The maximum length of tag is 128";
             }
 
-            if (/[^a-zA-Z0-9\._\-]+/.test(tag)) {
-                return "Tag can only contain alphanumeric characters or ._-";
+            if (/[^a-zA-Z0-9\._\-\${}]+/.test(tag)) {
+                return "Tag can only contain alphanumeric characters or ._-${}";
             }
         }
 

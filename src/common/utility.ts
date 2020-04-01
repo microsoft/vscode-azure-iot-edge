@@ -587,11 +587,11 @@ export class Utility {
         }
 
         if (hostName && /[^a-zA-Z0-9\.\-:\${}]/.test(hostName)) {
-            return "Repository host name can only contain alphanumeric characters or .-:${}";
+            return "Repository host name can only contain alphanumeric characters or .-:, and ${} are also supported for environment variables";
         }
 
         if (/[^a-z0-9\._\-\/\${}]+/.test(repositoryName)) {
-            return "Repository name can only contain lowercase letters, digits or ._-/${}";
+            return "Repository name can only contain lowercase letters, digits or ._-/, and ${} are also supported for environment variables";
         }
 
         if (tag) {
@@ -600,7 +600,7 @@ export class Utility {
             }
 
             if (/[^a-zA-Z0-9\._\-\${}]+/.test(tag)) {
-                return "Tag can only contain alphanumeric characters or ._-${}";
+                return "Tag can only contain alphanumeric characters or ._-, and ${} are also supported for environment variables";
             }
         }
 

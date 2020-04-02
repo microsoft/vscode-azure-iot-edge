@@ -586,20 +586,25 @@ export class Utility {
             hostName = null;
         }
 
-        if (hostName && /[^a-zA-Z0-9\.\-:\${}]/.test(hostName)) {
-            return "Repository host name can only contain alphanumeric characters or .-:, and ${} are also supported for environment variables";
+        if (hostName) {
+            const hostNameWithoutEnv = hostName.replace(/\${[^${} ]+?}/g, "");
+            if (/[^a-zA-Z0-9\.\-:]/.test(hostNameWithoutEnv)) {
+                return "Repository host name can only contain alphanumeric characters or .-:, and ${} are also supported for environment variables";
+            }
         }
 
-        if (/[^a-z0-9\._\-\/\${}]+/.test(repositoryName)) {
+        const repositoryNameWithoutEnv = repositoryName.replace(/\${[^${} ]+?}/g, "");
+        if (/[^a-z0-9\._\-\/]+/.test(repositoryNameWithoutEnv)) {
             return "Repository name can only contain lowercase letters, digits or ._-/, and ${} are also supported for environment variables";
         }
 
         if (tag) {
-            if (tag.length > 128) {
+            const tagWithoutEnv = tag.replace(/\${[^${} ]+?}/g, "");
+            if (tagWithoutEnv.length > 128) {
                 return "The maximum length of tag is 128";
             }
 
-            if (/[^a-zA-Z0-9\._\-\${}]+/.test(tag)) {
+            if (/[^a-zA-Z0-9\._\-]+/.test(tagWithoutEnv)) {
                 return "Tag can only contain alphanumeric characters or ._-, and ${} are also supported for environment variables";
             }
         }

@@ -160,7 +160,7 @@ export class Utility {
     }
 
     public static expandEnv(input: string, overrideKVs: {[name: string]: string} = {}, ...exceptKeys: string[]): string {
-        const pattern: RegExp = new RegExp(/\$([a-zA-Z0-9_]+)|\${([a-zA-Z0-9_]+)}/g);
+        const pattern: RegExp = new RegExp(/\$(\w+)|\${(\w+)}/g);
         const exceptSet: Set<string> = new Set(exceptKeys);
         if (!overrideKVs) {
             overrideKVs = {};
@@ -587,24 +587,24 @@ export class Utility {
         }
 
         if (hostName) {
-            const hostNameWithoutEnv = hostName.replace(/\${[^${} ]+?}/g, "");
-            if (/[^a-zA-Z0-9\.\-:]/.test(hostNameWithoutEnv)) {
+            const hostNameWithoutEnv = hostName.replace(/\$\w+|\${\w+}/g, "");
+            if (/[^\w.-:]/.test(hostNameWithoutEnv)) {
                 return "Repository host name can only contain alphanumeric characters or .-:, and ${} are also supported for environment variables";
             }
         }
 
-        const repositoryNameWithoutEnv = repositoryName.replace(/\${[^${} ]+?}/g, "");
-        if (/[^a-z0-9\._\-\/]+/.test(repositoryNameWithoutEnv)) {
+        const repositoryNameWithoutEnv = repositoryName.replace(/\$\w+|\${\w+}/g, "");
+        if (/[^a-z0-9._\-\/]+/.test(repositoryNameWithoutEnv)) {
             return "Repository name can only contain lowercase letters, digits or ._-/, and ${} are also supported for environment variables";
         }
 
         if (tag) {
-            const tagWithoutEnv = tag.replace(/\${[^${} ]+?}/g, "");
+            const tagWithoutEnv = tag.replace(/\$\w+|\${\w+}/g, "");
             if (tagWithoutEnv.length > 128) {
                 return "The maximum length of tag is 128";
             }
 
-            if (/[^a-zA-Z0-9\._\-]+/.test(tagWithoutEnv)) {
+            if (/[^\w.-]+/.test(tagWithoutEnv)) {
                 return "Tag can only contain alphanumeric characters or ._-, and ${} are also supported for environment variables";
             }
         }

@@ -24,7 +24,7 @@
 ## What's New (v1.21.0)
 ### Added
 * Add check when input repository URL
-* Add retry logic when downlaod standalone simulator
+* Add retry logic when download standalone simulator
 * Add single module debug support for Python
 * Add arm64v8 platform support
 

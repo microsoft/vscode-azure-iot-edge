@@ -1,5 +1,5 @@
 # Change Log
-## 1.21.0 - 2020-4-03
+## 1.21.0 - 2020-4-07
 ### Added
 * Add check when input repository URL
 * Add retry logic when download standalone simulator

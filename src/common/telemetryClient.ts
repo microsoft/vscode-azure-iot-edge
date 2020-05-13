@@ -12,22 +12,31 @@ const aiKey: string = packageJSON.aiKey;
 
 export class TelemetryClient {
     public static sendEvent(eventName: string, properties?: { [key: string]: string; }): void {
-        if (properties) {
-            properties[Constants.isInternalPropertyName] = this._isInternal === true ? "true" : "false";
-        } else {
-            properties = {
-                [Constants.isInternalPropertyName] : this._isInternal === true ? "true" : "false",
-            };
-        }
+        this.stampInternalProperty(properties);
         this._client.sendTelemetryEvent(eventName, properties);
+    }
+
+    public static sendErrorEvent(eventName: string, properties?: { [key: string]: string; }): void {
+        this.stampInternalProperty(properties);
+        this._client.sendTelemetryErrorEvent(eventName, properties, null, ["error", "errorMessage"]);
     }
 
     private static _isInternal: boolean = TelemetryClient.isInternalUser();
 
-    private static _client = new TelemetryReporter(Constants.ExtensionId, extensionVersion, aiKey);
+    private static _client = new TelemetryReporter(Constants.ExtensionId, extensionVersion, aiKey, true);
 
     private static isInternalUser(): boolean {
         const userDomain = process.env.USERDNSDOMAIN ? process.env.USERDNSDOMAIN.toLowerCase() : "";
         return userDomain.endsWith("microsoft.com");
+    }
+
+    private static stampInternalProperty(properties?: { [key: string]: string; }) {
+        if (properties) {
+            properties[Constants.isInternalPropertyName] = this._isInternal === true ? "true" : "false";
+        } else {
+            properties = {
+                [Constants.isInternalPropertyName]: this._isInternal === true ? "true" : "false",
+            };
+        }
     }
 }

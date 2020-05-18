@@ -116,7 +116,7 @@ export class Simulator {
             const installResult = await this.autoInstallSimulator(outputChannel);
 
             if (installResult.errMsg) {
-                TelemetryClient.sendErrorEvent(`${telemetryName}.${type}.${InstallReturn[installResult.resultType]}`, { error: installResult.errMsg });
+                TelemetryClient.sendErrorEvent(`${telemetryName}.${type}.${InstallReturn[installResult.resultType]}`, { [Constants.errorProperties.error]: installResult.errMsg });
             } else {
                 TelemetryClient.sendEvent(`${telemetryName}.${type}.${InstallReturn[installResult.resultType]}`);
             }
@@ -385,7 +385,7 @@ export class Simulator {
             const installResult = await this.autoInstallSimulator(outputChannel);
 
             if (installResult.errMsg) {
-                TelemetryClient.sendErrorEvent(`${telemetryName}.install.${InstallReturn[installResult.resultType]}`, { error: installResult.errMsg });
+                TelemetryClient.sendErrorEvent(`${telemetryName}.install.${InstallReturn[installResult.resultType]}`, { [Constants.errorProperties.error]: installResult.errMsg });
             } else {
                 TelemetryClient.sendEvent(`${telemetryName}.install.${InstallReturn[installResult.resultType]}`);
             }

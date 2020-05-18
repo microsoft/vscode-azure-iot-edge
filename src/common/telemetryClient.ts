@@ -18,7 +18,8 @@ export class TelemetryClient {
 
     public static sendErrorEvent(eventName: string, properties?: { [key: string]: string; }): void {
         this.stampInternalProperty(properties);
-        this._client.sendTelemetryErrorEvent(eventName, properties, null, ["error", "errorMessage"]);
+        const errorProperties = Object.values(Constants.errorProperties);
+        this._client.sendTelemetryErrorEvent(eventName, properties, null, errorProperties);
     }
 
     private static _isInternal: boolean = TelemetryClient.isInternalUser();

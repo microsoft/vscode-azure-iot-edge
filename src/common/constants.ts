@@ -206,6 +206,10 @@ export class Constants {
     public static Cancel = "Cancel";
     public static TroubleShooting = "Troubleshooting";
     public static InstallDocker = "Install Docker";
+    public static errorProperties = {
+        error: "error",
+        errorMessage: "errorMessage",
+    };
 
     public static noWorkspaceSetDefaultPlatformMsg = "No workspace is opened for setting default platform. Please open a workspace and try again.";
     public static noWorkspaceMsg = "This extension only works when folders are opened.";

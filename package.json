@@ -271,7 +271,7 @@
           "default": {
             "amd64": [],
             "arm32v7": [],
-            "arm64v8":[],
+            "arm64v8": [],
             "windows-amd64": []
           },
           "description": "Edge Module target platforms"
@@ -563,7 +563,7 @@
     "strip-json-comments": "^2.0.1",
     "tmp": "0.0.33",
     "unzipper": "^0.10.5",
-    "vscode-extension-telemetry": "0.0.18"
+    "vscode-extension-telemetry": "^0.1.6"
   },
   "extensionDependencies": [
     "ms-vscode.azure-account",

@@ -114,7 +114,13 @@ export class Simulator {
             TelemetryClient.sendEvent(`${telemetryName}.${type}`);
 
             const installResult = await this.autoInstallSimulator(outputChannel);
-            TelemetryClient.sendEvent(`${telemetryName}.${type}.${InstallReturn[installResult.resultType]}`, { error: installResult.errMsg });
+
+            if (installResult.errMsg) {
+                TelemetryClient.sendErrorEvent(`${telemetryName}.${type}.${InstallReturn[installResult.resultType]}`, { [Constants.errorProperties.error]: installResult.errMsg });
+            } else {
+                TelemetryClient.sendEvent(`${telemetryName}.${type}.${InstallReturn[installResult.resultType]}`);
+            }
+
             if (InstallReturn.NotSupported === installResult.resultType) {
                 const learnMore: vscode.MessageItem = { title: Constants.learnMore };
                 if (await vscode.window.showWarningMessage(message, ...[learnMore]) === learnMore) {
@@ -377,7 +383,13 @@ export class Simulator {
         if (await this.simulatorInstalled() === SimulatorType.NotInstalled) {
             TelemetryClient.sendEvent(`${telemetryName}.install`);
             const installResult = await this.autoInstallSimulator(outputChannel);
-            TelemetryClient.sendEvent(`${telemetryName}.install.${InstallReturn[installResult.resultType]}`, { error: installResult.errMsg });
+
+            if (installResult.errMsg) {
+                TelemetryClient.sendErrorEvent(`${telemetryName}.install.${InstallReturn[installResult.resultType]}`, { [Constants.errorProperties.error]: installResult.errMsg });
+            } else {
+                TelemetryClient.sendEvent(`${telemetryName}.install.${InstallReturn[installResult.resultType]}`);
+            }
+
             return installResult.resultType;
         } else {
             return InstallReturn.Success;

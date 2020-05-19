@@ -285,10 +285,12 @@ function initCommandAsync(context: vscode.ExtensionContext,
             const end: number = Date.now();
             properties.duration = ((end - start) / 1000).toString();
             if (errorData) {
-                properties.error = errorData.errorType;
-                properties.errorMessage = errorData.message;
+                properties[Constants.errorProperties.error] = errorData.errorType;
+                properties[Constants.errorProperties.errorMessage] = errorData.message;
+                TelemetryClient.sendErrorEvent(`${commandId}.end`, properties);
+            } else {
+                TelemetryClient.sendEvent(`${commandId}.end`, properties);
             }
-            TelemetryClient.sendEvent(`${commandId}.end`, properties);
             NSAT.takeSurvey(context);
         }
     }));

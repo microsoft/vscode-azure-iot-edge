@@ -21,18 +21,10 @@
 
 ![Added](images/multipleplatform.gif)
 
-## What's New (v1.21.0)
-### Added
-* Add check when input repository URL
-* Add retry logic when download standalone simulator
-* Add single module debug support for Python
-* Add arm64v8 platform support
-
+## What's New (v1.22.0)
 ### Changed
-* Use pip package URL instead of GitHub API to avoid rate limitation
-
-### Fixed
-* Fixed image placeholder and docker path verification issue: [#159](https://github.com/microsoft/vscode-azure-iot-edge/issues/159)
+* Allow user to select deployment template when add module
+* Adopt VS Code's 'asWebviewUri' API
 
 ## Known Issues
 * [C module remote debug error](https://github.com/Microsoft/vscode-azure-iot-edge/issues/283)

@@ -59,8 +59,9 @@ export class EdgeManager {
     }
 
     public async addModuleForSolution(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
+        const pattern = `{${Constants.deploymentTsonPattern}}`;
         let templateFile: string = await Utility.getInputFilePath(templateUri,
-            Constants.deploymentTemplatePattern,
+            pattern,
             Constants.deploymentTemplateDesc,
             `${Constants.addModuleEvent}.selectTemplate`);
         if (!templateFile) {
@@ -246,21 +247,24 @@ export class EdgeManager {
         const isTempsensorNeeded = isNewSolution && this.isCustomModule(template);
         const { usernameEnv, passwordEnv } = await this.addModuleToDeploymentTemplate(templateJson, templateFile, envFilePath, moduleInfo, isTempsensorNeeded);
 
-        const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
         const debugTemplateEnv = { usernameEnv: undefined, passwordEnv: undefined };
         let debugExist = false;
-        if (await fse.pathExists(templateDebugFile)) {
-            debugExist = true;
-            const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
-            const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, isTempsensorNeeded, true);
-            debugTemplateEnv.usernameEnv = envs.usernameEnv;
-            debugTemplateEnv.passwordEnv = envs.passwordEnv;
+        const templateName = path.basename(templateFile);
+        if (templateName === Constants.deploymentTemplate) {
+            const templateDebugFile = path.join(slnPath, Constants.deploymentDebugTemplate);
+            if (await fse.pathExists(templateDebugFile)) {
+                debugExist = true;
+                const templateDebugJson = Utility.updateSchema(await fse.readJson(templateDebugFile));
+                const envs = await this.addModuleToDeploymentTemplate(templateDebugJson, templateDebugFile, envFilePath, moduleInfo, isTempsensorNeeded, true);
+                debugTemplateEnv.usernameEnv = envs.usernameEnv;
+                debugTemplateEnv.passwordEnv = envs.passwordEnv;
+            }
         }
 
         if (!isNewSolution) {
             const launchUpdated: string = debugGenerated ? "and 'launch.json' are updated." : "are updated.";
             const moduleCreationMessage = isProjCreated ? `Module '${moduleInfo.moduleName}' has been created. ` : "";
-            const deploymentTemlateMessage = debugExist ? "deployment.template.json, deployment.debug.template.json" : "deployment.template.json";
+            const deploymentTemlateMessage = debugExist ? `${Constants.deploymentTemplate}, ${Constants.deploymentDebugTemplate}` : templateName;
             vscode.window.showInformationMessage(`${moduleCreationMessage} ${deploymentTemlateMessage} ${launchUpdated}`);
         }
         const address = await Utility.getRegistryAddress(moduleInfo.repositoryName);

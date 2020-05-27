@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.22.0 - 2020-5-xx
+## 1.22.0 - 2020-5-27
 ### Changed
 * Allow user to select deployment template when add module
 * Adopt VS Code's 'asWebviewUri' API

@@ -163,6 +163,7 @@ export class Simulator {
 
     public async setModuleCred(outputChannel: vscode.OutputChannel): Promise<void> {
         return await this.callWithInstallationCheck(outputChannel, async () => {
+            await this.checkIoTedgehubdevConnectionString(outputChannel);
             let storagePath = this.context.storagePath;
             if (!storagePath) {
                 storagePath = path.resolve(os.tmpdir(), "vscodeedge");

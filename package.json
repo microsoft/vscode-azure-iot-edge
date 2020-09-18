@@ -513,7 +513,6 @@
     ]
   },
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
     "vscode:prepublish": "webpack --mode production",
     "compile": "tsc -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
@@ -565,9 +564,6 @@
     "tmp": "0.0.33",
     "unzipper": "^0.10.5",
     "vscode-extension-telemetry": "^0.1.6"
-  },
-  "resolutions": {
-    "minimist": "^1.2.5"
   },
   "extensionDependencies": [
     "ms-vscode.azure-account",

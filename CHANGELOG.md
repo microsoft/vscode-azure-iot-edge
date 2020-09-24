@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.23.0 - 2020-9-23
+### Fixed
+* Guide user to setup device connection string when missing during 'Set module credentials' operation
+
 ## 1.22.0 - 2020-5-27
 ### Changed
 * Allow user to select deployment template when add module

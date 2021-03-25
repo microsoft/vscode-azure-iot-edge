@@ -43,6 +43,7 @@
     "onCommand:azure-iot-edge.addModule",
     "onCommand:azure-iot-edge.stopSolution",
     "onCommand:azure-iot-edge.setupIotedgehubdev",
+    "onCommand:azure-iot-edge.setDefaultEdgeRuntimeVersion",
     "onCommand:azure-iot-edge.startEdgeHubSingle",
     "onCommand:azure-iot-edge.setModuleCred",
     "onCommand:azure-iot-edge.setDefaultPlatform",
@@ -167,6 +168,11 @@
         "category": "Azure IoT Edge"
       },
       {
+        "command": "azure-iot-edge.setDefaultEdgeRuntimeVersion",
+        "title": "Set Default IoT Edge Runtime Version",
+        "category": "Azure IoT Edge"
+      },
+      {
         "command": "azure-iot-edge.startEdgeHubSingle",
         "title": "Start IoT Edge Hub Simulator for Single Module",
         "category": "Azure IoT Edge"
@@ -191,16 +197,6 @@
       "type": "object",
       "title": "Azure IoT Edge configuration",
       "properties": {
-        "azure-iot-edge.version.edgeHub": {
-          "type": "string",
-          "default": "1.0",
-          "description": "Set the edgeHub image version, which will be referenced in deployment manifest."
-        },
-        "azure-iot-edge.version.edgeAgent": {
-          "type": "string",
-          "default": "1.0",
-          "description": "Set the edgeAgent image version, which will be referenced in deployment manifest."
-        },
         "azure-iot-edge.version.tempSensor": {
           "type": "string",
           "default": "1.0",
@@ -283,6 +279,19 @@
             "alias": null
           },
           "description": "Current default target platform for Edge Module"
+        },
+        "azure-iot-edge.version.supported.edgeRuntime": {
+          "type": "array",
+          "default": [
+            "1.0",
+            "1.1"
+          ],
+          "description": "List of supported Edge Runtime images versions"
+        },
+        "azure-iot-edge.version.default.edgeRuntime": {
+          "type": "string",
+          "default": "1.0",
+          "description": "Set the edgeAgent and edgeHub images version, which will be referenced in deployment manifest."
         },
         "azure-iot-edge.3rdPartyModuleTemplates": {
           "type": "object",

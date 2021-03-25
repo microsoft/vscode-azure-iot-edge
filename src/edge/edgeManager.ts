@@ -156,6 +156,27 @@ export class EdgeManager {
         }
     }
 
+    public async selectDefaultEdgeRuntimeVersion(outputChannel: vscode.OutputChannel) {
+        const edgeRuntimeVersions: string[] = Versions.getSupportedEdgeRuntimeVersions();
+        const edgeVersionPick = await vscode.window.showQuickPick(edgeRuntimeVersions, { placeHolder: Constants.edgeRuntimeVersionPrompt, ignoreFocusOut: true });
+        if (!edgeVersionPick) {
+            throw new UserCancelledError();
+        }
+
+        TelemetryClient.sendEvent(`${Constants.selectEdgeRuntimeVerEvent}`, {
+            template: edgeVersionPick
+        });
+
+        await Configuration.setWorkspaceConfigurationProperty(Constants.versionDefaultEdgeRuntime, edgeVersionPick);
+        outputChannel.appendLine(`Default Azure IoT Edge Runtime is ${edgeVersionPick} now.`);
+
+        // If there is an active workspace, update the deployment templates 
+        // with the desired runtime version
+        if (Utility.checkWorkspace()) {
+            await this.updateRuntimeVersionInDeploymentTemplate();
+        }
+    }
+
     public async selectDefaultPlatform(outputChannel: vscode.OutputChannel) {
         if (!Utility.checkWorkspace(Constants.noWorkspaceSetDefaultPlatformMsg)) {
             return;
@@ -370,6 +391,28 @@ export class EdgeManager {
         } else {
             return undefined;
         }
+    }
+
+    private async updateRuntimeVersionInDeploymentTemplate() {
+        const pattern = `{${Constants.deploymentTsonPattern}}`;
+        const description = `${Constants.deploymentTemplateDesc}`;
+
+        const fileList: vscode.Uri[] = await vscode.workspace.findFiles(pattern);
+        if (!fileList || fileList.length === 0) {
+            vscode.window.showErrorMessage(`No ${description} can be found under this workspace.`);
+            return;
+        }
+
+        const versionMap = Versions.getRunTimeVersionMap();
+        for (const deploymentTemplateFile of fileList) {
+            const deploymentTemplateFilePath: string = deploymentTemplateFile.fsPath;
+            let templateJson = await fse.readJson(deploymentTemplateFilePath);            
+
+            Versions.updateEdgeAgentImageVersion(templateJson, versionMap);
+            Versions.updateEdgeHubImageVersion(templateJson, versionMap);
+
+            await fse.writeFile(deploymentTemplateFilePath, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });            
+        };
     }
 
     private async addModuleToDeploymentTemplate(templateJson: any, templateFile: string, envFilePath: string,

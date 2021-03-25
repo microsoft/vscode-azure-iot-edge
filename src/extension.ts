@@ -177,6 +177,14 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
     initCommandAsync(context, outputChannel,
+        "azure-iot-edge.setDefaultEdgeRuntimeVersion",
+        async (): Promise<void> => {
+            await edgeManager.selectDefaultEdgeRuntimeVersion(outputChannel);
+            const document = vscode.window && vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document : null;
+            return configDiagnosticProvider.updateDiagnostics(document, diagCollection);
+        });
+    
+    initCommandAsync(context, outputChannel,
         "azure-iot-edge.showGallery",
         async (): Promise<void> => {
           return gallery.loadWebView();

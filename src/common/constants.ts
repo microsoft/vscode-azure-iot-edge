@@ -89,6 +89,7 @@ export class Constants {
     public static moduleName = "Module Name";
     public static moduleNamePrompt = "Provide a Module Name";
     public static moduleNameDft = "SampleModule";
+    public static edgeRuntimeVersionPrompt = "Select Azure IoT Edge Runtime (Edge Hub and Edge Agent images) version";    
     public static registryPlaceholder = "<registry>";
     public static repoNamePlaceholder = "<repo-name>";
     public static tagPlaceholder = "<tag>";
@@ -108,6 +109,7 @@ export class Constants {
     public static runSolutionEvent = "runSolution";
     public static generateDeploymentEvent = "generateDeployment";
     public static addModuleEvent = "addModule";
+    public static selectEdgeRuntimeVerEvent = "selectEdgeVer"
     public static launchCSharp = "launch_csharp.json";
     public static launchNode = "launch_node.json";
     public static launchC = "launch_c.json";
@@ -159,6 +161,8 @@ export class Constants {
 
     public static versionEdgeAgent = "version.edgeAgent";
     public static versionEdgeHub = "version.edgeHub";
+    public static versionEdgeRuntime = "version.supported.edgeRuntime";
+    public static versionDefaultEdgeRuntime = "version.default.edgeRuntime";
     public static versionTempSensor = "version.tempSensor";
     public static versionCModule = "version.cmodule";
     public static versionPythonModule = "version.pythonmodule";

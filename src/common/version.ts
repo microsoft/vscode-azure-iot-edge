@@ -9,6 +9,10 @@ export class Versions {
         return verMap;
     }
 
+    public static getSupportedEdgeRuntimeVersions(): string[] {
+        return Versions.getValue(Constants.versionEdgeRuntime, []) as string[];
+    }
+
     public static installCSharpTemplate(): boolean {
         return Versions.getValue(Constants.installCSharpModule, true) as boolean;
     }
@@ -49,15 +53,50 @@ export class Versions {
         return Versions.getValue(Constants.versionTempSensor, "1.0") as string;
     }
 
+    public static updateEdgeAgentImageVersion(templateJson: any, versionMap: Map<string, string>) {        
+        if(templateJson) {
+            const edgeAgentImage = 
+                templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules["edgeAgent"].settings["image"];
+            templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules["edgeAgent"].settings["image"] =
+                Versions.getNewImageVersionJson(edgeAgentImage, versionMap);
+        }
+    }
+
+    public static updateEdgeHubImageVersion(templateJson: any, versionMap: Map<string, string>) {        
+        if(templateJson) {
+            const edgeHubImage = templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules["edgeHub"].settings["image"];
+            templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules["edgeHub"].settings["image"] =
+                Versions.getNewImageVersionJson(edgeHubImage, versionMap);
+        }
+    }
+
     private static edgeAgentVersion(): string {
-        return Versions.getValue(Constants.versionEdgeAgent) as string;
+        return Versions.getDefaultEdgeRuntimeVersion();
     }
 
-    private static edgeHubVersion(): string {
-        return Versions.getValue(Constants.versionEdgeHub, "1.0") as string;
+    public static edgeHubVersion(): string {
+        return Versions.getDefaultEdgeRuntimeVersion();
     }
 
-    private static getValue(key: string, defaultVal: string|boolean = null): string | boolean {
+    private static getDefaultEdgeRuntimeVersion(): string {
+        return Versions.getValue(Constants.versionDefaultEdgeRuntime, "1.0") as string;
+    }
+
+    private static getNewImageVersionJson(input: string, versionMap: Map<string, string>): string {        
+        if (input) {
+            const imageName: string = input.split(":")[0];
+            switch (imageName) {
+                case "mcr.microsoft.com/azureiotedge-agent":
+                    return imageName + ":" + versionMap.get(Constants.edgeAgentVerPlaceHolder);
+                case "mcr.microsoft.com/azureiotedge-hub":
+                    return imageName + ":" + versionMap.get(Constants.edgeHubVerPlaceHolder);
+                default:
+                    return input;
+            }
+        }
+    }
+
+    private static getValue(key: string, defaultVal: string|string[]|boolean = null): string | string[] | boolean {
         const value = Configuration.getConfigurationProperty(key);
         if (value === undefined || value === null) {
             return defaultVal;

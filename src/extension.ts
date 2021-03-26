@@ -183,7 +183,7 @@ export function activate(context: vscode.ExtensionContext) {
             const document = vscode.window && vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document : null;
             return configDiagnosticProvider.updateDiagnostics(document, diagCollection);
         });
-    
+
     initCommandAsync(context, outputChannel,
         "azure-iot-edge.showGallery",
         async (): Promise<void> => {

@@ -53,28 +53,20 @@ export class Versions {
         return Versions.getValue(Constants.versionTempSensor, "1.0") as string;
     }
 
-    public static updateEdgeAgentImageVersion(templateJson: any, versionMap: Map<string, string>) {        
-        if(templateJson) {
-            const edgeAgentImage = 
-                templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules["edgeAgent"].settings["image"];
-            templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules["edgeAgent"].settings["image"] =
-                Versions.getNewImageVersionJson(edgeAgentImage, versionMap);
+    public static updateSystemModuleImageVersion(templateJson: any, moduleName: string, versionMap: Map<string, string>) {
+        if (templateJson) {
+            const sysModuleImage =
+                templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules[moduleName].settings.image;
+            templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules[moduleName].settings.image =
+                Versions.getNewImageVersionJson(sysModuleImage, versionMap);
         }
-    }
-
-    public static updateEdgeHubImageVersion(templateJson: any, versionMap: Map<string, string>) {        
-        if(templateJson) {
-            const edgeHubImage = templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules["edgeHub"].settings["image"];
-            templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules["edgeHub"].settings["image"] =
-                Versions.getNewImageVersionJson(edgeHubImage, versionMap);
-        }
-    }
-
-    private static edgeAgentVersion(): string {
-        return Versions.getDefaultEdgeRuntimeVersion();
     }
 
     public static edgeHubVersion(): string {
+        return Versions.getDefaultEdgeRuntimeVersion();
+    }
+
+    private static edgeAgentVersion(): string {
         return Versions.getDefaultEdgeRuntimeVersion();
     }
 
@@ -82,7 +74,7 @@ export class Versions {
         return Versions.getValue(Constants.versionDefaultEdgeRuntime, "1.0") as string;
     }
 
-    private static getNewImageVersionJson(input: string, versionMap: Map<string, string>): string {        
+    private static getNewImageVersionJson(input: string, versionMap: Map<string, string>): string {
         if (input) {
             const imageName: string = input.split(":")[0];
             switch (imageName) {

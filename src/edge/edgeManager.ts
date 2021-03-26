@@ -164,13 +164,13 @@ export class EdgeManager {
         }
 
         TelemetryClient.sendEvent(`${Constants.selectEdgeRuntimeVerEvent}`, {
-            template: edgeVersionPick
+            template: edgeVersionPick,
         });
 
         await Configuration.setWorkspaceConfigurationProperty(Constants.versionDefaultEdgeRuntime, edgeVersionPick);
         outputChannel.appendLine(`Default Azure IoT Edge Runtime is ${edgeVersionPick} now.`);
 
-        // If there is an active workspace, update the deployment templates 
+        // If there is an active workspace, update the deployment templates
         // with the desired runtime version
         if (Utility.checkWorkspace()) {
             await this.updateRuntimeVersionInDeploymentTemplate();
@@ -406,13 +406,13 @@ export class EdgeManager {
         const versionMap = Versions.getRunTimeVersionMap();
         for (const deploymentTemplateFile of fileList) {
             const deploymentTemplateFilePath: string = deploymentTemplateFile.fsPath;
-            let templateJson = await fse.readJson(deploymentTemplateFilePath);            
+            const templateJson = await fse.readJson(deploymentTemplateFilePath);
 
-            Versions.updateEdgeAgentImageVersion(templateJson, versionMap);
-            Versions.updateEdgeHubImageVersion(templateJson, versionMap);
+            Versions.updateSystemModuleImageVersion(templateJson, "edgeAgent", versionMap);
+            Versions.updateSystemModuleImageVersion(templateJson, "edgeHub", versionMap);
 
-            await fse.writeFile(deploymentTemplateFilePath, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });            
-        };
+            await fse.writeFile(deploymentTemplateFilePath, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
+        }
     }
 
     private async addModuleToDeploymentTemplate(templateJson: any, templateFile: string, envFilePath: string,

@@ -8,7 +8,6 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                //"--extensionDevelopmentPath=C:\\Work\\AzureIoT\\IoTEdge\\IoTEdgeHubDev\\Modules\\EdgeSolutionTest01"
                 "--extensionDevelopmentPath=${workspaceFolder}"
             ],
             "outFiles": [

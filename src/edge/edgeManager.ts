@@ -59,7 +59,7 @@ export class EdgeManager {
     }
 
     public async addModuleForSolution(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
-        const pattern = `{${Constants.deploymentTsonPattern}}`;
+        const pattern = `{${Constants.deploymentJsonPattern}}`;
         let templateFile: string = await Utility.getInputFilePath(templateUri,
             pattern,
             Constants.deploymentTemplateDesc,
@@ -394,7 +394,7 @@ export class EdgeManager {
     }
 
     private async updateRuntimeVersionInDeploymentTemplate() {
-        const pattern = `{${Constants.deploymentTsonPattern}}`;
+        const pattern = `{${Constants.deploymentJsonPattern}}`;
         const description = `${Constants.deploymentTemplateDesc}`;
 
         const fileList: vscode.Uri[] = await vscode.workspace.findFiles(pattern);

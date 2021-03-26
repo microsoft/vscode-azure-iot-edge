@@ -43,7 +43,7 @@ export class ContainerManager {
     }
 
     public async buildSolution(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri, push: boolean = true, run: boolean = false): Promise<void> {
-        const pattern = `{${Constants.deploymentTsonPattern}}`;
+        const pattern = `{${Constants.deploymentJsonPattern}}`;
         const templateFile: string = await Utility.getInputFilePath(templateUri,
             pattern,
             Constants.deploymentTemplateDesc,
@@ -56,7 +56,7 @@ export class ContainerManager {
     }
 
     public async generateDeployment(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
-        const pattern = `{${Constants.deploymentTsonPattern}}`;
+        const pattern = `{${Constants.deploymentJsonPattern}}`;
         const templateFile: string = await Utility.getInputFilePath(templateUri,
             pattern,
             Constants.deploymentTemplateDesc,

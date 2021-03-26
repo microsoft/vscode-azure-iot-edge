@@ -159,7 +159,7 @@ export class Simulator {
             const inputs = await this.inputInputNames();
             const imgVersion = Versions.edgeHubVersion();
             await this.setModuleCred(outputChannel);
-            await Executor.runInTerminal(Simulator.adjustTerminalCommand(this.getAdjustedSimulatorExecutorPath() + ` start -img "${imgVersion}" -i "${inputs}"`));
+            await Executor.runInTerminal(Simulator.adjustTerminalCommand(this.getAdjustedSimulatorExecutorPath() + ` start -er "${imgVersion}" -i "${inputs}"`));
         });
     }
 

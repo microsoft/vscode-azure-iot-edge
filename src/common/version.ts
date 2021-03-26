@@ -1,6 +1,8 @@
 import { Configuration } from "./configuration";
 import { Constants } from "./constants";
 
+type ImageJson = "${string}:${string}";
+
 export class Versions {
     public static getRunTimeVersionMap(): Map<string, string> {
         const verMap: Map<string, string> = new Map();
@@ -54,7 +56,7 @@ export class Versions {
     }
 
     public static updateSystemModuleImageVersion(templateJson: any, moduleName: string, versionMap: Map<string, string>) {
-        if (templateJson) {
+        if (templateJson !== undefined) {
             const sysModuleImage =
                 templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules[moduleName].settings.image;
             templateJson.modulesContent.$edgeAgent["properties.desired"].systemModules[moduleName].settings.image =
@@ -74,8 +76,8 @@ export class Versions {
         return Versions.getValue(Constants.versionDefaultEdgeRuntime, "1.0") as string;
     }
 
-    private static getNewImageVersionJson(input: string, versionMap: Map<string, string>): string {
-        if (input) {
+    private static getNewImageVersionJson(input: ImageJson, versionMap: Map<string, string>): string {
+        if (input !== undefined) {
             const imageName: string = input.split(":")[0];
             switch (imageName) {
                 case "mcr.microsoft.com/azureiotedge-agent":

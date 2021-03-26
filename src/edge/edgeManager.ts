@@ -172,7 +172,7 @@ export class EdgeManager {
 
         // If there is an active workspace, update the deployment templates
         // with the desired runtime version
-        if (Utility.checkWorkspace()) {
+        if (Utility.checkWorkspace() !== undefined) {
             await this.updateRuntimeVersionInDeploymentTemplate();
         }
     }

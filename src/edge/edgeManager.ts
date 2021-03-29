@@ -59,7 +59,7 @@ export class EdgeManager {
     }
 
     public async addModuleForSolution(outputChannel: vscode.OutputChannel, templateUri?: vscode.Uri): Promise<void> {
-        const pattern = `{${Constants.deploymentTsonPattern}}`;
+        const pattern = `{${Constants.deploymentJsonPattern}}`;
         let templateFile: string = await Utility.getInputFilePath(templateUri,
             pattern,
             Constants.deploymentTemplateDesc,
@@ -153,6 +153,27 @@ export class EdgeManager {
             }
         } else {
             throw new Error("No file is selected");
+        }
+    }
+
+    public async selectDefaultEdgeRuntimeVersion(outputChannel: vscode.OutputChannel) {
+        const edgeRuntimeVersions: string[] = Versions.getSupportedEdgeRuntimeVersions();
+        const edgeVersionPick = await vscode.window.showQuickPick(edgeRuntimeVersions, { placeHolder: Constants.edgeRuntimeVersionPrompt, ignoreFocusOut: true });
+        if (!edgeVersionPick) {
+            throw new UserCancelledError();
+        }
+
+        TelemetryClient.sendEvent(`${Constants.selectEdgeRuntimeVerEvent}`, {
+            template: edgeVersionPick,
+        });
+
+        await Configuration.setWorkspaceConfigurationProperty(Constants.versionDefaultEdgeRuntime, edgeVersionPick);
+        outputChannel.appendLine(`Default Azure IoT Edge Runtime is ${edgeVersionPick} now.`);
+
+        // If there is an active workspace, update the deployment templates
+        // with the desired runtime version
+        if (Utility.checkWorkspace() !== undefined) {
+            await this.updateRuntimeVersionInDeploymentTemplate();
         }
     }
 
@@ -369,6 +390,28 @@ export class EdgeManager {
             return debugConfig;
         } else {
             return undefined;
+        }
+    }
+
+    private async updateRuntimeVersionInDeploymentTemplate() {
+        const pattern = `{${Constants.deploymentJsonPattern}}`;
+        const description = `${Constants.deploymentTemplateDesc}`;
+
+        const fileList: vscode.Uri[] = await vscode.workspace.findFiles(pattern);
+        if (!fileList || fileList.length === 0) {
+            vscode.window.showErrorMessage(`No ${description} can be found under this workspace.`);
+            return;
+        }
+
+        const versionMap = Versions.getRunTimeVersionMap();
+        for (const deploymentTemplateFile of fileList) {
+            const deploymentTemplateFilePath: string = deploymentTemplateFile.fsPath;
+            const templateJson = await fse.readJson(deploymentTemplateFilePath);
+
+            Versions.updateSystemModuleImageVersion(templateJson, "edgeAgent", versionMap);
+            Versions.updateSystemModuleImageVersion(templateJson, "edgeHub", versionMap);
+
+            await fse.writeFile(deploymentTemplateFilePath, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
         }
     }
 

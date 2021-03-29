@@ -1,4 +1,7 @@
 # Change Log
+## 1.24.0 - 2021-3-26
+### Changed
+* Allow user to select Edge Runtime version between 1.0 and 1.1
 
 ## 1.23.0 - 2020-9-23
 ### Fixed

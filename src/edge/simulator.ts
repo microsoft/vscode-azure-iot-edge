@@ -20,6 +20,7 @@ import { SimulatorInfo } from "../common/SimulatorInfo";
 import { TelemetryClient } from "../common/telemetryClient";
 import { UserCancelledError } from "../common/UserCancelledError";
 import { Utility } from "../common/utility";
+import { Versions } from "../common/version";
 import { IDeviceItem } from "../typings/IDeviceItem";
 import { InstallResult, InstallReturn } from "./InstallResult";
 
@@ -156,8 +157,9 @@ export class Simulator {
         return await this.callWithInstallationCheck(outputChannel, async () => {
             await this.checkIoTedgehubdevConnectionString(outputChannel);
             const inputs = await this.inputInputNames();
+            const imgVersion = Versions.edgeHubVersion();
             await this.setModuleCred(outputChannel);
-            await Executor.runInTerminal(Simulator.adjustTerminalCommand(this.getAdjustedSimulatorExecutorPath() + ` start -i "${inputs}"`));
+            await Executor.runInTerminal(Simulator.adjustTerminalCommand(this.getAdjustedSimulatorExecutorPath() + ` start -er "${imgVersion}" -i "${inputs}"`));
         });
     }
 

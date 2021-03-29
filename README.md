@@ -156,7 +156,7 @@ You can also trigger following frequently-used commands in context menu.
 - [Develop and deploy a Python module](https://docs.microsoft.com/azure/iot-edge/tutorial-python-module)
 - [Develop and deploy a Node.js module](https://docs.microsoft.com/azure/iot-edge/tutorial-node-module)
 - [Develop and deploy a C module](https://docs.microsoft.com/azure/iot-edge/tutorial-c-module)
-- [Register a new Azure IoT Edge device](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-register-device-vscode)
+- [Register a new Azure IoT Edge device](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-register-device)
 - [Deploy Azure IoT Edge modules](https://docs.microsoft.com/azure/iot-edge/how-to-deploy-modules-vscode)
 - [Debug C# module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-csharp-module)
 - [Debug Node.js module](https://docs.microsoft.com/azure/iot-edge/how-to-develop-node-module)

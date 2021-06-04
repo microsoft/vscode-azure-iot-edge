@@ -215,10 +215,12 @@ export class Simulator {
                 let version = Simulator.iotedgehubdevDefaultVersion;
                 const pipResponse = await request.get(Simulator.iotedgehubdevVersionUrl);
                 const releases = JSON.parse(pipResponse).releases;
-                let lockVersionExists = releases.includes(version);                
                 let lockVersion = process.env[Simulator.iotedgehubdevLockVersionKey];
-                if (lockVersion !== undefined && lockVersion.trim() !== "" && lockVersionExists == true) {
-                    version = lockVersion;
+                if (lockVersion !== undefined && lockVersion.trim() !== "") {
+                    // Make sure the custom version is an existing release
+                    if (releases.hasOwnProperty(lockVersion)){
+                        version = lockVersion;
+                    }
                   }
                   outputChannel.appendLine(`The specified iotedgehubdev version is: ${version}`);
                 const standaloneDownloadUrl = `https://github.com/Azure/iotedgehubdev/releases/download/v${version}/iotedgehubdev-v${version}-win32-ia32.zip`;

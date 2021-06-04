@@ -221,6 +221,9 @@ export class Simulator {
                     if (releases.hasOwnProperty(lockVersion)){
                         version = lockVersion;
                     }
+                    else {
+                        outputChannel.appendLine(`The specified iotedgehubdev version ${version} is not a valid release`);
+                    }
                   }
                   outputChannel.appendLine(`The specified iotedgehubdev version is: ${version}`);
                 const standaloneDownloadUrl = `https://github.com/Azure/iotedgehubdev/releases/download/v${version}/iotedgehubdev-v${version}-win32-ia32.zip`;

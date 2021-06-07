@@ -215,17 +215,16 @@ export class Simulator {
                 let version = Simulator.iotedgehubdevDefaultVersion;
                 const pipResponse = await request.get(Simulator.iotedgehubdevVersionUrl);
                 const releases = JSON.parse(pipResponse).releases;
-                let lockVersion = process.env[Simulator.iotedgehubdevLockVersionKey];
+                const lockVersion = process.env[Simulator.iotedgehubdevLockVersionKey];
                 if (lockVersion !== undefined && lockVersion.trim() !== "") {
                     // Make sure the custom version is an existing release
-                    if (releases.hasOwnProperty(lockVersion)){
+                    if (releases.hasOwnProperty(lockVersion)) {
                         version = lockVersion;
-                    }
-                    else {
+                    } else {
                         outputChannel.appendLine(`The specified iotedgehubdev version ${version} is not a valid release`);
                     }
                   }
-                  outputChannel.appendLine(`The specified iotedgehubdev version is: ${version}`);
+                outputChannel.appendLine(`The specified iotedgehubdev version is: ${version}`);
                 const standaloneDownloadUrl = `https://github.com/Azure/iotedgehubdev/releases/download/v${version}/iotedgehubdev-v${version}-win32-ia32.zip`;
                 this.desiredSimulatorInfo = new SimulatorInfo(version, standaloneDownloadUrl);
             });
@@ -276,7 +275,7 @@ export class Simulator {
     }
 
     private async downloadStandaloneSimulatorWithProgress(outputChannel: vscode.OutputChannel) {
-        const info: SimulatorInfo = await this.getDesiredSimulatorInfo(outputChannel);        
+        const info: SimulatorInfo = await this.getDesiredSimulatorInfo(outputChannel);
         const version: string = info.version;
 
         await vscode.window.withProgress({

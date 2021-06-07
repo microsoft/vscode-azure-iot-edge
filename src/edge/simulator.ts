@@ -32,6 +32,8 @@ enum SimulatorType {
 
 export class Simulator {
     private static iotedgehubdevVersionUrl: string = "https://pypi.org/pypi/iotedgehubdev/json";
+    private static iotedgehubdevLockVersionKey = "IOTEDGEHUBDEV_VERSION";
+    private static iotedgehubdevDefaultVersion = "0.14.8";
     private static learnMoreUrl: string = "https://aka.ms/AA3nuw8";
     private static simulatorVersionKey: string = "SimulatorVersion";
     private static simulatorExecutableName = "iotedgehubdev";
@@ -69,7 +71,7 @@ export class Simulator {
     }
 
     private isInstalling: boolean = false;
-    private latestSimulatorInfo: SimulatorInfo;
+    private desiredSimulatorInfo: SimulatorInfo;
     private simulatorExecutablePath: string;
 
     constructor(private context: vscode.ExtensionContext) {
@@ -95,9 +97,9 @@ export class Simulator {
             } else {
                 const version: string | null = await this.getCurrentSimulatorVersion();
                 if (version && semver.valid(version)) {
-                    const latestVersion: string | undefined = await this.getLatestSimulatorVersion(outputChannel);
-                    if (latestVersion && semver.gt(latestVersion, version)) {
-                        message = `${Constants.updateSimulatorMsg} (${version} to ${latestVersion})`;
+                    const desiredVersion: string | undefined = await this.getDesiredSimulatorVersion(outputChannel);
+                    if (desiredVersion && semver.neq(desiredVersion, version)) {
+                        message = `${Constants.updateSimulatorMsg} (${version} to ${desiredVersion})`;
                     } else {
                         return;
                     }
@@ -207,24 +209,35 @@ export class Simulator {
         });
     }
 
-    private async getLastestSimulatorInfo(outputChannel: vscode.OutputChannel) {
-        if (!this.latestSimulatorInfo) {
+    private async getDesiredSimulatorInfo(outputChannel: vscode.OutputChannel) {
+        if (!this.desiredSimulatorInfo) {
             await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, outputChannel, async () => {
+                let version = Simulator.iotedgehubdevDefaultVersion;
                 const pipResponse = await request.get(Simulator.iotedgehubdevVersionUrl);
-                const version = JSON.parse(pipResponse).info.version;
+                const releases = JSON.parse(pipResponse).releases;
+                const lockVersion = process.env[Simulator.iotedgehubdevLockVersionKey];
+                if (lockVersion !== undefined && lockVersion.trim() !== "") {
+                    // Make sure the custom version is an existing release
+                    if (releases.hasOwnProperty(lockVersion)) {
+                        version = lockVersion;
+                    } else {
+                        outputChannel.appendLine(`The specified iotedgehubdev version ${version} is not a valid release`);
+                    }
+                  }
+                outputChannel.appendLine(`The specified iotedgehubdev version is: ${version}`);
                 const standaloneDownloadUrl = `https://github.com/Azure/iotedgehubdev/releases/download/v${version}/iotedgehubdev-v${version}-win32-ia32.zip`;
-                this.latestSimulatorInfo = new SimulatorInfo(version, standaloneDownloadUrl);
+                this.desiredSimulatorInfo = new SimulatorInfo(version, standaloneDownloadUrl);
             });
 
-            return this.latestSimulatorInfo;
+            return this.desiredSimulatorInfo;
         } else {
-            return this.latestSimulatorInfo;
+            return this.desiredSimulatorInfo;
         }
     }
 
-    private async getLatestSimulatorVersion(outputChannel: vscode.OutputChannel): Promise<string | undefined> {
+    private async getDesiredSimulatorVersion(outputChannel: vscode.OutputChannel): Promise<string | undefined> {
         try {
-            const info: SimulatorInfo = await this.getLastestSimulatorInfo(outputChannel);
+            const info: SimulatorInfo = await this.getDesiredSimulatorInfo(outputChannel);
             return info.version;
         } catch (error) {
             return undefined;
@@ -262,21 +275,24 @@ export class Simulator {
     }
 
     private async downloadStandaloneSimulatorWithProgress(outputChannel: vscode.OutputChannel) {
+        const info: SimulatorInfo = await this.getDesiredSimulatorInfo(outputChannel);
+        const version: string = info.version;
+
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
-            title: Constants.downloadingAndInstallingStandaloneSimulatorMsg,
+            title: Constants.downloadingAndInstallingStandaloneSimulatorMsg + version,
         }, async () => {
             await this.downloadStandaloneSimulator(outputChannel);
         });
     }
 
     private async downloadStandaloneSimulator(outputChannel: vscode.OutputChannel) {
-        const info: SimulatorInfo = await this.getLastestSimulatorInfo(outputChannel);
+        const info: SimulatorInfo = await this.getDesiredSimulatorInfo(outputChannel);
         const binariesZipUrl: string = info.standaloneDownloadUrl;
         const version: string = info.version;
 
         await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, outputChannel, async () => {
-            await new Promise((resolve, reject) => {
+            await new Promise<void>((resolve, reject) => {
                 const req = request(binariesZipUrl);
                 req.on("response",  (res) => {
                     if (res.statusCode === 200) {

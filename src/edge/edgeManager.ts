@@ -531,7 +531,7 @@ export class EdgeManager {
                 }
             case Constants.LANGUAGE_PYTHON:
                 try {
-                    await new Promise((resolve, reject) => {
+                    await new Promise<void>((resolve, reject) => {
                         tmp.dir({ unsafeCleanup: true }, (err, tmpDir, cleanupCallback) => {
                             if (err) {
                                 reject(err);
@@ -584,7 +584,7 @@ export class EdgeManager {
                 }
             case Constants.LANGUAGE_C:
                 try {
-                    await new Promise((resolve, reject) => {
+                    await new Promise<void>((resolve, reject) => {
                         download(`github:Azure/azure-iot-edge-c-module#${Versions.cTemplateVersion()}`, path.join(parent, name), (err) => {
                             if (err) {
                                 reject(err);

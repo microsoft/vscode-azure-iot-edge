@@ -187,7 +187,7 @@ export class Constants {
     public static failedInstallSimulator = "Failed to install 'iotedgehubdev' tool because of error:";
     public static outputNoSimulatorMsg = "Cannot execute command since 'iotedgehubdev' is not installed. Please install it first for IoT Edge Simulator.";
     public static outputSimulatorIsInstallingMsg = "'iotedgehubdev' is being installed now, and please wait for the installation.";
-    public static downloadingAndInstallingStandaloneSimulatorMsg = "Downloading and installing Azure IoT EdgeHub Dev Tool (iotedgehubdev)...";
+    public static downloadingAndInstallingStandaloneSimulatorMsg = "Downloading and installing Azure IoT EdgeHub Dev Tool (iotedgehubdev) version ";
     public static installStandaloneSimulatorFailedMsg = "Failed to install 'iotedgehubdev' tool, please check the output channel (Azure IoT Edge) for detailed error message.";
     public static unexpectedErrorWhenValidateSimulatorUpdate = "Unexpected errors occur when install / update 'iotedgehubdev': ";
     public static installManuallyMsg = "Please install 'iotedgehubdev' tool first for IoT Edge Simulator.";

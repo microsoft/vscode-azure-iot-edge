@@ -1,10 +1,12 @@
     steps:
+    - task: NodeTool@0
+      displayName: Install NodeJs
+      inputs:
+        versionSpec: '14.x'
+        
     - script: |
         npm install
         npm install vsce
-      displayName: 'npm install'
-
-    - script: |
         npm run tslint
         npm run compile
         node scripts/genAiKey.js

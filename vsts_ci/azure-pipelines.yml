@@ -13,11 +13,18 @@ stages:
         script: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-    - template: compile.yml
+    - template: vsix-package.yml
+    - script: |
+        npm test --silent 
+        docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
+      displayName: 'npm test'
 
   - job: MacOS
     dependsOn: []
     pool:
       vmImage: macOS-latest
     steps:
-    - template: compile.yml
+    - template: vsix-package.yml
+    - script: |
+        npm test --silent 
+      displayName: 'npm test'

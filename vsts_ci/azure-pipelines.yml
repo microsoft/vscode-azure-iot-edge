@@ -1,0 +1,22 @@
+
+stages:
+- stage: Linux
+  displayName: Linux
+  jobs:
+  - job: Linux
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          export DISPLAY=':99.0'
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    - template: compile.yml
+
+  - job: MacOS
+    pool:
+      vmImage: macOS-latest
+    steps:
+    - template: compile.yml

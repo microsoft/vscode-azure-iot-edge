@@ -16,8 +16,11 @@ stages:
     - template: vsix-package.yml
     - script: |
         npm test 
-        docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
       displayName: 'npm test'
+      
+    - script: |
+        docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
+      displayName: 'docker test'
 
   - job: MacOS
     dependsOn: []

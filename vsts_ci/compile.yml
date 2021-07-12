@@ -14,7 +14,7 @@
         npm run compile
         node scripts/genAiKey.js
         echo "y" | vsce package
-        npm test --silent
+        npm test --silent | 
         if [ $AGENT_OS == "Linux" ]; then
           docker run -ti --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
         fi

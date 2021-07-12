@@ -2,7 +2,8 @@
     - task: NodeTool@0
       displayName: Install NodeJs
       inputs:
-        versionSpec: '14.x'
+        versionSpec: '16.x'
+        checkLatest: true
 
     - script: |
         npm install

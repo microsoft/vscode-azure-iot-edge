@@ -1,7 +1,7 @@
     steps:
     - script: |
         npm install
-        npm install -g vsce
+        npm install vsce
       displayName: 'npm install'
 
     - script: |

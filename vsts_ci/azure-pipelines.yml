@@ -1,7 +1,7 @@
 
 stages:
-- stage: Linux
-  displayName: Linux
+- stage: vscode-azure-iot-edge
+  displayName: vscode azure iot edge
   jobs:
   - job: Linux
     pool:
@@ -16,6 +16,7 @@ stages:
     - template: compile.yml
 
   - job: MacOS
+    dependsOn: []
     pool:
       vmImage: macOS-latest
     steps:

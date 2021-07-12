@@ -3,7 +3,12 @@
       displayName: Install NodeJs
       inputs:
         versionSpec: '14.x'
-        
+
+    - script: |
+        npm install
+        sudo npm install -g vsce
+      displayName: 'npm install'
+
     - script: |
         npm install
         npm install vsce

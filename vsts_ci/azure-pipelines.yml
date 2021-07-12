@@ -1,6 +1,6 @@
 
 stages:
-- stage: vscode-azure-iot-edge
+- stage: vscode_azure_iot_edge
   displayName: vscode azure iot edge
   jobs:
   - job: Linux

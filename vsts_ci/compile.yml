@@ -10,8 +10,6 @@
       displayName: 'npm install'
 
     - script: |
-        npm install
-        npm install vsce
         npm run tslint
         npm run compile
         node scripts/genAiKey.js

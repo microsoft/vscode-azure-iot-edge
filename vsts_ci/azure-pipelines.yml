@@ -15,7 +15,7 @@ stages:
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     - template: vsix-package.yml
     - script: |
-        npm test --silent 
+        npm test 
         docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
       displayName: 'npm test'
 
@@ -26,5 +26,5 @@ stages:
     steps:
     - template: vsix-package.yml
     - script: |
-        npm test --silent 
+        npm test
       displayName: 'npm test'

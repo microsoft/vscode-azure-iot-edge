@@ -15,6 +15,7 @@ before_install:
   fi
 install:
 - npm install
+- npm list -g vsce
 - npm install -g vsce
 - npm list -g vsce
 script:

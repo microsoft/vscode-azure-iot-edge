@@ -9,7 +9,7 @@ stages:
     steps:
     - template: vsix-package.yml
     - script: |
-        npm test 
+        npm test --silent
       displayName: 'npm test'
       
     - script: |
@@ -38,16 +38,6 @@ stages:
 #        script: 'vsce publish -p $(VSCE_TOKEN) --packagePath *.vsix'
 #        workingDirectory: '$(Build.ArtifactStagingDirectory)'
 
-  - job: Windows
-    dependsOn: []
-    pool:
-      vmImage: windows-latest
-    steps:
-    - template: vsix-package.yml
-    - script: |
-        npm test
-      displayName: 'npm test'
-
   - job: MacOS
     dependsOn: []
     pool:
@@ -55,5 +45,5 @@ stages:
     steps:
     - template: vsix-package.yml
     - script: |
-        npm test
+        npm test --silent
       displayName: 'npm test'

@@ -7,12 +7,6 @@ stages:
     pool:
       vmImage: ubuntu-16.04
     steps:
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          export DISPLAY=':99.0'
-          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     - template: vsix-package.yml
     - script: |
         npm test 

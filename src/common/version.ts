@@ -11,6 +11,26 @@ export class Versions {
         return verMap;
     }
 
+    public static getSchemaVersionMap(): Map<string, string> {
+        // Mapping between Edge Runtime version and module schema version
+        const edgeAgentSchemaVerMap: Map<string, string> = new Map([ 
+            ["1.0", "1.0"],
+            ["1.1", "1.1"],
+            ["1.2", "1.1"]
+        ]);
+
+        const edgeHubSchemaVerMap: Map<string, string> = new Map([ 
+            ["1.0", "1.0"],
+            ["1.1", "1.1"],
+            ["1.2", "1.2"]
+        ]);
+
+        const verMap: Map<string, string> = new Map();
+        verMap.set(Constants.edgeAgentSchemaVerPlaceHolder, edgeAgentSchemaVerMap.get(Versions.edgeAgentVersion()));
+        verMap.set(Constants.edgeHubSchemaVerPlaceHolder, edgeHubSchemaVerMap.get(Versions.edgeHubVersion()));
+        return verMap;
+    }
+
     public static getSupportedEdgeRuntimeVersions(): string[] {
         return Versions.getValue(Constants.versionEdgeRuntime, []) as string[];
     }
@@ -64,6 +84,21 @@ export class Versions {
         }
     }
 
+    public static updateSystemModuleSchemaVersion(templateJson: any, moduleName: string, versionMap: Map<string, string>) {
+        if (templateJson !== undefined) {
+            if (moduleName !== undefined) {            
+                switch (moduleName) {
+                    case "edgeAgent":
+                        templateJson.modulesContent.$edgeAgent["properties.desired"].schemaVersion =
+                            Versions.getNewSchemaVersion(moduleName, versionMap);
+                    case "edgeHub":
+                        templateJson.modulesContent.$edgeHub["properties.desired"].schemaVersion =
+                            Versions.getNewSchemaVersion(moduleName, versionMap);
+                }
+            }            
+        }
+    }
+
     public static edgeHubVersion(): string {
         return Versions.getDefaultEdgeRuntimeVersion();
     }
@@ -86,6 +121,19 @@ export class Versions {
                     return imageName + ":" + versionMap.get(Constants.edgeHubVerPlaceHolder);
                 default:
                     return input;
+            }
+        }
+    }
+
+    private static getNewSchemaVersion(imageName: string, versionMap: Map<string, string>): string {
+        if (imageName !== undefined) {            
+            switch (imageName) {
+                case "edgeAgent":
+                    return versionMap.get(Constants.edgeAgentSchemaVerPlaceHolder);
+                case "edgeHub":
+                    return versionMap.get(Constants.edgeHubSchemaVerPlaceHolder);
+                default:
+                    return imageName;
             }
         }
     }

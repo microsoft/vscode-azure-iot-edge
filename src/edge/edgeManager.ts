@@ -404,12 +404,16 @@ export class EdgeManager {
         }
 
         const versionMap = Versions.getRunTimeVersionMap();
+        const versionSchemaMap = Versions.getSchemaVersionMap();
         for (const deploymentTemplateFile of fileList) {
             const deploymentTemplateFilePath: string = deploymentTemplateFile.fsPath;
             const templateJson = await fse.readJson(deploymentTemplateFilePath);
 
             Versions.updateSystemModuleImageVersion(templateJson, "edgeAgent", versionMap);
             Versions.updateSystemModuleImageVersion(templateJson, "edgeHub", versionMap);
+
+            Versions.updateSystemModuleSchemaVersion(templateJson, "edgeAgent", versionSchemaMap);
+            Versions.updateSystemModuleSchemaVersion(templateJson, "edgeHub", versionSchemaMap);
 
             await fse.writeFile(deploymentTemplateFilePath, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
         }

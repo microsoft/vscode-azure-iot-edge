@@ -284,13 +284,14 @@
           "type": "array",
           "default": [
             "1.0",
-            "1.1"
+            "1.1",
+            "1.2"
           ],
           "description": "List of supported Edge Runtime images versions"
         },
         "azure-iot-edge.version.default.edgeRuntime": {
           "type": "string",
-          "default": "1.1",
+          "default": "1.2",
           "description": "Set the edgeAgent and edgeHub images version, which will be referenced in deployment manifest."
         },
         "azure-iot-edge.3rdPartyModuleTemplates": {

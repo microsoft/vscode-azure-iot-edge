@@ -13,16 +13,16 @@ export class Versions {
 
     public static getSchemaVersionMap(): Map<string, string> {
         // Mapping between Edge Runtime version and module schema version
-        const edgeAgentSchemaVerMap: Map<string, string> = new Map([ 
+        const edgeAgentSchemaVerMap: Map<string, string> = new Map([
             ["1.0", "1.0"],
             ["1.1", "1.1"],
-            ["1.2", "1.1"]
+            ["1.2", "1.1"],
         ]);
 
-        const edgeHubSchemaVerMap: Map<string, string> = new Map([ 
+        const edgeHubSchemaVerMap: Map<string, string> = new Map([
             ["1.0", "1.0"],
             ["1.1", "1.1"],
-            ["1.2", "1.2"]
+            ["1.2", "1.2"],
         ]);
 
         const verMap: Map<string, string> = new Map();
@@ -86,7 +86,7 @@ export class Versions {
 
     public static updateSystemModuleSchemaVersion(templateJson: any, moduleName: string, versionMap: Map<string, string>) {
         if (templateJson !== undefined) {
-            if (moduleName !== undefined) {            
+            if (moduleName !== undefined) {
                 switch (moduleName) {
                     case "edgeAgent":
                         templateJson.modulesContent.$edgeAgent["properties.desired"].schemaVersion =
@@ -95,7 +95,7 @@ export class Versions {
                         templateJson.modulesContent.$edgeHub["properties.desired"].schemaVersion =
                             Versions.getNewSchemaVersion(moduleName, versionMap);
                 }
-            }            
+            }
         }
     }
 
@@ -126,7 +126,7 @@ export class Versions {
     }
 
     private static getNewSchemaVersion(imageName: string, versionMap: Map<string, string>): string {
-        if (imageName !== undefined) {            
+        if (imageName !== undefined) {
             switch (imageName) {
                 case "edgeAgent":
                     return versionMap.get(Constants.edgeAgentSchemaVerPlaceHolder);

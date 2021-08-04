@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "JSON schema for Azure IoT Edge Deployment Template version 2.0",
+    "required": [
+        "modulesContent"
+    ],
+    "properties": {
+        "modulesContent": {
+            "type": "object",
+            "title": "The configuration for all the modules.",
+            "required": [
+                "$edgeAgent",
+                "$edgeHub"
+            ],
+            "properties": {
+                "$edgeAgent": {
+                    "$ref": "https://json.schemastore.org/azure-iot-edgeagent-deployment-1.1.json#/properties/$edgeAgent"
+                },
+                "$edgeHub": {
+                    "$ref": "https://json.schemastore.org/azure-iot-edgehub-deployment-1.2.json#/properties/$edgeHub"
+                }
+            }            
+        }
+    }
+}

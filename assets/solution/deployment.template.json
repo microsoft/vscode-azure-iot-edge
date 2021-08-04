@@ -1,4 +1,5 @@
 {
+  "$schema": "./deployment.template.schema.json",
   "modulesContent": {
     "$edgeAgent": {
       "properties.desired": {

@@ -110,7 +110,7 @@ export class ContainerManager {
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
         const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream"];
         const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, {}, ...exceptStr);
-        const dpManifest = Utility.convertCreateOptions(Utility.updateSchema(JSON.parse(generatedDeployFile)));                
+        const dpManifest = Utility.convertCreateOptions(Utility.updateSchema(JSON.parse(generatedDeployFile)));
         // generate config file
         await fse.ensureDir(configPath);
         const templateFileName = path.basename(templateFile);

@@ -48,13 +48,19 @@ export class EdgeManager {
         await fse.mkdirs(slnPath);
         await fse.copy(sourceGitIgnore, targetGitIgnore);
         await fse.mkdirs(targetModulePath);
+
         const templateFile = path.join(slnPath, Constants.deploymentTemplate);
         const debugTemplateFile = path.join(slnPath, Constants.deploymentDebugTemplate);
-        let templateContent = await fse.readFile(path.join(sourceSolutionPath, Constants.deploymentTemplate), "utf8");
-        const versionMap = Versions.getRunTimeVersionMap();
-        templateContent = Utility.expandVersions(templateContent, versionMap);
-        await fse.writeFile(templateFile, templateContent, { encoding: "utf8" });
-        await fse.writeFile(debugTemplateFile, templateContent, { encoding: "utf8" });
+        const templateSrcPath = path.join(sourceSolutionPath, Constants.deploymentTemplate);
+        await fse.copy(templateSrcPath, templateFile);
+        await fse.copy(templateSrcPath, debugTemplateFile);
+
+        // Write the schema file
+        const templateSchemaSrcPath = path.join(sourceSolutionPath, Constants.deploymentTemplateSchema);
+        const templateSchemaDstPath = path.join(slnPath, Constants.deploymentTemplateSchema);
+        await fse.copy(templateSchemaSrcPath, templateSchemaDstPath);
+
+        await this.updateRuntimeVersionInDeploymentTemplate();
         await this.addModule(templateFile, outputChannel, true);
     }
 
@@ -394,7 +400,7 @@ export class EdgeManager {
     }
 
     private async updateRuntimeVersionInDeploymentTemplate() {
-        const pattern = `{${Constants.deploymentJsonPattern}}`;
+        const pattern = `{${Constants.deploymentAndSchemaJsonPattern}}`;
         const description = `${Constants.deploymentTemplateDesc}`;
 
         const fileList: vscode.Uri[] = await vscode.workspace.findFiles(pattern);
@@ -408,13 +414,18 @@ export class EdgeManager {
         for (const deploymentTemplateFile of fileList) {
             const deploymentTemplateFilePath: string = deploymentTemplateFile.fsPath;
             const templateJson = await fse.readJson(deploymentTemplateFilePath);
+            const isSchema = deploymentTemplateFilePath.endsWith(Constants.deploymentTemplateSchema);
 
-            Versions.updateSystemModuleImageVersion(templateJson, "edgeAgent", versionMap);
-            Versions.updateSystemModuleImageVersion(templateJson, "edgeHub", versionMap);
+            if (isSchema) {
+                Versions.updateSystemModuleSchemaRefVersion(templateJson, "edgeAgent", versionSchemaMap);
+                Versions.updateSystemModuleSchemaRefVersion(templateJson, "edgeHub", versionSchemaMap);
+            } else {
+                Versions.updateSystemModuleImageVersion(templateJson, "edgeAgent", versionMap);
+                Versions.updateSystemModuleImageVersion(templateJson, "edgeHub", versionMap);
 
-            Versions.updateSystemModuleSchemaVersion(templateJson, "edgeAgent", versionSchemaMap);
-            Versions.updateSystemModuleSchemaVersion(templateJson, "edgeHub", versionSchemaMap);
-
+                Versions.updateSystemModuleSchemaVersion(templateJson, "edgeAgent", versionSchemaMap);
+                Versions.updateSystemModuleSchemaVersion(templateJson, "edgeHub", versionSchemaMap);
+            }
             await fse.writeFile(deploymentTemplateFilePath, JSON.stringify(templateJson, null, 2), { encoding: "utf8" });
         }
     }

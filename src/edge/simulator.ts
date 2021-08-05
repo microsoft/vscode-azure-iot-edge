@@ -31,9 +31,9 @@ enum SimulatorType {
 }
 
 export class Simulator {
-    private static iotedgehubdevVersionUrl: string = "https://pypi.org/pypi/iotedgehubdev/json";
+    private static iotedgehubdevVersionUrl: string = "https://test.pypi.org/pypi/iotedgehubdev/json";
     private static iotedgehubdevLockVersionKey = "IOTEDGEHUBDEV_VERSION";
-    private static iotedgehubdevDefaultVersion = "0.14.8";
+    private static iotedgehubdevDefaultVersion = "0.14.9rc0";
     private static learnMoreUrl: string = "https://aka.ms/AA3nuw8";
     private static simulatorVersionKey: string = "SimulatorVersion";
     private static simulatorExecutableName = "iotedgehubdev";

@@ -99,6 +99,22 @@ export class Versions {
         }
     }
 
+    public static updateSystemModuleSchemaRefVersion(templateJson: any, moduleName: string, versionMap: Map<string, string>) {
+        if (templateJson !== undefined) {
+            if (moduleName !== undefined) {
+                const newSchemaVersion: string = Versions.getNewSchemaVersion(moduleName, versionMap);
+                switch (moduleName) {
+                    case "edgeAgent":
+                        templateJson.properties.modulesContent.properties.$edgeAgent.$ref =
+                            "https://json.schemastore.org/azure-iot-edgeagent-deployment-" + newSchemaVersion + ".json#/properties/$edgeAgent";
+                    case "edgeHub":
+                        templateJson.properties.modulesContent.properties.$edgeHub.$ref =
+                            "https://json.schemastore.org/azure-iot-edgehub-deployment-" + newSchemaVersion + ".json#/properties/$edgeHub";
+                }
+            }
+        }
+    }
+
     public static edgeHubVersion(): string {
         return Versions.getDefaultEdgeRuntimeVersion();
     }

@@ -312,7 +312,7 @@
       },
       {
         "fileMatch": "deployment.*.template.json",
-        "url": "http://json.schemastore.org/azure-iot-edge-deployment-template-2.0"
+        "url": "http://json.schemastore.org/azure-iot-edge-deployment-template-4.0"
       }
     ],
     "debuggers": [

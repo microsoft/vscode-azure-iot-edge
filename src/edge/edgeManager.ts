@@ -56,7 +56,7 @@ export class EdgeManager {
         templateContent = Utility.expandVersions(templateContent, versionMap);
         await fse.writeFile(templateFile, templateContent, { encoding: "utf8" });
         await fse.writeFile(debugTemplateFile, templateContent, { encoding: "utf8" });
-        
+
         await this.updateRuntimeVersionInDeploymentTemplate();
         await this.addModule(templateFile, outputChannel, true);
     }

@@ -185,6 +185,10 @@ export class Utility {
         return Utility.expandPlacesHolders(Constants.imagePlaceholderPattern, input, moduleMap);
     }
 
+    public static expandVersions(input: string, versionMap: Map<string, string>): string {
+        return Utility.expandPlacesHolders(Constants.versionPlaceholderPattern, input, versionMap);
+    }
+
     public static async getSubDirectories(parentPath: string): Promise<string[]> {
         const filesAndDirs = await fse.readdir(parentPath);
         const directories = [];

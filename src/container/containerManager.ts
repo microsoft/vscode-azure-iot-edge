@@ -108,13 +108,15 @@ export class ContainerManager {
                                          moduleToImageMap: Map<string, string>): Promise<any> {
         const data: any = await fse.readJson(templateFile);
         const moduleExpanded: string = Utility.expandModules(data, moduleToImageMap);
-        const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream"];
+        const exceptStr = ["$edgeHub", "$edgeAgent", "$upstream", Constants.SchemaTemplate];
         const generatedDeployFile: string = Utility.expandEnv(moduleExpanded, {}, ...exceptStr);
         const dpManifest = Utility.convertCreateOptions(Utility.updateSchema(JSON.parse(generatedDeployFile)));
+        const templateSchemaVersion = dpManifest[Constants.SchemaTemplate];
+        delete dpManifest[Constants.SchemaTemplate];
         // generate config file
         await fse.ensureDir(configPath);
         const templateFileName = path.basename(templateFile);
-        const deploymentFileName = this.getDeployFileName(templateFileName);
+        const deploymentFileName = this.getDeployFileName(templateFileName, templateSchemaVersion);
         const deployFile = path.join(configPath, deploymentFileName);
         await fse.remove(deployFile);
         await fse.writeFile(deployFile, JSON.stringify(dpManifest, null, 2), { encoding: "utf8" });
@@ -124,8 +126,8 @@ export class ContainerManager {
         };
     }
 
-    private getDeployFileName(templateFileName: string): string {
-        const platform = `.${Platform.getDefaultPlatform().platform}`;
+    private getDeployFileName(templateFileName: string, templateSchemaVersion: string): string {
+        const platform = templateSchemaVersion > "0.0.1" ? `.${Platform.getDefaultPlatform().platform}` : "";
         let name: string = templateFileName;
         const tempLength = templateFileName.length;
         if (templateFileName.endsWith(Constants.tson)) {

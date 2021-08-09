@@ -48,8 +48,7 @@
     "onCommand:azure-iot-edge.setModuleCred",
     "onCommand:azure-iot-edge.setDefaultPlatform",
     "onCommand:azure-iot-edge.showGallery",
-    "workspaceContains:**/deployment.template.json",
-    "workspaceContains:**/deployment.template.schema.json"
+    "workspaceContains:**/deployment.template.json"
   ],
   "main": "./dist/extension",
   "contributes": {
@@ -306,6 +305,16 @@
         }
       }
     },
+    "jsonValidation": [
+      {
+        "fileMatch": "deployment.template.json",
+        "url": "http://json.schemastore.org/azure-iot-edge-deployment-template-4.0"
+      },
+      {
+        "fileMatch": "deployment.*.template.json",
+        "url": "http://json.schemastore.org/azure-iot-edge-deployment-template-2.0"
+      }
+    ],
     "debuggers": [
       {
         "type": "edge-coreclr",

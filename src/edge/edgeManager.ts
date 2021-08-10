@@ -48,6 +48,7 @@ export class EdgeManager {
         await fse.mkdirs(slnPath);
         await fse.copy(sourceGitIgnore, targetGitIgnore);
         await fse.mkdirs(targetModulePath);
+
         const templateFile = path.join(slnPath, Constants.deploymentTemplate);
         const debugTemplateFile = path.join(slnPath, Constants.deploymentDebugTemplate);
         let templateContent = await fse.readFile(path.join(sourceSolutionPath, Constants.deploymentTemplate), "utf8");
@@ -55,6 +56,8 @@ export class EdgeManager {
         templateContent = Utility.expandVersions(templateContent, versionMap);
         await fse.writeFile(templateFile, templateContent, { encoding: "utf8" });
         await fse.writeFile(debugTemplateFile, templateContent, { encoding: "utf8" });
+
+        await this.updateRuntimeVersionInDeploymentTemplate();
         await this.addModule(templateFile, outputChannel, true);
     }
 

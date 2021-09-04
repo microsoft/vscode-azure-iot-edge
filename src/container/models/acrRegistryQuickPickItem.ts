@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 "use strict";
-import { Registry } from "azure-arm-containerregistry/lib/models";
+import { Registry } from "@azure/arm-containerregistry/esm/models";
 import * as vscode from "vscode";
 import { AzureSubscription } from "../../typings/azure-account.api";
 

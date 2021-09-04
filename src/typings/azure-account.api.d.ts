@@ -5,9 +5,9 @@
 
 /* tslint:disable */
 import { Event, Terminal, Progress, CancellationToken } from 'vscode';
-import { ServiceClientCredentials } from 'ms-rest';
-import { AzureEnvironment } from 'ms-rest-azure';
-import { SubscriptionModels } from 'azure-arm-resource';
+import { ServiceClientCredentials } from '@azure/ms-rest-js';
+import { AzureEnvironment } from '@azure/ms-rest-azure-js';
+import { SubscriptionModels } from "@azure/arm-resources/esm/models"
 import { ReadStream } from 'fs';
 
 export type AzureLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';

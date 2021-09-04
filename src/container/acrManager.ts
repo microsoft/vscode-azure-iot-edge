@@ -2,9 +2,8 @@
 // Licensed under the MIT license.
 
 "use strict";
-import { ContainerRegistryManagementClient } from "azure-arm-containerregistry";
-import { Registry, RegistryListCredentialsResult } from "azure-arm-containerregistry/lib/models";
-import { Registries } from "azure-arm-containerregistry/lib/operations";
+import { ContainerRegistryManagementClient, Registries } from "@azure/arm-containerregistry";
+import { Registry, RegistryListCredentialsResult } from "@azure/arm-containerregistry/esm/models";
 import * as request from "request-promise";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";

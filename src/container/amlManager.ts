@@ -2,10 +2,10 @@
 // Licensed under the MIT license.
 
 "use strict";
-import { AzureMachineLearningWorkspaces } from "azure-arm-machinelearningservices";
-import { Workspace } from "azure-arm-machinelearningservices/lib/models";
-import { Workspaces } from "azure-arm-machinelearningservices/lib/operations";
-import { HttpOperationResponse, ServiceClient, ServiceClientCredentials } from "ms-rest";
+import { AzureMachineLearningWorkspaces } from "@azure/arm-machinelearningservices";
+import { Workspaces } from "@azure/arm-machinelearningservices/esm/operations";
+import { Workspace } from "@azure/arm-machinelearningservices/esm/models";
+import { HttpOperationResponse, ServiceClient, ServiceClientCredentials } from "@azure/ms-rest-js";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { UserCancelledError } from "../common/UserCancelledError";

@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
-import StreamAnalyticsManagementClient = require("azure-arm-streamanalytics");
-import { StreamingJob } from "azure-arm-streamanalytics/lib/models";
-import { StreamingJobs } from "azure-arm-streamanalytics/lib/operations";
+import { StreamAnalyticsManagementClient, StreamingJobs } from "@azure/arm-streamanalytics";
+import { StreamingJob } from "@azure/arm-streamanalytics/esm/models";
 import * as fse from "fs-extra";
 import * as request from "request-promise";
 import * as vscode from "vscode";

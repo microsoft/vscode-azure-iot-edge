@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 "use strict";
-import { StreamingJob } from "azure-arm-streamanalytics/lib/models";
+import { StreamingJob } from "@azure/arm-streamanalytics/esm/models";
 import * as vscode from "vscode";
 import { AzureSubscription } from "../../typings/azure-account.api";
 

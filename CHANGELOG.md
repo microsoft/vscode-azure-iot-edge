@@ -1,4 +1,8 @@
 # Change Log
+## 1.24.4 - 2021-8-30
+### Changed
+* Update npm package dependencies
+
 ## 1.24.3 - 2021-7-27
 ### Changed
 * Allow user to select Edge Runtime version between 1.2

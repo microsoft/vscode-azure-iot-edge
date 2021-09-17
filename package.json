@@ -7,7 +7,7 @@
   "aiKey": "95b20d64-f54f-4de3-8ad5-165a75a6c6fe",
   "icon": "logo.png",
   "engines": {
-    "vscode": "^1.40.0"
+    "vscode": "^1.58.0"
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "repository": {

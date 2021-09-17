@@ -1,4 +1,12 @@
 # Change Log
+## 1.24.3 - 2021-7-27
+### Changed
+* Allow user to select Edge Runtime version between 1.2
+
+## 1.24.2 - 2021-7-15
+### Changed
+* Enumerate vsce version in release pipeline
+
 ## 1.24.1 - 2021-6-4
 ### Changed
 * Allow user to specify the version of iotedgehubdev through IOTEDGEHUBDEV_VERSION environment variable

@@ -16,6 +16,7 @@ before_install:
 install:
 - npm install
 - npm install -g vsce
+- npm list -g vsce
 script:
 - npm run tslint
 - npm run compile

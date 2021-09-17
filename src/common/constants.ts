@@ -177,6 +177,8 @@ export class Constants {
 
     public static edgeAgentVerPlaceHolder = "VERSION.edgeAgent";
     public static edgeHubVerPlaceHolder = "VERSION.edgeHub";
+    public static edgeAgentSchemaVerPlaceHolder = "SCHEMAVERSION.edgeAgent";
+    public static edgeHubSchemaVerPlaceHolder = "SCHEMAVERSION.edgeHub";
     public static acrRegistryDesc = "Azure Container Registry";
     public static amlWorkspaceDesc = "Azure Machine Learning Workspace";
     public static asaJobDesc = "Azure Stream Analytics Job";

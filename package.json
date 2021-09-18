@@ -574,7 +574,7 @@
     "tmp": "0.0.33",
     "unzipper": "^0.10.5",
     "vscode-extension-telemetry": "^0.1.6",
-    "vscode-test": "^1.6.1"
+    "vscode-test": "^1.52.0"
   },
   "extensionDependencies": [
     "ms-vscode.azure-account",

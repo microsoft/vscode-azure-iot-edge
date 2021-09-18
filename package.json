@@ -550,7 +550,7 @@
     "sinon": "^7.2.3",
     "ts-loader": "^4.4.2",
     "tslint": "^5.20.1",
-    "typescript": "^2.0.3",
+    "typescript": "^4.0.8",
     "vscode-test": "^1.6.1",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.0"

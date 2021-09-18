@@ -525,6 +525,7 @@
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
     "compile": "tsc -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
     "tslint": "tslint -t verbose src/**/*.ts",
     "test": "tsc -p ./ && node ./test/utility.test.ts",
     "webpack": "webpack --mode development",

@@ -2,13 +2,15 @@
     - task: NodeTool@0
       displayName: Install NodeJs
       inputs:
-        versionSpec: '16.x'
-        checkLatest: true
+        versionSpec: '16.6.2'
+         
 
     - script: |
         npm install
         sudo npm install -g vsce
       displayName: 'npm install'
+      inputs:
+        versionSpec: '7.20.3'
 
     - script: |
         npm run tslint

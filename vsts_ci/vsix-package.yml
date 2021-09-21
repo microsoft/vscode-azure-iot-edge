@@ -10,7 +10,7 @@
         sudo npm install -g vsce
       displayName: 'npm install'
       
-
+    
     - script: |
         npm run tslint
         npm run compile

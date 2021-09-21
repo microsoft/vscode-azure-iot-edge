@@ -5,7 +5,7 @@ stages:
   jobs:
   - job: Linux
     pool:
-      vmImage: ubuntu-16.xx
+      vmImage: ubuntu-xenial
     steps:
     - template: vsix-package.yml
     - script: |

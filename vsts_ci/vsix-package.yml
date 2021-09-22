@@ -2,7 +2,7 @@
     - task: NodeTool@0
       displayName: Install NodeJs
       inputs:
-        versionSpec: '16.6.2'
+        versionSpec: '16.5.0'
          
 
     - script: |

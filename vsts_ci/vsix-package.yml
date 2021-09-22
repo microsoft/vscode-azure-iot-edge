@@ -2,12 +2,13 @@
     - task: NodeTool@0
       displayName: Install NodeJs
       inputs:
-        versionSpec: '16.6.2'
+        versionSpec: '16.6.1'
          
 
     - script: |
         npm install
         sudo npm install -g vsce
+        npm audit fix --force
       displayName: 'npm install'
       
     

@@ -7,7 +7,7 @@
   "aiKey": "95b20d64-f54f-4de3-8ad5-165a75a6c6fe",
   "icon": "logo.png",
   "engines": {
-    "vscode": "^1.52.0"
+    "vscode": "^1.40.0"
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "repository": {
@@ -527,7 +527,7 @@
     "compile": "tsc -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "tslint": "tslint -t verbose src/**/*.ts",
-    "test": "tsc -p ./ && node ./test/utility.test.ts",
+    "test": "node ./node_modules/vscode/bin/test",
     "webpack": "webpack --mode development",
     "webpack-dev": "webpack --mode development --watch"
   },
@@ -537,22 +537,21 @@
     "@types/express": "^4.11.1",
     "@types/fs-extra": "^4.0.3",
     "@types/mocha": "^2.2.32",
-    "@types/node": "6.14.7",
+    "@types/node": "^6.0.40",
     "@types/request-promise": "^4.1.41",
     "@types/semver": "^5.5.0",
     "@types/sinon": "^7.0.13",
     "@types/strip-json-comments": "0.0.30",
     "@types/tmp": "0.0.33",
     "@types/unzipper": "^0.10.0",
-    "@types/vscode": "^1.52.0",
     "azure-arm-resource": "^3.1.1-preview",
     "fail-on-errors-webpack-plugin": "^3.0.0",
     "mocha": "^8.1.3",
     "sinon": "^7.2.3",
     "ts-loader": "^4.4.2",
-    "tslint": "5.20.1",
-    "typescript": "^4.0.8",
-    "vscode-test": "^1.6.1",
+    "tslint": "^5.20.1",
+    "typescript": "^2.0.3",
+    "vscode": "^1.1.37",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.0"
   },
@@ -574,8 +573,7 @@
     "strip-json-comments": "^2.0.1",
     "tmp": "0.0.33",
     "unzipper": "^0.10.5",
-    "vscode-extension-telemetry": "^0.1.6",
-    "vscode-test": "^1.6.1"
+    "vscode-extension-telemetry": "^0.1.6"
   },
   "extensionDependencies": [
     "ms-vscode.azure-account",

@@ -1,0 +1,22 @@
+    steps:
+    - task: GitHubRelease@1
+      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+      displayName: 'Create GitHub Release'
+      inputs:
+        gitHubConnection: 'vikas0212git'
+        repositoryName: 'microsoft/vscode-azure-iot-edge'
+        action: 'create'
+        target: '$(Build.SourceVersion)'
+        tagSource: 'userSpecifiedTag'
+        tag: '$(Build.SourceBranch)'
+        assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
+        changeLogCompareToRelease: 'lastFullRelease'
+        changeLogType: 'commitBased'
+
+    - task: Bash@3
+      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+      displayName: 'Publish to Marketplace'
+      inputs:
+        targetType: 'inline'
+        script: 'vsce publish -p $(VSCE_TOKEN) --packagePath *.vsix'
+        workingDirectory: '$(Build.ArtifactStagingDirectory)'

@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.194.0/containers/dotnet
 {
-    "name": "C# (.NET)",
+    "name": "Azure IoTEdge C# (.NET)",
     "build": {
         "dockerfile": "Dockerfile",
         "args": { 
@@ -21,20 +21,23 @@
         // Keep command history 
         "source=ostf-bashhistory,target=/commandhistory,type=volume",
         // Use hosts docker socket
-        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
     ],
 
     // Set *default* container specific settings.json values on container create.
-    "settings": {},
+    "settings": { 
+        "terminal.integrated.profiles.linux": {
+            "bash": {
+                "path": "/bin/bash"
+            }
+        }
+    },
 
     // Add the IDs of extensions you want installed when the container is created.
     "extensions": [
         "ms-dotnettools.csharp",
         "ms-vscode.azure-account",
         "ms-azuretools.vscode-docker",
-        "ms-vscode.azure-account",
-        "vsciot-vscode.azure-iot-hub",
-        "vsciot-vscode.azure-iot-edge",
         "vsciot-vscode.azure-iot-toolkit",
         "vsciot-vscode.azure-iot-tools",
         "vsciot-vscode.vscode-iot-device-cube"
@@ -68,7 +71,4 @@
 
     // Use 'postCreateCommand' to run commands after the container is created.
     // "postCreateCommand": "dotnet restore",
-
-    // Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-    "remoteUser": "root"
 }

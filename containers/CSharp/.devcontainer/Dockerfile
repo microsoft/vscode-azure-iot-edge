@@ -4,10 +4,6 @@
 ARG VARIANT="5.0"
 FROM mcr.microsoft.com/vscode/devcontainers/dotnet:0-${VARIANT}
 
-# [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
-ARG NODE_VERSION="none"
-RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
-
 # [Option] Install Azure CLI
 ARG INSTALL_AZURE_CLI="false"
 COPY library-scripts/*.sh library-scripts/*.env /tmp/library-scripts/
@@ -23,10 +19,6 @@ RUN \
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" && \
     apt-get update && \
     apt-get install -y docker-ce-cli
-
-RUN groupadd docker && \
-    gpasswd -a vscode docker && \
-    newgrp docker
 
 # install iotedgehubdev
 RUN \

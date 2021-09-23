@@ -15,6 +15,12 @@
 
     // Set *default* container specific settings.json values on container create.
     "settings": { 
+        "terminal.integrated.profiles.linux": {
+            "bash": {
+                "path": "/bin/bash"
+            }
+        },
+        "terminal.integrated.defaultProfile.linux": "bash",
         "python.pythonPath": "/usr/local/bin/python",
         "python.languageServer": "Pylance",
         "python.linting.enabled": true,
@@ -28,7 +34,6 @@
         "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
         "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
         "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint"
-        "#terminal.integrated.defaultProfile.linux#": "/bin/bash",
     },
 
     "mounts": [

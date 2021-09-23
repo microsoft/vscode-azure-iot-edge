@@ -13,7 +13,7 @@ stages:
       displayName: 'Start xvfb'
 
     - script: |
-        npm test --silent
+        npm test 
       displayName: 'npm test'
       
     - script: |

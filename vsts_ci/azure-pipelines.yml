@@ -9,9 +9,8 @@ stages:
       steps:
       - template: vsix-package.yml
       - script: |
-           sudo apt-get update && sudo apt-get install libgconf-2-4 -y
            sudo apt-get install libgbm1
-           xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' yarn cover
+           xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' npm run
         displayName: 'Start xvfb'
   
       - script: |

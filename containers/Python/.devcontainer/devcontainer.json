@@ -7,9 +7,7 @@
         "context": "..",
         "args": { 
             // Update 'VARIANT' to pick a Python version: 3, 3.6, 3.7, 3.8, 3.9
-            "VARIANT": "3",
-            // Options
-            "NODE_VERSION": "none"
+            "VARIANT": "3.7"
         }
     },
 
@@ -40,7 +38,7 @@
         // Keep command history 
         "source=ostf-bashhistory,target=/commandhistory,type=volume",
         // Use hosts docker socket
-        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
     ],
 
     // Add the IDs of extensions you want installed when the container is created.
@@ -49,10 +47,8 @@
         "ms-python.vscode-pylance",
         "ms-vscode.azure-account",
         "ms-azuretools.vscode-docker",
-        "vsciot-vscode.azure-iot-hub",
-        "vsciot-vscode.azure-iot-edge",
-        "vsciot-vscode.azure-iot-toolkit",
-        "vsciot-vscode.azure-iot-tools"
+        "vsciot-vscode.azure-iot-tools",
+        "vsciot-vscode.azure-iot-toolkit"
     ],
 
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -60,7 +56,4 @@
 
     // Use 'postCreateCommand' to run commands after the container is created.
     // "postCreateCommand": "pip3 install --user -r requirements.txt",
-
-    // Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-    "remoteUser": "root"
 }

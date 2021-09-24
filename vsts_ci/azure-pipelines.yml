@@ -9,8 +9,11 @@ stages:
       steps:
       - template: vsix-package.yml
       - script: |
-           sudo apt-get install libgbm1
-           xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' npm run
+           if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+              export DISPLAY=':99'
+              /usr/bin/Xvfb :99 -screen 1 1024x768x24 > /dev/null 2>&1 &
+              sleep 3
+           fi
         displayName: 'Start xvfb'
   
       - script: |

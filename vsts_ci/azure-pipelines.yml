@@ -1,34 +1,37 @@
 
 stages:
-- stage: vscode_azure_iot_edge
-  displayName: vscode azure iot edge
-  jobs:
-  - job: Linux
-    pool:
-      vmImage: ubuntu-16.04
-    steps:
-    - template: vsix-package.yml
-    - script: |
-        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      displayName: 'Start xvfb'
-
-    - script: |
-        npm test --verbose
-      displayName: 'npm test'
-      
-    - script: |
-        docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
-      displayName: 'docker test'
-
-    - template: vsix-publish.yml
-
-  - job: MacOS
-    dependsOn: []
-    pool:
-      vmImage: macOS-latest
-    steps:
-    - template: vsix-package.yml
-    - script: |
-        npm test --silent
-      displayName: 'npm test'
-    - template: vsix-publish.yml
+  - stage: vscode_azure_iot_edge
+    displayName: vscode azure iot edge
+    jobs:
+    - job: Linux
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+      - template: vsix-package.yml
+      - script: |
+           if [ $TRAVIS_OS_NAME == "linux" ]; then
+              export DISPLAY=':99.0'
+              /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+           fi
+        displayName: 'Start xvfb'
+  
+      - script: |
+          npm test --silent
+        displayName: 'npm test'
+        
+      - script: |
+          docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
+        displayName: 'docker test'
+  
+      - template: vsix-publish.yml
+  
+    - job: MacOS
+      dependsOn: []
+      pool:
+        vmImage: macOS-latest
+      steps:
+      - template: vsix-package.yml
+      - script: |
+          npm test --verbose
+        displayName: 'npm test'
+      - template: vsix-publish.yml

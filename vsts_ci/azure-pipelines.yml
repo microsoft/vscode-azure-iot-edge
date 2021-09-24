@@ -9,11 +9,8 @@ stages:
       steps:
       - template: vsix-package.yml
       - script: |
-           if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-              sudo apt-get install -y xvfb
-              Xvfb :99 -screen 0 1024x768x24 &
-              export DISPLAY=:99
-           fi
+          Xvfb -ac :99 -screen 0 1280x1024x16 &
+          export DISPLAY=:99
         displayName: 'Start xvfb'
   
       - script: |

@@ -23,13 +23,10 @@
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"ms-vscode.azure-account",
 		"ms-vscode.cpptools",
         "ms-azuretools.vscode-docker",
         "ms-vscode.azure-account",
-        "vsciot-vscode.azure-iot-toolkit",
-        "vsciot-vscode.azure-iot-tools",
-		"vsciot-vscode.vscode-iot-device-cube"
+        "vsciot-vscode.azure-iot-tools"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

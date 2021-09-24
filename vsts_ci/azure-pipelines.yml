@@ -9,11 +9,9 @@ stages:
       steps:
       - template: vsix-package.yml
       - script: |
-           if [ "$TRAVIS_OS_NAME" == "linux" ]; then
            sudo apt-get update && sudo apt-get install libgconf-2-4 -y
            sudo apt-get install libgbm1
            xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' yarn cover
-           fi
         displayName: 'Start xvfb'
   
       - script: |

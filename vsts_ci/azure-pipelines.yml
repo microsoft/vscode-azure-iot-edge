@@ -9,10 +9,8 @@ stages:
       steps:
       - template: vsix-package.yml
       - script: |
-           if [ "$OS_NAME" == "linux" ]; then
               export DISPLAY=':99.0'
               /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-           fi
         displayName: 'Start xvfb'
   
       - script: |

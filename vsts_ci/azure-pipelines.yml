@@ -14,9 +14,13 @@ stages:
       #   displayName: 'Start xvfb'
   
       - script: |
-          export DISPLAY=':99.0'
-          xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
-          chromium-browser --disable-gpu
+          PROG="/usr/bin/Xvfb"
+          PROG_OPTIONS=":10 -ac"
+          PROG_OUTPUT="/tmp/Xvfb.out"
+          $PROG $PROG_OPTIONS>>$PROG_OUTPUT 2>&1 &
+          disown -ar
+          #xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" 
+          npm test --silent
         displayName: 'npm test'
         
       - script: |

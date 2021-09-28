@@ -5,17 +5,21 @@ stages:
     jobs:
     - job: Linux
       pool:
-        vmImage: ubuntu-latest
+        vmImage: ubuntu-16.04
       steps:
       - template: vsix-package.yml
       # - script: |
       #         export DISPLAY=':99.0'
-      #         /usr/vin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      #         /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
       #   displayName: 'Start xvfb'
   
       - script: |
           export DISPLAY=':99.0'
-          xvfb-run --auto-servernum -screen 0 1024x768x24 npm test --silent
+          ssh ubuntu-16.04
+          DISPLAY=:11
+          export DISPLAY
+          chromium-browser
+          xvfb-run --auto-servernum --server-args='-screen 0, 1024x768x24' npm test --silent
         displayName: 'npm test'
         
       - script: |

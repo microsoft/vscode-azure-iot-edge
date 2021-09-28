@@ -14,8 +14,7 @@ stages:
       #   displayName: 'Start xvfb'
   
       - script: |
-          chrome --disable-gpu
-          xvfb-run --auto-servernum --server-args='-screen 0, 1920x1080x24' npm test --silent
+          xvfb-run --auto-servernum --server-args='-screen 0, 1024x768x24' npm test --silent
         displayName: 'npm test'
         
       - script: |

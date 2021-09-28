@@ -7,19 +7,13 @@ stages:
       pool:
         vmImage: ubuntu-latest
       steps:
-      - template: vsix-package.yml
-      # - script: |
-      #         export DISPLAY=':99.0'
-      #         /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      #   displayName: 'Start xvfb'
-  
       - script: |
-          PROG="/usr/bin/Xvfb"
-          PROG_OPTIONS=":10 -ac"
-          PROG_OUTPUT="/tmp/Xvfb.out"
-          $PROG $PROG_OPTIONS>>$PROG_OUTPUT 2>&1 &
-          disown -ar
-          #xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" 
+              export DISPLAY=':99.0'
+              /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        displayName: 'Start xvfb'
+      - template: vsix-package.yml
+ 
+      - script: |
           npm test --silent
         displayName: 'npm test'
         

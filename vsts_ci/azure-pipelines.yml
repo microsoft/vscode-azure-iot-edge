@@ -15,10 +15,6 @@ stages:
   
       - script: |
           export DISPLAY=':99.0'
-          ssh ubuntu-16.04
-          DISPLAY=:11
-          export DISPLAY
-          chromium-browser
           xvfb-run --auto-servernum --server-args='-screen 0, 1024x768x24' npm test --silent
         displayName: 'npm test'
         
@@ -35,6 +31,6 @@ stages:
       steps:
       - template: vsix-package.yml
       - script: |
-          npm test --verbose
+          npm test --silent
         displayName: 'npm test'
       - template: vsix-publish.yml

@@ -28,4 +28,6 @@ jobs:
     - run: npm run compile
     - run: node scripts/genAiKey.js
     - run: echo "y" | vsce package
-    - run: npm test --silent
+    - run: xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
+    - run: export DISPLAY=':99.0'; /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &; npm test --silent
+

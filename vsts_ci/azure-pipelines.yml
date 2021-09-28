@@ -10,11 +10,11 @@ stages:
       - template: vsix-package.yml
       - script: |
               export DISPLAY=':99.0'
-              /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+              /usr/vin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         displayName: 'Start xvfb'
   
       - script: |
-          xvfb-run --auto-servernum npm run test -- --watch=false
+          xvfb-run --auto-servernum --server-args='-screen 0, 1920x1080x24' npm run test --silent -- --watch=false --disable-gpu
         displayName: 'npm test'
         
       - script: |

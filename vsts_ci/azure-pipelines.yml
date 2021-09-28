@@ -5,7 +5,7 @@ stages:
     jobs:
     - job: Linux
       pool:
-        vmImage: ubuntu-16.04
+        vmImage: ubuntu-latest
       steps:
       - template: vsix-package.yml
       # - script: |
@@ -15,7 +15,7 @@ stages:
   
       - script: |
           export DISPLAY=':99.0'
-          xvfb-run npm test --silent
+          xvfb-run --auto-servernum --server-args='-screen 0, 1024x768x24' npm test --silent
         displayName: 'npm test'
         
       - script: |

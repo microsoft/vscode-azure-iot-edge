@@ -8,7 +8,7 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
 
     strategy:
       matrix:
@@ -22,6 +22,9 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: |
+        export DISPLAY=':99.0'
+        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     - run: npm install
     - run: sudo npm install -g vsce
     - run: npm run tslint
@@ -29,8 +32,5 @@ jobs:
     - run: node scripts/genAiKey.js
     - run: echo "y" | vsce package
     #- run: xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
-    - run: |
-        export DISPLAY=':99.0'
-        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        npm test --silent
+    - run: npm test --silent
 

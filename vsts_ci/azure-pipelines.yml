@@ -14,10 +14,8 @@ stages:
       #   displayName: 'Start xvfb'
   
       - script: |
-          ADD xvfb.init /etc/init.d/xvfb
-          RUN chmod +x /etc/init.d/xvfb
-          RUN update-rc.d xvfb defaults
-          xvfb-run --auto-servernum --server-args='-screen 0, 1024x768x24' npm test --silent
+          export DISPLAY=':99.0'
+          /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16  npm test --silent
         displayName: 'npm test'
         
       - script: |

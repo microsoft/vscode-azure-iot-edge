@@ -14,7 +14,8 @@ stages:
       #   displayName: 'Start xvfb'
   
       - script: |
-          xvfb-run --auto-servernum --server-args='-screen 0, 1024x768x24' npm test --silent
+          export DISPLAY=':99.0'
+          xvfb-run :99 --server-args='-screen 0, 1024x768x24' npm test --silent
         displayName: 'npm test'
         
       - script: |

@@ -22,6 +22,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: sudo apt-get update
+    - run: sudo apt-get upgrade -y
+    - run: sudo apt install xorg
+   
+      
     # - run: |
          # sudo apt-get update
          # sudo apt-get install -y libxkbfile-dev pkg-config libsecret-1-dev libxss1 dbus xvfb libgtk-3-0 libgbm1
@@ -32,13 +37,15 @@ jobs:
     # - run: |
        # export DISPLAY=':99.0'
        # /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-    # - run: npm install
-    # - run: sudo npm install -g vsce
-    # - run: npm run tslint
-    # - run: npm run compile
-    # - run: node scripts/genAiKey.js
-    # - run: echo "y" | vsce package
+    
+    - run: npm install
+    - run: sudo npm install -g vsce
+    - run: npm run tslint
+    - run: npm run compile
+    - run: node scripts/genAiKey.js
+    - run: echo "y" | vsce package
+    - run: xvfb-run --auto-servernum --server-args=-nolisten tcp npm test --silent
     # - run: xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
-    - run: Xvfb :44 -auth /tmp/xvfb.auth -ac -screen 0 1920x1080x24 -nolisten tcp 
-    - run: npm test --silent
+    #- run: Xvfb :44 -auth /tmp/xvfb.auth -ac -screen 0 1920x1080x24 -nolisten tcp 
+    #- run: npm test --silent
 

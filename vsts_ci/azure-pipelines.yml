@@ -15,7 +15,7 @@ stages:
  
       - script: |
           export DISPLAY=':99.0'
-          xvfb-run -s ":99 -auth/tmp/xvfb.auth -ac -screen 0 1024x768x24" npm test --silent
+          xvfb-run --listen-tcp -s "-ac" -- npm test --silent
         displayName: 'npm test'
         
       - script: |

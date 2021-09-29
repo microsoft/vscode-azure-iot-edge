@@ -44,7 +44,10 @@ jobs:
     - run: npm run compile
     - run: node scripts/genAiKey.js
     - run: echo "y" | vsce package
-    - run: xvfb-run --auto-servernum --server-args=-nolisten tcp npm test --silent
+    - run: |
+           export DISPLAY=':99.0'
+           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+           xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
     # - run: xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
     #- run: Xvfb :44 -auth /tmp/xvfb.auth -ac -screen 0 1920x1080x24 -nolisten tcp 
     #- run: npm test --silent

@@ -15,7 +15,7 @@ stages:
              ADD xvfb.init /etc/init.d/xvfb
              RUN chmod +x /etc/init.d/xvfb
              RUN update-rc.d xvfb defaults
-            
+             npm test --silent
         displayName: 'npm test'
         
       - script: |

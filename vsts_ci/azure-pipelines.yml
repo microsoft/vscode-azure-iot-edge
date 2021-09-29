@@ -14,9 +14,8 @@ stages:
       - template: vsix-package.yml
  
       - script: |
-          chromium-browser --use-gl=swiftshader
           export DISPLAY=':99.0'
-          xvfb-run --listen-tcp --auto-servernum  --server-args="-screen 0, 1024x768x24" npm test --silent
+          xvfb-run -s ":99 -auth/tmp/xvfb.auth -ac -screen 0 1024x768x24" npm test --silent
         displayName: 'npm test'
         
       - script: |

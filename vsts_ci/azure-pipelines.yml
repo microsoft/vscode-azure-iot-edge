@@ -15,7 +15,9 @@ stages:
  
       - script: |
           export DISPLAY=':99.0'
-          xvfb-run --listen-tcp -s "-ac" -- npm test --silent
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          npm test --silent
+#          xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
         displayName: 'npm test'
         
       - script: |

@@ -10,12 +10,7 @@ stages:
       - template: vsix-package.yml
 
       - script: |
-# xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
-      - script:
-             ADD xvfb.init /etc/init.d/xvfb
-             RUN chmod +x /etc/init.d/xvfb
-             RUN update-rc.d xvfb defaults
-             npm test --silent
+            xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
         displayName: 'npm test'
         
       - script: |

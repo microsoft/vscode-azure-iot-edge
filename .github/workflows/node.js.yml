@@ -10,52 +10,48 @@ on: [push]
       #- main
       #- release/*
 jobs:
-  vscode_azure_iot_edge_Stage_Linux:
+   vscode_azure_iot_edge_Stage_Linux:
+    name: Linux
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-  jobs:
-  build:
-    steps:
-      - name: Install NodeJs
-        uses: actions/setup-node@v1
-        with:
-        node-version: 16.x
-      - name: npm install
-        run: |
+    - name: Install NodeJs
+      uses: actions/setup-node@v1
+      with:
+       node-version: 16.x
+    - name: npm install
+      run: |
          npm install
          sudo npm install -g vsce
-      - name: npm Package
-        run: |
+    - name: npm Package
+      run: |
          npm run tslint
          npm run compile
          node scripts/genAiKey.js
          echo "y" | vsce package
-      - name: npm test
-        run: xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
-      - name: docker test
-        run: docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
-    
-    vscode_azure_iot_edge_Stage_MacOS:
+    - name: npm test
+      run: xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
+    - name: docker test
+      run: docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
+ 
+   vscode_azure_iot_edge_Stage_MacOS:
     runs-on: macOS-latest
     needs: []
-  jobs:
-       build:
-        steps:
-            - uses: actions/checkout@v2
-            - name: Install NodeJs
-              uses: actions/setup-node@v1
-              with:
-              node-version: 16.x
-            - name: npm install
-              run: |
-                 npm install
-                 sudo npm install -g vsce
-            - name: npm Package
-              run: |
-               npm run tslint
-               npm run compile
-               node scripts/genAiKey.js
-               echo "y" | vsce package
-               - name: npm test
-                 run: npm test --silent
+    steps:
+        - uses: actions/checkout@v2
+        - name: Install NodeJs
+          uses: actions/setup-node@v1
+          with:
+           node-version: 16.x
+        - name: npm install
+          run: |
+             npm install
+             sudo npm install -g vsce
+        - name: npm Package
+          run: |
+             npm run tslint
+             npm run compile
+             node scripts/genAiKey.js
+             echo "y" | vsce package
+        - name: npm test
+          run: npm test --silent

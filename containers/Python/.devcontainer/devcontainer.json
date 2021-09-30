@@ -1,0 +1,59 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.194.0/containers/python-3
+{
+    "name": "Azure IoT Edge Python 3.7",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": { 
+            // Update 'VARIANT' to pick a Python version: 3, 3.6, 3.7, 3.8, 3.9
+            "VARIANT": "3.7"
+        }
+    },
+    "runArgs": ["--init", "--privileged"],
+    "mounts": [
+        // Keep command history 
+        "source=ostf-bashhistory,target=/commandhistory,type=volume",
+        // Use docker-in-docker socket
+        "source=dind-var-lib-docker,target=/var/lib/docker,type=volume"
+    ],
+    "overrideCommand": false,
+
+    // Set *default* container specific settings.json values on container create.
+    "settings": { 
+        "terminal.integrated.profiles.linux": {
+            "bash": {
+                "path": "/bin/bash"
+            }
+        },
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "python.pythonPath": "/usr/local/bin/python",
+        "python.languageServer": "Pylance",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
+        "python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+        "python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
+        "python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
+        "python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
+        "python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
+        "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
+        "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
+        "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint"
+    },
+
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker",
+        "vsciot-vscode.azure-iot-tools"
+    ],
+
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+
+    // Use 'postCreateCommand' to run commands after the container is created.
+    // "postCreateCommand": "pip3 install --user -r requirements.txt",
+
+    "remoteUser": "vscode"
+}

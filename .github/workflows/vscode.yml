@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - master
+    tags:
+      - v*.*.*
   pull_request:
     branches:
       - master
+      
 jobs:
    vscode_azure_iot_edge_Stage_Linux:
     name: Linux

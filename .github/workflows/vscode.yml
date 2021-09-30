@@ -30,6 +30,9 @@ jobs:
       run: docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
 
     - name: GitHub Release
+      if: |
+           success() ||
+           startsWith(github.ref, 'refs/tags/')
       uses: xresloader/upload-to-github-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

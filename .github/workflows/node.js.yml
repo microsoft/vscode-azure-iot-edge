@@ -35,6 +35,7 @@ jobs:
       run: docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
  
    vscode_azure_iot_edge_Stage_MacOS:
+    name: Mac-OS
     runs-on: macOS-latest
     needs: []
     steps:
@@ -55,3 +56,23 @@ jobs:
              echo "y" | vsce package
         - name: npm test
           run: npm test --silent
+        - name: docker test
+          run: docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
+        - name: Create GitHub Release
+          if: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+          env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+           repository: microsoft/vscode-azure-iot-edge
+           tag_name: ${{Build.SourceBranch}}
+           gitHubConnection: vikas0212git   
+           target: ${{Build.SourceVersion}}
+           tagSource: userSpecifiedTag
+           changeLogCompareToRelease: lastFullRelease 
+           cangeLogType: commitBased' 
+        - name: Publish to Marketplace
+          if: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+          with: 
+           targetType: inline
+           run: 'vsce publish -p $(VSCE_TOKEN) --packagePath *.vsix'
+           workingDirectory: '$(Build.ArtifactStagingDirectory)'

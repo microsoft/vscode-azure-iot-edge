@@ -22,7 +22,7 @@ export class Versions {
         const edgeHubSchemaVerMap: Map<string, string> = new Map([
             ["1.0", "1.0"],
             ["1.1", "1.1"],
-            ["1.2", "1.2"],
+            ["1.2", "1.1"],
         ]);
 
         const verMap: Map<string, string> = new Map();

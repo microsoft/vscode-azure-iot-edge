@@ -2,8 +2,11 @@ name: CI
 
 on:
   push:
-    tags:
-      - v*.*.*
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 jobs:
    vscode_azure_iot_edge_Stage_Linux:
     name: Linux

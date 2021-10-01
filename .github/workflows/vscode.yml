@@ -37,7 +37,7 @@ jobs:
 
     - name: GitHub Release
       if: |
-           success() ||
+           success() &&
            startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:

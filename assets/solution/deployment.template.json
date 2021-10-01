@@ -55,7 +55,7 @@
     },
     "$edgeHub": {
       "properties.desired": {
-        "schemaVersion": "1.2",
+        "schemaVersion": "1.1",
         "routes": {},
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200

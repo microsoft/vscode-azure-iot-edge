@@ -300,33 +300,6 @@ export class EdgeManager {
         }
     }
 
-    private async generateDevContainerDirectory(template: string, slnPath: string) {
-        const sourceContainersPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.containersFolder));
-        const sourceLibrayScriptsPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.libraryScriptsFolder));
-        let containerSource = "";
-        switch (template) {
-            case Constants.LANGUAGE_C:
-                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_C);
-                break;
-            case Constants.LANGUAGE_CSHARP:
-                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_CSHARP);
-                break;
-            case Constants.LANGUAGE_JAVA:
-                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_JAVA);
-                break;
-            case Constants.LANGUAGE_NODE:
-                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_NODE);
-                break;
-            case Constants.LANGUAGE_PYTHON:
-                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_PYTHON);
-                break;
-            default:
-                throw new Error("Invalid language '" + template + "'");
-        }
-        await fse.copy(containerSource, slnPath);
-        await fse.copy(sourceLibrayScriptsPath, path.join(slnPath, Constants.dotDevContainer, Constants.libraryScriptsFolder));
-    }
-
     public async checkAndUpdateASAJob(templateFile: string, moduleName: string) {
         const saManager = StreamAnalyticsManager.getInstance();
         await saManager.checkAndUpdateASAJob(templateFile, moduleName);
@@ -943,5 +916,32 @@ export class EdgeManager {
     private get3rdPartyModuleTemplateByName(name: string) {
         const templates = this.get3rdPartyModuleTemplates();
         return templates ? templates.find((template) => template.name === name) : undefined;
+    }
+
+    private async generateDevContainerDirectory(template: string, slnPath: string) {
+        const sourceContainersPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.containersFolder));
+        const sourceLibrayScriptsPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.libraryScriptsFolder));
+        let containerSource = "";
+        switch (template) {
+            case Constants.LANGUAGE_C:
+                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_C);
+                break;
+            case Constants.LANGUAGE_CSHARP:
+                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_CSHARP);
+                break;
+            case Constants.LANGUAGE_JAVA:
+                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_JAVA);
+                break;
+            case Constants.LANGUAGE_NODE:
+                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_NODE);
+                break;
+            case Constants.LANGUAGE_PYTHON:
+                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_PYTHON);
+                break;
+            default:
+                throw new Error("Invalid language '" + template + "'");
+        }
+        await fse.copy(containerSource, slnPath);
+        await fse.copy(sourceLibrayScriptsPath, path.join(slnPath, Constants.dotDevContainer, Constants.libraryScriptsFolder));
     }
 }

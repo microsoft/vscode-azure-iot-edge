@@ -296,6 +296,7 @@ export class EdgeManager {
 
         if (isNewSolution) {
             const sourceContainersPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.containersFolder));
+            const sourceLibrayScriptsPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.libraryScriptsFolder));
             let containerSource = "";
             switch (template) {
                 case Constants.LANGUAGE_C:
@@ -317,6 +318,7 @@ export class EdgeManager {
                     throw new Error("Invalid language '" + template + "'");
             }
             await fse.copy(containerSource, slnPath);
+            await fse.copy(sourceLibrayScriptsPath, path.join(slnPath, Constants.dotDevContainer));
             const command = "ms-vscode-remote.remote-containers.openInContainer";
             await vscode.commands.executeCommand(command, vscode.Uri.file(slnPath), false);
         }

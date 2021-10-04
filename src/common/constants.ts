@@ -34,6 +34,8 @@ export class Constants {
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
     public static containersFolder = "containers";
+    public static libraryScriptsFolder = "library-scripts";
+    public static dotDevContainer = ".devcontainer";
     public static CONTAINER_C = "Cpp";
     public static CONTAINER_CSHARP = "Csharp";
     public static CONTAINER_JAVA = "Java";

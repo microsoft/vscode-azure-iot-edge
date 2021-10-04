@@ -295,33 +295,36 @@ export class EdgeManager {
         await this.writeRegistryCredEnv(address, envFilePath, usernameEnv, passwordEnv, debugTemplateEnv.usernameEnv, debugTemplateEnv.passwordEnv);
 
         if (isNewSolution) {
-            const sourceContainersPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.containersFolder));
-            const sourceLibrayScriptsPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.libraryScriptsFolder));
-            let containerSource = "";
-            switch (template) {
-                case Constants.LANGUAGE_C:
-                    containerSource = path.join(sourceContainersPath, Constants.CONTAINER_C);
-                    break;
-                case Constants.LANGUAGE_CSHARP:
-                    containerSource = path.join(sourceContainersPath, Constants.CONTAINER_CSHARP);
-                    break;
-                case Constants.LANGUAGE_JAVA:
-                    containerSource = path.join(sourceContainersPath, Constants.CONTAINER_JAVA);
-                    break;
-                case Constants.LANGUAGE_NODE:
-                    containerSource = path.join(sourceContainersPath, Constants.CONTAINER_NODE);
-                    break;
-                case Constants.LANGUAGE_PYTHON:
-                    containerSource = path.join(sourceContainersPath, Constants.CONTAINER_PYTHON);
-                    break;
-                default:
-                    throw new Error("Invalid language '" + template + "'");
-            }
-            await fse.copy(containerSource, slnPath);
-            await fse.copy(sourceLibrayScriptsPath, path.join(slnPath, Constants.dotDevContainer));
-            const command = "ms-vscode-remote.remote-containers.openInContainer";
-            await vscode.commands.executeCommand(command, vscode.Uri.file(slnPath), false);
+            await this.generateDevContainerDirectory(template, slnPath);
+            await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(slnPath), false);
         }
+    }
+
+    private async generateDevContainerDirectory(template: string, slnPath: string) {
+        const sourceContainersPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.containersFolder));
+        const sourceLibrayScriptsPath = this.context.asAbsolutePath(path.join(Constants.assetsFolder, Constants.libraryScriptsFolder));
+        let containerSource = "";
+        switch (template) {
+            case Constants.LANGUAGE_C:
+                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_C);
+                break;
+            case Constants.LANGUAGE_CSHARP:
+                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_CSHARP);
+                break;
+            case Constants.LANGUAGE_JAVA:
+                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_JAVA);
+                break;
+            case Constants.LANGUAGE_NODE:
+                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_NODE);
+                break;
+            case Constants.LANGUAGE_PYTHON:
+                containerSource = path.join(sourceContainersPath, Constants.CONTAINER_PYTHON);
+                break;
+            default:
+                throw new Error("Invalid language '" + template + "'");
+        }
+        await fse.copy(containerSource, slnPath);
+        await fse.copy(sourceLibrayScriptsPath, path.join(slnPath, Constants.dotDevContainer, Constants.libraryScriptsFolder));
     }
 
     public async checkAndUpdateASAJob(templateFile: string, moduleName: string) {

@@ -33,6 +33,12 @@ export class Constants {
     public static versionPlaceholderPattern: RegExp = new RegExp(/\${VERSION\..+}/g);
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
+    public static containersFolder = "containers";
+    public static CONTAINER_C = "Cpp";
+    public static CONTAINER_CSHARP = "Csharp";
+    public static CONTAINER_JAVA = "Java";
+    public static CONTAINER_NODE = "Node";
+    public static CONTAINER_PYTHON = "Python";
     public static LANGUAGE_CSHARP = "C# Module";
     public static LANGUAGE_NODE = "Node.js Module";
     public static LANGUAGE_PYTHON = "Python Module";

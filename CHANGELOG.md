@@ -1,4 +1,10 @@
 # Change Log
+## 1.25.0- 2021-10-05
+### Changed
+* Added Dev Container definitions for all supported languages
+* Incorporate Dev Container definition with every new EdgeSolution
+* Added a new command to add Dev Container definition to existing solutions
+
 ## 1.24.4 - 2021-10-01
 ### Changed
 * Maximum version number for edgeHub/properties.desired.schemaVersion is capped to 1.1

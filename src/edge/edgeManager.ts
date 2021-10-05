@@ -305,6 +305,45 @@ export class EdgeManager {
         await saManager.checkAndUpdateASAJob(templateFile, moduleName);
     }
 
+    public async addDevContainerDefinition() {
+        if (!Utility.checkWorkspace(Constants.canOnlyUseWithEdgeSolution)) {
+            return;
+        }
+
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        const defaultFolder: vscode.Uri | undefined = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri : undefined;
+        const workspaceFolder = defaultFolder.fsPath;
+        const dotDevContainer = path.join(workspaceFolder, Constants.dotDevContainer);
+        if (await fse.pathExists(dotDevContainer))
+        {
+            const templatePicks: vscode.QuickPickItem[] = [
+                {
+                    label: Constants.CHOICE_REPLACE,
+                    description: Constants.CHOICE_REPLACE_DECRIPTION,
+                },
+                {
+                    label: Constants.CHOICE_KEEP,
+                    description: Constants.CHOICE_KEEP_DECRIPTION,
+                }
+            ];
+            const doYouWishToOverride = await vscode.window.showQuickPick(templatePicks, { placeHolder: Constants.containerDefinitionIsPresent, ignoreFocusOut: true });
+            if (!doYouWishToOverride) {
+                throw new UserCancelledError();
+            }
+
+            if (doYouWishToOverride.label === Constants.CHOICE_KEEP) {
+                throw new UserCancelledError();
+            }
+        }
+
+        const selection = await this.selectDevContainerKind();
+        if (selection)
+        {
+            await this.generateDevContainerDirectory(selection, workspaceFolder);
+            await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(workspaceFolder), false);
+        }
+    }
+
     private async generateDebugCreateOptions(moduleName: string, template: string): Promise<{ debugImageName: string, debugCreateOptions: any }> {
         let debugCreateOptions = {};
         switch (template) {
@@ -924,24 +963,65 @@ export class EdgeManager {
         let containerSource = "";
         switch (template) {
             case Constants.LANGUAGE_C:
+            case Constants.CONTAINER_C:
                 containerSource = path.join(sourceContainersPath, Constants.CONTAINER_C);
                 break;
             case Constants.LANGUAGE_CSHARP:
+                case Constants.CONTAINER_CSHARP:
                 containerSource = path.join(sourceContainersPath, Constants.CONTAINER_CSHARP);
                 break;
             case Constants.LANGUAGE_JAVA:
+                case Constants.CONTAINER_JAVA:
                 containerSource = path.join(sourceContainersPath, Constants.CONTAINER_JAVA);
                 break;
             case Constants.LANGUAGE_NODE:
+                case Constants.CONTAINER_NODE:
                 containerSource = path.join(sourceContainersPath, Constants.CONTAINER_NODE);
                 break;
             case Constants.LANGUAGE_PYTHON:
+                case Constants.CONTAINER_PYTHON:
                 containerSource = path.join(sourceContainersPath, Constants.CONTAINER_PYTHON);
                 break;
             default:
-                throw new Error("Invalid language '" + template + "'");
+                throw new Error("Language '" + template + "' is not supported.");
         }
-        await fse.copy(containerSource, slnPath);
+        await fse.copy(containerSource, slnPath, { overwrite : true });
         await fse.copy(sourceLibrayScriptsPath, path.join(slnPath, Constants.dotDevContainer, Constants.libraryScriptsFolder));
+    }
+
+    private async selectDevContainerKind(label?: string, isNewSolution: boolean = false): Promise<string> {
+        const templatePicks: vscode.QuickPickItem[] = [
+            {
+                label: Constants.CONTAINER_C,
+                description: Constants.CONTAINER_C_DESCRIPTION,
+            },
+            {
+                label: Constants.CONTAINER_CSHARP,
+                description: Constants.CONTAINER_CSHARP_DESCRIPTION,
+            },
+            {
+                label: Constants.CONTAINER_JAVA,
+                description: Constants.CONTAINER_JAVA_DESCRIPTION,
+            },
+            {
+                label: Constants.CONTAINER_NODE,
+                description: Constants.CONTAINER_NODE_DESCRIPTION,
+            },
+            {
+                label: Constants.CONTAINER_PYTHON,
+                description: Constants.CONTAINER_PYTHON_DESCRIPTION,
+            },
+        ];
+        if (label === undefined) {
+            label = Constants.selectDevContainer;
+        }
+        const templatePick = await vscode.window.showQuickPick(templatePicks, { placeHolder: label, ignoreFocusOut: true });
+        if (!templatePick) {
+            throw new UserCancelledError();
+        }
+        TelemetryClient.sendEvent(`${Constants.selectDevContainerEvent}.selectDevContainer`, {
+            template: templatePick.label,
+        });
+        return templatePick.label;
     }
 }

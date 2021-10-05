@@ -78,3 +78,4 @@ jobs:
              echo "y" | vsce package
         - name: npm test
           run: npm test --silent
+          

@@ -1,14 +1,14 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - master
-    tags:
-      - v*.*.*
-  pull_request:
-    branches:
-      - master
+on: [push]
+  #push:
+    #branches:
+      #- master
+    #tags:
+      #- v*.*.*
+  #pull_request:
+    #branches:
+      #- master
       
 jobs:
    vscode_azure_iot_edge_Stage_Linux:
@@ -27,6 +27,7 @@ jobs:
           if [[ ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           echo ::set-output name=GITHUB_TAG::true
           fi
+
     - name: npm install
       run: |
          npm install
@@ -78,4 +79,3 @@ jobs:
              echo "y" | vsce package
         - name: npm test
           run: npm test --silent
-          

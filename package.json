@@ -48,7 +48,7 @@
     "onCommand:azure-iot-edge.setModuleCred",
     "onCommand:azure-iot-edge.setDefaultPlatform",
     "onCommand:azure-iot-edge.showGallery",
-    "onCommand:azure-iot-edge.addDeviceContainer",
+    "onCommand:azure-iot-edge.addDevContainer",
     "workspaceContains:**/deployment.template.json"
   ],
   "main": "./dist/extension",
@@ -105,7 +105,7 @@
         },
         {
           "when": "explorerResourceIsFolder",
-          "command": "azure-iot-edge.addDeviceContainer"
+          "command": "azure-iot-edge.addDevContainer"
         }
       ],
       "view/item/context": [
@@ -164,7 +164,7 @@
       },
       {
         "command": "azure-iot-edge.addModule",
-        "title": "Adding IoT Edge Module",
+        "title": "Add IoT Edge Module",
         "category": "Azure IoT Edge"
       },
       {
@@ -198,7 +198,7 @@
         "category": "Azure IoT Edge"
       },
       {
-        "command": "azure-iot-edge.addDeviceContainer",
+        "command": "azure-iot-edge.addDevContainer",
         "title": "Add Dev Container definition files",
         "category": "Azure IoT Edge"
       }

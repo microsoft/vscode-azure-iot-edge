@@ -36,7 +36,6 @@ export class Constants {
     public static containersFolder = "containers";
     public static libraryScriptsFolder = "library-scripts";
     public static dotDevContainer = ".devcontainer";
-    public static dotVSCode = ".vscode";
     public static CONTAINER_C = "Cpp";
     public static CONTAINER_CSHARP = "CSharp";
     public static CONTAINER_JAVA = "Java";
@@ -44,9 +43,9 @@ export class Constants {
     public static CONTAINER_PYTHON = "Python";
     public static CONTAINER_C_DESCRIPTION = "Use C/C++ Dev Container";
     public static CONTAINER_CSHARP_DESCRIPTION = "Use C# .Net Dev Container";
-    public static CONTAINER_JAVA_DESCRIPTION = "Use Node.js Dev Container";
+    public static CONTAINER_JAVA_DESCRIPTION = "Use Java Dev Container";
     public static CONTAINER_NODE_DESCRIPTION = "Use Node.js Dev Container";
-    public static CONTAINER_PYTHON_DESCRIPTION = "Use Node.js Dev Container";
+    public static CONTAINER_PYTHON_DESCRIPTION = "Use Python Dev Container";
     public static CHOICE_REPLACE = "Replace";
     public static CHOICE_REPLACE_DECRIPTION = "Replace existing Dev Container definitions";
     public static CHOICE_KEEP = "Keep";

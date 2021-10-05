@@ -191,7 +191,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
     initCommandAsync(context, outputChannel,
-        "azure-iot-edge.addDeviceContainer",
+        "azure-iot-edge.addDevContainer",
         async (): Promise<void> => {
             return edgeManager.addDevContainerDefinition();
         });

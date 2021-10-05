@@ -15,15 +15,10 @@ RUN \
     # Clean up
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
-
 # [Optional] Uncomment this line to install global node packages.
 # ARG EXTRA_NODE_VERSION=10
 # RUN su node -c "source /usr/local/share/nvm/nvm.sh && nvm install ${EXTRA_NODE_VERSION}"
 
-#RUN npm install -g npm@7.24.1
 RUN npm install -g yo@latest generator-azure-iot-edge-module
 
 # launch docker-ce

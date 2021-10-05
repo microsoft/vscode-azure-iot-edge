@@ -314,8 +314,7 @@ export class EdgeManager {
         const defaultFolder: vscode.Uri | undefined = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri : undefined;
         const workspaceFolder = defaultFolder.fsPath;
         const dotDevContainer = path.join(workspaceFolder, Constants.dotDevContainer);
-        if (await fse.pathExists(dotDevContainer))
-        {
+        if (await fse.pathExists(dotDevContainer)) {
             const templatePicks: vscode.QuickPickItem[] = [
                 {
                     label: Constants.CHOICE_REPLACE,
@@ -324,7 +323,7 @@ export class EdgeManager {
                 {
                     label: Constants.CHOICE_KEEP,
                     description: Constants.CHOICE_KEEP_DECRIPTION,
-                }
+                },
             ];
             const doYouWishToOverride = await vscode.window.showQuickPick(templatePicks, { placeHolder: Constants.containerDefinitionIsPresent, ignoreFocusOut: true });
             if (!doYouWishToOverride) {
@@ -337,8 +336,7 @@ export class EdgeManager {
         }
 
         const selection = await this.selectDevContainerKind();
-        if (selection)
-        {
+        if (selection) {
             await this.generateDevContainerDirectory(selection, workspaceFolder);
             await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(workspaceFolder), false);
         }

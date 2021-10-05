@@ -20,7 +20,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
        node-version: 16.x
-    - name: Check if release require
+    - name: Check if release required
       id: check-tag
       run: |
           echo ::set-output name=ISPRODTAG::v?[0-9]+\.[0-9]+\.[0-9]+$

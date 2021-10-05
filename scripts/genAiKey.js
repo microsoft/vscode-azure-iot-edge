@@ -1,7 +1,7 @@
 const fs = require("fs");
 
-if (process.env.TRAVIS_TAG) {
-    const ISPROD = new RegExp(process.env.ISPRODTAG).test(process.env.TRAVIS_TAG || "");
+if (process.env.GITHUB_TAG) {
+    const ISPROD = new RegExp(process.env.ISPRODTAG).test(process.env.GITHUB_TAG || "");
     const packageJson = JSON.parse(fs.readFileSync("package.json"));
     if (ISPROD) {
         packageJson.aiKey = process.env["PROD_AIKEY"];

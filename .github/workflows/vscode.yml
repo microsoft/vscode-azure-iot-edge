@@ -20,6 +20,13 @@ jobs:
       uses: actions/setup-node@v1
       with:
        node-version: 16.x
+    - name: Check if release require
+      id: check-tag
+      run: |
+          echo ::set-output name=ISPRODTAG::v?[0-9]+\.[0-9]+\.[0-9]+$
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo ::set-output name=GITHUB_TAG::true
+          fi
     - name: npm install
       run: |
          npm install
@@ -37,8 +44,7 @@ jobs:
 
     - name: GitHub Release
       if: |
-           success() &&
-           startsWith(github.ref, 'refs/tags/')
+           success() && (steps.check-tag.outputs.GITHUB_TAG == 'true')
       uses: softprops/action-gh-release@v1
       with:
           files: ./**/*.vsix   
@@ -48,14 +54,12 @@ jobs:
 
     - name: Publish to Marketplace
       if: |
-           success() &&
-           startsWith(github.ref, 'refs/tags/')
+           success() && (steps.check-tag.outputs.GITHUB_TAG == 'true')
       run: 'vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath *.vsix'
       
    vscode_azure_iot_edge_Stage_MacOS:
     name: Mac-OS
-    runs-on: macOS-latest
-    needs: []
+    runs-on: macos-latest
     steps:
         - uses: actions/checkout@v2
         - name: Install NodeJs
@@ -74,4 +78,3 @@ jobs:
              echo "y" | vsce package
         - name: npm test
           run: npm test --silent
-        

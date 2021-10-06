@@ -25,9 +25,10 @@ jobs:
       run: |
           echo ::set-output name=ISPRODTAG::v?[0-9]+\.[0-9]+\.[0-9]+$
           if [[ ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo ::set-output name=GITHUB_TAG::true
+          echo ::set-output name=GITRELEASE_FLAG::true
+          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags}
           elif [[ ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+-rc[0-9] ]]; then
-          echo ::set-output name=GITHUB_TAG_RC::true
+          echo ::set-output name=GITRELEASE_FLAG_RC::true
           fi
 
     - name: npm install
@@ -40,15 +41,19 @@ jobs:
          npm run compile
          node scripts/genAiKey.js
          echo "y" | vsce package
+      env:
+        GITHUB_TAG: ${{ steps.check-tag.outputs.SOURCE_TAG }}
+        ISPRODTAG: ${{ steps.check-tag.outputs.ISPRODTAG }}
+        PROD_AIKEY: ${{ secrets.PROD_AIKEY }}
+
     - name: npm test
       run: xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
     - name: docker test
       run: docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
-
     - name: GitHub Release
       if: |
-           (success() && (steps.check-tag.outputs.GITHUB_TAG == 'true') ||
-           (steps.check-tag.outputs.GITHUB_TAG_RC == 'true'))
+           ((success() && (steps.check-tag.outputs.GITRELEASE_FLAG == 'true')) ||
+           (success() && (steps.check-tag.outputs.GITRELEASE_FLAG_RC == 'true')))
 
       uses: softprops/action-gh-release@v1
       with:

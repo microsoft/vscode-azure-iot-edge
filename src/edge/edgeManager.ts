@@ -315,7 +315,7 @@ export class EdgeManager {
         const workspaceFolder = defaultFolder.fsPath;
         const dotDevContainer = path.join(workspaceFolder, Constants.dotDevContainer);
         if (await fse.pathExists(dotDevContainer)) {
-            const templatePicks: vscode.QuickPickItem[] = [
+            const replaceDontReplace: vscode.QuickPickItem[] = [
                 {
                     label: Constants.CHOICE_REPLACE,
                     description: Constants.CHOICE_REPLACE_DECRIPTION,
@@ -325,7 +325,7 @@ export class EdgeManager {
                     description: Constants.CHOICE_KEEP_DECRIPTION,
                 },
             ];
-            const doYouWishToOverride = await vscode.window.showQuickPick(templatePicks, { placeHolder: Constants.containerDefinitionIsPresent, ignoreFocusOut: true });
+            const doYouWishToOverride = await vscode.window.showQuickPick(replaceDontReplace, { placeHolder: Constants.containerDefinitionIsPresent, ignoreFocusOut: true });
             if (!doYouWishToOverride) {
                 throw new UserCancelledError();
             }
@@ -338,7 +338,20 @@ export class EdgeManager {
         const selection = await this.selectDevContainerKind();
         if (selection) {
             await this.generateDevContainerDirectory(selection, workspaceFolder);
-            await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(workspaceFolder), false);
+            const reloadDontReload: vscode.QuickPickItem[] = [
+                {
+                    label: Constants.CHOICE_YES,
+                    description: "",
+                },
+                {
+                    label: Constants.CHOICE_NO,
+                    description: "",
+                },
+            ];
+            const doYouWishToReload = await vscode.window.showQuickPick(reloadDontReload, { placeHolder: Constants.reloadInDevContainer, ignoreFocusOut: true });
+            if (doYouWishToReload && doYouWishToReload.label === Constants.CHOICE_YES) {
+                await vscode.commands.executeCommand("remote-containers.reopenInContainer", vscode.Uri.file(workspaceFolder), false);
+            }
         }
     }
 

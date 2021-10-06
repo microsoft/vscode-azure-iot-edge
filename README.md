@@ -21,6 +21,10 @@
 
 ![Added](images/multipleplatform.gif)
 
+## What's New (v1.25.0)
+* Generate Dev Container definition files with new Edge Solutions.
+* Ability to add Dev Container definition files to existing Edge Solutions.
+
 ## What's New (v1.22.0)
 ### Changed
 * Allow user to select deployment template when add module

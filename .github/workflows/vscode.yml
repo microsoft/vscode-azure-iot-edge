@@ -26,7 +26,7 @@ jobs:
           echo ::set-output name=ISPRODTAG::v?[0-9]+\.[0-9]+\.[0-9]+$
           if [[ ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           echo ::set-output name=GITHUB_TAG::true
-          elif [[ ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+-rc ]]; then
+          elif [[ ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+-rc[0-9] ]]; then
           echo ::set-output name=GITHUB_TAG_RC::true
           fi
 

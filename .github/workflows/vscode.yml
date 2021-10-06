@@ -64,7 +64,7 @@ jobs:
 
     - name: Publish to Marketplace
       if: |
-           success() && (steps.check-tag.outputs.GITHUB_TAG == 'true')
+           (success() && (steps.check-tag.outputs.GITRELEASE_FLAG == 'true'))
       run: 'vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath *.vsix'
       
    vscode_azure_iot_edge_Stage_MacOS:

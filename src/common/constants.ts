@@ -33,6 +33,23 @@ export class Constants {
     public static versionPlaceholderPattern: RegExp = new RegExp(/\${VERSION\..+}/g);
     public static assetsFolder = "assets";
     public static solutionFolder = "solution";
+    public static containersFolder = "containers";
+    public static libraryScriptsFolder = "library-scripts";
+    public static dotDevContainer = ".devcontainer";
+    public static CONTAINER_C = "Cpp";
+    public static CONTAINER_CSHARP = "CSharp";
+    public static CONTAINER_JAVA = "Java";
+    public static CONTAINER_NODE = "Node";
+    public static CONTAINER_PYTHON = "Python";
+    public static CONTAINER_C_DESCRIPTION = "Use C/C++ Dev Container";
+    public static CONTAINER_CSHARP_DESCRIPTION = "Use C# .Net Dev Container";
+    public static CONTAINER_JAVA_DESCRIPTION = "Use Java Dev Container";
+    public static CONTAINER_NODE_DESCRIPTION = "Use Node.js Dev Container";
+    public static CONTAINER_PYTHON_DESCRIPTION = "Use Python Dev Container";
+    public static CHOICE_REPLACE = "Replace";
+    public static CHOICE_REPLACE_DECRIPTION = "Replace existing Dev Container definitions";
+    public static CHOICE_KEEP = "Keep";
+    public static CHOICE_KEEP_DECRIPTION = "Keep existing Dev Container definitions";
     public static LANGUAGE_CSHARP = "C# Module";
     public static LANGUAGE_NODE = "Node.js Module";
     public static LANGUAGE_PYTHON = "Python Module";
@@ -98,6 +115,7 @@ export class Constants {
     public static imagePattern = `${Constants.registryPlaceholder}/${Constants.repoNamePlaceholder}:${Constants.tagPlaceholder}`;
     public static imagePrompt = "Provide Docker Image for the Module";
     public static selectTemplate = "Select Module Template";
+    public static selectDevContainer = "Select Dev Container Type";
     public static parentFolderLabel = "Select Folder";
     public static moduleManifest = "module.json";
     public static outputConfig = "config";
@@ -110,6 +128,7 @@ export class Constants {
     public static generateDeploymentEvent = "generateDeployment";
     public static addModuleEvent = "addModule";
     public static selectEdgeRuntimeVerEvent = "selectEdgeVer";
+    public static selectDevContainerEvent = "selectDevContainer";
     public static launchCSharp = "launch_csharp.json";
     public static launchNode = "launch_node.json";
     public static launchC = "launch_c.json";
@@ -219,6 +238,9 @@ export class Constants {
 
     public static noWorkspaceSetDefaultPlatformMsg = "No workspace is opened for setting default platform. Please open a workspace and try again.";
     public static noWorkspaceMsg = "This extension only works when folders are opened.";
+
+    public static canOnlyUseWithEdgeSolution = "This option is only available when an Azure IoT EdgeSolution is open.";
+    public static containerDefinitionIsPresent = "This solution currently uses a Dev Container";
 
     public static openSampleEvent = "openSample";
     public static openSampleUrlEvent = "openSampleUrl";

@@ -1,0 +1,49 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.194.0/containers/java
+{
+    "name": "Azure IoTEdge Java",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            // Update the VARIANT arg to pick a Java version: 11, 16
+            "VARIANT": "11",
+            // Options
+            "INSTALL_MAVEN": "true",
+            "INSTALL_GRADLE": "false",
+            "NODE_VERSION": "none"
+        }
+    },
+    "runArgs": ["--init", "--privileged"],
+    "mounts": [
+        // Keep command history 
+        "source=ostf-bashhistory,target=/commandhistory,type=volume",
+        // Use docker-in-docker socket
+        "source=dind-var-lib-docker,target=/var/lib/docker,type=volume"
+    ],
+    "overrideCommand": false,
+
+    // Set *default* container specific settings.json values on container create.
+    "settings": { 
+        "java.home": "/docker-java-home",
+        "terminal.integrated.profiles.linux": {
+            "bash": {
+                "path": "/bin/bash"
+            }
+        }
+    },
+
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "vscjava.vscode-java-pack",
+        "ms-azuretools.vscode-docker",
+        "vsciot-vscode.azure-iot-tools"
+    ],
+
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+
+    // Use 'postCreateCommand' to run commands after the container is created.
+    // "postCreateCommand": "java -version",
+
+    "remoteUser": "vscode"
+}

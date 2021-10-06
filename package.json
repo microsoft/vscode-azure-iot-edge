@@ -2,7 +2,7 @@
   "name": "azure-iot-edge",
   "displayName": "Azure IoT Edge",
   "description": "This extension is now a part of Azure IoT Tools extension pack. We highly recommend installing Azure IoT Tools to get full capabilities for Azure IoT development. Develop, deploy, debug, and manage your IoT Edge solution.",
-  "version": "1.24.4",
+  "version": "1.25.0",
   "publisher": "vsciot-vscode",
   "aiKey": "95b20d64-f54f-4de3-8ad5-165a75a6c6fe",
   "icon": "logo.png",
@@ -48,6 +48,7 @@
     "onCommand:azure-iot-edge.setModuleCred",
     "onCommand:azure-iot-edge.setDefaultPlatform",
     "onCommand:azure-iot-edge.showGallery",
+    "onCommand:azure-iot-edge.addDevContainer",
     "workspaceContains:**/deployment.template.json"
   ],
   "main": "./dist/extension",
@@ -101,6 +102,10 @@
         {
           "when": "explorerResourceIsFolder && resourceFilename == modules",
           "command": "azure-iot-edge.addModule"
+        },
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "azure-iot-edge.addDevContainer"
         }
       ],
       "view/item/context": [
@@ -190,6 +195,11 @@
       {
         "command": "azure-iot-edge.showGallery",
         "title": "Show Sample Gallery",
+        "category": "Azure IoT Edge"
+      },
+      {
+        "command": "azure-iot-edge.addDevContainer",
+        "title": "Add Dev Container definition files",
         "category": "Azure IoT Edge"
       }
     ],

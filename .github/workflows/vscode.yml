@@ -26,6 +26,8 @@ jobs:
           echo ::set-output name=ISPRODTAG::v?[0-9]+\.[0-9]+\.[0-9]+$
           if [[ ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           echo ::set-output name=GITHUB_TAG::true
+          elif [[ ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+-rc[0-9] ]]; then
+          echo ::set-output name=GITHUB_TAG_RC::true
           fi
 
     - name: npm install
@@ -45,7 +47,9 @@ jobs:
 
     - name: GitHub Release
       if: |
-           success() && (steps.check-tag.outputs.GITHUB_TAG == 'true')
+           (success() && (steps.check-tag.outputs.GITHUB_TAG == 'true') ||
+           (steps.check-tag.outputs.GITHUB_TAG_RC == 'true'))
+
       uses: softprops/action-gh-release@v1
       with:
           files: ./**/*.vsix   

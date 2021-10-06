@@ -20,17 +20,20 @@ jobs:
       uses: actions/setup-node@v1
       with:
        node-version: 16.x
-    - name: Check if release required
-      if: ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$-rc
-      id: check-tag
+  
+    - name: Check release tag
+      if: ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$
       run: |
-          echo "Hello! $GITHUB_TAG "
-          #echo ::set-output name=ISPRODTAG::v?[0-9]+\.[0-9]+\.[0-9]+$
-          #if [[ ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          #echo ::set-output name=GITHUB_TAG::true
-          #fi
+          echo "Hello! $GITHUB_TAG"
       env: 
           GITHUB_TAG: true
+          ISPRODTAG: v?[0-9]+\.[0-9]+\.[0-9]+$
+    - name: Check RC release tag
+      if: ${{ github.ref }} =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]
+      run: |
+          echo "Hello! $GITHUB_TAG_RC"
+      env: 
+          GITHUB_TAG_RC: true
           ISPRODTAG: v?[0-9]+\.[0-9]+\.[0-9]+$
 
     - name: npm install

@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-if (process.env.GITHUB_TAG) {
+if (process.env.GITHUB_TAG == "true") {
     const ISPROD = new RegExp(process.env.ISPRODTAG).test(process.env.GITHUB_TAG || "");
     const packageJson = JSON.parse(fs.readFileSync("package.json"));
     if (ISPROD) {

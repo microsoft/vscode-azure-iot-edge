@@ -338,7 +338,7 @@ export class EdgeManager {
         const selection = await this.selectDevContainerKind();
         if (selection) {
             await this.generateDevContainerDirectory(selection, workspaceFolder);
-            await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(workspaceFolder), false);
+            await vscode.commands.executeCommand("remote-containers.reopenInContainer", vscode.Uri.file(workspaceFolder), false);
         }
     }
 

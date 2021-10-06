@@ -44,20 +44,12 @@ jobs:
       run: xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
     - name: docker test
       run: docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
-    
-    - name: GitHub Release - RC
-      if: |
-           success() && (steps.check-tag.outputs.GITHUB_TAG_RC == 'true')
-      uses: softprops/action-gh-release@v1
-      with:
-          files: ./**/*.vsix 
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        tags: true
 
     - name: GitHub Release
       if: |
-           success() && (steps.check-tag.outputs.GITHUB_TAG == 'true')
+           (success() && (steps.check-tag.outputs.GITHUB_TAG == 'true') ||
+           (steps.check-tag.outputs.GITHUB_TAG_RC == 'true'))
+
       uses: softprops/action-gh-release@v1
       with:
           files: ./**/*.vsix   

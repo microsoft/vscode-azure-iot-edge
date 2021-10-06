@@ -50,6 +50,8 @@ export class Constants {
     public static CHOICE_REPLACE_DECRIPTION = "Replace existing Dev Container definitions";
     public static CHOICE_KEEP = "Keep";
     public static CHOICE_KEEP_DECRIPTION = "Keep existing Dev Container definitions";
+    public static CHOICE_YES = "Yes";
+    public static CHOICE_NO = "No";
     public static LANGUAGE_CSHARP = "C# Module";
     public static LANGUAGE_NODE = "Node.js Module";
     public static LANGUAGE_PYTHON = "Python Module";
@@ -241,6 +243,7 @@ export class Constants {
 
     public static canOnlyUseWithEdgeSolution = "This option is only available when an Azure IoT EdgeSolution is open.";
     public static containerDefinitionIsPresent = "This solution currently uses a Dev Container";
+    public static reloadInDevContainer = "Reload Workspace in Dev Container";
 
     public static openSampleEvent = "openSample";
     public static openSampleUrlEvent = "openSampleUrl";

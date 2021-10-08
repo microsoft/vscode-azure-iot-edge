@@ -58,10 +58,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
           files: ./**/*.vsix   
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        tags: true
-
+      
     - name: Publish to Marketplace
       if: |
            (success() && (steps.check-tag.outputs.GITRELEASE_FLAG == 'true'))

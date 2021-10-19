@@ -3,8 +3,8 @@
 
 "use strict";
 import { AzureMachineLearningWorkspaces } from "@azure/arm-machinelearningservices";
-import { Workspaces } from "@azure/arm-machinelearningservices/esm/operations";
 import { Workspace } from "@azure/arm-machinelearningservices/esm/models";
+import { Workspaces } from "@azure/arm-machinelearningservices/esm/operations";
 import { HttpOperationResponse, ServiceClient, ServiceClientCredentials } from "@azure/ms-rest-js";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
@@ -84,7 +84,7 @@ export class AmlManager {
             const modelMgmtEndpoint: string = await this.getModelMgmtEndpoint(workspace);
             const credentials: ServiceClientCredentials = session.credentials;
             const client: ServiceClient = new ServiceClient(credentials);
-            const result: HttpOperationResponse<{ value: IImage[] }> = await client.sendRequestWithHttpOperationResponse<{ value: IImage[] }>({
+            const result: HttpOperationResponse = await client.sendRequest({
                 method: "GET",
                 baseUrl: modelMgmtEndpoint,
                 pathTemplate: `/api${workspace.id}/images`,
@@ -93,11 +93,11 @@ export class AmlManager {
                 deserializationMapper: undefined,
             });
 
-            if (result.body.value === undefined || result.body.value.length === 0) {
+            if (result.parsedBody === undefined || result.parsedBody.length === 0) {
                 throw new Error("No image can be found in the workspace.");
             }
 
-            return result.body.value.map((image: IImage) => {
+            return result.parsedBody.map((image: IImage) => {
                 return { label: image.name, description: image.imageLocation };
             });
         } catch (error) {
@@ -130,14 +130,14 @@ export class AmlManager {
 
     private async getExperimentationEndpoint(workspace: Workspace): Promise<string> {
         const client: ServiceClient = new ServiceClient();
-        const result: HttpOperationResponse<IEndPoints> = await client.sendRequestWithHttpOperationResponse<IEndPoints>({
+        const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: workspace.discoveryUrl,
             serializationMapper: undefined,
             deserializationMapper: undefined,
         });
-        if (result.response.statusCode === 200) {
-            return result.body.experimentation;
+        if (result.status === 200) {
+            return result.parsedBody.experimentation;
         } else {
             throw new Error("API end points not found."); // TODO: return defaults by region
         }

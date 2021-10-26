@@ -1,4 +1,8 @@
 # Change Log
+## 1.25.1- 2021-10-26
+### Changed
+* Fixed issue with processing of modules lacking the image URI
+
 ## 1.25.0- 2021-10-05
 ### Changed
 * Added Dev Container definitions for all supported languages

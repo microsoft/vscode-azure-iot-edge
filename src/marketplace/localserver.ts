@@ -93,7 +93,9 @@ export class LocalServer {
                         item.plans.forEach((plan) => {
                             if (plan.artifacts) {
                                 const metaData = plan.artifacts.find((artifact) => artifact.name === "iot-edge-metadata.json");
-                                plan.iotEdgeMetadataUrl = metaData.uri;
+                                if (metaData !== undefined) {
+                                    plan.iotEdgeMetadataUrl = metaData.uri;
+                                }
                             }
                         });
                     }

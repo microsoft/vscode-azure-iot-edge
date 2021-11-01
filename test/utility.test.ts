@@ -2,6 +2,8 @@ import * as assert from "assert";
 import * as fse from "fs-extra";
 import * as path from "path";
 import * as sinon from "sinon";
+import * as vscode from "vscode";
+
 import { BuildSettings } from "../src/common/buildSettings";
 import { Configuration } from "../src/common/configuration";
 import { Constants } from "../src/common/constants";
@@ -179,7 +181,7 @@ suite("utility tests", () => {
         windows: null,
         test: ["test"],
       });
-      return stubMap;
+      return (stubMap as unknown) as vscode.WorkspaceConfiguration;
     });
     const platforms: Platform[] = Platform.getPlatformsSetting();
     assert.equal(platforms.length, 6);

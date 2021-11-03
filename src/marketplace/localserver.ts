@@ -1,6 +1,7 @@
 import * as bodyParser from "body-parser";
 import * as express from "express";
 import * as http from "http";
+import { AddressInfo } from "net";
 import * as request from "request-promise";
 import * as vscode from "vscode";
 import { Utility } from "../common/utility";
@@ -25,7 +26,7 @@ export class LocalServer {
     }
 
     public startServer(): void {
-        const port = this.server.listen(0).address().port;
+        const port = (this.server.listen(0).address() as AddressInfo).port;
         this.serverPort = port;
         // tslint:disable-next-line:no-console
         console.log("serverPort:" + this.serverPort);

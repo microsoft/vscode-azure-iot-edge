@@ -19,7 +19,7 @@ jobs:
     - name: Install NodeJs
       uses: actions/setup-node@v1
       with:
-       node-version: 16.x
+       node-version: 17.x
     - name: Check if release required
       id: check-tag
       run: |
@@ -72,7 +72,7 @@ jobs:
         - name: Install NodeJs
           uses: actions/setup-node@v1
           with:
-           node-version: 16.x
+           node-version: 17.x
         - name: npm install
           run: |
              npm install

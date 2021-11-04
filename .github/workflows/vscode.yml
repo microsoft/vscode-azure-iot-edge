@@ -36,7 +36,7 @@ jobs:
          npm install
     - name: install -g vsce
       run: |
-         sudo npm install -g vsce
+         npm install -g vsce
     - name: npm Package
       run: |
          npm run tslint

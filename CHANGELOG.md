@@ -16,7 +16,6 @@
 ## 1.24.4 - 2021-10-01
 ### Changed
 * Maximum version number for edgeHub/properties.desired.schemaVersion is capped to 1.1
->>>>>>> master
 
 ## 1.24.3 - 2021-7-27
 ### Changed

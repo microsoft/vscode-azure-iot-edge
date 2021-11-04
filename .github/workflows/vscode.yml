@@ -34,6 +34,8 @@ jobs:
     - name: npm install
       run: |
          npm install
+    - name: install -g vsce
+      run: |
          sudo npm install -g vsce
     - name: npm Package
       run: |

@@ -5,12 +5,18 @@ import { runTests, downloadAndUnzipVSCode } from 'vscode-test/out/index';
 
 async function go() {
 	try {
-		const extensionDevelopmentPath = path.resolve(__dirname, '../');
+		const extensionDevelopmentPath = path.resolve(__dirname, '../../');
 		const extensionTestsPath = path.resolve(__dirname, './');
 
 		await runTests({
+			version: '1.40.0',
 			extensionDevelopmentPath,
-			extensionTestsPath
+			extensionTestsPath,
+			launchArgs: [
+				'--no-sandbox',
+				// This disables all extensions except the one being testing
+				'--disable-extensions'
+			]
 		});
 	} catch (err) {
 		console.error('Failed to run tests');

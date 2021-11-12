@@ -80,8 +80,9 @@ export class AcrManager {
             await this.azureAccount.waitForFilters();
             const registryPromises: Array<Promise<AcrRegistryQuickPickItem[]>> = [];
             for (const azureSubscription of this.azureAccount.filters) {
+                const tokenCredentials = await Utility.aquireTokenCredentials(azureSubscription.session);
                 const client: Registries = new ContainerRegistryManagementClient(
-                    azureSubscription.session.credentials,
+                    tokenCredentials,
                     azureSubscription.subscription.subscriptionId!,
                 ).registries;
 

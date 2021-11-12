@@ -203,8 +203,9 @@ export class StreamAnalyticsManager {
             await this.azureAccount.waitForFilters();
             const jobPromises: Array<Promise<StreamAnalyticsPickItem[]>> = [];
             for (const azureSubscription of this.azureAccount.filters) {
+                const tokenCredentials = await Utility.aquireTokenCredentials(azureSubscription.session);
                 const client: StreamingJobs = new StreamAnalyticsManagementClient(
-                    azureSubscription.session.credentials,
+                    tokenCredentials,
                     azureSubscription.subscription.subscriptionId!,
                 ).streamingJobs;
 

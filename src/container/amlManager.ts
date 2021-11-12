@@ -5,7 +5,7 @@
 import { AzureMachineLearningWorkspaces } from "@azure/arm-machinelearningservices";
 import { Workspace } from "@azure/arm-machinelearningservices/esm/models";
 import { Workspaces } from "@azure/arm-machinelearningservices/esm/operations";
-import { HttpOperationResponse, ServiceClient, ServiceClientCredentials } from "@azure/ms-rest-js";
+import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { UserCancelledError } from "../common/UserCancelledError";
@@ -47,8 +47,9 @@ export class AmlManager {
             await this.azureAccount.waitForFilters();
             const workspacePromises: Array<Promise<AmlWorkspaceQuickPickItem[]>> = [];
             for (const azureSubscription of this.azureAccount.filters) {
+                const tokenCredentials = await Utility.aquireTokenCredentials(azureSubscription.session);
                 const client: Workspaces = new AzureMachineLearningWorkspaces(
-                    azureSubscription.session.credentials,
+                    tokenCredentials,
                     azureSubscription.subscription.subscriptionId!,
                 ).workspaces;
 
@@ -82,8 +83,8 @@ export class AmlManager {
     private async loadAmlImageItems(workspace: Workspace, session: AzureSession): Promise<vscode.QuickPickItem[]> {
         try {
             const modelMgmtEndpoint: string = await this.getModelMgmtEndpoint(workspace);
-            const credentials: ServiceClientCredentials = session.credentials;
-            const client: ServiceClient = new ServiceClient(credentials);
+            const tokenCredentials = await Utility.aquireTokenCredentials(session);
+            const client: ServiceClient = new ServiceClient(tokenCredentials);
             const result: HttpOperationResponse = await client.sendRequest({
                 method: "GET",
                 baseUrl: modelMgmtEndpoint,
@@ -93,11 +94,11 @@ export class AmlManager {
                 deserializationMapper: undefined,
             });
 
-            if (result.parsedBody === undefined || result.parsedBody.length === 0) {
+            if (result.parsedBody.value === undefined || result.parsedBody.value.length === 0) {
                 throw new Error("No image can be found in the workspace.");
             }
 
-            return result.parsedBody.map((image: IImage) => {
+            return result.parsedBody.value.map((image: IImage) => {
                 return { label: image.name, description: image.imageLocation };
             });
         } catch (error) {

@@ -119,7 +119,7 @@ export class Gallery {
     }
 
     private async downloadSamplePackage(url: string, fsPath: string): Promise<void> {
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             download(url, fsPath, (err) => {
                 if (err) {
                     reject(err);

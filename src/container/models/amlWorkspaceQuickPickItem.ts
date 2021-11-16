@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 "use strict";
-import { Workspace } from "azure-arm-machinelearningservices/lib/models";
+import { Workspace } from "@azure/arm-machinelearningservices/esm/models";
 import * as vscode from "vscode";
 import { AzureSubscription } from "../../typings/azure-account.api";
 

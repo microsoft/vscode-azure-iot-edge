@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
-import StreamAnalyticsManagementClient = require("azure-arm-streamanalytics");
-import { StreamingJob } from "azure-arm-streamanalytics/lib/models";
-import { StreamingJobs } from "azure-arm-streamanalytics/lib/operations";
+import { StreamAnalyticsManagementClient, StreamingJobs } from "@azure/arm-streamanalytics";
+import { StreamingJob } from "@azure/arm-streamanalytics/esm/models";
 import * as fse from "fs-extra";
 import * as request from "request-promise";
 import * as vscode from "vscode";
@@ -204,8 +203,9 @@ export class StreamAnalyticsManager {
             await this.azureAccount.waitForFilters();
             const jobPromises: Array<Promise<StreamAnalyticsPickItem[]>> = [];
             for (const azureSubscription of this.azureAccount.filters) {
+                const tokenCredentials = await Utility.aquireTokenCredentials(azureSubscription.session);
                 const client: StreamingJobs = new StreamAnalyticsManagementClient(
-                    azureSubscription.session.credentials,
+                    tokenCredentials,
                     azureSubscription.subscription.subscriptionId!,
                 ).streamingJobs;
 

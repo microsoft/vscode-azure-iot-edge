@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 "use strict";
+import { TokenCredentials } from "@azure/ms-rest-js";
 import * as dotenv from "dotenv";
 import * as fse from "fs-extra";
 import * as isPortReachable from "is-port-reachable";
@@ -459,6 +460,10 @@ export class Utility {
                 }
             });
         });
+    }
+
+    public static async aquireTokenCredentials(session: AzureSession): Promise<TokenCredentials> {
+        return new TokenCredentials((await Utility.acquireAadToken(session)).aadAccessToken, "Bearer");
     }
 
     public static getResourceGroupFromId(id: string): string | undefined {

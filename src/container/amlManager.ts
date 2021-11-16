@@ -2,10 +2,10 @@
 // Licensed under the MIT license.
 
 "use strict";
-import { AzureMachineLearningWorkspaces } from "azure-arm-machinelearningservices";
-import { Workspace } from "azure-arm-machinelearningservices/lib/models";
-import { Workspaces } from "azure-arm-machinelearningservices/lib/operations";
-import { HttpOperationResponse, ServiceClient, ServiceClientCredentials } from "ms-rest";
+import { AzureMachineLearningWorkspaces } from "@azure/arm-machinelearningservices";
+import { Workspace } from "@azure/arm-machinelearningservices/esm/models";
+import { Workspaces } from "@azure/arm-machinelearningservices/esm/operations";
+import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { UserCancelledError } from "../common/UserCancelledError";
@@ -47,8 +47,9 @@ export class AmlManager {
             await this.azureAccount.waitForFilters();
             const workspacePromises: Array<Promise<AmlWorkspaceQuickPickItem[]>> = [];
             for (const azureSubscription of this.azureAccount.filters) {
+                const tokenCredentials = await Utility.aquireTokenCredentials(azureSubscription.session);
                 const client: Workspaces = new AzureMachineLearningWorkspaces(
-                    azureSubscription.session.credentials,
+                    tokenCredentials,
                     azureSubscription.subscription.subscriptionId!,
                 ).workspaces;
 
@@ -82,9 +83,9 @@ export class AmlManager {
     private async loadAmlImageItems(workspace: Workspace, session: AzureSession): Promise<vscode.QuickPickItem[]> {
         try {
             const modelMgmtEndpoint: string = await this.getModelMgmtEndpoint(workspace);
-            const credentials: ServiceClientCredentials = session.credentials;
-            const client: ServiceClient = new ServiceClient(credentials);
-            const result: HttpOperationResponse<{ value: IImage[] }> = await client.sendRequestWithHttpOperationResponse<{ value: IImage[] }>({
+            const tokenCredentials = await Utility.aquireTokenCredentials(session);
+            const client: ServiceClient = new ServiceClient(tokenCredentials);
+            const result: HttpOperationResponse = await client.sendRequest({
                 method: "GET",
                 baseUrl: modelMgmtEndpoint,
                 pathTemplate: `/api${workspace.id}/images`,
@@ -93,11 +94,11 @@ export class AmlManager {
                 deserializationMapper: undefined,
             });
 
-            if (result.body.value === undefined || result.body.value.length === 0) {
+            if (result.parsedBody.value === undefined || result.parsedBody.value.length === 0) {
                 throw new Error("No image can be found in the workspace.");
             }
 
-            return result.body.value.map((image: IImage) => {
+            return result.parsedBody.value.map((image: IImage) => {
                 return { label: image.name, description: image.imageLocation };
             });
         } catch (error) {
@@ -130,14 +131,14 @@ export class AmlManager {
 
     private async getExperimentationEndpoint(workspace: Workspace): Promise<string> {
         const client: ServiceClient = new ServiceClient();
-        const result: HttpOperationResponse<IEndPoints> = await client.sendRequestWithHttpOperationResponse<IEndPoints>({
+        const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: workspace.discoveryUrl,
             serializationMapper: undefined,
             deserializationMapper: undefined,
         });
-        if (result.response.statusCode === 200) {
-            return result.body.experimentation;
+        if (result.status === 200) {
+            return result.parsedBody.experimentation;
         } else {
             throw new Error("API end points not found."); // TODO: return defaults by region
         }

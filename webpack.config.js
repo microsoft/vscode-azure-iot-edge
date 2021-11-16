@@ -41,10 +41,10 @@ const config = {
     plugins: [
         // Ignore all locale files of moment.js, which can save 50KB
         // https://webpack.js.org/plugins/ignore-plugin/#ignore-moment-locales
-        new webpack.IgnorePlugin(/^\.\/locale$/, /[\/\\]moment$/),
+        new webpack.IgnorePlugin({resourceRegExp: /^\.\/locale$/, contextRegExp: /[\/\\]moment$/}),
         // Ignore optional packages which used by vscode-extension-telemetry
-        new webpack.IgnorePlugin(/@opentelemetry\/tracing/),
-        new webpack.IgnorePlugin(/applicationinsights-native-metrics/),
+        new webpack.IgnorePlugin({resourceRegExp: /@opentelemetry\/tracing/}),
+        new webpack.IgnorePlugin({resourceRegExp: /applicationinsights-native-metrics/}),
         // Suppress warnings of known dynamic require
         new webpack.ContextReplacementPlugin(
             /applicationinsights[\/\\]out[\/\\]Library/,

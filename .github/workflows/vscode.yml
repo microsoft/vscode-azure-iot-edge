@@ -19,7 +19,7 @@ jobs:
     - name: Install NodeJs
       uses: actions/setup-node@v1
       with:
-       node-version: 16.x
+       node-version: 17.x
     - name: Check if release required
       id: check-tag
       run: |
@@ -34,7 +34,9 @@ jobs:
     - name: npm install
       run: |
          npm install
-         sudo npm install -g vsce
+    - name: install -g vsce
+      run: |
+         npm install -g vsce
     - name: npm Package
       run: |
          npm run tslint
@@ -72,7 +74,7 @@ jobs:
         - name: Install NodeJs
           uses: actions/setup-node@v1
           with:
-           node-version: 16.x
+           node-version: 17.x
         - name: npm install
           run: |
              npm install

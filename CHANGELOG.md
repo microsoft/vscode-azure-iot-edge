@@ -1,4 +1,8 @@
 # Change Log
+## 1.25.2 - 2021-11-30
+### Changed
+* Update npm package dependencies
+
 ## 1.25.1- 2021-10-26
 ### Changed
 * Fixed issue with processing of modules lacking the image URI

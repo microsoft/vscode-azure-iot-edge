@@ -974,13 +974,14 @@ export class EdgeManager {
         let containerSource = "";
         switch (template) {
             // we get here from two different paths:
-            //    1- when creating a new edge solution and the first add module is called
-            //    2- when working with an existing solution and the use wishes to use a dev container
+            //    1- when creating a new edge solution and the first add module is called, or
+            //    2- when working with an existing solution and the user wishes to incorporate a dev container
             case Constants.LANGUAGE_C:
             case Constants.CONTAINER_C:
                 containerSource = path.join(sourceContainersPath, Constants.CONTAINER_C);
                 break;
             case Constants.LANGUAGE_CSHARP:
+            case Constants.CSHARP_FUNCTION:
             case Constants.CONTAINER_CSHARP:
                 containerSource = path.join(sourceContainersPath, Constants.CONTAINER_CSHARP);
                 break;

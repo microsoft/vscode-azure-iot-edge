@@ -1,4 +1,8 @@
 # Change Log
+## 1.25.3 - 2021-11-30
+### Changed
+* Added creation of CSharp Dev Container for new Solutions with a CSharp Function.
+
 ## 1.25.2 - 2021-11-30
 ### Changed
 * Update npm package dependencies

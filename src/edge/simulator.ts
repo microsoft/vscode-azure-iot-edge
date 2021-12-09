@@ -6,7 +6,7 @@ import * as dotenv from "dotenv";
 import * as fse from "fs-extra";
 import * as os from "os";
 import * as path from "path";
-import * as request from "request-promise";
+import axios from "axios";
 import * as semver from "semver";
 import * as unzipper from "unzipper";
 import * as vscode from "vscode";
@@ -213,8 +213,8 @@ export class Simulator {
         if (!this.desiredSimulatorInfo) {
             await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, outputChannel, async () => {
                 let version = Simulator.iotedgehubdevDefaultVersion;
-                const pipResponse = await request.get(Simulator.iotedgehubdevVersionUrl);
-                const releases = JSON.parse(pipResponse).releases;
+                const pipResponse = await axios.get(Simulator.iotedgehubdevVersionUrl);
+                const releases = pipResponse.data.releases;
                 const lockVersion = process.env[Simulator.iotedgehubdevLockVersionKey];
                 if (lockVersion !== undefined && lockVersion.trim() !== "") {
                     // Make sure the custom version is an existing release
@@ -292,20 +292,14 @@ export class Simulator {
         const version: string = info.version;
 
         await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, outputChannel, async () => {
+            const res = await axios.get(binariesZipUrl, {responseType: 'stream'});
             await new Promise<void>((resolve, reject) => {
-                const req = request(binariesZipUrl);
-                req.on("response",  (res) => {
-                    if (res.statusCode === 200) {
-                        req.pipe(unzipper.Extract({ path: Simulator.WindowsStandaloneSimulatorFolder }))
-                        .on("close", () => resolve()).on("error", (e) => reject(new Error("Cannot extract simulator binaries from zip file: " + e.message)));
-                    } else {
-                        reject(new Error("Cannot download simulator with status code: " + res.statusCode));
-                    }
-                });
-
-                req.on("error", (err) => {
-                    reject(new Error("Cannot download simulator, please check your network connection: " + err.message));
-                });
+                if (res.status === 200) {
+                    res.data.pipe(unzipper.Extract({ path: Simulator.WindowsStandaloneSimulatorFolder }))
+                    .on("close", () => resolve()).on("error", (e) => reject(new Error("Cannot extract simulator binaries from zip file: " + e.message)));
+                } else {
+                    reject(new Error("Cannot download simulator with status code: " + res.status));
+                }
             });
 
             try {

@@ -187,5 +187,13 @@ To get started, please visit the [project repo](https://aka.ms/typeedge) and giv
 This project collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](http://go.microsoft.com/fwlink/?LinkId=521839) to learn more. 
 If you don’t wish to send usage data to Microsoft, you can set the `telemetry.enableTelemetry` setting to `false`. Learn more in our [FAQ](https://code.visualstudio.com/docs/supporting/faq#_how-to-disable-telemetry-reporting).
 
-## Support and Contact Us
-You can join in our [Gitter](https://gitter.im/Microsoft/vscode-azure-iot-edge) to ask for help, report issues and talk to the product team directly.
+## Support
+The team monitors the issue section on regular basis and will try to assist with troubleshooting or questions related IoT Edge tools on a best effort basis.
+	
+A few tips before opening an issue. Try to generalize the problem as much as possible. Examples include
+- Removing 3rd party components
+- Reproduce the issue with provided deployment manifest used
+- Specify whether issue is reproducible on physical device or simulated device or both
+
+Also, Consider consulting on the [docker docs channel](https://github.com/docker/docker.github.io) for general docker questions.
+

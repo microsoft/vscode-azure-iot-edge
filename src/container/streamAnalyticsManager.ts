@@ -3,8 +3,8 @@
 
 import { StreamAnalyticsManagementClient, StreamingJobs } from "@azure/arm-streamanalytics";
 import { StreamingJob } from "@azure/arm-streamanalytics/esm/models";
+import axios from "axios";
 import * as fse from "fs-extra";
-import * as request from "request-promise";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { UserCancelledError } from "../common/UserCancelledError";
@@ -101,12 +101,7 @@ export class StreamAnalyticsManager {
             const curEtag = ASAInfo.ASAJobEtag;
             const subscription = await this.getJobSubscription(ASAInfo);
             const { aadAccessToken } = await Utility.acquireAadToken(subscription.session);
-            const jobInfo = await request.get(GetASAJobApiUrl, {
-                auth: {
-                    bearer: aadAccessToken,
-                },
-                resolveWithFullResponse: true,
-            });
+            const jobInfo = await axios.get(GetASAJobApiUrl, { headers: { Authorization: `bearer ${aadAccessToken}` } });
 
             const latestETag = jobInfo.headers.etag;
             return latestETag !== curEtag;
@@ -126,12 +121,7 @@ export class StreamAnalyticsManager {
             const apiUrl: string = `https://management.azure.com${resourceId}/publishedgepackage?api-version=2019-06-01`;
             const { aadAccessToken } = await Utility.acquireAadToken(session);
 
-            const publishResponse = await request.post(apiUrl, {
-                auth: {
-                    bearer: aadAccessToken,
-                },
-                resolveWithFullResponse: true,
-            });
+            const publishResponse = await axios.post(apiUrl, { headers: { Authorization: `bearer ${aadAccessToken}` }, resolveWithFullResponse: true });
 
             const operationResultUrl = publishResponse.headers.location;
 
@@ -139,26 +129,21 @@ export class StreamAnalyticsManager {
             while (true) {
                 await this.sleep(2000);
 
-                const jobInfoResult = await request.get(operationResultUrl, {
-                    auth: {
-                        bearer: aadAccessToken,
-                    },
-                    resolveWithFullResponse: true,
-                });
+                const jobInfoResult = await axios.get(operationResultUrl, { headers: { Authorization: `bearer ${aadAccessToken}` } });
 
                 if (token.isCancellationRequested) {
                     throw new UserCancelledError();
                 }
 
-                if (jobInfoResult.statusCode === 202) {
+                if (jobInfoResult.status === 202) {
                     if (retryTimes < this.MaximumRetryCount) {
                         retryTimes++;
                         continue;
                     } else {
                         throw new Error(Constants.queryASAJobInfoFailedMsg);
                     }
-                } else if (jobInfoResult.statusCode === 200) {
-                    const result = JSON.parse(jobInfoResult.body);
+                } else if (jobInfoResult.status === 200) {
+                    const result = jobInfoResult.data;
                     if (result.status === "Succeeded") {
                         const info = JSON.parse(result.manifest);
                         return info;
@@ -166,7 +151,7 @@ export class StreamAnalyticsManager {
                         throw new Error(result.error.message);
                     }
                 } else {
-                    throw new Error("http status code: " + jobInfoResult.statusCode);
+                    throw new Error("http status code: " + jobInfoResult.status);
                 }
             }
         } catch (error) {

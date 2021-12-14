@@ -1,8 +1,8 @@
+import axios from "axios";
 import * as bodyParser from "body-parser";
 import * as express from "express";
 import * as http from "http";
 import { AddressInfo } from "net";
-import * as request from "request-promise";
 import * as vscode from "vscode";
 import { Utility } from "../common/utility";
 
@@ -83,7 +83,7 @@ export class LocalServer {
             let items = [];
             const result = [];
             while (apiUrl != null) {
-                const modulesList = JSON.parse(await request.get(apiUrl));
+                const modulesList = (await axios.get(apiUrl)).data;
                 apiUrl = modulesList.nextPageLink;
                 items = items.concat(modulesList.items);
             }

@@ -4,7 +4,7 @@
 "use strict";
 import { ContainerRegistryManagementClient, Registries } from "@azure/arm-containerregistry";
 import { Registry, RegistryListCredentialsResult } from "@azure/arm-containerregistry/esm/models";
-import * as request from "request-promise";
+import axios from "axios";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { UserCancelledError } from "../common/UserCancelledError";
@@ -113,14 +113,10 @@ export class AcrManager {
             this.acrRefreshToken = await this.acquireAcrRefreshToken(registryUrl, session.tenantId, aadRefreshToken, aadAccessToken);
             const acrAccessToken = await this.acquireAcrAccessToken(registryUrl, "registry:catalog:*", this.acrRefreshToken);
 
-            const catalogResponse = await request.get(`https://${registryUrl}/v2/_catalog`, {
-                auth: {
-                    bearer: acrAccessToken,
-                },
-            });
+            const catalogResponse = await axios.get(`https://${registryUrl}/v2/_catalog`, { headers: { Authorization: `bearer ${acrAccessToken}` } });
 
             const repoItems: vscode.QuickPickItem[] = [];
-            const repos = JSON.parse(catalogResponse).repositories;
+            const repos = catalogResponse.data.repositories;
 
             if (!repos) {
                 const error: any = new Error("There is no repository in the registry.");
@@ -148,28 +144,39 @@ export class AcrManager {
     }
 
     private async acquireAcrRefreshToken(registryUrl: string, tenantId: string, aadRefreshToken: string, aadAccessToken: string): Promise<string> {
-        const acrRefreshTokenResponse = await request.post(`https://${registryUrl}/oauth2/exchange`, {
-            form: {
-                grant_type: "access_token_refresh_token",
-                service: registryUrl,
-                tenant: tenantId,
-                refresh_token: aadRefreshToken,
-                access_token: aadAccessToken,
-            },
+        const qs = require("qs");
+        const data = {
+            grant_type: "access_token_refresh_token",
+            service: registryUrl,
+            tenant: tenantId,
+            refresh_token: aadRefreshToken,
+            access_token: aadAccessToken,
+        };
+
+        const acrRefreshToken = await axios.post(`https://${registryUrl}/oauth2/exchange`, qs.stringify(data))
+        .then((res) => {
+            return res.data.refresh_token;
+        })
+        .catch((error) => {
+            throw error;
         });
-        return JSON.parse(acrRefreshTokenResponse).refresh_token;
+
+        return acrRefreshToken;
     }
 
     private async acquireAcrAccessToken(registryUrl: string, scope: string, acrRefreshToken: string) {
-        const acrAccessTokenResponse = await request.post(`https://${registryUrl}/oauth2/token`, {
-            form: {
+        const qs = require("qs");
+
+        const acrAccessTokenResponse = await axios.post(`https://${registryUrl}/oauth2/token`,
+            qs.stringify({
                 grant_type: "refresh_token",
                 service: registryUrl,
                 scope,
                 refresh_token: acrRefreshToken,
-            },
-        });
-        return JSON.parse(acrAccessTokenResponse).access_token;
+            }),
+        );
+
+        return acrAccessTokenResponse.data.access_token;
     }
 
     private async selectAcrTag(registryUrl: string, repo: string): Promise<vscode.QuickPickItem> {
@@ -181,14 +188,10 @@ export class AcrManager {
         try {
             const acrAccessToken = await this.acquireAcrAccessToken(registryUrl, `repository:${repo}:pull`, this.acrRefreshToken);
 
-            const tagsResponse = await request.get(`https://${registryUrl}/v2/${repo}/tags/list`, {
-                auth: {
-                    bearer: acrAccessToken,
-                },
-            });
+            const tagsResponse = await axios.get(`https://${registryUrl}/v2/${repo}/tags/list`, { headers: { Authorization: `bearer ${acrAccessToken}` } });
 
             const tagItems: vscode.QuickPickItem[] = [];
-            const tags = JSON.parse(tagsResponse).tags;
+            const tags = tagsResponse.data.tags;
             tags.map((tag) => {
                 tagItems.push({
                     label: tag,

@@ -1,4 +1,8 @@
 # Change Log
+## 1.25.4 - 2021-12-15
+### Changed
+* Replaced deprecated 'Request' with axios for http requests.
+
 ## 1.25.3 - 2021-11-30
 ### Changed
 * Added creation of CSharp Dev Container for new Solutions with a CSharp Function.

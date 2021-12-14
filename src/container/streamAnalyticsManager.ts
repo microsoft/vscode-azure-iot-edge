@@ -101,11 +101,7 @@ export class StreamAnalyticsManager {
             const curEtag = ASAInfo.ASAJobEtag;
             const subscription = await this.getJobSubscription(ASAInfo);
             const { aadAccessToken } = await Utility.acquireAadToken(subscription.session);
-            const jobInfo = await axios.get(GetASAJobApiUrl, {
-                headers: {
-                    bearer: aadAccessToken,
-                },
-            });
+            const jobInfo = await axios.get(GetASAJobApiUrl, { headers: { 'Authorization': `bearer ${aadAccessToken}` } });
 
             const latestETag = jobInfo.headers.etag;
             return latestETag !== curEtag;
@@ -125,12 +121,7 @@ export class StreamAnalyticsManager {
             const apiUrl: string = `https://management.azure.com${resourceId}/publishedgepackage?api-version=2019-06-01`;
             const { aadAccessToken } = await Utility.acquireAadToken(session);
 
-            const publishResponse = await axios.post(apiUrl, {
-                auth: {
-                    bearer: aadAccessToken,
-                },
-                resolveWithFullResponse: true,
-            });
+            const publishResponse = await axios.post(apiUrl, { headers: { 'Authorization': `bearer ${aadAccessToken}` }, resolveWithFullResponse: true });
 
             const operationResultUrl = publishResponse.headers.location;
 
@@ -138,11 +129,7 @@ export class StreamAnalyticsManager {
             while (true) {
                 await this.sleep(2000);
 
-                const jobInfoResult = await axios.get(operationResultUrl, {
-                    headers: {
-                        bearer: aadAccessToken,
-                    },
-                });
+                const jobInfoResult = await axios.get(operationResultUrl, { headers: { 'Authorization': `bearer ${aadAccessToken}` } });
 
                 if (token.isCancellationRequested) {
                     throw new UserCancelledError();

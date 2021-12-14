@@ -10,9 +10,11 @@
 const failOnErrorsPlugin = require('fail-on-errors-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
 
 /**@type {import('webpack').Configuration}*/
 const config = {
+    mode: 'development',
     target: 'node', // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
 
     entry: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
@@ -74,4 +76,29 @@ const config = {
     ]
 }
 
-module.exports = config;
+// in production mode, webpack decorates class constructor names.
+// changing constructor names causes an issue for the following logic:
+//    if type.constructor.name !== 'AbortSignal'...
+// this issue is present in the package node-fetch - version "2.6.0", which is
+// used by the package @azure/ms-rest-js - version "2.6.0".
+// the following setup works around the issue by preventing the 'optimization'
+// for the one type that is causing our issue.
+module.exports = (env, argv) => {
+    if (argv.mode === 'production') {
+        config.mode = 'production'
+        config.devtool = 'source-map'
+        config.optimization = {
+            ...(config.optimization || {}),
+            minimize: true,
+            minimizer: [
+                new TerserPlugin({
+                    terserOptions: {
+                        keep_fnames: /AbortSignal/,
+                    },
+                }),
+            ],
+        }
+    }
+
+    return config
+}

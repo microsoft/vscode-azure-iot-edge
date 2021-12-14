@@ -113,7 +113,7 @@ export class AcrManager {
             this.acrRefreshToken = await this.acquireAcrRefreshToken(registryUrl, session.tenantId, aadRefreshToken, aadAccessToken);
             const acrAccessToken = await this.acquireAcrAccessToken(registryUrl, "registry:catalog:*", this.acrRefreshToken);
 
-            const catalogResponse = await axios.get(`https://${registryUrl}/v2/_catalog`, { headers: { 'Authorization': `bearer ${acrAccessToken}` } });
+            const catalogResponse = await axios.get(`https://${registryUrl}/v2/_catalog`, { headers: { Authorization: `bearer ${acrAccessToken}` } });
 
             const repoItems: vscode.QuickPickItem[] = [];
             const repos = catalogResponse.data.repositories;
@@ -144,7 +144,7 @@ export class AcrManager {
     }
 
     private async acquireAcrRefreshToken(registryUrl: string, tenantId: string, aadRefreshToken: string, aadAccessToken: string): Promise<string> {
-        var qs = require('qs');
+        const qs = require("qs");
         const data = {
             grant_type: "access_token_refresh_token",
             service: registryUrl,
@@ -165,9 +165,9 @@ export class AcrManager {
     }
 
     private async acquireAcrAccessToken(registryUrl: string, scope: string, acrRefreshToken: string) {
-        var qs = require('qs');
+        const qs = require("qs");
 
-        const acrAccessTokenResponse = await axios.post(`https://${registryUrl}/oauth2/token`, 
+        const acrAccessTokenResponse = await axios.post(`https://${registryUrl}/oauth2/token`,
             qs.stringify({
                 grant_type: "refresh_token",
                 service: registryUrl,
@@ -188,7 +188,7 @@ export class AcrManager {
         try {
             const acrAccessToken = await this.acquireAcrAccessToken(registryUrl, `repository:${repo}:pull`, this.acrRefreshToken);
 
-            const tagsResponse = await axios.get(`https://${registryUrl}/v2/${repo}/tags/list`, { headers: { 'Authorization': `bearer ${acrAccessToken}` } });
+            const tagsResponse = await axios.get(`https://${registryUrl}/v2/${repo}/tags/list`, { headers: { Authorization: `bearer ${acrAccessToken}` } });
 
             const tagItems: vscode.QuickPickItem[] = [];
             const tags = tagsResponse.data.tags;

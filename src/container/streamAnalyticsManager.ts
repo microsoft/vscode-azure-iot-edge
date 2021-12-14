@@ -3,8 +3,8 @@
 
 import { StreamAnalyticsManagementClient, StreamingJobs } from "@azure/arm-streamanalytics";
 import { StreamingJob } from "@azure/arm-streamanalytics/esm/models";
-import * as fse from "fs-extra";
 import axios from "axios";
+import * as fse from "fs-extra";
 import * as vscode from "vscode";
 import { Constants } from "../common/constants";
 import { UserCancelledError } from "../common/UserCancelledError";
@@ -101,7 +101,7 @@ export class StreamAnalyticsManager {
             const curEtag = ASAInfo.ASAJobEtag;
             const subscription = await this.getJobSubscription(ASAInfo);
             const { aadAccessToken } = await Utility.acquireAadToken(subscription.session);
-            const jobInfo = await axios.get(GetASAJobApiUrl, { headers: { 'Authorization': `bearer ${aadAccessToken}` } });
+            const jobInfo = await axios.get(GetASAJobApiUrl, { headers: { Authorization: `bearer ${aadAccessToken}` } });
 
             const latestETag = jobInfo.headers.etag;
             return latestETag !== curEtag;
@@ -121,7 +121,7 @@ export class StreamAnalyticsManager {
             const apiUrl: string = `https://management.azure.com${resourceId}/publishedgepackage?api-version=2019-06-01`;
             const { aadAccessToken } = await Utility.acquireAadToken(session);
 
-            const publishResponse = await axios.post(apiUrl, { headers: { 'Authorization': `bearer ${aadAccessToken}` }, resolveWithFullResponse: true });
+            const publishResponse = await axios.post(apiUrl, { headers: { Authorization: `bearer ${aadAccessToken}` }, resolveWithFullResponse: true });
 
             const operationResultUrl = publishResponse.headers.location;
 
@@ -129,7 +129,7 @@ export class StreamAnalyticsManager {
             while (true) {
                 await this.sleep(2000);
 
-                const jobInfoResult = await axios.get(operationResultUrl, { headers: { 'Authorization': `bearer ${aadAccessToken}` } });
+                const jobInfoResult = await axios.get(operationResultUrl, { headers: { Authorization: `bearer ${aadAccessToken}` } });
 
                 if (token.isCancellationRequested) {
                     throw new UserCancelledError();

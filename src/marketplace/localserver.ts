@@ -1,8 +1,8 @@
+import axios from "axios";
 import * as bodyParser from "body-parser";
 import * as express from "express";
 import * as http from "http";
 import { AddressInfo } from "net";
-import axios from "axios";
 import * as vscode from "vscode";
 import { Utility } from "../common/utility";
 

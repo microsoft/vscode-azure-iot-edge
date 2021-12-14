@@ -2,11 +2,12 @@
 // Licensed under the MIT license.
 
 "use strict";
+
+import axios from "axios";
 import * as dotenv from "dotenv";
 import * as fse from "fs-extra";
 import * as os from "os";
 import * as path from "path";
-import axios from "axios";
 import * as semver from "semver";
 import * as unzipper from "unzipper";
 import * as vscode from "vscode";
@@ -292,7 +293,7 @@ export class Simulator {
         const version: string = info.version;
 
         await RetryPolicy.retry(Simulator.maxRetryTimes, Simulator.retryInterval, outputChannel, async () => {
-            const res = await axios.get(binariesZipUrl, {responseType: 'stream'});
+            const res = await axios.get(binariesZipUrl, {responseType: "stream"});
             await new Promise<void>((resolve, reject) => {
                 if (res.status === 200) {
                     res.data.pipe(unzipper.Extract({ path: Simulator.WindowsStandaloneSimulatorFolder }))

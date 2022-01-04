@@ -41,7 +41,7 @@ stages:
         tagSource: 'userSpecifiedTag'
         assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
         tag: '$(Build.SourceBranch)'
-        isPreRelease: true
+        isPreRelease: false
         addChangeLog: false
     
 #    - task: Bash@3

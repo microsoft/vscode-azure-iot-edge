@@ -12,12 +12,12 @@ stages:
       vmImage: ubuntu-latest
     steps:
     - template: vsix-package.yml
-    - script: |
-        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      displayName: 'Start xvfb'
+    #- script: |
+    #    /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    #  displayName: 'Start xvfb'
 
     - script: |
-        npm test --silent
+       xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
       displayName: 'npm test'
       
     - script: |

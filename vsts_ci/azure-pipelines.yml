@@ -24,6 +24,13 @@ stages:
         docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
       displayName: 'docker test'
 
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)/dist'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+      
+
     - task: GitHubRelease@0
       condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
       inputs:

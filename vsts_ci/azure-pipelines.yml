@@ -39,9 +39,10 @@ stages:
         action: 'create'
         target: '$(Build.SourceVersion)'
         tagSource: 'userSpecifiedTag'
-        assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
         tag: '$(Build.SourceBranch)'
-        isPreRelease: false
+        releaseNotesSource: 'inline'
+        assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
+        isPreRelease: true
         addChangeLog: false
     
 #    - task: Bash@3

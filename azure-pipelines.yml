@@ -1,0 +1,57 @@
+trigger:
+  branches:
+    include:
+    - refs/tags/v*  
+
+stages:
+- stage: vscode_azure_iot_edge
+  displayName: vscode azure iot edge
+  jobs:
+  - job: Linux
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - template: vsix-package.yml
+    - script: |
+        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      displayName: 'Start xvfb'
+
+    - script: |
+        npm test --silent
+      displayName: 'npm test'
+      
+    - script: |
+        docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
+      displayName: 'docker test'
+
+#    - task: GitHubRelease@1
+#      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+#      displayName: 'Create GitHub Release'
+#      inputs:
+#        gitHubConnection: 'vikas0212git'
+#        repositoryName: 'microsoft/vscode-azure-iot-edge'
+#        action: 'create'
+#        target: '$(Build.SourceVersion)'
+#        tagSource: 'userSpecifiedTag'
+#        tag: '$(Build.SourceBranch)'
+#        assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
+#        changeLogCompareToRelease: 'lastFullRelease'
+#        changeLogType: 'commitBased'
+
+#    - task: Bash@3
+#      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+#      displayName: 'Publish to Marketplace'
+#      inputs:
+#        targetType: 'inline'
+#        script: 'vsce publish -p $(VSCE_TOKEN) --packagePath *.vsix'
+#        workingDirectory: '$(Build.ArtifactStagingDirectory)'
+
+  - job: MacOS
+    dependsOn: []
+    pool:
+      vmImage: macOS-latest
+    steps:
+    - template: vsix-package.yml
+    - script: |
+        npm test --silent
+      displayName: 'npm test'

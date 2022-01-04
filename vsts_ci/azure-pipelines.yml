@@ -31,16 +31,16 @@ stages:
         publishLocation: 'Container'
       
 
-    - task: GitHubRelease@0
+    - task: GitHubRelease@1
       condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
       inputs:
         gitHubConnection: 'vikas0212git'
         repositoryName: '$(Build.Repository.Name)'
         action: 'create'
         target: '$(Build.SourceVersion)'
-        tagSource: 'manual'
+        tagSource: 'userSpecifiedTag'
+        assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
         tag: '$(Build.SourceBranch)'
-        releaseNotesSource: 'input'
         isPreRelease: true
         addChangeLog: false
     

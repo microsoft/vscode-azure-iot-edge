@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-if (process.env.BUILD_SOURCEBRANCH) {
+if (process.env.TAG_FLAG) {
     const ISPROD = new RegExp(process.env.ISPRODTAG).test(process.env.BUILD_SOURCEBRANCH || "");
     const packageJson = JSON.parse(fs.readFileSync("package.json"));
     if (ISPROD) {

@@ -55,7 +55,7 @@ stages:
       inputs:
         gitHubConnection: 'vikas0212git'
         repositoryName: '$(Build.Repository.Name)'
-        action: 'edit'
+        action: 'create'
         target: '$(Build.SourceVersion)'
         tagSource: 'userSpecifiedTag'
         tag: '$(Build.SourceBranch)'

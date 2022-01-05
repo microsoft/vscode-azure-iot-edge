@@ -42,6 +42,14 @@ stages:
           elif [[ $(Build.SourceBranch) =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+-rc[0-9] ]]; then
           echo ###vso[task.setvaraible variable=GITRELEASE_FLAG_RC]true
           fi
+          echo "Set release flag: $GITRELEASE_FLAG"
+          echo "Set pre-release flag: $GITRELEASE_FLAG_RC"
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Set release flag: $GITRELEASE_FLAG"
+          echo "Set pre-release flag: $GITRELEASE_FLAG_RC"
     - task: GitHubRelease@1
       condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
       inputs:

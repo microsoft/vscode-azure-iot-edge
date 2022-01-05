@@ -61,7 +61,7 @@ stages:
         tag: '$(Build.SourceBranch)'
         releaseNotesSource: 'inline'
         assets: '$(Build.SourcesDirectory)/*.vsix'
-        isPreRelease: true
+        isPreRelease: false
         addChangeLog: false
     
     - task: Bash@3

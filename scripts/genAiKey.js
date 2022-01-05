@@ -1,7 +1,7 @@
 const fs = require("fs");
 
-if (process.env.GITRELEASE_FLAG) {
-    const ISPROD = new RegExp(process.env.ISPRODTAG).test(process.env.GITRELEASE_FLAG || "");
+if (process.env.Build.SourceBranch) {
+    const ISPROD = new RegExp(process.env.ISPRODTAG).test(process.env.Build.SourceBranch || "");
     const packageJson = JSON.parse(fs.readFileSync("package.json"));
     if (ISPROD) {
         packageJson.aiKey = process.env["PROD_AIKEY"];

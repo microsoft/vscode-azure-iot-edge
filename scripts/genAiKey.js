@@ -1,7 +1,7 @@
 const fs = require("fs");
 
-if (process.env.$BUILD_SOURCEBRANCH) {
-    const ISPROD = new RegExp(process.env.ISPRODTAG).test(process.env.$BUILD_SOURCEBRANCH || "");
+if (process.env.BUILD_SOURCEBRANCH) {
+    const ISPROD = new RegExp(process.env.ISPRODTAG).test(process.env.BUILD_SOURCEBRANCH || "");
     const packageJson = JSON.parse(fs.readFileSync("package.json"));
     if (ISPROD) {
         packageJson.aiKey = process.env["PROD_AIKEY"];

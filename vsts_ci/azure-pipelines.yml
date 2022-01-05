@@ -45,13 +45,13 @@ stages:
         isPreRelease: true
         addChangeLog: false
     
-#    - task: Bash@3
-#      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-#      displayName: 'Publish to Marketplace'
-#      inputs:
-#        targetType: 'inline'
-#        script: 'vsce publish -p $(VSCE_TOKEN) --packagePath *.vsix'
-#        workingDirectory: '$(Build.ArtifactStagingDirectory)'
+    - task: Bash@3
+      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+      displayName: 'Publish to Marketplace'
+      inputs:
+        targetType: 'inline'
+        script: 'vsce publish -p $(VSCE_TOKEN) --packagePath *.vsix'
+        workingDirectory: '$(Build.ArtifactStagingDirectory)'
 
   - job: MacOS
     dependsOn: []

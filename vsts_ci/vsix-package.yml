@@ -14,5 +14,6 @@
         npm run tslint
         npm run compile
         node scripts/genAiKey.js
-        echo "y" | vsce package
+        echo "y"  
+        vsce package
       displayName: 'npm Package'

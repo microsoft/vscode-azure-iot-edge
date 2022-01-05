@@ -21,12 +21,27 @@ stages:
         docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
       displayName: 'docker test'
 
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)'
+        Contents: '*.vsix'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.SourcesDirectory)/*.vsix'
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
         publishLocation: 'Container'
-      
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo ###vso[task.setvaraible variable=ISPRODTAG]v?[0-9]+\.[0-9]+\.[0-9]+$
+          if [[ $(Build.SourceBranch) =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo ###vso[task.setvaraible variable=GITRELEASE_FLAG]true
+          elif [[ $(Build.SourceBranch) =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+-rc[0-9] ]]; then
+          echo ###vso[task.setvaraible variable=GITRELEASE_FLAG_RC]true
+          fi
     - task: GitHubRelease@1
       condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
       inputs:
@@ -41,14 +56,13 @@ stages:
         isPreRelease: false
         addChangeLog: false
     
-#    - task: Bash@3
-#      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-#      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-#      displayName: 'Publish to Marketplace'
-#      inputs:
-#        targetType: 'inline'
-#        script: 'vsce publish -p $(VSCE_TOKEN) --packagePath *.vsix'
-#        workingDirectory: '$(Build.ArtifactStagingDirectory)'
+    - task: Bash@3
+      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['GITRELEASE_FLAG'], 'true'))
+      displayName: 'Publish to Marketplace'
+      inputs:
+        targetType: 'inline'
+        script: 'vsce publish -p $(VSCE_TOKEN) --packagePath *.vsix'
+        workingDirectory: '$(Build.ArtifactStagingDirectory)'
 
   - job: MacOS
     dependsOn: []

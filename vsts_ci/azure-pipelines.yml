@@ -36,11 +36,11 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          echo "##vso[task.setvaraible variable=ISPRODTAG]v?[0-9]+\.[0-9]+\.[0-9]+$"
+          echo "##vso[task.setvariable variable=ISPRODTAG;]v?[0-9]+\.[0-9]+\.[0-9]+$"
           if [[ $(Build.SourceBranch) =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "##vso[task.setvaraible variable=GITRELEASE_FLAG]true"
+          echo "##vso[task.setvariable variable=GITRELEASE_FLAG;]true"
           elif [[ $(Build.SourceBranch) =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+-rc[0-9] ]]; then
-          echo "##vso[task.setvaraible variable=GITRELEASE_FLAG_RC]true"
+          echo "##vso[task.setvariable variable=GITRELEASE_FLAG_RC;]true"
           fi
           echo "Set release flag: $GITRELEASE_FLAG"
           echo "Set pre-release flag: $GITRELEASE_FLAG_RC"

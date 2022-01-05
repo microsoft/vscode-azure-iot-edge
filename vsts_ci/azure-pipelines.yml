@@ -37,8 +37,8 @@ stages:
         tagSource: 'userSpecifiedTag'
         tag: '$(Build.SourceBranch)'
         releaseNotesSource: 'inline'
-       # assets: '$(Build.ArtifactStagingDirectory)/*'
-        isPreRelease: true
+        assets: '$(Build.ArtifactStagingDirectory)/*'
+        isPreRelease: false
         addChangeLog: false
     
 #    - task: Bash@3

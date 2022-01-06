@@ -1,0 +1,82 @@
+trigger:
+  branches:
+    include:
+    - refs/tags/v*  
+
+stages:
+- stage: vscode_azure_iot_edge
+  displayName: vscode azure iot edge
+  jobs:
+  - job: Linux
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - template: vsix-package.yml
+
+    - script: |
+       xvfb-run --auto-servernum --server-args="-screen 0, 1024x768x24" npm test --silent
+      displayName: 'npm test'
+      
+    - script: |
+        docker run -t --rm -v $PWD:/mnt:ro dkhamsing/awesome_bot --white-list "gitter.im/Microsoft/vscode-azure-iot-edge" --allow-dupe --allow-redirect --skip-save-results `ls *.md`
+      displayName: 'docker test'
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)'
+        Contents: '*.vsix'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "##vso[task.setvariable variable=ISPRODTAG;]v?[0-9]+\.[0-9]+\.[0-9]+$"
+          if [[ $(Build.SourceBranch) =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "##vso[task.setvariable variable=GITRELEASE_FLAG;]true"
+          elif [[ $(Build.SourceBranch) =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+-rc[0-9] ]]; then
+          echo "##vso[task.setvariable variable=GITRELEASE_FLAG_RC;]true"
+          fi
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Set release flag: $GITRELEASE_FLAG"
+          echo "Set pre-release flag: $GITRELEASE_FLAG_RC"
+          
+    - task: GitHubRelease@1
+      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+      inputs:
+        gitHubConnection: 'vikas0212git'
+        repositoryName: '$(Build.Repository.Name)'
+        action: 'create'
+        target: '$(Build.SourceVersion)'
+        tagSource: 'userSpecifiedTag'
+        tag: '$(Build.SourceBranch)'
+        releaseNotesSource: 'inline'
+        assets: '$(Build.SourcesDirectory)/*.vsix'
+        isPreRelease: false
+        addChangeLog: false
+    
+    - task: Bash@3
+      condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['GITRELEASE_FLAG'], 'true'))
+      displayName: 'Publish to Marketplace'
+      inputs:
+        targetType: 'inline'
+        script: 'vsce publish -p $(VSCE_TOKEN) --packagePath *.vsix'
+        workingDirectory: '$(Build.ArtifactStagingDirectory)'
+
+  - job: MacOS
+    dependsOn: []
+    pool:
+      vmImage: macOS-latest
+    steps:
+    - template: vsix-package.yml
+    - script: |
+        npm test --silent
+      displayName: 'npm test'

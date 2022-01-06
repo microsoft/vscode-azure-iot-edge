@@ -1,0 +1,20 @@
+    steps:
+    - task: NodeTool@0
+      displayName: Install NodeJs
+      inputs:
+        versionSpec: '16.x'
+        checkLatest: true
+
+    - script: |
+        npm install
+        sudo npm install -g vsce
+      displayName: 'npm install'
+
+    - script: |
+        export PROD_AIKEY=$(PROD_AIKEY)
+        export ISPRODTAG=v?[0-9]+\.[0-9]+\.[0-9]+$
+        npm run tslint
+        npm run compile
+        node scripts/genAiKey.js
+        echo "y"  | vsce package
+      displayName: 'npm Package'

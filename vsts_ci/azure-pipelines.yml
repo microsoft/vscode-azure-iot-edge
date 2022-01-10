@@ -9,7 +9,9 @@ stages:
   jobs:
   - job: Linux
     pool:
-      vmImage: ubuntu-latest
+      name: Azure-IoT-EdgeExperience-1ES-Hosted-Linux
+      demands:
+        - ImageOverride -equals MMSUbuntu18.04TLS
     steps:
     - template: vsix-package.yml
 
@@ -27,11 +29,17 @@ stages:
         Contents: '*.vsix'
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
+    - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
+      displayName: 'SBOM Generation Task'
+      inputs:
+        BuildDropPath: '$(Build.SourcesDirectory)/dist'
+
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
         publishLocation: 'Container'
+
     - task: Bash@3
       inputs:
         targetType: 'inline'

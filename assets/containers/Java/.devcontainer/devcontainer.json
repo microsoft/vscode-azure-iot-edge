@@ -36,6 +36,8 @@
     "extensions": [
         "vscjava.vscode-java-pack",
         "ms-azuretools.vscode-docker",
+        "ms-vscode.azure-account",
+        "vsciot-vscode.vscode-iot-device-cube",
         "vsciot-vscode.azure-iot-tools"
     ],
 

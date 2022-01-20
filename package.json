@@ -584,7 +584,7 @@
     "strip-json-comments": "^2.0.1",
     "tmp": "0.0.33",
     "unzipper": "^0.10.5",
-    "vscode-extension-telemetry": "^0.4.2"
+    "@vscode/extension-telemetry": "^0.4.6"
   },
   "extensionDependencies": [
     "ms-vscode.azure-account",

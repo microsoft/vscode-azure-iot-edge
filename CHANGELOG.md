@@ -1,4 +1,8 @@
 # Change Log
+## 1.25.5 - 2022-01-20
+### Changed
+* Added dependent extensions to Dev Container definitions.
+
 ## 1.25.4 - 2021-12-15
 ### Changed
 * Replaced deprecated 'Request' with axios for http requests.

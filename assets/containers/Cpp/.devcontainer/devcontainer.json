@@ -23,6 +23,8 @@
     "extensions": [
         "ms-vscode.cpptools",
         "ms-azuretools.vscode-docker",
+        "ms-vscode.azure-account",
+        "vsciot-vscode.vscode-iot-device-cube",
         "vsciot-vscode.azure-iot-tools"
     ],
 

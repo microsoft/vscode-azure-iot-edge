@@ -1,7 +1,7 @@
 # Change Log
 ## 1.25.5 - 2022-01-20
 ### Changed
-* Added needed extensions to Dev Container definitions.
+* Added dependent extensions to Dev Container definitions.
 
 ## 1.25.4 - 2021-12-15
 ### Changed

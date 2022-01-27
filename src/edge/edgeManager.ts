@@ -998,10 +998,16 @@ export class EdgeManager {
                 containerSource = path.join(sourceContainersPath, Constants.CONTAINER_PYTHON);
                 break;
             default:
-                throw new Error("Language '" + template + "' is not supported.");
+                // if we are on path 1, we don't define a dev container since the language
+                //  choice is not known nor is it relevant.
+                vscode.window.showInformationMessage("New module for '" + template + "'");
         }
-        await fse.copy(containerSource, slnPath, { overwrite : true });
-        await fse.copy(sourceLibrayScriptsPath, path.join(slnPath, Constants.dotDevContainer, Constants.libraryScriptsFolder));
+
+        if (containerSource.length > 0)
+        {
+            await fse.copy(containerSource, slnPath, { overwrite : true });
+            await fse.copy(sourceLibrayScriptsPath, path.join(slnPath, Constants.dotDevContainer, Constants.libraryScriptsFolder));
+        }
     }
 
     private async selectDevContainerKind(label?: string, isNewSolution: boolean = false): Promise<string> {

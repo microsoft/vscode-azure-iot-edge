@@ -310,6 +310,12 @@ export class EdgeManager {
             return;
         }
 
+        const remoteExtenstion = vscode.extensions.getExtension("ms-vscode-remote.remote-containers");
+        if (remoteExtenstion === undefined) {
+            vscode.window.showInformationMessage("This feature requires the 'Remote - Container' extension be installed and active. Please see http://aka.ms/remcon for more details.");
+            return;
+        }
+
         const workspaceFolders = vscode.workspace.workspaceFolders;
         const defaultFolder: vscode.Uri | undefined = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri : undefined;
         const workspaceFolder = defaultFolder.fsPath;
@@ -348,6 +354,7 @@ export class EdgeManager {
                     description: "",
                 },
             ];
+
             const doYouWishToReload = await vscode.window.showQuickPick(reloadDontReload, { placeHolder: Constants.reloadInDevContainer, ignoreFocusOut: true });
             if (doYouWishToReload && doYouWishToReload.label === Constants.CHOICE_YES) {
                 await vscode.commands.executeCommand("remote-containers.reopenInContainer", vscode.Uri.file(workspaceFolder), false);
@@ -1003,8 +1010,7 @@ export class EdgeManager {
                 vscode.window.showInformationMessage("New module for '" + template + "'");
         }
 
-        if (containerSource.length > 0)
-        {
+        if (containerSource.length > 0) {
             await fse.copy(containerSource, slnPath, { overwrite : true });
             await fse.copy(sourceLibrayScriptsPath, path.join(slnPath, Constants.dotDevContainer, Constants.libraryScriptsFolder));
         }

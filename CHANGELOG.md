@@ -1,4 +1,8 @@
 # Change Log
+## 1.25.7 - 2022-02-04
+### Changed
+* Fixed dev container load errors when dependency list include VSCode Remote Containers extension.
+
 ## 1.25.6 - 2022-01-28
 ### Changed
 * Fixed issue with Dev Container generation for External module sources

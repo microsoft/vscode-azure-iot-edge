@@ -338,19 +338,25 @@ export class EdgeManager {
         const selection = await this.selectDevContainerKind();
         if (selection) {
             await this.generateDevContainerDirectory(selection, workspaceFolder);
-            const reloadDontReload: vscode.QuickPickItem[] = [
-                {
-                    label: Constants.CHOICE_YES,
-                    description: "",
-                },
-                {
-                    label: Constants.CHOICE_NO,
-                    description: "",
-                },
-            ];
-            const doYouWishToReload = await vscode.window.showQuickPick(reloadDontReload, { placeHolder: Constants.reloadInDevContainer, ignoreFocusOut: true });
-            if (doYouWishToReload && doYouWishToReload.label === Constants.CHOICE_YES) {
-                await vscode.commands.executeCommand("remote-containers.reopenInContainer", vscode.Uri.file(workspaceFolder), false);
+
+            const remoteExtenstion = vscode.extensions.getExtension("ms-vscode-remote.remote-containers");
+            if (remoteExtenstion === undefined) {
+                vscode.window.showInformationMessage("This feature requires the 'Remote - Container' extension be installed and active. Please see http://aka.ms/remcon for more details.");
+            } else {
+                const reloadDontReload: vscode.QuickPickItem[] = [
+                    {
+                        label: Constants.CHOICE_YES,
+                        description: "",
+                    },
+                    {
+                        label: Constants.CHOICE_NO,
+                        description: "",
+                    },
+                ];
+                const doYouWishToReload = await vscode.window.showQuickPick(reloadDontReload, { placeHolder: Constants.reloadInDevContainer, ignoreFocusOut: true });
+                if (doYouWishToReload && doYouWishToReload.label === Constants.CHOICE_YES) {
+                    await vscode.commands.executeCommand("remote-containers.reopenInContainer", vscode.Uri.file(workspaceFolder), false);
+                }
             }
         }
     }
@@ -1003,8 +1009,7 @@ export class EdgeManager {
                 vscode.window.showInformationMessage("New module for '" + template + "'");
         }
 
-        if (containerSource.length > 0)
-        {
+        if (containerSource.length > 0) {
             await fse.copy(containerSource, slnPath, { overwrite : true });
             await fse.copy(sourceLibrayScriptsPath, path.join(slnPath, Constants.dotDevContainer, Constants.libraryScriptsFolder));
         }

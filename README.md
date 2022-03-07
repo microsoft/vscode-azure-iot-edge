@@ -21,6 +21,9 @@
 
 ![Added](images/multipleplatform.gif)
 
+## What's New (v1.25.8)
+* Snap to the latest simulator version 0.14.12
+
 ## What's New (v1.25.0)
 * Generate Dev Container definition files with new Edge Solutions.
 * Ability to add Dev Container definition files to existing Edge Solutions.

@@ -1,7 +1,7 @@
 # Change Log
 ## 1.25.8 - 2022-03-08
 ### Changed
-* Fixed dev container load errors when dependency list include VSCode Remote Containers extension.
+* Snap to the latest simulator version 0.14.12
 
 ## 1.25.7 - 2022-02-04
 ### Changed

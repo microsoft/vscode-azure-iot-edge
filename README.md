@@ -21,6 +21,9 @@
 
 ![Added](images/multipleplatform.gif)
 
+## What's New (v1.25.9)
+* Snap to the latest simulator version 0.14.14
+
 ## What's New (v1.25.8)
 * Snap to the latest simulator version 0.14.12
 

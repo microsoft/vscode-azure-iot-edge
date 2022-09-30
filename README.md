@@ -2,7 +2,7 @@
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-blue.svg)](https://gitter.im/Microsoft/vscode-azure-iot-edge)
 
 ## Announcement
-The Azure IoT EdgeHub Dev Tool is in a maintenance mode. Please see [this announcement](https://github.com/microsoft/vscode-azure-iot-edge/issues/639) for more details. We recommend using the [command line steps](https://learn.microsoft.com/en-us/azure/iot-edge/how-to-vs-code-develop-module?view=iotedge-1.4&branch=pr-en-us-203829&tabs=csharp&pivots=iotedge-dev-cli) to develop edge modules over VSCode extensions.
+The Azure IoT Visual Studio Code extension is in a maintenance mode. Please see [this announcement](https://github.com/microsoft/vscode-azure-iot-edge/issues/639) for more details. We recommend using the [command line steps](https://learn.microsoft.com/en-us/azure/iot-edge/how-to-vs-code-develop-module?view=iotedge-1.4&branch=pr-en-us-203829&tabs=csharp&pivots=iotedge-dev-cli) to develop edge modules over VSCode extensions.
 
 ## Overview
 [Azure IoT Edge extension](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-edge) makes it easy to code, build, deploy, and debug your [IoT Edge](https://docs.microsoft.com/azure/iot-edge/how-iot-edge-works) solutions in Visual Studio Code, by providing a rich set of functionalities:

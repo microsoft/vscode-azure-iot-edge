@@ -176,7 +176,7 @@
 * Support setting the template versions to be used by "New IoT Edge Solution" or "Add IoT Edge Module" commands.
     * [Released CSharp module template versions](https://github.com/Azure/dotnet-template-azure-iot-edge-module/blob/master/CHANGELOG.md)
     * [Released CSharp function module template versions](https://github.com/Azure/dotnet-template-azure-iot-edge-function/blob/master/CHANGELOG.md)
-    * [Released Java module template versions](https://central.sonatype.dev/artifact/com.microsoft.azure/azure-iot-edge-archetype/1.3.0/versions)
+    * [Released Java module template versions](https://github.com/microsoft/azure-maven-archetypes/tree/develop/azure-iot-edge-archetype)
     * [Released Python module template versions](https://github.com/Azure/cookiecutter-azure-iot-edge-module/releases)
     * [Released C module template versions](https://github.com/Azure/azure-iot-edge-c-module/releases)
 

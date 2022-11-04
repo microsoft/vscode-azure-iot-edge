@@ -1,4 +1,8 @@
 # Change Log
+## 1.25.10 - 2022-11-03
+### Changed
+* Snap to the latest simulator version 0.14.18
+
 ## 1.25.9 - 2022-04-04
 ### Changed
 * Snap to the latest simulator version 0.14.14

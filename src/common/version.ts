@@ -68,7 +68,7 @@ export class Versions {
     }
 
     public static tempSensorVersion(): string {
-        return Versions.getValue(Constants.versionTempSensor, "1.0") as string;
+        return Versions.getValue(Constants.versionTempSensor, "1.4") as string;
     }
 
     public static updateSystemModuleImageVersion(templateJson: any, moduleName: string, versionMap: Map<string, string>) {

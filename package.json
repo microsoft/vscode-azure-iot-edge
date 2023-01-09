@@ -555,7 +555,7 @@
     "@types/vscode": "^1.40.0",
     "fail-on-errors-webpack-plugin": "^3.0.0",
     "glob": "^7.1.7",
-    "mocha": "^9.0.0",
+    "mocha": "^9.2.2",
     "sinon": "^11.1.2",
     "ts-loader": "^9.2.6",
     "tslint": "^5.20.1",

@@ -18,6 +18,9 @@ The Azure IoT Visual Studio Code extension is in a maintenance mode. Please see 
 
 ![Added](images/multipleplatform.gif)
 
+## What's New (v1.25.11)
+* Update default Edge runtime version to 1.4 LTS
+
 ## What's New (v1.25.10)
 * Snap to the latest simulator version 0.14.18
 

@@ -2,7 +2,7 @@
   "name": "azure-iot-edge",
   "displayName": "Azure IoT Edge",
   "description": "This extension is now a part of Azure IoT Tools extension pack. We highly recommend installing Azure IoT Tools to get full capabilities for Azure IoT development. Develop, deploy, debug, and manage your IoT Edge solution.",
-  "version": "1.25.10",
+  "version": "1.25.11",
   "publisher": "vsciot-vscode",
   "aiKey": "95b20d64-f54f-4de3-8ad5-165a75a6c6fe",
   "icon": "logo.png",
@@ -209,7 +209,7 @@
       "properties": {
         "azure-iot-edge.version.tempSensor": {
           "type": "string",
-          "default": "1.0",
+          "default": "1.4",
           "description": "Set the tempSensor image version, which will be referenced in deployment manifest."
         },
         "azure-iot-edge.version.cmodule": {
@@ -293,15 +293,13 @@
         "azure-iot-edge.version.supported.edgeRuntime": {
           "type": "array",
           "default": [
-            "1.0",
-            "1.1",
-            "1.2"
+            "1.4"
           ],
           "description": "List of supported Edge Runtime images versions"
         },
         "azure-iot-edge.version.default.edgeRuntime": {
           "type": "string",
-          "default": "1.2",
+          "default": "1.4",
           "description": "Set the edgeAgent and edgeHub images version, which will be referenced in deployment manifest."
         },
         "azure-iot-edge.3rdPartyModuleTemplates": {

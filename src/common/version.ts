@@ -14,15 +14,11 @@ export class Versions {
     public static getSchemaVersionMap(): Map<string, string> {
         // Mapping between Edge Runtime version and module schema version
         const edgeAgentSchemaVerMap: Map<string, string> = new Map([
-            ["1.0", "1.0"],
-            ["1.1", "1.1"],
-            ["1.2", "1.1"],
+            ["1.4", "1.4"],
         ]);
 
         const edgeHubSchemaVerMap: Map<string, string> = new Map([
-            ["1.0", "1.0"],
-            ["1.1", "1.1"],
-            ["1.2", "1.1"],
+            ["1.4", "1.4"],
         ]);
 
         const verMap: Map<string, string> = new Map();
@@ -72,7 +68,7 @@ export class Versions {
     }
 
     public static tempSensorVersion(): string {
-        return Versions.getValue(Constants.versionTempSensor, "1.0") as string;
+        return Versions.getValue(Constants.versionTempSensor, "1.4") as string;
     }
 
     public static updateSystemModuleImageVersion(templateJson: any, moduleName: string, versionMap: Map<string, string>) {
@@ -108,7 +104,7 @@ export class Versions {
     }
 
     private static getDefaultEdgeRuntimeVersion(): string {
-        return Versions.getValue(Constants.versionDefaultEdgeRuntime, "1.0") as string;
+        return Versions.getValue(Constants.versionDefaultEdgeRuntime, "1.4") as string;
     }
 
     private static getNewImageVersionJson(input: ImageJson, versionMap: Map<string, string>): string {

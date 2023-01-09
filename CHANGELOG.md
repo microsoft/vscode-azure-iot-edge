@@ -1,4 +1,8 @@
 # Change Log
+## 1.25.11 - 2022-12-12
+### Changed
+* Update default Edge runtime version to 1.4 LTS
+
 ## 1.25.10 - 2022-11-03
 ### Changed
 * Snap to the latest simulator version 0.14.18

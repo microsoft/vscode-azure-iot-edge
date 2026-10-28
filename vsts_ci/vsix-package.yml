@@ -2,12 +2,12 @@
     - task: NodeTool@0
       displayName: Install NodeJs
       inputs:
-        versionSpec: '16.x'
+        versionSpec: '22.x'
         checkLatest: true
 
     - script: |
         npm install
-        sudo npm install -g vsce
+        npm install -g @vscode/vsce@4.0.0
       displayName: 'npm install'
 
     - script: |

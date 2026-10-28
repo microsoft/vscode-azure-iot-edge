@@ -97,6 +97,10 @@ export class StreamAnalyticsManager {
             title: "Checking configurations update for Stream Analytics Job",
         }, async (): Promise<boolean> => {
             const ASAInfo = await this.getJobInfoFromDeploymentTemplate(templateFile, moduleName);
+            const asaJobResourceIdPattern = /^\/subscriptions\/[0-9a-f-]{36}\/resourceGroups\/[^\/?#@:\\\s%]+\/providers\/Microsoft\.StreamAnalytics\/streamingjobs\/[^\/?#@:\\\s%]+$/i;
+            if (typeof ASAInfo.ASAJobResourceId !== "string" || !asaJobResourceIdPattern.test(ASAInfo.ASAJobResourceId)) {
+                throw new Error("Invalid Stream Analytics Job resource id in module twin.");
+            }
             const GetASAJobApiUrl: string = `https://management.azure.com${ASAInfo.ASAJobResourceId}?api-version=2019-06-01`;
             const curEtag = ASAInfo.ASAJobEtag;
             const subscription = await this.getJobSubscription(ASAInfo);
